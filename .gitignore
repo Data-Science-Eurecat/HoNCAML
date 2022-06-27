@@ -1,0 +1,17 @@
+# Gitignore file
+
+# Python
+__pycache__
+
+# Virtual enviroments
+.venv
+
+# Tags
+TAGS
+
+# Folders
+data
+docs
+notebooks
+reports
+
