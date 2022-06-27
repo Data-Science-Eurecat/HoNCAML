@@ -1,0 +1,3 @@
+class Learner:
+    # TODO: parent class, create new ones e.g RandomSearch, BayesianOpt,...
+    pass
