@@ -1,6 +1,6 @@
 from src.tools import Step
 
-class Execution:
+class Pipeline:
     # TODO: typed attribute (Step)
     steps = []
 
