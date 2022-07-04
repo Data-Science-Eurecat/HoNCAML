@@ -2,8 +2,11 @@
 # This file is intended to contain specific project parameters
 
 logging:
-    formatter:
-       format: '%(asctime)s - %(message)s'
-       time_format: '%Y-%m-%d %H:%M:%S'
-    level: INFO
-    file: data/logs/{exec_name}.log
+  formatter:
+    format: '%(asctime)s - %(message)s'
+    time_format: '%Y-%m-%d %H:%M:%S'
+  level: INFO
+  file: data/logs/{exec_name}.log
+
+# Path of pipelines folder
+pipeline_folder: config/pipelines
