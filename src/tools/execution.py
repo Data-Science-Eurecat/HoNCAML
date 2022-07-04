@@ -41,7 +41,7 @@ class Execution:
         This function generates pipeline file path concatenating the pipeline
         folder and filename. In addition, at the end of the filename it adds
         'yaml' extension. Finally, this function checks if the pipeline exists.
-        If it does not exist raise a PipelineDoesNotExists exception.
+        If it does not exist raise a PipelineDoesNotExist exception.
         """
         filename = f'{self.pipeline_name}.yaml'
         self.pipeline_path = os.path.join(
@@ -49,7 +49,7 @@ class Execution:
         logger.info(f'Pipeline path {self.pipeline_path}')
 
         if not os.path.exists(self.pipeline_path):
-            raise exceptions.pipeline.PipelineDoesNotExists(filename)
+            raise exceptions.pipeline.PipelineDoesNotExist(filename)
 
     def _read_pipeline_file(self) -> Dict:
         """

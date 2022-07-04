@@ -10,3 +10,20 @@ logging:
 
 # Path of pipelines folder
 pipeline_folder: config/pipelines
+
+# Pipeline validation rules
+pipeline_rules:
+
+# Pipeline step settings (default settings for each pipeline step)
+pipeline_steps:
+  # Data Step settings
+  data:
+    library: src.data.data_step.DataStep
+
+  # Model Step settings
+  model:
+    library: src.models.model_step.ModelStep
+
+  # Benchmark Step settings
+  benchmark:
+    library: src.models.benchmark_step.BenchmarkStep

@@ -1,21 +1,17 @@
-from abc import ABC, abstractmethod
+from src.tools.step import Step
 
-
-class Step(ABC):
+class BenchmarkStep(Step):    
     def __init__(self, settings):
         pass
 
-    
-    @abstractmethod
+
     def extract(self):
         pass
 
     
-    @abstractmethod
     def transform(self):
         pass
 
 
-    @abstractmethod
     def load(self):
         pass
