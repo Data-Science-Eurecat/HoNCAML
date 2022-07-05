@@ -52,21 +52,3 @@ def validate_pipeline(pipeline_content: Dict) -> None:
     """
     # TODO: loop the steps and check the rules defined by the settings.yaml file: params['pipeline_rules']
     # Raise an exception when the rule validation fail
-
-
-def merge_settings(base_settings: Dict, user_settings: Dict,
-                   acc_key: str='') -> Dict:
-    """
-    Update the base settings with the user defined settings recursively.
-
-    Args:
-        base_settings (Dict): the library base settings.
-        user_settings (Dict): the user modified settings.
-        acc_key (str): the accumulated key path from the settings.
-    """
-    for key in user_settings:
-        if key in base_settings:
-
-            pass
-        else:
-            raise exceptions.settings.SettingsDoesNotExist(acc_key)

@@ -42,12 +42,10 @@ class Pipeline:
         for key in self.pipeline_content:
             if key in params['pipeline_steps']:
                 step_module = params['pipeline_steps'][key]['library']
-                step_settings = utils.merge_settings(
-                    params['pipeline_steps'][key], self.pipeline_content[key])
                 library = '.'.join(step_module.split('.')[:-1])
                 module = importlib.import_module(library)
                 name = step_module.split('.')[-1]
-                step = getattr(module, name)(step_settings)
+                step = getattr(module, name)(self.pipeline_content[key])
                 self.steps.append(step)
             else:
                 raise exceptions.step.StepDoesNotExist(key)
