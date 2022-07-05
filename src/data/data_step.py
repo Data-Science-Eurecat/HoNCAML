@@ -12,7 +12,6 @@ class DataStep(Step):
         user_settings (Dict): the user defined settings for the step.
     """
 
-
     def __init__(self, default_settings: Dict, user_settings: Dict) -> None:
         """
         This is a constructor method of class. This function initializes
@@ -25,7 +24,6 @@ class DataStep(Step):
         super(default_settings, user_settings)
         self._setup()
         pass
-    
 
     def _setup(self) -> None:
         """
@@ -35,14 +33,11 @@ class DataStep(Step):
         # user and default settings.
         pass
 
-
     def extract(self):
         pass
 
-    
     def transform(self):
         pass
-
 
     def load(self):
         pass

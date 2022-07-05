@@ -25,7 +25,6 @@ class ModelStep(Step):
         super(default_settings, user_settings)
         self._setup()
         pass
-    
 
     def _setup(self) -> None:
         """
@@ -35,14 +34,11 @@ class ModelStep(Step):
         # user and default settings.
         pass
 
-
     def extract(self):
         pass
 
-    
     def transform(self):
         pass
-
 
     def load(self):
         pass

@@ -24,7 +24,6 @@ class Step(ABC):
         self.default_settings = default_settings
         self.user_settings = user_settings
 
-    
     @abstractmethod
     def _setup(self) -> None:
         """
@@ -32,7 +31,6 @@ class Step(ABC):
         """
         pass
 
-    
     @abstractmethod
     def extract(self) -> None:
         """
@@ -41,7 +39,6 @@ class Step(ABC):
         """
         pass
 
-    
     @abstractmethod
     def transform(self) -> None:
         """
@@ -49,7 +46,6 @@ class Step(ABC):
         implemented by child classes.
         """
         pass
-
 
     @abstractmethod
     def load(self) -> None:

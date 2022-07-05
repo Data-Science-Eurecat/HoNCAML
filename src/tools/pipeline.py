@@ -32,7 +32,6 @@ class Pipeline:
         logger.debug(f'Pipeline content {pipeline_content}')
         self._setup_pipeline()
 
-    
     def _setup_pipeline(self):
         """
         This function builds the pipeline structure. Using the user defined
