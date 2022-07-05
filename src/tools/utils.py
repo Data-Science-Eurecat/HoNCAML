@@ -1,3 +1,5 @@
+from src import exceptions
+from typing import Dict
 import datetime
 import uuid
 
@@ -38,3 +40,15 @@ def generate_unique_id(adding_uuid: bool = False) -> str:
         unique_id = f'{unique_id}_{uuid.uuid4()}'
 
     return unique_id
+
+
+def validate_pipeline(pipeline_content: Dict) -> None:
+    """
+    Validate the pipeline steps based on the rules defined to prevent invalid
+    executions.
+
+    Args:
+        pipeline_content (Dict): the settings defining the pipeline steps.
+    """
+    # TODO: loop the steps and check the rules defined by the settings.yaml file: params['pipeline_rules']
+    # Raise an exception when the rule validation fail
