@@ -23,7 +23,7 @@ class BenchmarkStep(Step):
             default_settings (Dict): the default settings for the step.
             user_settings (Dict): the user defined settings for the step.
         """
-        super(default_settings, user_settings)
+        super().__init__(default_settings, user_settings)
         self._setup()
         pass
 

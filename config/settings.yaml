@@ -20,8 +20,16 @@ pipeline_steps:
   data:
     library: src.data.data_step.DataStep
     extract:
+      path: data/raw
+      data:
+        - dataset.csv
+
     transform:
+
     load:
+      path: data/processed
+      data:
+        - dataset.csv
 
   # Model Step settings
   model:

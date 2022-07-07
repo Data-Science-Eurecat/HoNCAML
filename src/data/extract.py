@@ -18,3 +18,20 @@ def read_yaml(file_path: str) -> Dict:
         params = yaml.safe_load(file)
 
     return params
+
+
+def read_data(settings: Dict) -> Dict:
+    """
+    Read data from disk using specified settings.
+
+    Args:
+        settings (Dict): Params used for input data extraction.
+
+    Returns:
+        data (Dict): datasets for each specified data type in settings
+    """
+    data = {}
+    data_types = settings['data']
+    for data_type, type_filename in data_types.items():
+        data[data_type] = load_datatype(settings['path'], type_filename)
+    return data
