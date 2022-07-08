@@ -1,4 +1,3 @@
-from src.tools.step import Step
 from src.tools.startup import logger, params
 from src.tools import utils
 from src import exceptions

@@ -35,11 +35,8 @@ class BenchmarkStep(Step):
         # user and default settings.
         pass
 
-    def extract(self):
-        pass
-
-    def transform(self):
-        pass
-
-    def load(self):
+    def run(self) -> None:
+        """
+        TODO
+        """
         pass

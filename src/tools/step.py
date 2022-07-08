@@ -32,25 +32,8 @@ class Step(ABC):
         pass
 
     @abstractmethod
-    def extract(self) -> None:
+    def run(self) -> None:
         """
-        The extract function from the ETL process. This function must be
-        implemented by child classes.
-        """
-        pass
-
-    @abstractmethod
-    def transform(self) -> None:
-        """
-        The transform function from the ETL process. This function must be
-        implemented by child classes.
-        """
-        pass
-
-    @abstractmethod
-    def load(self) -> None:
-        """
-        The load function from the ETL process. This function must be
-        implemented by child classes.
+        This function runs the current step.
         """
         pass

@@ -33,26 +33,17 @@ class DataStep(Step):
         """
         action_settings = {}
         for task in self.user_settings:
-            action_settings[task] = utils.merge_settings(
-                self.default_settings[task], self.user_settings[task])
+            if task != 'library':
+                action_settings[task] = utils.merge_settings(
+                    self.default_settings[task], self.user_settings[task])
         # TODO: identify the dataset type. Assuming TabularDataset for now.
         self.dataset = TabularDataset(action_settings)
 
-    def extract(self):
+    def run(self) -> None:
         """
-        ETL data extract consisting in reading the dataset.
+        Run the data step. Using the dataset created run the ETL functions for
+        the specific dataset: extract, transform and load.
         """
         self.dataset.extract()
-
-    def transform(self):
-        """
-        ETL data transform consisting in applying transformations to the data,
-        data processing.
-        """
         self.dataset.transform()
-
-    def load(self):
-        """
-        ETL data load consisting in saving the dataset.
-        """
         self.dataset.load()

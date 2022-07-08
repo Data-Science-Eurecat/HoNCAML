@@ -1,5 +1,6 @@
-from typing import Dict
-
+from typing import Dict, Tuple
+import pandas as pd
+import os
 import yaml
 
 
@@ -20,7 +21,7 @@ def read_yaml(file_path: str) -> Dict:
     return params
 
 
-def read_data(settings: Dict) -> Dict:
+def read_data(settings: Dict) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
     Read data from disk using specified settings.
 
@@ -28,10 +29,17 @@ def read_data(settings: Dict) -> Dict:
         settings (Dict): Params used for input data extraction.
 
     Returns:
-        data (Dict): datasets for each specified data type in settings
+        dataset, target (Tuple[pd.DataFrame, pd.DataFrame]): the dataset and
+        the target column.
     """
-    data = {}
-    data_types = settings['data']
-    for data_type, type_filename in data_types.items():
-        data[data_type] = load_datatype(settings['path'], type_filename)
-    return data
+    filepath = os.path.join(settings['path'], settings['data'])
+    extension = settings['data'].split('.')[-1].lower()
+    if extension == 'csv':
+        df_datatype = pd.read_csv(filepath)
+    elif extension in ['xlsx', 'xls']:
+        df_datatype = pd.read_excel(filepath)
+    else:
+        raise Exception(f'File extension {extension} not recognized')
+    dataset = df_datatype.drop(settings['target'], axis=1)
+    target = df_datatype[[settings['target']]]
+    return dataset, target
