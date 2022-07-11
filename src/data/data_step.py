@@ -1,4 +1,6 @@
+from data.tabular_dataset import TabularDataset
 from src.tools.step import Step
+from src.tools import utils
 from typing import Dict
 
 
@@ -10,6 +12,7 @@ class DataStep(Step):
     Attributes:
         default_settings (Dict): the default settings for the step.
         user_settings (Dict): the user defined settings for the step.
+        dataset (data.Dataset): the dataset to be handled.
     """
 
     def __init__(self, default_settings: Dict, user_settings: Dict) -> None:
@@ -21,23 +24,26 @@ class DataStep(Step):
             default_settings (Dict): the default settings for the step.
             user_settings (Dict): the user defined settings for the step.
         """
-        super(default_settings, user_settings)
+        super().__init__(default_settings, user_settings)
         self._setup()
-        pass
 
     def _setup(self) -> None:
         """
         The function to setup the specific data step.
         """
-        # TODO: setup the operations to read, transform and load based on the
-        # user and default settings.
-        pass
+        action_settings = {}
+        for task in self.user_settings:
+            if task != 'library':
+                action_settings[task] = utils.merge_settings(
+                    self.default_settings[task], self.user_settings[task])
+        # TODO: identify the dataset type. Assuming TabularDataset for now.
+        self.dataset = TabularDataset(action_settings)
 
-    def extract(self):
-        pass
-
-    def transform(self):
-        pass
-
-    def load(self):
-        pass
+    def run(self) -> None:
+        """
+        Run the data step. Using the dataset created run the ETL functions for
+        the specific dataset: extract, transform and load.
+        """
+        self.dataset.extract()
+        self.dataset.transform()
+        self.dataset.load()

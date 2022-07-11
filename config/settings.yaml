@@ -20,14 +20,24 @@ pipeline_steps:
   data:
     library: src.data.data_step.DataStep
     extract:
+      path: data/raw
+      data: dataset.csv
+      target: target
+
     transform:
+      
     load:
+      path: data/processed
+      data: dataset.csv
 
   # Model Step settings
   model:
     library: src.models.model_step.ModelStep
     extract:
     transform:
+      train:
+      predict:
+      evaluate:
     load:
 
   # Benchmark Step settings
