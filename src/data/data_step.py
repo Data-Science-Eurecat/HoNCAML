@@ -39,11 +39,21 @@ class DataStep(Step):
         # TODO: identify the dataset type. Assuming TabularDataset for now.
         self.dataset = TabularDataset(action_settings)
 
-    def run(self) -> None:
+    def run(self, objects: Dict) -> Dict:
         """
         Run the data step. Using the dataset created run the ETL functions for
         the specific dataset: extract, transform and load.
+
+        Args:
+            objects (Dict): the objects output from each different previous
+                step.
+
+        Returns:
+            objects (Dict): the previous objects updated with the ones from
+                the current step: the dataset.
         """
         self.dataset.extract()
         self.dataset.transform()
         self.dataset.load()
+        objects.update({'dataset': self.dataset})
+        return objects

@@ -32,8 +32,16 @@ class Step(ABC):
         pass
 
     @abstractmethod
-    def run(self) -> None:
+    def run(self, objects: Dict) -> Dict:
         """
         This function runs the current step.
+
+        Args:
+            objects (Dict): the objects output from each different previous
+                step.
+
+        Returns:
+            objects (Dict): the previous objects updated with the ones from
+                the current step.
         """
         pass

@@ -35,8 +35,9 @@ class BenchmarkStep(Step):
         # user and default settings.
         pass
 
-    def run(self) -> None:
+    def run(self, objects: Dict) -> Dict:
         """
         TODO
         """
-        pass
+        objects.update({'model': {}})
+        return objects

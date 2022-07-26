@@ -12,6 +12,7 @@ class Pipeline:
 
     Attributes:
         steps (List[step.Step]): the steps defining the pipeline.
+        objects (Dict): the objects output from each step.
         pipeline_content (Dict): the settings defining the pipeline steps.
         execution_id (str): the execution identifier.
     """
@@ -28,6 +29,7 @@ class Pipeline:
         self.pipeline_content = pipeline_content
         self.execution_id = execution_id
         self.steps = []
+        self.objects = {}
         logger.debug(f'Pipeline content {pipeline_content}')
         self._setup_pipeline()
 
@@ -50,4 +52,5 @@ class Pipeline:
                 raise exceptions.step.StepDoesNotExist(key)
 
     def run(self):
-        raise NotImplementedError('This function is not implemented.')
+        for step in self.steps:
+            self.objects = step.run(self.objects)
