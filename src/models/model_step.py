@@ -1,5 +1,7 @@
+from models.regressor_model import RegressorModel
 from src.tools.step import Step
 from typing import Dict
+from src.tools import utils
 
 
 class ModelStep(Step):
@@ -24,18 +26,34 @@ class ModelStep(Step):
         """
         super().__init__(default_settings, user_settings)
         self._setup()
-        pass
 
     def _setup(self) -> None:
         """
         The function to setup the specific model step.
         """
-        # TODO: setup the operations to read, transform and load based on the
-        # user and default settings.
-        pass
+        action_settings = {}
+        for task in self.user_settings:
+            action_settings[task] = utils.merge_settings(
+                self.default_settings['phases'][task],
+                self.user_settings[task])
+        # TODO: identify the model type. Assuming RegressorModel for now.
+        self.model = RegressorModel(action_settings)
 
-    def run(self) -> None:
+    def run(self, objects: Dict) -> None:
         """
-        TODO
+        Run the model step. Using the model created run the ETL functions for
+        the specific model: extract, transform and load.
+
+        Args:
+            objects (Dict): the objects output from each different previous
+                step.
+
+        Returns:
+            objects (Dict): the previous objects updated with the ones from
+                the current step: ?.
         """
-        pass
+        self.model.extract()
+        self.model.transform()
+        self.model.load()
+        objects.update({})
+        return objects
