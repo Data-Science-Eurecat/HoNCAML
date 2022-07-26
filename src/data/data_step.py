@@ -33,9 +33,9 @@ class DataStep(Step):
         """
         action_settings = {}
         for task in self.user_settings:
-            if task != 'library':
-                action_settings[task] = utils.merge_settings(
-                    self.default_settings[task], self.user_settings[task])
+            action_settings[task] = utils.merge_settings(
+                self.default_settings['phases'][task],
+                self.user_settings[task])
         # TODO: identify the dataset type. Assuming TabularDataset for now.
         self.dataset = TabularDataset(action_settings)
 

@@ -19,30 +19,43 @@ pipeline_steps:
   # Data Step settings
   data:
     library: src.data.data_step.DataStep
-    extract:
-      path: data/raw
-      data: dataset.csv
-      target: target
+    phases:
+      extract:
+        path: data/raw
+        data: dataset.csv
+        target: target
 
-    transform:
-      
-    load:
-      path: data/processed
-      data: dataset.csv
+      transform:
+        
+      load:
+        path: data/processed
+        data: dataset.csv
 
   # Model Step settings
   model:
     library: src.models.model_step.ModelStep
-    extract:
-    transform:
-      train:
-      predict:
-      evaluate:
-    load:
+    phases:
+      extract:
+        path: models/
+        file: model.sav
+
+      transform:
+        train:
+        #predict:
+        evaluate:
+
+      load:
+        path: models/
+        file: model.sav
 
   # Benchmark Step settings
   benchmark:
     library: src.models.benchmark_step.BenchmarkStep
-    extract:
-    transform:
-    load:
+    phases:
+      extract:
+      transform:
+      load:
+
+# Available models settings
+models:
+  # List the models with their available hyperparameters to tune with their limits.

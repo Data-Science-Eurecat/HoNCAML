@@ -2,6 +2,7 @@ from src.data.dataset import Dataset
 from src.data import extract as extract_data
 from src.data import transform as transform_data
 from src.data import load as load_data
+from typing import Dict
 
 
 class TabularDataset(Dataset):
@@ -16,7 +17,7 @@ class TabularDataset(Dataset):
         target (str): the dataset target column.
     """
 
-    def __init__(self, action_settings) -> None:
+    def __init__(self, action_settings: Dict) -> None:
         """
         This is a constructor method of class. This function initializes
         the parameters for this specific dataset.
@@ -34,19 +35,24 @@ class TabularDataset(Dataset):
         ETL data extract. Reads data from a file that encodes the data as
         tables (e.g. excel, csv).
         """
-        self.dataset, self.target = extract_data.read_data(
-            self.action_settings['extract'])
+        extract_settings = self.action_settings.get('extract')
+        if extract_settings is not None:
+            self.dataset, self.target = extract_data.read_data(
+                extract_settings)
 
     def transform(self):
         """
-        ETL data transform. This function must be implemented by child classes.
+        ETL data transform. Apply the transformations requested to the data.
         """
-        self.dataset, self.target = transform_data.process_data(
-            self.dataset, self.target, self.action_settings['transform'])
+        transform_settings = self.action_settings.get('transform')
+        if transform_settings is not None:
+            self.dataset, self.target = transform_data.process_data(
+                self.dataset, self.target, transform_settings)
 
     def load(self):
         """
-        ETL data load. This function must be implemented by child classes.
+        ETL data load. Save the dataset into disk.
         """
-        load_data.save_data(self.dataset, self.target,
-                            self.action_settings['load'])
+        load_settings = self.action_settings.get('load')
+        if load_settings is not None:
+            load_data.save_data(self.dataset, self.target, load_settings)
