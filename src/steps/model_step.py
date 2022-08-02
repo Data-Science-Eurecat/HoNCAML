@@ -1,7 +1,8 @@
 from models.regressor_model import RegressorModel
-from src.tools.step import Step
-from typing import Dict
+from src.steps.step import Step, StepProcesses
 from src.tools import utils
+from src.data import extract
+from typing import Dict
 
 
 class ModelStep(Step):
@@ -25,19 +26,24 @@ class ModelStep(Step):
             user_settings (Dict): the user defined settings for the step.
         """
         super().__init__(default_settings, user_settings)
-        self._setup()
 
-    def _setup(self) -> None:
-        """
-        The function to setup the specific model step.
-        """
-        action_settings = {}
-        for task in self.user_settings:
-            action_settings[task] = utils.merge_settings(
-                self.default_settings['phases'][task],
-                self.user_settings[task])
         # TODO: identify the model type. Assuming RegressorModel for now.
-        self.model = RegressorModel(action_settings)
+        self.model = RegressorModel()
+
+    def _merge_settings(default_settings: Dict, user_settings: Dict) -> Dict:
+        step_settings = utils.merge_settings(default_settings, user_settings)
+        return step_settings
+
+    def extract(self):
+        self.model.read(self.extract_settings)
+
+    def transform(self):
+        # TODO: Train or cross-validate
+        # self.model.preprocess(self.transform_settings)
+        pass
+
+    def load(self):
+        self.model.save(self.load_settings)
 
     def run(self, objects: Dict) -> None:
         """
@@ -52,8 +58,7 @@ class ModelStep(Step):
             objects (Dict): the previous objects updated with the ones from
                 the current step: ?.
         """
-        self.model.extract()
-        self.model.transform()
-        self.model.load()
-        objects.update({})
+        # Feed the model with the objects
+        super().run()
+        # objects.update({})
         return objects

@@ -1,7 +1,30 @@
 from src import exceptions
-from typing import Dict
+from typing import Dict, Callable
 import datetime
 import uuid
+import importlib
+
+
+def import_library(module: str, params: Dict) -> Callable:
+    """
+    Given a module name and dict params, this function imports the module and
+    creates a new callable with specific parameters.
+
+    Args:
+        module (str): module name.
+        params (Dict): dict that contains params.
+
+    Returns:
+        callable of imported module with parameters.
+    """
+    library = '.'.join(module.split('.')[:-1])
+    imported_module = importlib.import_module(library)
+    name = module.split('.')[-1]
+
+    if params is None:
+        params = dict()
+
+    return getattr(imported_module, name)(**params)
 
 
 def ensure_input_list(obj: object) -> list:

@@ -1,8 +1,9 @@
 from src.data.dataset import Dataset
-from src.data import extract as extract_data
-from src.data import transform as transform_data
-from src.data import load as load_data
+from src.data import extract
+from src.data import transform
+from src.data import load
 from typing import Dict
+import pandas as pd
 
 
 class TabularDataset(Dataset):
@@ -14,45 +15,36 @@ class TabularDataset(Dataset):
         action_settings (Dict): the parameters that define each action from 
         the ETL process.
         dataset (pd.DataFrame): the dataframe read from the tabular file data.
-        target (str): the dataset target column.
+        target (pd.DataFrame): the dataset target column.
     """
 
-    def __init__(self, action_settings: Dict) -> None:
+    def __init__(self) -> None:
         """
         This is a constructor method of class. This function initializes
         the parameters for this specific dataset.
-
-        Args:
-            action_settings (Dict): the parameters that define each action 
-            from the ETL process.
         """
-        super().__init__(action_settings)
         self.dataset = None
         self.target = None
 
-    def extract(self):
+    def read(self, settings: Dict):
         """
         ETL data extract. Reads data from a file that encodes the data as
         tables (e.g. excel, csv).
         """
-        extract_settings = self.action_settings.get('extract')
-        if extract_settings is not None:
-            self.dataset, self.target = extract_data.read_data(
-                extract_settings)
+        dataset = extract.read_dataframe(settings)
+        self.dataset = dataset.drop(settings['target'], axis=1)
+        self.target = dataset[[settings['target']]]
 
-    def transform(self):
+    def preprocess(self, settings: Dict):
         """
         ETL data transform. Apply the transformations requested to the data.
         """
-        transform_settings = self.action_settings.get('transform')
-        if transform_settings is not None:
-            self.dataset, self.target = transform_data.process_data(
-                self.dataset, self.target, transform_settings)
+        self.dataset, self.target = transform.process_data(
+            self.dataset, self.target, settings)
 
-    def load(self):
+    def save(self, settings: Dict):
         """
         ETL data load. Save the dataset into disk.
         """
-        load_settings = self.action_settings.get('load')
-        if load_settings is not None:
-            load_data.save_data(self.dataset, self.target, load_settings)
+        dataset = pd.concat((self.dataset, self.target), axis=1)
+        load.save_dataframe(dataset, settings)

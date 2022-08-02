@@ -41,12 +41,10 @@ class Pipeline:
         utils.validate_pipeline(self.pipeline_content)
         for key in self.pipeline_content:
             if key in params['pipeline_steps']:
-                step_module = params['pipeline_steps'][key]['library']
-                library = '.'.join(step_module.split('.')[:-1])
-                module = importlib.import_module(library)
-                name = step_module.split('.')[-1]
-                step = getattr(module, name)(
-                    params['pipeline_steps'][key], self.pipeline_content[key])
+                step = utils.import_library(
+                    params['pipeline_steps'][key]['library'],
+                    {'default_settings': params['pipeline_steps'][key]['processes'],
+                     'user_settings': self.pipeline_content[key]})
                 self.steps.append(step)
             else:
                 raise exceptions.step.StepDoesNotExist(key)

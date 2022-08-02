@@ -18,8 +18,8 @@ pipeline_rules:
 pipeline_steps:
   # Data Step settings
   data:
-    library: src.data.data_step.DataStep
-    phases:
+    library: src.steps.data_step.DataStep
+    processes:
       extract:
         path: data/raw
         data: dataset.csv
@@ -33,16 +33,17 @@ pipeline_steps:
 
   # Model Step settings
   model:
-    library: src.models.model_step.ModelStep
-    phases:
+    library: src.steps.model_step.ModelStep
+    processes:
       extract:
         path: models/
         file: model.sav
 
       transform:
         train:
+        cross_validate:
         #predict:
-        evaluate:
+        #evaluate:
 
       load:
         path: models/
@@ -50,8 +51,8 @@ pipeline_steps:
 
   # Benchmark Step settings
   benchmark:
-    library: src.models.benchmark_step.BenchmarkStep
-    phases:
+    library: src.steps.benchmark_step.BenchmarkStep
+    processes:
       extract:
       transform:
       load:

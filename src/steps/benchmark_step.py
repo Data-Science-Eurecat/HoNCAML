@@ -1,4 +1,5 @@
-from src.tools.step import Step
+from src.steps.step import Step
+from src.tools import utils
 from typing import Dict
 
 
@@ -24,20 +25,27 @@ class BenchmarkStep(Step):
             user_settings (Dict): the user defined settings for the step.
         """
         super().__init__(default_settings, user_settings)
-        self._setup()
+
+        # TODO: identify optimizer type (bayesian, random, ...)
+        self.optimizer = None
+
+    def _merge_settings(default_settings: Dict, user_settings: Dict) -> Dict:
+        step_settings = utils.merge_settings(default_settings, user_settings)
+        return step_settings
+
+    def extract(self):
         pass
 
-    def _setup(self) -> None:
-        """
-        The function to setup the specific benchmark step.
-        """
-        # TODO: setup the operations to read, transform and load based on the
-        # user and default settings.
+    def transform(self):
+        pass
+
+    def load(self):
         pass
 
     def run(self, objects: Dict) -> Dict:
         """
         TODO
         """
+        super().run()
         objects.update({'model': {}})
         return objects

@@ -2,7 +2,7 @@ import os
 from typing import Dict
 
 from src import exceptions
-from src.data import extract as extract_data
+from src.data import extract
 from src.tools import pipeline, utils
 from src.tools.startup import logger, params
 
@@ -58,7 +58,7 @@ class Execution:
         Returns:
             pipeline content as dict
         """
-        return extract_data.read_yaml(self.pipeline_path)
+        return extract.read_yaml(self.pipeline_path)
 
     def _parse_pipeline(self) -> Dict:
         """
