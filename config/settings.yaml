@@ -34,6 +34,9 @@ pipeline_steps:
   # Model Step settings
   model:
     library: src.steps.model_step.ModelStep
+    model_config:
+      library:
+      hyperparameters:
     processes:
       extract:
         path: models/

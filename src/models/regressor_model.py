@@ -2,6 +2,7 @@ from src.models.model import Model
 from src.data import extract
 from src.data import load
 from src.tools import utils
+from models import general
 from typing import Dict
 
 
@@ -20,7 +21,7 @@ class RegressorModel(Model):
         This is a constructor method of class. This function initializes
         the parameters for this specific model.
         """
-        self.model = None
+        super().__init__()
 
     def read(self, settings: Dict):
         """
@@ -33,12 +34,35 @@ class RegressorModel(Model):
             settings['library'], settings['hyperparameters'])
 
     def train(self, settings: Dict) -> None:
-        if self.model is None:
-            self.model.build_model(objects['model'])
-        pass
+        X, y = self.dataset.get_data()
+        X = X[[settings['features']]]
+        self.model.fit(X, y)
 
-    def cross_validate(self, settings: Dict) -> None:
-        pass
+    def cross_validate(self, settings: Dict) -> Dict:
+        cv_results = []
+        for fold in settings['cv_folds']:
+            X_train, X_test, y_train, y_test = self.dataset.train_test_split(
+                settings['validation_split'], fold)
+            # TODO: reset model
+            self.model.fit(X_train, y_train)
+            y_pred = self.model.predict(X_test)
+            cv_results.append(general.compute_metrics(
+                y_test, y_pred, settings['metrics']))
+        results = general.aggregate_cv_results(cv_results)
+        results = dict(zip(settings['metrics'], results))
+        return results
+
+    def evaluate(self, settings: Dict) -> Dict:
+        X, y = self.dataset.get_data()
+        y_pred = self.model.predict(X)
+        results = general.compute_metrics(y, y_pred, settings['metrics'])
+        results = dict(zip(settings['metrics'], results))
+        return results
+
+    def predict(self, settings: Dict):
+        X, y = self.dataset.get_data()
+        y_pred = self.model.predict(X)
+        return y_pred
 
     def save(self, settings: Dict) -> None:
         """

@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import Dict
+from typing import Dict, Tuple
+import pandas as pd
 
 
 class Dataset(ABC):
@@ -38,4 +39,13 @@ class Dataset(ABC):
         """
         ETL data load. This function must be implemented by child classes.
         """
+        pass
+
+    @abstractmethod
+    def get_data(self) -> Tuple(pd.DataFrame, pd.DataFrame):
+        pass
+
+    @abstractmethod
+    def train_test_split(self, validation_split: float, seed: int)\
+            -> Tuple(pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame):
         pass

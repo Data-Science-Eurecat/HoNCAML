@@ -5,6 +5,13 @@ from src.data import extract
 from typing import Dict
 
 
+class ModelActions:
+    train = 'train'
+    cross_validate = 'cross_validate'
+    evaluate = 'evaluate'
+    predict = 'predict'
+
+
 class ModelStep(Step):
     """
     The Model step class is an step of the main pipeline. The step performs
@@ -26,6 +33,8 @@ class ModelStep(Step):
             user_settings (Dict): the user defined settings for the step.
         """
         super().__init__(default_settings, user_settings)
+        # TODO: get the model config from one of the settings
+        self.model_config = self.step_settings.get('model_config', None)
 
         # TODO: identify the model type. Assuming RegressorModel for now.
         self.model = RegressorModel()
@@ -38,9 +47,15 @@ class ModelStep(Step):
         self.model.read(self.extract_settings)
 
     def transform(self):
-        # TODO: Train or cross-validate
-        # self.model.preprocess(self.transform_settings)
-        pass
+        if ModelActions.train in self.transform_settings:
+            self.model.train(self.transform_settings['train'])
+        if ModelActions.cross_validate in self.transform_settings:
+            self.model.cross_validate(
+                self.transform_settings['cross_validate'])
+        if ModelActions.evaluate in self.transform_settings:
+            self.model.evaluate(self.transform_settings['evaluate'])
+        if ModelActions.predict in self.transform_settings:
+            self.model.predict(self.transform_settings['predict'])
 
     def load(self):
         self.model.save(self.load_settings)
@@ -59,6 +74,12 @@ class ModelStep(Step):
                 the current step: ?.
         """
         # Feed the model with the objects
+        self.model.dataset = objects['dataset']
+        if self.model_config is not None:
+            model_config = self.model_config
+        else:
+            model_config = objects['model_config']
+        self.model.build_model(model_config)
         super().run()
-        # objects.update({})
+        objects.update({'model': self.model})
         return objects

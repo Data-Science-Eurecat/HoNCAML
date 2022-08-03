@@ -10,9 +10,9 @@ class Model(ABC):
 
     """
 
-    @abstractmethod
-    def __init__():
-        pass
+    def __init__(self):
+        self.dataset = None
+        self.model = None
 
     @abstractmethod
     def read(self, settings: Dict):
@@ -33,7 +33,21 @@ class Model(ABC):
         pass
 
     @abstractmethod
+    def cross_validate(self, settings: Dict):
+        """
+        ETL model transform. This function must be implemented by child classes.
+        """
+        pass
+
+    @abstractmethod
     def evaluate(self, settings: Dict):
+        """
+        ETL model transform. This function must be implemented by child classes.
+        """
+        pass
+
+    @abstractmethod
+    def predict(self, settings: Dict):
         """
         ETL model transform. This function must be implemented by child classes.
         """

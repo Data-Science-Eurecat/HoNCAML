@@ -47,5 +47,6 @@ class BenchmarkStep(Step):
         TODO
         """
         super().run()
-        objects.update({'model': {}})
+        objects.update(
+            {'model_config': {'library': '', 'hyperparameters': ''}})
         return objects
