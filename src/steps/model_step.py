@@ -79,7 +79,7 @@ class ModelStep(Step):
             model_config = self.model_config
         else:
             model_config = objects['model_config']
-        self.model.build_model(model_config)
+        self.model_config = model_config
         super().run()
         objects.update({'model': self.model})
         return objects

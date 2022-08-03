@@ -12,6 +12,7 @@ class Model(ABC):
 
     def __init__(self):
         self.dataset = None
+        self.model_config = None
         self.model = None
 
     @abstractmethod
@@ -22,7 +23,7 @@ class Model(ABC):
         pass
 
     @abstractmethod
-    def build_model(self, settings: Dict):
+    def build_model(self):
         pass
 
     @abstractmethod

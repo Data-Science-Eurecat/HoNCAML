@@ -2,8 +2,9 @@ from src.data.dataset import Dataset
 from src.data import extract
 from src.data import transform
 from src.data import load
-from typing import Dict
+from typing import Dict, Tuple, List
 import pandas as pd
+from sklearn import model_selection
 
 
 class TabularDataset(Dataset):
@@ -48,3 +49,13 @@ class TabularDataset(Dataset):
         """
         dataset = pd.concat((self.dataset, self.target), axis=1)
         load.save_dataframe(dataset, settings)
+
+    def get_data(self, features: List[str]) -> Tuple(pd.DataFrame, pd.DataFrame):
+        return self.dataset[[features]].values, self.target.values
+
+    def train_test_split(self, features, test_size: float, seed: int)\
+            -> Tuple(pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame):
+        X_train, X_test, y_train, y_test = model_selection.train_test_split(
+            self.dataset[[features]].values, self.target.values,
+            test_size=test_size, random_state=seed)
+        return X_train, X_test, y_train, y_test

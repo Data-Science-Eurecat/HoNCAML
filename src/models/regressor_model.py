@@ -29,38 +29,38 @@ class RegressorModel(Model):
         """
         self.model = extract.read_model(settings)
 
-    def build_model(self, settings: Dict):
+    def build_model(self):
         self.model = utils.import_library(
-            settings['library'], settings['hyperparameters'])
+            self.model_config['library'], self.model_config['hyperparameters'])
 
     def train(self, settings: Dict) -> None:
-        X, y = self.dataset.get_data()
-        X = X[[settings['features']]]
+        X, y = self.dataset.get_data(settings['features'])
+        self.model.build_model()
         self.model.fit(X, y)
 
     def cross_validate(self, settings: Dict) -> Dict:
         cv_results = []
         for fold in settings['cv_folds']:
             X_train, X_test, y_train, y_test = self.dataset.train_test_split(
-                settings['validation_split'], fold)
-            # TODO: reset model
+                settings['features'], settings['test_size'], fold)
+            self.model.build_model()
             self.model.fit(X_train, y_train)
             y_pred = self.model.predict(X_test)
             cv_results.append(general.compute_metrics(
                 y_test, y_pred, settings['metrics']))
         results = general.aggregate_cv_results(cv_results)
-        results = dict(zip(settings['metrics'], results))
         return results
 
     def evaluate(self, settings: Dict) -> Dict:
-        X, y = self.dataset.get_data()
+        X, y = self.dataset.get_data(settings['features'])
+        self.model.build_model()
         y_pred = self.model.predict(X)
         results = general.compute_metrics(y, y_pred, settings['metrics'])
-        results = dict(zip(settings['metrics'], results))
         return results
 
     def predict(self, settings: Dict):
-        X, y = self.dataset.get_data()
+        X, y = self.dataset.get_data(settings['features'])
+        self.model.build_model()
         y_pred = self.model.predict(X)
         return y_pred
 
