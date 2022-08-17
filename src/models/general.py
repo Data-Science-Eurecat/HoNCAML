@@ -1,7 +1,11 @@
-from typing import Dict, List
 import numpy as np
 import pandas as pd
+import sklearn.metrics as sk_metrics
+from typing import Dict, List, Union
+
 from src.tools import utils
+
+Number = Union[float, int, str]
 
 
 class Metrics:
@@ -21,3 +25,35 @@ def aggregate_cv_results(cv_results: List[Dict]) -> Dict:
     df_results = pd.DataFrame(cv_results)
     mean_results = df_results.mean(axis=0).to_dict()
     return mean_results
+
+
+def compute_regression_metrics(
+        y_true: pd.Series, y_predicted: pd.Series) -> Dict[str, Number]:
+    """
+    This function computes regression metrics including 'max_error', 'MAPE',
+    'MAE' and other commonly used regression metrics.
+
+    Args:
+        y_true (pd.Series): series of ground truth outputs
+        y_predicted (pd.Series): series of predicted outputs
+
+    Returns:
+        a dict containing computed metrics
+
+    """
+    metrics = {
+        # 'max_error': sk_metrics.max_error(y_true, y_predicted),
+        'mean_squared_error': sk_metrics.mean_squared_error(
+            y_true, y_predicted),
+        'mean_absolute_percentage_error':
+            sk_metrics.mean_absolute_percentage_error(y_true, y_predicted),
+        'median_absolute_error': sk_metrics.median_absolute_error(
+            y_true, y_predicted),
+        'r2_score': sk_metrics.r2_score(y_true, y_predicted),
+        'mean_absolute_error': sk_metrics.mean_absolute_error(
+            y_true, y_predicted),
+        'root_mean_square_error': sk_metrics.mean_squared_error(
+            y_true, y_predicted, squared=False),
+    }
+
+    return metrics

@@ -1,11 +1,11 @@
-from wsgiref.simple_server import demo_app
-from data.tabular_dataset import TabularDataset
-from src.steps.step import Step, StepProcesses
-from src.tools import utils
 from typing import Dict
 
+from src.data import tabular
+from src.steps import base
+from src.tools import utils
 
-class DataStep(Step):
+
+class DataStep(base.BaseStep):
     """
     The Data step class is an step of the main pipeline. It contains the
     functionalities to perform the ETL on the requested data.
@@ -28,7 +28,7 @@ class DataStep(Step):
         super().__init__(default_settings, user_settings)
 
         # TODO: identify the dataset type. Assuming TabularDataset for now.
-        self.dataset = TabularDataset()
+        self.dataset = tabular.TabularDataset()
 
     def _merge_settings(self, default_settings: Dict, user_settings: Dict) -> Dict:
         step_settings = utils.merge_settings(default_settings, user_settings)
@@ -56,6 +56,7 @@ class DataStep(Step):
             objects (Dict): the previous objects updated with the ones from
                 the current step: the dataset.
         """
-        super().run()
+        self.execute()
+
         objects.update({'dataset': self.dataset})
         return objects

@@ -47,12 +47,13 @@ def ensure_input_list(obj: object) -> list:
     return lst
 
 
-def generate_unique_id(adding_uuid: bool = False) -> str:
+def generate_unique_id(estimator_name: str, adding_uuid: bool = False) -> str:
     """
     This function generates a unique string id based on current timestamp and
     uuid4.
 
     Args:
+        estimator_name (str):
         adding_uuid (optional, bool): adding uuid4 in generated id.
 
     Returns:
@@ -62,7 +63,7 @@ def generate_unique_id(adding_uuid: bool = False) -> str:
     if adding_uuid:
         unique_id = f'{unique_id}_{uuid.uuid4()}'
 
-    return unique_id
+    return f'{estimator_name}.{unique_id}'
 
 
 def validate_pipeline(pipeline_content: Dict) -> None:

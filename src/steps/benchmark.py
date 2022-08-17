@@ -1,9 +1,10 @@
-from src.steps.step import Step
-from src.tools import utils
 from typing import Dict
 
+from src.steps import base
+from src.tools import utils
 
-class BenchmarkStep(Step):
+
+class BenchmarkStep(base.BaseStep):
     """
     The Benchmark step class is an step of the main pipeline. The step
     performs a model ranking by performing a hyperparameter search and model
@@ -28,8 +29,10 @@ class BenchmarkStep(Step):
 
         # TODO: identify optimizer type (bayesian, random, ...)
         self.optimizer = None
+        self.models = []
 
-    def _merge_settings(default_settings: Dict, user_settings: Dict) -> Dict:
+    def _merge_settings(
+            self, default_settings: Dict, user_settings: Dict) -> Dict:
         step_settings = utils.merge_settings(default_settings, user_settings)
         return step_settings
 
@@ -46,7 +49,7 @@ class BenchmarkStep(Step):
         """
         TODO
         """
-        super().run()
+        self.execute()
         objects.update(
             {'model_config': {'library': '', 'hyperparameters': ''}})
         return objects

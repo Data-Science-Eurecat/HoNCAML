@@ -3,7 +3,7 @@ from typing import Dict, Tuple
 import pandas as pd
 
 
-class Dataset(ABC):
+class BaseDataset(ABC):
     """
     Base class defining a dataset.
 
@@ -46,6 +46,6 @@ class Dataset(ABC):
         pass
 
     @abstractmethod
-    def train_test_split(self, features, validation_split: float, seed: int)\
+    def train_test_split(self, features, validation_split: float, seed: int) \
             -> Tuple(pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame):
         pass

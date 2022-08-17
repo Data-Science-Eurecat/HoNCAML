@@ -11,7 +11,7 @@ class StepProcesses:
     load = 'load'
 
 
-class Step(ABC):
+class BaseStep(ABC):
     """
     Abstract class Step to wrap the pipeline's steps. Defines the base 
     structure for an step from the main pipeline.
@@ -40,7 +40,8 @@ class Step(ABC):
             self.step_settings.get(StepProcesses.load, None)
 
     @abstractmethod
-    def _merge_settings(default_settings: Dict, user_settings: Dict) -> Dict:
+    def _merge_settings(
+            self, default_settings: Dict, user_settings: Dict) -> Dict:
         pass
 
     @abstractmethod
@@ -55,7 +56,7 @@ class Step(ABC):
     def load(self) -> None:
         pass
 
-    def run(self) -> Dict:
+    def execute(self, objects: Dict) -> None:
         """
         This function runs the current step.
 

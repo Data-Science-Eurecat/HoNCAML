@@ -1,9 +1,10 @@
-from src.models.model import Model
-from src.data import extract
-from src.data import load
-from src.tools import utils
 from models import general
 from typing import Dict
+
+from src.data import extract
+from src.data import load
+from src.models.model import Model
+from src.tools import utils
 
 
 class RegressorModel(Model):
@@ -11,7 +12,7 @@ class RegressorModel(Model):
     The regressor kind of model. The model that applies to regression problems.
 
     Attributes:
-        action_settings (Dic,t): the parameters that define each action from 
+        action_settings (Dict): the parameters that define each action from
         the ETL process.
         model (...): the model defined by a library (s.t. sklearn).
     """

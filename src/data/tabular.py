@@ -1,4 +1,4 @@
-from src.data.dataset import Dataset
+from src.data import base
 from src.data import extract
 from src.data import transform
 from src.data import load
@@ -7,7 +7,7 @@ import pandas as pd
 from sklearn import model_selection
 
 
-class TabularDataset(Dataset):
+class TabularDataset(base.BaseDataset):
     """
     A dataset consisting in tabular data. The data read come from files
     encoding the data as tables.

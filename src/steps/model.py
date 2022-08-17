@@ -1,18 +1,17 @@
-from models.regressor_model import RegressorModel
-from src.steps.step import Step, StepProcesses
-from src.tools import utils
-from src.data import extract
 from typing import Dict
+
+from src.steps import base
+from src.tools import utils
 
 
 class ModelActions:
-    train = 'train'
+    fit = 'fit'
     cross_validate = 'cross_validate'
     evaluate = 'evaluate'
     predict = 'predict'
 
 
-class ModelStep(Step):
+class ModelStep(base.BaseStep):
     """
     The Model step class is an step of the main pipeline. The step performs
     different tasks such as train, predict and evaluate a model. The extract
@@ -37,9 +36,12 @@ class ModelStep(Step):
         self.model_config = self.step_settings.get('model_config', None)
 
         # TODO: identify the model type. Assuming RegressorModel for now.
+        # TODO: split the filename with '.' and it gets the library and
+        #  estimator_type
         self.model = RegressorModel()
 
-    def _merge_settings(default_settings: Dict, user_settings: Dict) -> Dict:
+    def _merge_settings(
+            self, default_settings: Dict, user_settings: Dict) -> Dict:
         step_settings = utils.merge_settings(default_settings, user_settings)
         return step_settings
 
@@ -47,15 +49,27 @@ class ModelStep(Step):
         self.model.read(self.extract_settings)
 
     def transform(self):
-        if ModelActions.train in self.transform_settings:
-            self.model.train(self.transform_settings['train'])
+        if ModelActions.fit in self.transform_settings:
+            self._fit(self.transform_settings['fit'])
         if ModelActions.cross_validate in self.transform_settings:
-            self.model.cross_validate(
+            self._cross_validate(
                 self.transform_settings['cross_validate'])
         if ModelActions.evaluate in self.transform_settings:
-            self.model.evaluate(self.transform_settings['evaluate'])
+            self._evaluate(self.transform_settings['evaluate'])
         if ModelActions.predict in self.transform_settings:
-            self.model.predict(self.transform_settings['predict'])
+            self._predict(self.transform_settings['predict'])
+
+    def _fit(self):
+        pass
+
+    def _cross_validate(self):
+        pass
+
+    def _evaluate(self):
+        pass
+
+    def _predict(self):
+        pass
 
     def load(self):
         self.model.save(self.load_settings)
@@ -80,6 +94,8 @@ class ModelStep(Step):
         else:
             model_config = objects['model_config']
         self.model_config = model_config
-        super().run()
+
+        self.execute(objects)
+
         objects.update({'model': self.model})
         return objects
