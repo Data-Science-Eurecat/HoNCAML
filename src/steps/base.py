@@ -29,6 +29,9 @@ class BaseStep(ABC):
             default_settings (Dict): the default settings for the step.
             user_settings (Dict): the user defined settings for the step.
         """
+        # Check if it runs the parent method or child method
+        self.validate_step()
+
         self.step_settings = self._merge_settings(
             default_settings, user_settings)
 
@@ -42,6 +45,10 @@ class BaseStep(ABC):
     @abstractmethod
     def _merge_settings(
             self, default_settings: Dict, user_settings: Dict) -> Dict:
+        pass
+
+    @abstractmethod
+    def validate_step(self):
         pass
 
     @abstractmethod

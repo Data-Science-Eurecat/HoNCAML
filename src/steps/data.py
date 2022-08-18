@@ -16,6 +16,9 @@ class DataStep(base.BaseStep):
         dataset (data.Dataset): the dataset to be handled.
     """
 
+    def validate_step(self):
+        pass
+
     def __init__(self, default_settings: Dict, user_settings: Dict) -> None:
         """
         This is a constructor method of class. This function initializes

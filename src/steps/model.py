@@ -22,6 +22,9 @@ class ModelStep(base.BaseStep):
         user_settings (Dict): the user defined settings for the step.
     """
 
+    def validate_step(self):
+        pass
+
     def __init__(self, default_settings: Dict, user_settings: Dict) -> None:
         """
         This is a constructor method of class. This function initializes

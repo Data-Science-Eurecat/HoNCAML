@@ -1,0 +1,55 @@
+data:
+  extract:
+    filepath: data/raw/dataset.csv
+    # If features key does not exist, the pipeline gets all columns as features
+    features:
+      - col1
+      - col2
+    target:
+      - target1
+      - target2
+    # pandas read files additional params
+    dtype:
+      col1: int
+      col2: int
+
+  transform:
+    normalize:
+      features:
+        module: sklearn.preprocessing.StandardScaler
+        columns:
+          - col1
+          - col2
+      target:
+        module: sklearn.preprocessing.StandardScaler
+        columns:
+          - target1
+          - target2
+
+  # load:
+  # filepath: data/processed/dataset.csv
+
+# Model Step settings
+model:
+  estimator_type: regressor # | classifier
+
+  model_config:
+    module: sklearn.ensemble.RandomForestRegressor
+    hyperparameters:
+      n_estimators: 100
+
+  extract:
+    filepath: models/model.sav
+
+  transform:
+    fit: # | predict
+      cross_validation:
+        strategy: k_fold
+        # Additional arguments of sklearn cross-validation objects
+        n_splits: 10
+        random_seed: 90
+
+  load:
+    filepath: models/model.sav
+
+# Benchmark Step settings
