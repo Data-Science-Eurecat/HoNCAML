@@ -63,7 +63,7 @@ class BaseStep(ABC):
     def load(self) -> None:
         pass
 
-    def execute(self, objects: Dict) -> None:
+    def execute(self) -> None:
         """
         This function runs the current step.
 
@@ -77,6 +77,8 @@ class BaseStep(ABC):
         """
         if StepProcesses.extract in self.step_settings:
             self.extract()
+        else:
+            self.build_model()
         if StepProcesses.transform in self.step_settings:
             self.transform()
         if StepProcesses.load in self.step_settings:

@@ -27,7 +27,7 @@ class BaseModel(ABC):
         pass
 
     @abstractmethod
-    def fit(self, settings: Dict) -> None:
+    def fit(self, X, y, **kwargs) -> None:
         """
         ETL model fit. This function must be implemented by child classes.
         """

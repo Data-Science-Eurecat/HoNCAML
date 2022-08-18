@@ -24,11 +24,11 @@ class SklearnModel(base.BaseModel):
     def build_model(self):
         pass
 
-    def fit(self, settings: Dict) -> None:
+    def fit(self, X, y, **kwargs) -> None:
         """
         ETL model fit. This function must be implemented by child classes.
         """
-        pass
+        self.estimator = self.estimator.fit(X, y)
 
     def evaluate(self, settings: Dict) -> Dict:
         """

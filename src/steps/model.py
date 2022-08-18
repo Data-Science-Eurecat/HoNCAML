@@ -1,13 +1,12 @@
-from typing import Dict
+from typing import Dict, List
 
 from src.steps import base
 from src.tools import utils
+from src.models import sklearn_model
 
 
 class ModelActions:
     fit = 'fit'
-    cross_validate = 'cross_validate'
-    evaluate = 'evaluate'
     predict = 'predict'
 
 
@@ -22,9 +21,6 @@ class ModelStep(base.BaseStep):
         user_settings (Dict): the user defined settings for the step.
     """
 
-    def validate_step(self):
-        pass
-
     def __init__(self, default_settings: Dict, user_settings: Dict) -> None:
         """
         This is a constructor method of class. This function initializes
@@ -38,10 +34,14 @@ class ModelStep(base.BaseStep):
         # TODO: get the model config from one of the settings
         self.model_config = self.step_settings.get('model_config', None)
 
-        # TODO: identify the model type. Assuming RegressorModel for now.
+        # TODO: identify the model type. Assuming SklearnModel.
         # TODO: split the filename with '.' and it gets the library and
         #  estimator_type
-        self.model = RegressorModel()
+        self.model = sklearn_model.SklearnModel(
+            self.step_settings.pop('estimator_type'))
+
+    def validate_step(self):
+        pass
 
     def _merge_settings(
             self, default_settings: Dict, user_settings: Dict) -> Dict:
@@ -53,26 +53,34 @@ class ModelStep(base.BaseStep):
 
     def transform(self):
         if ModelActions.fit in self.transform_settings:
-            self._fit(self.transform_settings['fit'])
-        if ModelActions.cross_validate in self.transform_settings:
-            self._cross_validate(
-                self.transform_settings['cross_validate'])
-        if ModelActions.evaluate in self.transform_settings:
-            self._evaluate(self.transform_settings['evaluate'])
+            X, y = self.dataset.get_data()
+            self._fit(X, y, self.transform_settings['fit'])
         if ModelActions.predict in self.transform_settings:
-            self._predict(self.transform_settings['predict'])
+            self.predictions = self._predict(
+                self.transform_settings['predict'])
 
-    def _fit(self):
-        pass
+    def _fit(self, X, y, settings):
+        features = settings.get('features', [])
+        if len(features) > 0:
+            X = X[features]
 
-    def _cross_validate(self):
-        pass
+        # TODO: implement transformations at dataset level
+        X = self.dataset.fit_transform(X)
 
-    def _evaluate(self):
-        pass
+        params = settings.get('parameters', {})
+        self.model.fit(X, y, **params)
 
-    def _predict(self):
-        pass
+    def _predict(self, X, settings) -> List:
+        features = settings.get('features', [])
+        if len(features) > 0:
+            X = X[features]
+
+        # TODO: implement transformations at dataset level
+        X = self.dataset.transform(X)
+
+        params = settings.get('parameters', {})
+        predictions = self.model.predict(X, **params)
+        return predictions
 
     def load(self):
         self.model.save(self.load_settings)
@@ -91,12 +99,9 @@ class ModelStep(base.BaseStep):
                 the current step: ?.
         """
         # Feed the model with the objects
-        self.model.dataset = objects['dataset']
-        if self.model_config is not None:
-            model_config = self.model_config
-        else:
-            model_config = objects['model_config']
-        self.model_config = model_config
+        self.dataset = objects['dataset']
+        if objects.get('model_config', None) is not None:
+            self.model_config = objects['model_config']
 
         self.execute(objects)
 
