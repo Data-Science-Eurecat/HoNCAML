@@ -32,7 +32,7 @@ def read_dataframe(settings: Dict) -> pd.DataFrame:
     Returns:
         df_datatype (pd.DataFrame): the dataset as pandas dataframe.
     """
-    filepath = os.path.join(settings['path'], settings['data'])
+    filepath = settings['filepath']
     extension = settings['data'].split('.')[-1].lower()
     if extension == 'csv':
         df_datatype = pd.read_csv(filepath)
@@ -51,6 +51,6 @@ def read_model(settings: Dict) -> object:
     Returns:
         model (object): The read model from disk.
     """
-    filepath = os.path.join(settings['path'], settings['file'])
+    filepath = settings['filepath']
     model = joblib.load(filepath)
     return model
