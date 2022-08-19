@@ -1,4 +1,5 @@
 from typing import Dict, List
+from src.tools import custom_typing as ct
 from src.data import extract
 from src.models import base, general
 from src.tools import utils
@@ -7,23 +8,45 @@ from sklearn import compose, pipeline
 
 class SklearnModel(base.BaseModel):
     """
-    Model base class.
+    Scikit Learn model wrapper.
 
     Attributes:
-
+        estimator_type (str): the kind of estimator to be used. Valid values
+            are `regressor` and `classifier`.
+        estimator (TODO sklearn.base.BaseEstimator?): an sklearn estimator.
     """
 
     def __init__(self, estimator_type: str) -> None:
+        """
+        The class constructor which initializes the base class.
+
+        Args:
+            estimator_type (str): the kind of estimator to be used. Valid values
+                are `regressor` and `classifier`.
+        """
         super().__init__(estimator_type)
 
     def read(self, settings: Dict) -> None:
         """
-        ETL model read. This function must be implemented by child classes.
-        name format: estimator_type.unique_id
+        Read an estimator from disk.
+
+        Args:
+            settings (Dict): the parameter settings defining the read 
+                operation.
         """
         self.model = extract.read_model(settings)
 
-    def build_model(self, model_config, normalizations):
+    def build_model(self, model_config: Dict, normalizations: Dict) -> None:
+        """
+        Create the sklearn estimator. It builds an sklearn pipeline to handle
+        the requested normalizations.
+
+        Args:
+            model_config (Dict): the model configuration: the module and their
+                hyperparameters.
+            normalizations (Dict): the definition of normalizations applied to
+                the dataset during the model pipeline.
+        """
         pipeline_steps = []
         if features_norm := normalizations.get('features', None) is not None:
             ct_feature = compose.ColumnTransformer(
@@ -47,21 +70,41 @@ class SklearnModel(base.BaseModel):
             self.estimator = compose.TransformedTargetRegressor(
                 regressor=self.estimator, transformer=ct_target)
 
-    def fit(self, X, y, **kwargs) -> None:
+    def fit(self, X: ct.Dataset, y: ct.Dataset, **kwargs) -> None:
         """
-        ETL model fit. This function must be implemented by child classes.
+        Train the estimator on the specified dataset.
+
+        Args:
+            X (ct.Dataset): the dataset features.
+            y (ct.Dataset): the dataset target.
+            **kwargs (Dict): extra parameters.
         """
         self.estimator = self.estimator.fit(X, y)
 
-    def predict(self, X, **kwargs) -> List:
+    def predict(self, X: ct.Dataset, **kwargs) -> List:
         """
-        ETL model predict. This function must be implemented by child classes.
+        Use the estimator to make predictions on the given dataset features.
+
+        Args:
+            X (ct.Dataset): the dataset features.
+            **kwargs (Dict): extra parameters.
+
+        Returns:
+            predictions (List): the resulting predictions from the estimator.
         """
         return self.estimator.predict(X)
 
-    def evaluate(self, X, y, **kwargs) -> Dict:
+    def evaluate(self, X: ct.Dataset, y: ct.Dataset, **kwargs) -> Dict:
         """
-        ETL model evaluate. This function must be implemented by child classes.
+        Evaluate the estimator on the given dataset.
+
+        Args:
+            X (ct.Dataset): the dataset features.
+            y (ct.Dataset): the dataset target.
+            **kwargs (Dict): extra parameters.
+
+        Returns:
+            metrics (Dict): the resulting metrics from the evaluation.
         """
         y_pred = self.estimator.predict(X)
         if self.estimator_type == 'regressor':
@@ -72,8 +115,11 @@ class SklearnModel(base.BaseModel):
 
     def save(self, settings: Dict) -> None:
         """
-        ETL model save. This function must be implemented by child classes.
-        format: estimator_type.unique_id
+        Store the estimator to disk.
+
+        Args:
+            settings (Dict): the parameter settings defining the store
+                operation.
         """
         filename = utils.generate_unique_id(
             self.estimator_type, adding_uuid=True)

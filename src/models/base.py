@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Dict, List
+from src.tools import custom_typing as ct
 
 
 class BaseModel(ABC):
@@ -7,49 +8,100 @@ class BaseModel(ABC):
     Model base class.
 
     Attributes:
-
+        estimator_type (str): the kind of estimator to be used. Valid values
+            are `regressor` and `classifier`.
+        estimator (TODO type): an estimator defined by child classes.
     """
 
     def __init__(self, estimator_type: str) -> None:
-        # self.model_config = None
+        """
+        Base class constructor. Initializes the common attributes.
+
+        Args:
+            estimator_type (str): the kind of estimator to be used. Valid values
+                are `regressor` and `classifier`.
+        """
         self.estimator_type = estimator_type
         self.estimator = None
 
     @abstractmethod
     def read(self, settings: Dict) -> None:
         """
-        ETL model read. This function must be implemented by child classes.
+        Read an estimator from disk. This function must be implemented by
+        child classes.
+
+        Args:
+            settings (Dict): the parameter settings defining the read 
+                operation.
         """
         pass
 
     @abstractmethod
-    def build_model(self):
-        pass
+    def build_model(self, model_config: Dict, normalizations: Dict) -> None:
+        """
+        Create the requested estimator. This function must be implemented by
+        child classes.
 
-    @abstractmethod
-    def fit(self, X, y, **kwargs) -> None:
-        """
-        ETL model fit. This function must be implemented by child classes.
-        """
-        pass
-
-    @abstractmethod
-    def evaluate(self, settings: Dict) -> Dict:
-        """
-        ETL model evaluate. This function must be implemented by child classes.
+        Args:
+            model_config (Dict): the model configuration: the module and their
+                hyperparameters.
+            normalizations (Dict): the definition of normalizations applied to
+                the dataset during the model pipeline.
         """
         pass
 
     @abstractmethod
-    def predict(self, settings: Dict) -> List:
+    def fit(self, X: ct.Dataset, y: ct.Dataset, **kwargs: Dict) -> None:
         """
-        ETL model predict. This function must be implemented by child classes.
+        Train the estimator on the specified dataset. This function must be
+        implemented by child classes.
+
+        Args:
+            X (ct.Dataset): the dataset features.
+            y (ct.Dataset): the dataset target.
+            **kwargs (Dict): extra parameters.
+        """
+        pass
+
+    @abstractmethod
+    def predict(self, X: ct.Dataset, **kwargs: Dict) -> List:
+        """
+        Use the estimator to make predictions on the given dataset features.
+        This function must be implemented by child classes.
+
+        Args:
+            X (ct.Dataset): the dataset features.
+            **kwargs (Dict): extra parameters.
+
+        Returns:
+            predictions (List): the resulting predictions from the estimator.
+        """
+        pass
+
+    @abstractmethod
+    def evaluate(self, X: ct.Dataset, y: ct.Dataset, **kwargs: Dict) -> Dict:
+        """
+        Evaluate the estimator on the given dataset. This function must be
+        implemented by child classes.
+
+        Args:
+            X (ct.Dataset): the dataset features.
+            y (ct.Dataset): the dataset target.
+            **kwargs (Dict): extra parameters.
+
+        Returns:
+            metrics (Dict): the resulting metrics from the evaluation.
         """
         pass
 
     @abstractmethod
     def save(self, settings: Dict) -> None:
         """
-        ETL model save. This function must be implemented by child classes.
+        Store the estimator to disk. This function must be implemented by
+        child classes.
+
+        Args:
+            settings (Dict): the parameter settings defining the store
+                operation.
         """
         pass
