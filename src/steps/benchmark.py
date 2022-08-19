@@ -51,5 +51,5 @@ class BenchmarkStep(base.BaseStep):
         """
         self.execute()
         objects.update(
-            {'model_config': {'library': '', 'hyperparameters': ''}})
+            {'model_config': {'module': '', 'hyperparameters': ''}})
         return objects

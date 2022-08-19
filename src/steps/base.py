@@ -77,8 +77,6 @@ class BaseStep(ABC):
         """
         if StepProcesses.extract in self.step_settings:
             self.extract()
-        else:
-            self.build_model()
         if StepProcesses.transform in self.step_settings:
             self.transform()
         if StepProcesses.load in self.step_settings:

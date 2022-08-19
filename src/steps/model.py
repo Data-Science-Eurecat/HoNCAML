@@ -2,7 +2,8 @@ from typing import Dict, List
 
 from src.steps import base
 from src.tools import utils
-from src.models import sklearn_model
+from src.models import sklearn_model, general
+from src.data import transform
 
 
 class ModelActions:
@@ -52,34 +53,37 @@ class ModelStep(base.BaseStep):
         self.model.read(self.extract_settings)
 
     def transform(self):
+        if self.model.estimator is None:
+            self.model.build_model(
+                self.model_config, self.dataset.normalizations)
         if ModelActions.fit in self.transform_settings:
-            X, y = self.dataset.get_data()
-            self._fit(X, y, self.transform_settings['fit'])
+            self._fit(self.transform_settings['fit'])
         if ModelActions.predict in self.transform_settings:
             self.predictions = self._predict(
                 self.transform_settings['predict'])
 
-    def _fit(self, X, y, settings):
-        features = settings.get('features', [])
-        if len(features) > 0:
-            X = X[features]
+    def _fit(self, settings):
+        X, y = self.dataset.get_data()
+        if settings.get('cross_validation', None) is not None:
+            # Run the cross-validation
+            cv_split = transform.CrossValidationSplit(
+                settings['cross_validation'].pop('strategy'))
 
-        # TODO: implement transformations at dataset level
-        X = self.dataset.fit_transform(X)
+            results = []
+            for split, X_train, X_test, y_train, y_test in \
+                    cv_split.split(X, y, settings.pop('cross_validation')):
+                # Afegir normalizations
+                self.model.fit(X_train, y_train, **settings)
 
-        params = settings.get('parameters', {})
-        self.model.fit(X, y, **params)
+                results.append(self.model.evaluate(X_test, y_test, **settings))
+        # Group cv metrics
+        self.cv_results = general.aggregate_cv_results(results)
+        # Train the model with whole data
+        self.model.fit(X, y)
 
-    def _predict(self, X, settings) -> List:
-        features = settings.get('features', [])
-        if len(features) > 0:
-            X = X[features]
-
-        # TODO: implement transformations at dataset level
-        X = self.dataset.transform(X)
-
-        params = settings.get('parameters', {})
-        predictions = self.model.predict(X, **params)
+    def _predict(self, settings) -> List:
+        X, y = self.dataset.get_data()
+        predictions = self.model.predict(X, **settings)
         return predictions
 
     def load(self):

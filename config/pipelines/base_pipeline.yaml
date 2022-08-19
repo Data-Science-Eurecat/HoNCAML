@@ -39,7 +39,7 @@ model:
       n_estimators: 100
 
   extract:
-    filepath: models/model.sav
+    filepath: models/regressor.20220819-122417.sav
 
   transform:
     fit: # | predict
