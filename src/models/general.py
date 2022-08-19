@@ -57,3 +57,20 @@ def compute_regression_metrics(
     }
 
     return metrics
+
+
+def compute_classification_metrics(
+        y_true: pd.Series, y_predicted: pd.Series) -> Dict[str, Number]:
+    """
+    This function computes classification metrics including [...] and other
+    commonly used classification metrics.
+
+    Args:
+        y_true (pd.Series): series of ground truth outputs
+        y_predicted (pd.Series): series of predicted outputs
+
+    Returns:
+        a dict containing computed metrics
+
+    """
+    raise NotImplementedError('Not implemented yet')
