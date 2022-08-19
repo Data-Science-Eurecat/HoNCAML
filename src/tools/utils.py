@@ -12,7 +12,8 @@ def import_library(module: str, params: Dict = None) -> Callable:
 
     Args:
         module (str): module name.
-        params (Dict): dict that contains params.
+        params (Dict): dict that contains the parameters for the specific
+            module initialization.
 
     Returns:
         callable of imported module with parameters.
