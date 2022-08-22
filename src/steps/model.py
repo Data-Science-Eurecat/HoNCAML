@@ -41,18 +41,38 @@ class ModelStep(base.BaseStep):
         self.model = sklearn_model.SklearnModel(
             self.step_settings.pop('estimator_type'))
 
-    def validate_step(self):
-        pass
-
     def _merge_settings(
             self, default_settings: Dict, user_settings: Dict) -> Dict:
+        """
+        Merge the user defined settings with the default ones.
+
+        Args:
+            default_settings (Dict): the default settings for the step.
+            default_settings (Dict): the user defined settings for the step.
+
+        Returns:
+            merged_settings (Dict): the user and default settings merged.
+        """
         step_settings = utils.merge_settings(default_settings, user_settings)
         return step_settings
 
-    def extract(self):
+    def validate_step(self) -> None:
+        """
+        Validates the settings for the step ensuring that the step has the
+        mandatory keys to run.
+        """
+        pass
+
+    def extract(self) -> None:
+        """
+        The extract process from the model step ETL.
+        """
         self.model.read(self.extract_settings)
 
-    def transform(self):
+    def transform(self) -> None:
+        """
+        The transform process from the model step ETL.
+        """
         if self.model.estimator is None:
             self.model.build_model(
                 self.model_config, self.dataset.normalizations)
@@ -62,7 +82,14 @@ class ModelStep(base.BaseStep):
             self.predictions = self._predict(
                 self.transform_settings['predict'])
 
-    def _fit(self, settings):
+    def _fit(self, settings: Dict) -> None:
+        """
+        The training function for the model step. It performs a training step
+        on the whole dataset and a cross-validation one if specified.
+
+        Args:
+            settings (Dict): the training and cross-validation configuration.
+        """
         X, y = self.dataset.get_data()
         if settings.get('cross_validation', None) is not None:
             # Run the cross-validation
@@ -81,12 +108,25 @@ class ModelStep(base.BaseStep):
         # Train the model with whole data
         self.model.fit(X, y)
 
-    def _predict(self, settings) -> List:
+    def _predict(self, settings: Dict) -> List:
+        """
+        The predict function for the model step. It performs predictions for
+        the whole dataset by using the model.
+
+        Args:
+            settings (Dict): the predict configuration.
+
+        Returns:
+            predictions (List): the prediction for each sample.
+        """
         X, y = self.dataset.get_data()
         predictions = self.model.predict(X, **settings)
         return predictions
 
-    def load(self):
+    def load(self) -> None:
+        """
+        The load process from the model step ETL.
+        """
         self.model.save(self.load_settings)
 
     def run(self, objects: Dict) -> None:

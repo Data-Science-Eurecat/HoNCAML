@@ -33,17 +33,44 @@ class DataStep(base.BaseStep):
         # TODO: identify the dataset type. Assuming TabularDataset for now.
         self.dataset = tabular.TabularDataset()
 
-    def _merge_settings(self, default_settings: Dict, user_settings: Dict) -> Dict:
+    def _merge_settings(
+            self, default_settings: Dict, user_settings: Dict) -> Dict:
+        """
+        Merge the user defined settings with the default ones.
+
+        Args:
+            default_settings (Dict): the default settings for the step.
+            default_settings (Dict): the user defined settings for the step.
+
+        Returns:
+            merged_settings (Dict): the user and default settings merged.
+        """
         step_settings = utils.merge_settings(default_settings, user_settings)
         return step_settings
 
-    def extract(self):
+    def validate_step(self) -> None:
+        """
+        Validates the settings for the step ensuring that the step has the
+        mandatory keys to run.
+        """
+        pass
+
+    def extract(self) -> None:
+        """
+        The extract process from the data step ETL.
+        """
         self.dataset.read(self.extract_settings)
 
-    def transform(self):
+    def transform(self) -> None:
+        """
+        The transform process from the data step ETL.
+        """
         self.dataset.preprocess(self.transform_settings)
 
-    def load(self):
+    def load(self) -> None:
+        """
+        The load process from the data step ETL.
+        """
         self.dataset.save(self.load_settings)
 
     def run(self, objects: Dict) -> Dict:

@@ -33,21 +33,56 @@ class BenchmarkStep(base.BaseStep):
 
     def _merge_settings(
             self, default_settings: Dict, user_settings: Dict) -> Dict:
+        """
+        Merge the user defined settings with the default ones.
+
+        Args:
+            default_settings (Dict): the default settings for the step.
+            default_settings (Dict): the user defined settings for the step.
+
+        Returns:
+            merged_settings (Dict): the user and default settings merged.
+        """
         step_settings = utils.merge_settings(default_settings, user_settings)
         return step_settings
 
-    def extract(self):
+    def validate_step(self) -> None:
+        """
+        Validates the settings for the step ensuring that the step has the
+        mandatory keys to run.
+        """
         pass
 
-    def transform(self):
+    def extract(self) -> None:
+        """
+        The extract process from the benchmark step ETL.
+        """
         pass
 
-    def load(self):
+    def transform(self) -> None:
+        """
+        The transform process from the benchmark step ETL.
+        """
+        pass
+
+    def load(self) -> None:
+        """
+        The load process from the benchmark step ETL.
+        """
         pass
 
     def run(self, objects: Dict) -> Dict:
         """
-        TODO
+        Run the benchmark step. Using a benchmark of models run the ETL
+        functions to rank them and return the best one.
+
+        Args:
+            objects (Dict): the objects output from each different previous
+                step.
+
+        Returns:
+            objects (Dict): the previous objects updated with the ones from
+                the current step: ?.
         """
         self.execute()
         objects.update(
