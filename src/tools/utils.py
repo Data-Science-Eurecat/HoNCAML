@@ -5,14 +5,15 @@ import uuid
 import importlib
 
 
-def import_library(module: str, params: Dict) -> Callable:
+def import_library(module: str, params: Dict = None) -> Callable:
     """
     Given a module name and dict params, this function imports the module and
     creates a new callable with specific parameters.
 
     Args:
         module (str): module name.
-        params (Dict): dict that contains params.
+        params (Dict): dict that contains the parameters for the specific
+            module initialization.
 
     Returns:
         callable of imported module with parameters.

@@ -1,13 +1,13 @@
-from typing import Dict
+from typing import Dict, List
 
 from src.steps import base
 from src.tools import utils
+from src.models import sklearn_model, general
+from src.data import transform
 
 
 class ModelActions:
     fit = 'fit'
-    cross_validate = 'cross_validate'
-    evaluate = 'evaluate'
     predict = 'predict'
 
 
@@ -22,9 +22,6 @@ class ModelStep(base.BaseStep):
         user_settings (Dict): the user defined settings for the step.
     """
 
-    def validate_step(self):
-        pass
-
     def __init__(self, default_settings: Dict, user_settings: Dict) -> None:
         """
         This is a constructor method of class. This function initializes
@@ -38,43 +35,98 @@ class ModelStep(base.BaseStep):
         # TODO: get the model config from one of the settings
         self.model_config = self.step_settings.get('model_config', None)
 
-        # TODO: identify the model type. Assuming RegressorModel for now.
+        # TODO: identify the model type. Assuming SklearnModel.
         # TODO: split the filename with '.' and it gets the library and
         #  estimator_type
-        self.model = RegressorModel()
+        self.model = sklearn_model.SklearnModel(
+            self.step_settings.pop('estimator_type'))
 
     def _merge_settings(
             self, default_settings: Dict, user_settings: Dict) -> Dict:
+        """
+        Merge the user defined settings with the default ones.
+
+        Args:
+            default_settings (Dict): the default settings for the step.
+            default_settings (Dict): the user defined settings for the step.
+
+        Returns:
+            merged_settings (Dict): the user and default settings merged.
+        """
         step_settings = utils.merge_settings(default_settings, user_settings)
         return step_settings
 
-    def extract(self):
+    def validate_step(self) -> None:
+        """
+        Validates the settings for the step ensuring that the step has the
+        mandatory keys to run.
+        """
+        pass
+
+    def extract(self) -> None:
+        """
+        The extract process from the model step ETL.
+        """
         self.model.read(self.extract_settings)
 
-    def transform(self):
+    def transform(self) -> None:
+        """
+        The transform process from the model step ETL.
+        """
+        if self.model.estimator is None:
+            self.model.build_model(
+                self.model_config, self.dataset.normalizations)
         if ModelActions.fit in self.transform_settings:
             self._fit(self.transform_settings['fit'])
-        if ModelActions.cross_validate in self.transform_settings:
-            self._cross_validate(
-                self.transform_settings['cross_validate'])
-        if ModelActions.evaluate in self.transform_settings:
-            self._evaluate(self.transform_settings['evaluate'])
         if ModelActions.predict in self.transform_settings:
-            self._predict(self.transform_settings['predict'])
+            self.predictions = self._predict(
+                self.transform_settings['predict'])
 
-    def _fit(self):
-        pass
+    def _fit(self, settings: Dict) -> None:
+        """
+        The training function for the model step. It performs a training step
+        on the whole dataset and a cross-validation one if specified.
 
-    def _cross_validate(self):
-        pass
+        Args:
+            settings (Dict): the training and cross-validation configuration.
+        """
+        X, y = self.dataset.get_data()
+        if settings.get('cross_validation', None) is not None:
+            # Run the cross-validation
+            cv_split = transform.CrossValidationSplit(
+                settings['cross_validation'].pop('strategy'))
 
-    def _evaluate(self):
-        pass
+            results = []
+            for split, X_train, X_test, y_train, y_test in \
+                    cv_split.split(X, y, settings.pop('cross_validation')):
+                # Afegir normalizations
+                self.model.fit(X_train, y_train, **settings)
 
-    def _predict(self):
-        pass
+                results.append(self.model.evaluate(X_test, y_test, **settings))
+        # Group cv metrics
+        self.cv_results = general.aggregate_cv_results(results)
+        # Train the model with whole data
+        self.model.fit(X, y)
 
-    def load(self):
+    def _predict(self, settings: Dict) -> List:
+        """
+        The predict function for the model step. It performs predictions for
+        the whole dataset by using the model.
+
+        Args:
+            settings (Dict): the predict configuration.
+
+        Returns:
+            predictions (List): the prediction for each sample.
+        """
+        X, y = self.dataset.get_data()
+        predictions = self.model.predict(X, **settings)
+        return predictions
+
+    def load(self) -> None:
+        """
+        The load process from the model step ETL.
+        """
         self.model.save(self.load_settings)
 
     def run(self, objects: Dict) -> None:
@@ -91,12 +143,9 @@ class ModelStep(base.BaseStep):
                 the current step: ?.
         """
         # Feed the model with the objects
-        self.model.dataset = objects['dataset']
-        if self.model_config is not None:
-            model_config = self.model_config
-        else:
-            model_config = objects['model_config']
-        self.model_config = model_config
+        self.dataset = objects['dataset']
+        if objects.get('model_config', None) is not None:
+            self.model_config = objects['model_config']
 
         self.execute(objects)
 
