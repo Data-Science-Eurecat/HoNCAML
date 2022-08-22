@@ -48,7 +48,8 @@ class SklearnModel(base.BaseModel):
                 the dataset during the model pipeline.
         """
         pipeline_steps = []
-        if features_norm := normalizations.get('features', None) is not None:
+        if normalizations.get('features', None) is not None:
+            features_norm = normalizations['features']
             ct_feature = compose.ColumnTransformer(
                 transformers=[('feature_scaler', utils.import_library(
                     features_norm['module']), features_norm['columns'])],
@@ -61,7 +62,8 @@ class SklearnModel(base.BaseModel):
 
         self.estimator = pipeline.Pipeline(pipeline_steps)
 
-        if target_norm := normalizations.get('target', None) is not None:
+        if normalizations.get('target', None) is not None:
+            target_norm = normalizations['target']
             ct_target = compose.ColumnTransformer(
                 transformers=[('target_scaler', utils.import_library(
                     target_norm['module']), target_norm['columns'])],
