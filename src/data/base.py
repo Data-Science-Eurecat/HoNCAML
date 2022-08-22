@@ -42,5 +42,5 @@ class BaseDataset(ABC):
         pass
 
     @abstractmethod
-    def get_data(self) -> Tuple(pd.DataFrame, pd.DataFrame):
+    def get_data(self) -> Tuple[pd.DataFrame, pd.DataFrame]:
         pass
