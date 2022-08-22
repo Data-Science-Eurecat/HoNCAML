@@ -28,12 +28,17 @@ class DataStep(base.BaseStep):
             default_settings (Dict): the default settings for the step.
             user_settings (Dict): the user defined settings for the step.
         """
+        # Getting default settings for data step
+        default_settings = default_settings.get(base.StepType.data)
+        # Getting user settings if it exists
+        user_settings = user_settings.get(base.StepType.data, {})
         super().__init__(default_settings, user_settings)
 
         # TODO: identify the dataset type. Assuming TabularDataset for now.
         self.dataset = tabular.TabularDataset()
 
-    def _merge_settings(self, default_settings: Dict, user_settings: Dict) -> Dict:
+    def _merge_settings(
+            self, default_settings: Dict, user_settings: Dict) -> Dict:
         step_settings = utils.merge_settings(default_settings, user_settings)
         return step_settings
 

@@ -3,6 +3,16 @@ import pandas as pd
 import os
 import yaml
 import joblib
+from src.exceptions import data as data_exception
+
+
+class FileExtension:
+    """
+    This class contains the available files formats to read data.
+    """
+    csv = 'csv'
+    excel = ['xlsx', 'xls']
+    # Adding more file extensions here
 
 
 def read_yaml(file_path: str) -> Dict:
@@ -30,17 +40,21 @@ def read_dataframe(settings: Dict) -> pd.DataFrame:
         settings (Dict): Params used for input data extraction.
 
     Returns:
-        df_datatype (pd.DataFrame): the dataset as pandas dataframe.
+        df (pd.DataFrame): the dataset as pandas dataframe.
     """
-    filepath = os.path.join(settings['path'], settings['data'])
-    extension = settings['data'].split('.')[-1].lower()
-    if extension == 'csv':
-        df_datatype = pd.read_csv(filepath)
-    elif extension in ['xlsx', 'xls']:
-        df_datatype = pd.read_excel(filepath)
+    filepath = os.path.join(settings['filepath'], settings['data'])
+    _, file_extension = os.path.splitext(filepath)
+    # extension = settings['data'].split('.')[-1].lower()
+    if file_extension == FileExtension.csv:
+        # TODO: adding kwargs
+        df = pd.read_csv(filepath)
+    elif file_extension in FileExtension.excel:
+        # TODO: adding kwargs
+        df = pd.read_excel(filepath)
     else:
-        raise Exception(f'File extension {extension} not recognized')
-    return df_datatype
+        raise data_exception.FileExtensionException(file_extension)
+
+    return df
 
 
 def read_model(settings: Dict) -> object:

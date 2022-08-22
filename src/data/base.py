@@ -42,10 +42,10 @@ class BaseDataset(ABC):
         pass
 
     @abstractmethod
-    def get_data(self, features) -> Tuple(pd.DataFrame, pd.DataFrame):
+    def get_data(self, features) -> Tuple[pd.DataFrame, pd.DataFrame]:
         pass
 
     @abstractmethod
     def train_test_split(self, features, validation_split: float, seed: int) \
-            -> Tuple(pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame):
+            -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
         pass

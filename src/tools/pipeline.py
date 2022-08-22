@@ -1,7 +1,9 @@
 from src.tools.startup import logger, params
 from src.tools import utils
-from src import exceptions
+from src.exceptions import step as step_exceptions
 from typing import Dict
+from src.steps import base as base_step
+from src.steps import data as data_step
 import importlib
 
 
@@ -39,7 +41,18 @@ class Pipeline:
         pipeline_content, it creates all the required steps to be executed.
         """
         utils.validate_pipeline(self.pipeline_content)
-        for key in self.pipeline_content:
+        for step_name, step_content in self.pipeline_content.items():
+            if step_name == base_step.StepType.data:
+                step = data_step.DataStep(
+                    params['pipeline_steps'], self.pipeline_content)
+            elif step_name == base_step.StepType.model:
+                step = None
+            else:
+                raise step_exceptions.StepDoesNotExists(step_name)
+
+            self.steps.append(step)
+
+            """
             if key in params['pipeline_steps']:
                 library = params['pipeline_steps'][key].pop('library')
                 step = utils.import_library(
@@ -48,7 +61,9 @@ class Pipeline:
                 self.steps.append(step)
             else:
                 raise exceptions.step.StepDoesNotExist(key)
+            """
 
     def run(self):
         for step in self.steps:
             self.objects = step.run(self.objects)
+            i = 0

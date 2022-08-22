@@ -18,18 +18,17 @@ pipeline_rules:
 pipeline_steps:
   # Data Step settings
   data:
-    library: src.steps.data_step.DataStep
-    processes:
-      extract:
-        path: data/raw
-        data: dataset.csv
-        target: target
+    # library: src.steps.data_step.DataStep
+    extract:
+      filepath: data/raw/dataset.csv
+      target:
+        - target1
 
-      transform:
-        
-      load:
-        path: data/processed
-        data: dataset.csv
+    transform:
+
+    # load:
+    #  path: data/processed
+    #  data: dataset.csv
 
   # Model Step settings
   model:

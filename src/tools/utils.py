@@ -1,8 +1,9 @@
-from src import exceptions
-from typing import Dict, Callable
 import datetime
-import uuid
 import importlib
+import uuid
+from typing import Dict, Callable
+
+from src.exceptions import settings as settings_exception
 
 
 def import_library(module: str, params: Dict) -> Callable:
@@ -47,13 +48,14 @@ def ensure_input_list(obj: object) -> list:
     return lst
 
 
-def generate_unique_id(estimator_name: str, adding_uuid: bool = False) -> str:
+def generate_unique_id(
+        estimator_name: str = None, adding_uuid: bool = False) -> str:
     """
     This function generates a unique string id based on current timestamp and
     uuid4.
 
     Args:
-        estimator_name (str):
+        estimator_name (str): name of estimator that pipeline contains
         adding_uuid (optional, bool): adding uuid4 in generated id.
 
     Returns:
@@ -63,7 +65,10 @@ def generate_unique_id(estimator_name: str, adding_uuid: bool = False) -> str:
     if adding_uuid:
         unique_id = f'{unique_id}_{uuid.uuid4()}'
 
-    return f'{estimator_name}.{unique_id}'
+    if estimator_name:
+        unique_id = f'{estimator_name}.{unique_id}'
+
+    return unique_id
 
 
 def validate_pipeline(pipeline_content: Dict) -> None:
@@ -76,10 +81,11 @@ def validate_pipeline(pipeline_content: Dict) -> None:
     """
     # TODO: loop the steps and check the rules defined by the settings.yaml file: params['pipeline_rules']
     # Raise an exception when the rule validation fail
+    pass
 
 
-def merge_settings(base_settings: Dict, user_settings: Dict,
-                   acc_key: str = '') -> Dict:
+def merge_settings(
+        base_settings: Dict, user_settings: Dict, acc_key: str = '') -> Dict:
     """
     Update the base settings with the user defined settings recursively.
 
@@ -100,5 +106,5 @@ def merge_settings(base_settings: Dict, user_settings: Dict,
             else:
                 base_settings[key] = user_settings[key]
         else:
-            raise exceptions.settings.SettingsDoesNotExist(acc_key)
+            raise settings_exception.SettingParameterDoesNotExist(acc_key)
     return base_settings

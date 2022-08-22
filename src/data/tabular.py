@@ -50,11 +50,11 @@ class TabularDataset(base.BaseDataset):
         dataset = pd.concat((self.dataset, self.target), axis=1)
         load.save_dataframe(dataset, settings)
 
-    def get_data(self, features: List[str]) -> Tuple(pd.DataFrame, pd.DataFrame):
+    def get_data(self, features: List[str]) -> Tuple[pd.DataFrame, pd.DataFrame]:
         return self.dataset[[features]].values, self.target.values
 
     def train_test_split(self, features, test_size: float, seed: int)\
-            -> Tuple(pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame):
+            -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
         X_train, X_test, y_train, y_test = model_selection.train_test_split(
             self.dataset[[features]].values, self.target.values,
             test_size=test_size, random_state=seed)

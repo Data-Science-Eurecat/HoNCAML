@@ -33,7 +33,7 @@ class BaseStep(ABC):
         self.validate_step()
 
         self.step_settings = self._merge_settings(
-            default_settings, user_settings)
+            default_settings.copy(), user_settings.copy())
 
         self.extract_settings = \
             self.step_settings.get(StepProcesses.extract, None)
@@ -81,3 +81,14 @@ class BaseStep(ABC):
             self.transform()
         if StepProcesses.load in self.step_settings:
             self.load()
+
+
+class StepType:
+    """
+    This class defines the valid types of steps. The valid steps are the
+    following:
+        - data
+        - model
+    """
+    data = 'data'
+    model = 'model'
