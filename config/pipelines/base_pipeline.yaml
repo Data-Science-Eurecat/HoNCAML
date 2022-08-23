@@ -32,8 +32,7 @@ data:
 # Model Step settings
 model:
   estimator_type: regressor # | classifier
-
-  model_config:
+  estimator_config:
     module: sklearn.ensemble.RandomForestRegressor
     hyperparameters:
       n_estimators: 100
@@ -50,6 +49,6 @@ model:
         random_seed: 90
 
   load:
-    filepath: models/model.sav
+    path: models/
 
 # Benchmark Step settings
