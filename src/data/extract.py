@@ -10,8 +10,8 @@ class FileExtension:
     """
     This class contains the available files formats to read data.
     """
-    csv = 'csv'
-    excel = ['xlsx', 'xls']
+    csv = '.csv'
+    excel = ['.xlsx', '.xls']
     # Adding more file extensions here
 
 
@@ -42,15 +42,13 @@ def read_dataframe(settings: Dict) -> pd.DataFrame:
     Returns:
         df (pd.DataFrame): the dataset as pandas dataframe.
     """
-    filepath = os.path.join(settings['filepath'], settings['data'])
+    filepath = settings.pop('filepath')
     _, file_extension = os.path.splitext(filepath)
 
     if file_extension == FileExtension.csv:
-        # TODO: adding kwargs
-        df = pd.read_csv(filepath)
+        df = pd.read_csv(filepath, **settings)
     elif file_extension in FileExtension.excel:
-        # TODO: adding kwargs
-        df = pd.read_excel(filepath)
+        df = pd.read_excel(filepath, **settings)
     else:
         raise data_exception.FileExtensionException(file_extension)
 

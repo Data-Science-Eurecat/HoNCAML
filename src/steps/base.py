@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Dict
 from src.tools import utils
 
+
 class StepProcesses:
     """
     Class with the aim to store processes from a step (the ETL ones).
@@ -112,18 +113,10 @@ class BaseStep(ABC):
         """
         pass
 
-    def execute(self, objects: Dict) -> None:
+    def execute(self) -> None:
         """
         This function executes the ETL processes from the current step.
         This function runs the current steps.
-
-        Args:
-            objects (Dict): the objects output from each different previous
-                steps.
-
-        Returns:
-            objects (Dict): the previous objects updated with the ones from
-                the current steps.
         """
         if StepPhase.extract in self.step_settings:
             self.extract()

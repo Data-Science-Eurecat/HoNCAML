@@ -58,20 +58,20 @@ class DataStep(base.BaseStep):
         """
         pass
 
-    def run(self, objects: Dict) -> Dict:
+    def run(self, metadata: Dict) -> Dict:
         """
         Run the data steps. Using the dataset created run the ETL functions for
         the specific dataset: extract, transform and load.
 
         Args:
-            objects (Dict): the objects output from each different previous
+            metadata (Dict): the objects output from each different previous
                 steps.
 
         Returns:
-            objects (Dict): the previous objects updated with the ones from
+            metadata (Dict): the previous objects updated with the ones from
                 the current steps: the dataset.
         """
         self.execute()
+        metadata.update({'dataset': self.dataset})
 
-        objects.update({'dataset': self.dataset})
-        return objects
+        return metadata

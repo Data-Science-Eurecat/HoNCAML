@@ -25,6 +25,11 @@ pipeline_steps:
         - target
 
     transform:
+      normalize:
+        features:
+          module: sklearn.preprocessing.StandardScaler
+        target:
+          module: sklearn.preprocessing.StandardScaler
 
     # load:
     #  path: data/processed

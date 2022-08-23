@@ -3,7 +3,7 @@ import pandas as pd
 import unittest
 from sklearn import model_selection
 
-from src.data.transform import CrossValidationSplit
+from src.data import transform
 from src.exceptions import data as data_exceptions
 
 
@@ -23,13 +23,13 @@ class TransformTest(unittest.TestCase):
             (self.leave_one_out, model_selection.LeaveOneOut),
         ]
         for strategy, instance in strategies:
-            cv = CrossValidationSplit(strategy)
+            cv = transform.CrossValidationSplit(strategy)
             cv_object = cv._create_cross_validation_instance()
             self.assertTrue(isinstance(cv_object, instance))
 
         # Test with fake strategy
         fake_strategy = 'fake'
-        cv = CrossValidationSplit(fake_strategy)
+        cv = transform.CrossValidationSplit(fake_strategy)
         with self.assertRaises(data_exceptions.CVStrategyDoesNotExist):
             cv._create_cross_validation_instance()
 
@@ -38,7 +38,7 @@ class TransformTest(unittest.TestCase):
 
         data = list(range(0, 100))
         array = np.array(data)
-        cv = CrossValidationSplit(strategy)
+        cv = transform.CrossValidationSplit(strategy)
         for i, x_train, x_test, y_train, y_test in cv.split(array):
             self.assertTrue(isinstance(i, int))
 
@@ -110,7 +110,7 @@ class TransformTest(unittest.TestCase):
 
         # Numpy array
         # x: ndarray target: ndarray
-        cv = CrossValidationSplit(strategy)
+        cv = transform.CrossValidationSplit(strategy)
         for i, x_train, x_test, y_train, y_test in cv.split(array, array):
             self.assertTrue(isinstance(i, int))
 
@@ -249,7 +249,7 @@ class TransformTest(unittest.TestCase):
 
         data = list(range(0, 100))
         array = np.array(data)
-        cv = CrossValidationSplit(strategy)
+        cv = transform.CrossValidationSplit(strategy)
         for n_splits in n_splits_list:
             params = {
                 'n_splits': n_splits,
