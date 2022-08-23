@@ -2,14 +2,6 @@ from abc import ABC, abstractmethod
 from typing import Dict
 from src.tools import utils
 
-class StepProcesses:
-    """
-    Class with the aim to store processes from a step (the ETL ones).
-    """
-    extract = 'extract'
-    transform = 'transform'
-    load = 'load'
-
 
 class BaseStep(ABC):
     """
@@ -32,11 +24,11 @@ class BaseStep(ABC):
             default_settings (Dict): the default settings for the steps.
             user_settings (Dict): the user defined settings for the steps.
         """
-        # Check if it runs the parent method or child method
-        self.validate_step()
-
         self.step_settings = self._merge_settings(
             default_settings.copy(), user_settings.copy())
+
+        # Check if it runs the parent method or child method
+        self.validate_step()
 
         self.extract_settings = \
             self.step_settings.get(StepPhase.extract, None)
@@ -112,6 +104,13 @@ class BaseStep(ABC):
         """
         pass
 
+    @abstractmethod
+    def run(self, objects: Dict) -> Dict:
+        """
+        Run the step.
+        """
+        pass
+
     def execute(self, objects: Dict) -> None:
         """
         This function executes the ETL processes from the current step.
@@ -139,9 +138,11 @@ class StepType:
     following:
         - data
         - model
+        - benchmark
     """
     data = 'data'
     model = 'model'
+    benchmark = 'benchmark'
 
 
 class StepPhase:

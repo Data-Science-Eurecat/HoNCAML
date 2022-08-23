@@ -4,7 +4,8 @@ from src.exceptions import step as step_exceptions
 from typing import Dict
 from src.steps import base as base_step
 from src.steps import data as data_step
-import importlib
+from src.steps import model as model_step
+from src.steps import benchmark as benchmark_step
 
 
 class Pipeline:
@@ -44,24 +45,17 @@ class Pipeline:
         for step_name, step_content in self.pipeline_content.items():
             if step_name == base_step.StepType.data:
                 step = data_step.DataStep(
-                    params['pipeline_steps'], self.pipeline_content)
+                    params['pipeline_steps'][step_name], step_content)
             elif step_name == base_step.StepType.model:
-                step = None
+                step = model_step.ModelStep(
+                    params['pipeline_steps'][step_name], step_content)
+            elif step_name == base_step.StepType.benchmark:
+                step = benchmark_step.BenchmarkStep(
+                    params['pipeline_steps'][step_name], step_content)
             else:
                 raise step_exceptions.StepDoesNotExists(step_name)
 
             self.steps.append(step)
-
-            """
-            if key in params['pipeline_steps']:
-                library = params['pipeline_steps'][key].pop('library')
-                steps = utils.import_library(
-                    library, {'default_settings': params['pipeline_steps'][key],
-                              'user_settings': self.pipeline_content[key]})
-                self.steps.append(steps)
-            else:
-                raise exceptions.steps.StepDoesNotExist(key)
-            """
 
     def run(self):
         for step in self.steps:

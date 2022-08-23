@@ -1,7 +1,7 @@
 from typing import Dict, List
 
 from src.steps import base
-from src.tools import utils
+from src.models import base as base_model
 from src.models import sklearn_model, general
 from src.data import transform
 
@@ -9,6 +9,8 @@ from src.data import transform
 class ModelActions:
     fit = 'fit'
     predict = 'predict'
+
+# TODO: initialize the model: from extract, from estimator_config, from benchmark step
 
 
 class ModelStep(base.BaseStep):
@@ -31,30 +33,9 @@ class ModelStep(base.BaseStep):
             default_settings (Dict): the default settings for the steps.
             user_settings (Dict): the user defined settings for the steps.
         """
+        self.estimator_type = user_settings.pop('estimator_type')
+        self.estimator_config = user_settings.pop('estimator_config', None)
         super().__init__(default_settings, user_settings)
-        # TODO: get the model config from one of the settings
-        self.model_config = self.step_settings.get('model_config', None)
-
-        # TODO: identify the model type. Assuming SklearnModel.
-        # TODO: split the filename with '.' and it gets the library and
-        #  estimator_type
-        self.model = sklearn_model.SklearnModel(
-            self.step_settings.pop('estimator_type'))
-
-    def _merge_settings(
-            self, default_settings: Dict, user_settings: Dict) -> Dict:
-        """
-        Merge the user defined settings with the default ones.
-
-        Args:
-            default_settings (Dict): the default settings for the step.
-            default_settings (Dict): the user defined settings for the step.
-
-        Returns:
-            merged_settings (Dict): the user and default settings merged.
-        """
-        step_settings = utils.merge_settings(default_settings, user_settings)
-        return step_settings
 
     def validate_step(self) -> None:
         """
@@ -67,12 +48,14 @@ class ModelStep(base.BaseStep):
         """
         The extract process from the model step ETL.
         """
+        # TODO: Create model (sklearn / whatever)
         self.model.read(self.extract_settings)
 
     def transform(self) -> None:
         """
         The transform process from the model step ETL.
         """
+        # TODO: if model None -> Create model (sklearn / whatever)
         if self.model.estimator is None:
             self.model.build_model(
                 self.model_config, self.dataset.normalizations)
@@ -81,6 +64,12 @@ class ModelStep(base.BaseStep):
         if ModelActions.predict in self.transform_settings:
             self.predictions = self._predict(
                 self.transform_settings['predict'])
+
+    def load(self) -> None:
+        """
+        The load process from the model step ETL.
+        """
+        self.model.save(self.load_settings)
 
     def _fit(self, settings: Dict) -> None:
         """
@@ -123,31 +112,39 @@ class ModelStep(base.BaseStep):
         predictions = self.model.predict(X, **settings)
         return predictions
 
-    def load(self) -> None:
+    def _initialize_model(self, model_type: str) -> None:
         """
-        The load process from the model step ETL.
-        """
-        self.model.save(self.load_settings)
+        Initialize the specific type of model.
 
-    def run(self, objects: Dict) -> None:
+        Args:
+            model_type (str): the kind of model to initialize.
+        """
+        if model_type == base_model.ModelType.sklearn:
+            self.model = sklearn_model.SklearnModel(self.estimator_type)
+        else:
+            # TODO: create the exception
+            raise Exception
+
+    def run(self, metadata: Dict) -> Dict:
         """
         Run the model steps. Using the model created run the ETL functions for
         the specific model: extract, transform and load.
 
         Args:
-            objects (Dict): the objects output from each different previous
+            metadata (Dict): the objects output from each different previous
                 steps.
 
         Returns:
-            objects (Dict): the previous objects updated with the ones from
+            metadata (Dict): the previous objects updated with the ones from
                 the current steps: ?.
         """
         # Feed the model with the objects
-        self.dataset = objects['dataset']
-        if objects.get('model_config', None) is not None:
-            self.model_config = objects['model_config']
+        self.dataset = metadata['dataset']
+        if metadata.get('model_config', None) is not None:
+            self.model_config = metadata['model_config']
+        # Create model (sklearn / whatever) ¿by assigning the model from the metadata?
 
-        self.execute(objects)
+        self.execute(metadata)
 
-        objects.update({'model': self.model})
-        return objects
+        metadata.update({'model': self.model})
+        return metadata

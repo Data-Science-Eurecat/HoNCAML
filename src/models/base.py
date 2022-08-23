@@ -105,3 +105,12 @@ class BaseModel(ABC):
                 operation.
         """
         pass
+
+
+class ModelType:
+    """
+    This class defines the valid types of models. The valid steps are the
+    following:
+        - sklearn
+    """
+    sklearn = 'sklearn'
