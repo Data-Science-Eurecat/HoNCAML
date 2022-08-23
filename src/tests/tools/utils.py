@@ -44,7 +44,7 @@ class UtilsTest(unittest.TestCase):
             'filepath': 'not/override/file.csv',
             'new_param': 90
         }
-        result = utils.update_dict_from_default_dict(input_dict, default_dict)
+        result = utils.update_dict_from_default_dict(default_dict, input_dict)
         self.assertEqual(len(result), len({**input_dict, **default_dict}))
         self.assertEqual(result['filepath'], input_dict['filepath'])
         self.assertEqual(result['target'], default_dict['target'])
@@ -62,7 +62,7 @@ class UtilsTest(unittest.TestCase):
             'new_param': 90,
             'target': ['new_target']
         }
-        result = utils.update_dict_from_default_dict(input_dict, default_dict)
+        result = utils.update_dict_from_default_dict(default_dict, input_dict)
         self.assertEqual(len(result), len({**input_dict, **default_dict}))
         self.assertEqual(result['filepath'], input_dict['filepath'])
         self.assertEqual(result['target'], input_dict['target'])
@@ -72,3 +72,29 @@ class UtilsTest(unittest.TestCase):
         # Both empty dicts
         result = utils.update_dict_from_default_dict({}, {})
         self.assertDictEqual(result, {})
+
+        source = {'hello1': 1}
+        overrides = {'hello2': 2}
+        utils.update_dict_from_default_dict(source, overrides)
+        self.assertDictEqual(source, {'hello1': 1, 'hello2': 2})
+
+        source = {'hello': 'to_override'}
+        overrides = {'hello': 'over'}
+        utils.update_dict_from_default_dict(source, overrides)
+        self.assertDictEqual(source, {'hello': 'over'})
+
+        source = {'hello': {'value': 'to_override', 'no_change': 1}}
+        overrides = {'hello': {'value': 'over'}}
+        utils.update_dict_from_default_dict(source, overrides)
+        self.assertDictEqual(
+            source, {'hello': {'value': 'over', 'no_change': 1}})
+
+        source = {'hello': {'value': 'to_override', 'no_change': 1}}
+        overrides = {'hello': {'value': {}}}
+        utils.update_dict_from_default_dict(source, overrides)
+        self.assertDictEqual(source, {'hello': {'value': {}, 'no_change': 1}})
+
+        source = {'hello': {'value': {}, 'no_change': 1}}
+        overrides = {'hello': {'value': 2}}
+        utils.update_dict_from_default_dict(source, overrides)
+        self.assertDictEqual(source, {'hello': {'value': 2, 'no_change': 1}})

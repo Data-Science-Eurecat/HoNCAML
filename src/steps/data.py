@@ -1,6 +1,6 @@
 from typing import Dict
 
-from src.data import tabular
+from src.exceptions import step as step_exceptions
 from src.steps import base
 from src.tools import utils
 
@@ -33,13 +33,6 @@ class DataStep(base.BaseStep):
 
         # TODO: identify the dataset type. Assuming TabularDataset for now.
         # self.dataset = tabular.TabularDataset()
-
-    def _merge_settings(
-            self, default_settings: Dict, user_settings: Dict) -> Dict:
-
-
-        return utils.update_dict_from_default_dict(
-            user_settings, default_settings)
 
     def extract(self):
         self.dataset.read(self.extract_settings)

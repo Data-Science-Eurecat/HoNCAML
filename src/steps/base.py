@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Dict
 from src.tools import utils
 
+
 class BaseStep(ABC):
     """
     Abstract class Step to wrap the pipeline's steps. Defines the base 
@@ -25,14 +26,13 @@ class BaseStep(ABC):
 
         self.step_settings = self._merge_settings(
             default_settings.copy(), user_settings.copy())
-        """
+
         self.extract_settings = \
-            self.step_settings.get(StepProcesses.extract, None)
+            self.step_settings.get(StepPhase.extract, None)
         self.transform_settings = \
-            self.step_settings.get(StepProcesses.transform, None)
+            self.step_settings.get(StepPhase.transform, None)
         self.load_settings = \
-            self.step_settings.get(StepProcesses.load, None)
-        """
+            self.step_settings.get(StepPhase.load, None)
 
     def __str__(self):
         return self.step_settings
@@ -43,21 +43,26 @@ class BaseStep(ABC):
     def _merge_settings(
             self, default_settings: Dict, user_settings: Dict) -> Dict:
         """
+        Given two dictionaries first one with a default settings and the
+        second one with the user settings, this function combine user settings
+        and default settings. In addition, the params of user setting prevails.
 
         Args:
-            default_settings (Dict):
-            user_settings (Dict):
+            default_settings (Dict): a dict with default settings.
+            user_settings (Dict): a dict with user custom settings.
 
         Returns:
-
+            a dict with pipeline settings.
         """
         step_settings = {}
         for phase in step_phases:
+            # Getting params of phase
             phase_default_settings = default_settings.get(phase, {})
             phase_user_settings = user_settings.get(phase, {})
 
+            # Combine default settings and user settings
             phase_settings = utils.update_dict_from_default_dict(
-                phase_user_settings, phase_default_settings)
+                phase_default_settings, phase_user_settings)
 
             if phase_settings:
                 step_settings[phase] = phase_settings

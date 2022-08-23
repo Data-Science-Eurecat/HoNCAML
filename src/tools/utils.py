@@ -1,7 +1,7 @@
 import datetime
 import importlib
 import uuid
-from typing import Dict, Callable, Any
+from typing import Dict, Callable
 
 from src.exceptions import settings as settings_exception
 
@@ -111,36 +111,25 @@ def merge_settings(
 
 
 def update_dict_from_default_dict(
-        input_dict: Dict, default_dict: Dict) -> Dict:
+        source_dict: Dict, overrides_dict: Dict) -> Dict:
     """
-    Given a dictionary with values and a dictionary with default values,
-    this function creates a new dict with the values of 'input_dict' and it
-    adds the values from 'default_dict' that it does not exist in 'input_dict'.
+    Given two dictionaries, this function combine both dictionaries values
+    and 'overrides_dict' values prevails. In addition, it is a recursive
+    function when the value of dict is another dict.
 
     Args:
-        input_dict (Dict): dict to add default values.
-        default_dict (Dict): dict with default values.
-
-    Notes:
-        If the key exists in both dictionaries, the values of
-        'input_dict' prevails.
+        source_dict (Dict): dictionary to modify
+        overrides_dict (Dict): dictionary with override values
 
     Returns:
-        a dict with values from 'input_dict' and
+        a dict with values of both dicts.
     """
-    # Create a copy for both dicts
-    input_dict, default_dict = input_dict.copy(), default_dict.copy()
-    result_dict = dict()
-    for key in input_dict:
-        # Remove key from default dict if it exists in input dict
-        try:
-            del default_dict[key]
-        except KeyError:
-            pass
-        # If default dict does not contain key, it adds the default value
-        result_dict[key] = default_dict.get(key, input_dict[key])
+    for key, value in overrides_dict.items():
+        if isinstance(value, dict) and value:
+            returned = update_dict_from_default_dict(
+                source_dict.get(key, {}), value)
+            source_dict[key] = returned
+        else:
+            source_dict[key] = overrides_dict[key]
 
-    # Adding the rest of parameters from default dict
-    result_dict = {**result_dict, **default_dict}
-
-    return result_dict
+    return source_dict
