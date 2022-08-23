@@ -44,7 +44,7 @@ def read_dataframe(settings: Dict) -> pd.DataFrame:
     """
     filepath = os.path.join(settings['filepath'], settings['data'])
     _, file_extension = os.path.splitext(filepath)
-    # extension = settings['data'].split('.')[-1].lower()
+
     if file_extension == FileExtension.csv:
         # TODO: adding kwargs
         df = pd.read_csv(filepath)

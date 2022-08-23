@@ -1,8 +1,7 @@
 from typing import Dict
 
-from src.exceptions import step as step_exceptions
+from src.data import tabular
 from src.steps import base
-from src.tools import utils
 
 
 class DataStep(base.BaseStep):
@@ -32,7 +31,7 @@ class DataStep(base.BaseStep):
         super().__init__(default_settings, user_settings)
 
         # TODO: identify the dataset type. Assuming TabularDataset for now.
-        # self.dataset = tabular.TabularDataset()
+        self.dataset = tabular.TabularDataset()
 
     def extract(self):
         self.dataset.read(self.extract_settings)
