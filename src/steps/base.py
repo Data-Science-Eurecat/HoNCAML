@@ -1,15 +1,26 @@
 from abc import ABC, abstractmethod
 from typing import Dict
-from src.tools import utils
+
+
+class StepProcesses:
+    """
+    Class with the aim to store processes from a step (the ETL ones).
+    """
+    extract = 'extract'
+    transform = 'transform'
+    load = 'load'
 
 
 class BaseStep(ABC):
     """
-    Abstract class Step to wrap the pipeline's steps. Defines the base 
-    structure for an steps from the main pipeline.
+    Abstract class Step to wrap a pipeline step. It defines the base structure
+    for an step from the main pipeline.
 
     Attributes:
-        step_settings (Dict): the settings that define the steps.
+        step_settings (Dict): the settings that define the step.
+        extract_settings (Dict): the settings defining the extract ETL process.
+        transform_settings (Dict): the settings defining the transform ETL process.
+        load_settings (Dict): the settings defining the load ETL process.
     """
 
     def __init__(self, default_settings: Dict, user_settings: Dict) -> None:
@@ -70,23 +81,40 @@ class BaseStep(ABC):
         return step_settings
 
     @abstractmethod
-    def validate_step(self):
+    def validate_step(self) -> None:
+        """
+        Validates the settings for the step ensuring that the step has the
+        mandatory keys to run.
+        """
         pass
 
     @abstractmethod
     def extract(self) -> None:
+        """
+        The extract process from the step ETL. This function must be
+        implemented by child classes.
+        """
         pass
 
     @abstractmethod
     def transform(self) -> None:
+        """
+        The transform process from the step ETL. This function must be
+        implemented by child classes.
+        """
         pass
 
     @abstractmethod
     def load(self) -> None:
+        """
+        The load process from the step ETL. This function must be
+        implemented by child classes.
+        """
         pass
 
     def execute(self, objects: Dict) -> None:
         """
+        This function executes the ETL processes from the current step.
         This function runs the current steps.
 
         Args:

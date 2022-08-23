@@ -6,7 +6,7 @@ from src.steps import base
 
 class DataStep(base.BaseStep):
     """
-    The Data steps class is an steps of the main pipeline. It contains the
+    The Data step class is an step of the main pipeline. It contains the
     functionalities to perform the ETL on the requested data.
 
     Attributes:
@@ -33,13 +33,30 @@ class DataStep(base.BaseStep):
         # TODO: identify the dataset type. Assuming TabularDataset for now.
         self.dataset = tabular.TabularDataset()
 
-    def extract(self):
+
+    def validate_step(self) -> None:
+        """
+        Validates the settings for the step ensuring that the step has the
+        mandatory keys to run.
+        """
+        pass
+
+    def extract(self) -> None:
+        """
+        The extract process from the data step ETL.
+        """
         self.dataset.read(self.extract_settings)
 
-    def transform(self):
+    def transform(self) -> None:
+        """
+        The transform process from the data step ETL.
+        """
         self.dataset.preprocess(self.transform_settings)
 
-    def load(self):
+    def load(self) -> None:
+        """
+        The load process from the data step ETL.
+        """
         self.dataset.save(self.load_settings)
 
     def validate_step(self):
