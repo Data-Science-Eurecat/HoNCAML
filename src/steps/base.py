@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Dict
-
+from src.tools import utils
 
 class BaseStep(ABC):
     """
@@ -40,10 +40,29 @@ class BaseStep(ABC):
     def __repr__(self):
         return self.step_settings
 
-    @abstractmethod
     def _merge_settings(
             self, default_settings: Dict, user_settings: Dict) -> Dict:
-        pass
+        """
+
+        Args:
+            default_settings (Dict):
+            user_settings (Dict):
+
+        Returns:
+
+        """
+        step_settings = {}
+        for phase in step_phases:
+            phase_default_settings = default_settings.get(phase, {})
+            phase_user_settings = user_settings.get(phase, {})
+
+            phase_settings = utils.update_dict_from_default_dict(
+                phase_user_settings, phase_default_settings)
+
+            if phase_settings:
+                step_settings[phase] = phase_settings
+
+        return step_settings
 
     @abstractmethod
     def validate_step(self):
@@ -73,11 +92,11 @@ class BaseStep(ABC):
             objects (Dict): the previous objects updated with the ones from
                 the current steps.
         """
-        if StepProcesses.extract in self.step_settings:
+        if StepPhase.extract in self.step_settings:
             self.extract()
-        if StepProcesses.transform in self.step_settings:
+        if StepPhase.transform in self.step_settings:
             self.transform()
-        if StepProcesses.load in self.step_settings:
+        if StepPhase.load in self.step_settings:
             self.load()
 
 
@@ -92,7 +111,7 @@ class StepType:
     model = 'model'
 
 
-class StepProcesses:
+class StepPhase:
     """
     Class with the aim to store processes from a steps (the ETL ones).
     """
@@ -101,7 +120,8 @@ class StepProcesses:
     load = 'load'
 
 
-steps = [
-    StepProcesses.extract,
-    StepProcesses.transform,
-    StepProcesses.load]
+# List of phases for each step
+step_phases = [
+    StepPhase.extract,
+    StepPhase.transform,
+    StepPhase.load]

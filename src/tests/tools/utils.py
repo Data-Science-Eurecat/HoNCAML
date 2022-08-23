@@ -68,3 +68,7 @@ class UtilsTest(unittest.TestCase):
         self.assertEqual(result['target'], input_dict['target'])
         self.assertEqual(result['param4'], default_dict['param4'])
         self.assertTrue('new_param' in result)
+
+        # Both empty dicts
+        result = utils.update_dict_from_default_dict({}, {})
+        self.assertDictEqual(result, {})
