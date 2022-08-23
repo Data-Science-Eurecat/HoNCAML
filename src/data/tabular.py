@@ -50,5 +50,5 @@ class TabularDataset(base.BaseDataset):
         dataset = pd.concat((self.dataset, self.target), axis=1)
         load.save_dataframe(dataset, settings)
 
-    def get_data(self) -> Tuple(pd.DataFrame, pd.DataFrame):
+    def get_data(self) -> Tuple[pd.DataFrame, pd.DataFrame]:
         return self.dataset.values, self.target.values

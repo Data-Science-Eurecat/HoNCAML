@@ -14,22 +14,21 @@ pipeline_folder: config/pipelines
 # Pipeline validation rules
 pipeline_rules:
 
-# Pipeline step settings (default settings for each pipeline step)
+# Pipeline steps settings (default settings for each pipeline steps)
 pipeline_steps:
   # Data Step settings
   data:
-    library: src.steps.data_step.DataStep
-    processes:
-      extract:
-        path: data/raw
-        data: dataset.csv
-        target: target
+    # library: src.steps.data_step.DataStep
+    extract:
+      filepath: data/raw/dataset.csv
+      target:
+        - target
 
-      transform:
-        
-      load:
-        path: data/processed
-        data: dataset.csv
+    transform:
+
+    # load:
+    #  path: data/processed
+    #  data: dataset.csv
 
   # Model Step settings
   model:

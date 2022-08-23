@@ -2,7 +2,6 @@ from typing import Dict
 
 from src.data import tabular
 from src.steps import base
-from src.tools import utils
 
 
 class DataStep(base.BaseStep):
@@ -11,49 +10,28 @@ class DataStep(base.BaseStep):
     functionalities to perform the ETL on the requested data.
 
     Attributes:
-        default_settings (Dict): the default settings for the step.
-        user_settings (Dict): the user defined settings for the step.
+        default_settings (Dict): the default settings for the steps.
+        user_settings (Dict): the user defined settings for the steps.
         dataset (data.Dataset): the dataset to be handled.
     """
-
-    def validate_step(self):
-        pass
 
     def __init__(self, default_settings: Dict, user_settings: Dict) -> None:
         """
         This is a constructor method of class. This function initializes
-        the parameters and set up the current step.
+        the parameters and set up the current steps.
 
         Args:
-            default_settings (Dict): the default settings for the step.
-            user_settings (Dict): the user defined settings for the step.
+            default_settings (Dict): the default settings for the steps.
+            user_settings (Dict): the user defined settings for the steps.
         """
+        # Getting default settings for data steps
+        default_settings = default_settings.get(base.StepType.data)
+        # Getting user settings if it exists
+        user_settings = user_settings.get(base.StepType.data, {})
         super().__init__(default_settings, user_settings)
 
         # TODO: identify the dataset type. Assuming TabularDataset for now.
         self.dataset = tabular.TabularDataset()
-
-    def _merge_settings(
-            self, default_settings: Dict, user_settings: Dict) -> Dict:
-        """
-        Merge the user defined settings with the default ones.
-
-        Args:
-            default_settings (Dict): the default settings for the step.
-            default_settings (Dict): the user defined settings for the step.
-
-        Returns:
-            merged_settings (Dict): the user and default settings merged.
-        """
-        step_settings = utils.merge_settings(default_settings, user_settings)
-        return step_settings
-
-    def validate_step(self) -> None:
-        """
-        Validates the settings for the step ensuring that the step has the
-        mandatory keys to run.
-        """
-        pass
 
     def extract(self) -> None:
         """
@@ -73,18 +51,25 @@ class DataStep(base.BaseStep):
         """
         self.dataset.save(self.load_settings)
 
+    def validate_step(self) -> None:
+        """
+        Validates the settings for the step ensuring that the step has the
+        mandatory keys to run.
+        """
+        pass
+
     def run(self, objects: Dict) -> Dict:
         """
-        Run the data step. Using the dataset created run the ETL functions for
+        Run the data steps. Using the dataset created run the ETL functions for
         the specific dataset: extract, transform and load.
 
         Args:
             objects (Dict): the objects output from each different previous
-                step.
+                steps.
 
         Returns:
             objects (Dict): the previous objects updated with the ones from
-                the current step: the dataset.
+                the current steps: the dataset.
         """
         self.execute()
 

@@ -1,6 +1,6 @@
+import pandas as pd
 from abc import ABC, abstractmethod
 from typing import Dict, Tuple
-import pandas as pd
 
 
 class BaseDataset(ABC):

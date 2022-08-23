@@ -6,24 +6,24 @@ from src.tools import utils
 
 class BenchmarkStep(base.BaseStep):
     """
-    The Benchmark step class is an step of the main pipeline. The step
+    The Benchmark steps class is an steps of the main pipeline. The steps
     performs a model ranking by performing a hyperparameter search and model
     selection based on the user and default settings. The extract and load
-    methods allow the step to save and restore executions to/from checkpoints.
+    methods allow the steps to save and restore executions to/from checkpoints.
 
     Attributes:
-        default_settings (Dict): the default settings for the step.
-        user_settings (Dict): the user defined settings for the step.
+        default_settings (Dict): the default settings for the steps.
+        user_settings (Dict): the user defined settings for the steps.
     """
 
     def __init__(self, default_settings: Dict, user_settings: Dict) -> None:
         """
         This is a constructor method of class. This function initializes
-        the parameters and set up the current step.
+        the parameters and set up the current steps.
 
         Args:
-            default_settings (Dict): the default settings for the step.
-            user_settings (Dict): the user defined settings for the step.
+            default_settings (Dict): the default settings for the steps.
+            user_settings (Dict): the user defined settings for the steps.
         """
         super().__init__(default_settings, user_settings)
 
