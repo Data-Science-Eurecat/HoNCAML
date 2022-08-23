@@ -33,14 +33,6 @@ class DataStep(base.BaseStep):
         # TODO: identify the dataset type. Assuming TabularDataset for now.
         self.dataset = tabular.TabularDataset()
 
-
-    def validate_step(self) -> None:
-        """
-        Validates the settings for the step ensuring that the step has the
-        mandatory keys to run.
-        """
-        pass
-
     def extract(self) -> None:
         """
         The extract process from the data step ETL.
@@ -59,7 +51,11 @@ class DataStep(base.BaseStep):
         """
         self.dataset.save(self.load_settings)
 
-    def validate_step(self):
+    def validate_step(self) -> None:
+        """
+        Validates the settings for the step ensuring that the step has the
+        mandatory keys to run.
+        """
         pass
 
     def run(self, objects: Dict) -> Dict:

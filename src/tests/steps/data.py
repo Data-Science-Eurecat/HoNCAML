@@ -3,7 +3,7 @@ import unittest
 from src.steps import data, base
 
 
-class TransformTest(unittest.TestCase):
+class DataTest(unittest.TestCase):
     def setUp(self):
         self.default_settings = {
             'data': {
