@@ -14,7 +14,7 @@ pipeline_folder: config/pipelines
 # Pipeline validation rules
 pipeline_rules:
 
-# Pipeline step settings (default settings for each pipeline step)
+# Pipeline steps settings (default settings for each pipeline steps)
 pipeline_steps:
   # Data Step settings
   data:
@@ -22,7 +22,7 @@ pipeline_steps:
     extract:
       filepath: data/raw/dataset.csv
       target:
-        - target1
+        - target
 
     transform:
 

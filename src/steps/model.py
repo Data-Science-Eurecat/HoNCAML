@@ -13,13 +13,13 @@ class ModelActions:
 
 class ModelStep(base.BaseStep):
     """
-    The Model step class is an step of the main pipeline. The step performs
+    The Model steps class is an steps of the main pipeline. The steps performs
     different tasks such as train, predict and evaluate a model. The extract
-    and load functions allow the step to save or restore a model.
+    and load functions allow the steps to save or restore a model.
 
     Attributes:
-        default_settings (Dict): the default settings for the step.
-        user_settings (Dict): the user defined settings for the step.
+        default_settings (Dict): the default settings for the steps.
+        user_settings (Dict): the user defined settings for the steps.
     """
 
     def validate_step(self):
@@ -28,11 +28,11 @@ class ModelStep(base.BaseStep):
     def __init__(self, default_settings: Dict, user_settings: Dict) -> None:
         """
         This is a constructor method of class. This function initializes
-        the parameters and set up the current step.
+        the parameters and set up the current steps.
 
         Args:
-            default_settings (Dict): the default settings for the step.
-            user_settings (Dict): the user defined settings for the step.
+            default_settings (Dict): the default settings for the steps.
+            user_settings (Dict): the user defined settings for the steps.
         """
         super().__init__(default_settings, user_settings)
         # TODO: get the model config from one of the settings
@@ -79,16 +79,16 @@ class ModelStep(base.BaseStep):
 
     def run(self, objects: Dict) -> None:
         """
-        Run the model step. Using the model created run the ETL functions for
+        Run the model steps. Using the model created run the ETL functions for
         the specific model: extract, transform and load.
 
         Args:
             objects (Dict): the objects output from each different previous
-                step.
+                steps.
 
         Returns:
             objects (Dict): the previous objects updated with the ones from
-                the current step: ?.
+                the current steps: ?.
         """
         # Feed the model with the objects
         self.model.dataset = objects['dataset']

@@ -1,7 +1,7 @@
 import datetime
 import importlib
 import uuid
-from typing import Dict, Callable
+from typing import Dict, Callable, Any
 
 from src.exceptions import settings as settings_exception
 
@@ -108,3 +108,39 @@ def merge_settings(
         else:
             raise settings_exception.SettingParameterDoesNotExist(acc_key)
     return base_settings
+
+
+def update_dict_from_default_dict(
+        input_dict: Dict, default_dict: Dict) -> Dict:
+    """
+    Given a dictionary with values and a dictionary with default values,
+    this function creates a new dict with the values of 'input_dict' and it
+    adds the values from 'default_dict' that it does not exist in 'input_dict'.
+
+    Args:
+        input_dict (Dict): dict to add default values.
+        default_dict (Dict): dict with default values.
+
+    Notes:
+        If the key exists in both dictionaries, the values of
+        'input_dict' prevails.
+
+    Returns:
+        a dict with values from 'input_dict' and
+    """
+    # Create a copy for both dicts
+    input_dict, default_dict = input_dict.copy(), default_dict.copy()
+    result_dict = dict()
+    for key in input_dict:
+        # Remove key from default dict if it exists in input dict
+        try:
+            del default_dict[key]
+        except KeyError:
+            pass
+        # If default dict does not contain key, it adds the default value
+        result_dict[key] = default_dict.get(key, input_dict[key])
+
+    # Adding the rest of parameters from default dict
+    result_dict = {**result_dict, **default_dict}
+
+    return result_dict

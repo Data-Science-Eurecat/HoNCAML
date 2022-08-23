@@ -2,45 +2,43 @@ from abc import ABC, abstractmethod
 from typing import Dict
 
 
-class StepProcesses:
-    """
-    Class with the aim to store processes from a step (the ETL ones).
-    """
-    extract = 'extract'
-    transform = 'transform'
-    load = 'load'
-
-
 class BaseStep(ABC):
     """
     Abstract class Step to wrap the pipeline's steps. Defines the base 
-    structure for an step from the main pipeline.
+    structure for an steps from the main pipeline.
 
     Attributes:
-        step_settings (Dict): the settings that define the step.
+        step_settings (Dict): the settings that define the steps.
     """
 
     def __init__(self, default_settings: Dict, user_settings: Dict) -> None:
         """
         This is a constructor method of class. This function initializes
-        the common step parameters.
+        the common steps parameters.
 
         Args:
-            default_settings (Dict): the default settings for the step.
-            user_settings (Dict): the user defined settings for the step.
+            default_settings (Dict): the default settings for the steps.
+            user_settings (Dict): the user defined settings for the steps.
         """
         # Check if it runs the parent method or child method
         self.validate_step()
 
         self.step_settings = self._merge_settings(
             default_settings.copy(), user_settings.copy())
-
+        """
         self.extract_settings = \
             self.step_settings.get(StepProcesses.extract, None)
         self.transform_settings = \
             self.step_settings.get(StepProcesses.transform, None)
         self.load_settings = \
             self.step_settings.get(StepProcesses.load, None)
+        """
+
+    def __str__(self):
+        return self.step_settings
+
+    def __repr__(self):
+        return self.step_settings
 
     @abstractmethod
     def _merge_settings(
@@ -65,15 +63,15 @@ class BaseStep(ABC):
 
     def execute(self, objects: Dict) -> None:
         """
-        This function runs the current step.
+        This function runs the current steps.
 
         Args:
             objects (Dict): the objects output from each different previous
-                step.
+                steps.
 
         Returns:
             objects (Dict): the previous objects updated with the ones from
-                the current step.
+                the current steps.
         """
         if StepProcesses.extract in self.step_settings:
             self.extract()
@@ -92,3 +90,18 @@ class StepType:
     """
     data = 'data'
     model = 'model'
+
+
+class StepProcesses:
+    """
+    Class with the aim to store processes from a steps (the ETL ones).
+    """
+    extract = 'extract'
+    transform = 'transform'
+    load = 'load'
+
+
+steps = [
+    StepProcesses.extract,
+    StepProcesses.transform,
+    StepProcesses.load]
