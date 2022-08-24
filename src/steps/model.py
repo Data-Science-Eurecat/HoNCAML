@@ -4,13 +4,12 @@ from src.steps import base
 from src.models import base as base_model
 from src.models import sklearn_model, general
 from src.data import transform
+from src.exceptions import model as model_exceptions
 
 
 class ModelActions:
     fit = 'fit'
     predict = 'predict'
-
-# TODO: initialize the model: from extract, from estimator_config, from benchmark step
 
 
 class ModelStep(base.BaseStep):
@@ -36,6 +35,7 @@ class ModelStep(base.BaseStep):
         self.estimator_type = user_settings.pop('estimator_type')
         self.estimator_config = user_settings.pop('estimator_config', None)
         super().__init__(default_settings, user_settings)
+        self.model = None
 
     def validate_step(self) -> None:
         """
@@ -48,17 +48,21 @@ class ModelStep(base.BaseStep):
         """
         The extract process from the model step ETL.
         """
-        # TODO: Create model (sklearn / whatever)
+        self._initialize_model(
+            self.extract_settings['filepath'].split('/')[-1].split('.')[0])
         self.model.read(self.extract_settings)
 
     def transform(self) -> None:
         """
         The transform process from the model step ETL.
         """
-        # TODO: if model None -> Create model (sklearn / whatever)
-        if self.model.estimator is None:
+        if self.model is None:
+            model_type = 'sklearn'
+            if self.estimator_config is not None:
+                model_type = self.estimator_config['module'].split('.')[0]
+            self._initialize_model(model_type)
             self.model.build_model(
-                self.model_config, self.dataset.normalizations)
+                self.estimator_config, self.dataset.normalizations)
         if ModelActions.fit in self.transform_settings:
             self._fit(self.transform_settings['fit'])
         if ModelActions.predict in self.transform_settings:
@@ -122,8 +126,7 @@ class ModelStep(base.BaseStep):
         if model_type == base_model.ModelType.sklearn:
             self.model = sklearn_model.SklearnModel(self.estimator_type)
         else:
-            # TODO: create the exception
-            raise Exception
+            raise model_exceptions.ModelDoesNotExists(model_type)
 
     def run(self, metadata: Dict) -> Dict:
         """
@@ -140,9 +143,8 @@ class ModelStep(base.BaseStep):
         """
         # Feed the model with the objects
         self.dataset = metadata['dataset']
-        if metadata.get('model_config', None) is not None:
-            self.model_config = metadata['model_config']
-        # Create model (sklearn / whatever) ¿by assigning the model from the metadata?
+        if metadata.get('model', None) is not None:
+            self.model = metadata['model']
 
         self.execute(metadata)
 
