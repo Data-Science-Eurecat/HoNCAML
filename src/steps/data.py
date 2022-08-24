@@ -35,27 +35,34 @@ class DataStep(base.BaseStep):
 
     @property
     def dataset(self) -> tabular.TabularDataset:
+        """
+        This is a getter method. This function returns the '_dataset'
+        attribute.
+
+        Returns:
+            (str): dataset instance.
+        """
         return self._dataset
 
-    def extract(self) -> None:
+    def _extract(self) -> None:
         """
         The extract process from the data step ETL.
         """
-        self.dataset.read(self.extract_settings)
+        self.dataset.read(self._extract_settings)
 
-    def transform(self) -> None:
+    def _transform(self) -> None:
         """
         The transform process from the data step ETL.
         """
-        self.dataset.preprocess(self.transform_settings)
+        self.dataset.preprocess(self._transform_settings)
 
-    def load(self) -> None:
+    def _load(self) -> None:
         """
         The load process from the data step ETL.
         """
-        self.dataset.save(self.load_settings)
+        self.dataset.save(self._load_settings)
 
-    def validate_step(self) -> None:
+    def _validate_step(self) -> None:
         """
         Validates the settings for the step ensuring that the step has the
         mandatory keys to run.

@@ -48,7 +48,7 @@ class TabularTest(unittest.TestCase):
         result_dataset = tabular_obj.dataset
 
         self.assertListEqual(
-            tabular_obj.features, self.settings_with_csv['features'])
+            tabular_obj._features, self.settings_with_csv['features'])
         self.assertListEqual(
             tabular_obj.target, self.settings_with_csv['target'])
 
@@ -87,7 +87,7 @@ class TabularTest(unittest.TestCase):
         result_dataset = tabular_obj.dataset
 
         self.assertListEqual(
-            tabular_obj.features, self.settings_with_csv['features'])
+            tabular_obj._features, self.settings_with_csv['features'])
         self.assertListEqual(
             tabular_obj.target, self.settings_with_csv['target'])
 

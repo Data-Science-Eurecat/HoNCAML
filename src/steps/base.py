@@ -16,13 +16,13 @@ class StepProcesses:
 class BaseStep(ABC):
     """
     Abstract class Step to wrap a pipeline step. It defines the base structure
-    for an step from the main pipeline.
+    for a step from the main pipeline.
 
     Attributes:
-        step_settings (Dict): the settings that define the step.
-        extract_settings (Dict): the settings defining the extract ETL process.
-        transform_settings (Dict): the settings defining the transform ETL process.
-        load_settings (Dict): the settings defining the load ETL process.
+        _step_settings (Dict): the settings that define the step.
+        _extract_settings (Dict): the settings defining the extract ETL process.
+        _transform_settings (Dict): the settings defining the transform ETL process.
+        _load_settings (Dict): the settings defining the load ETL process.
     """
 
     def __init__(self, default_settings: Dict, user_settings: Dict) -> None:
@@ -35,23 +35,34 @@ class BaseStep(ABC):
             user_settings (Dict): the user defined settings for the steps.
         """
         # Check if it runs the parent method or child method
-        self.validate_step()
+        self._validate_step()
 
-        self.step_settings = self._merge_settings(
+        self._step_settings = self._merge_settings(
             default_settings.copy(), user_settings.copy())
 
-        self.extract_settings = \
-            self.step_settings.get(StepPhase.extract, None)
-        self.transform_settings = \
-            self.step_settings.get(StepPhase.transform, None)
-        self.load_settings = \
-            self.step_settings.get(StepPhase.load, None)
+        self._extract_settings = \
+            self._step_settings.get(StepPhase.extract, None)
+        self._transform_settings = \
+            self._step_settings.get(StepPhase.transform, None)
+        self._load_settings = \
+            self._step_settings.get(StepPhase.load, None)
+
+    @property
+    def step_settings(self) -> Dict:
+        """
+        This is a getter method. This function returns the '_step_settings'
+        attribute.
+
+        Returns:
+            (str): a dict with settings of step
+        """
+        return self._step_settings
 
     def __str__(self):
-        return str(self.step_settings)
+        return str(self._step_settings)
 
     def __repr__(self):
-        return str(self.step_settings)
+        return str(self._step_settings)
 
     def _merge_settings(
             self, default_settings: Dict, user_settings: Dict) -> Dict:
@@ -65,7 +76,7 @@ class BaseStep(ABC):
             user_settings (Dict): a dict with user custom settings.
 
         Returns:
-            a dict with pipeline settings.
+            (Dict): pipeline settings as dict.
         """
         step_settings = {}
         for phase in step_phases:
@@ -83,7 +94,7 @@ class BaseStep(ABC):
         return step_settings
 
     @abstractmethod
-    def validate_step(self) -> None:
+    def _validate_step(self) -> None:
         """
         Validates the settings for the step ensuring that the step has the
         mandatory keys to run.
@@ -91,7 +102,7 @@ class BaseStep(ABC):
         pass
 
     @abstractmethod
-    def extract(self) -> None:
+    def _extract(self) -> None:
         """
         The extract process from the step ETL. This function must be
         implemented by child classes.
@@ -99,7 +110,7 @@ class BaseStep(ABC):
         pass
 
     @abstractmethod
-    def transform(self) -> None:
+    def _transform(self) -> None:
         """
         The transform process from the step ETL. This function must be
         implemented by child classes.
@@ -107,7 +118,7 @@ class BaseStep(ABC):
         pass
 
     @abstractmethod
-    def load(self) -> None:
+    def _load(self) -> None:
         """
         The load process from the step ETL. This function must be
         implemented by child classes.
@@ -119,12 +130,12 @@ class BaseStep(ABC):
         This function executes the ETL processes from the current step.
         This function runs the current steps.
         """
-        if StepPhase.extract in self.step_settings:
-            self.extract()
-        if StepPhase.transform in self.step_settings:
-            self.transform()
-        if StepPhase.load in self.step_settings:
-            self.load()
+        if StepPhase.extract in self._step_settings:
+            self._extract()
+        if StepPhase.transform in self._step_settings:
+            self._transform()
+        if StepPhase.load in self._step_settings:
+            self._load()
 
 
 class StepType:
