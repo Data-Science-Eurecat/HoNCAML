@@ -12,6 +12,12 @@ class ModelActions:
     predict = 'predict'
 
 
+default_estimator = {
+    'module': 'sklearn.ensemble.RandomForestClassifier',
+    'hyperparameters': {}
+}
+
+
 class ModelStep(base.BaseStep):
     """
     The Model steps class is an steps of the main pipeline. The steps performs
@@ -33,7 +39,8 @@ class ModelStep(base.BaseStep):
             user_settings (Dict): the user defined settings for the steps.
         """
         self.estimator_type = user_settings.pop('estimator_type')
-        self.estimator_config = user_settings.pop('estimator_config', None)
+        self.estimator_config = user_settings.pop(
+            'estimator_config', default_estimator)
         super().__init__(default_settings, user_settings)
         self.model = None
 
@@ -57,9 +64,7 @@ class ModelStep(base.BaseStep):
         The transform process from the model step ETL.
         """
         if self.model is None:
-            model_type = 'sklearn'
-            if self.estimator_config is not None:
-                model_type = self.estimator_config['module'].split('.')[0]
+            model_type = self.estimator_config['module'].split('.')[0]
             self._initialize_model(model_type)
             self.model.build_model(
                 self.estimator_config, self.dataset.normalizations)

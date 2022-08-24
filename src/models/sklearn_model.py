@@ -25,7 +25,6 @@ class SklearnModel(base.BaseModel):
                 are `regressor` and `classifier`.
         """
         super().__init__(estimator_type)
-        self.default_estimator = 'sklearn.ensemble.RandomForestClassifier'
 
     def read(self, settings: Dict) -> None:
         """
@@ -57,10 +56,6 @@ class SklearnModel(base.BaseModel):
                 remainder='passthrough')
             pipeline_steps.append(('feature_scaler', ct_feature))
 
-        # TODO: Check if model config defined else use default estimator
-        if model_config is None:
-            model_config = {'module': self.default_estimator,
-                            'hyperparameters': {}}
         estimator = utils.import_library(
             model_config['module'], model_config['hyperparameters'])
         pipeline_steps.append(('estimator', estimator))
