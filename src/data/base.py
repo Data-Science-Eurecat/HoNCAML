@@ -1,6 +1,5 @@
-import pandas as pd
 from abc import ABC, abstractmethod
-from typing import Dict, Tuple
+from typing import Dict
 
 
 class BaseDataset(ABC):
@@ -39,8 +38,4 @@ class BaseDataset(ABC):
         """
         ETL data load. This function must be implemented by child classes.
         """
-        pass
-
-    @abstractmethod
-    def get_data(self) -> Tuple[pd.DataFrame, pd.DataFrame]:
         pass

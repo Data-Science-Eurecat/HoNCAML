@@ -4,15 +4,8 @@ import os
 import yaml
 import joblib
 from src.exceptions import data as data_exception
-
-
-class FileExtension:
-    """
-    This class contains the available files formats to read data.
-    """
-    csv = '.csv'
-    excel = ['.xlsx', '.xls']
-    # Adding more file extensions here
+from src.tools.startup import logger
+from src.tools import utils
 
 
 def read_yaml(file_path: str) -> Dict:
@@ -43,11 +36,12 @@ def read_dataframe(settings: Dict) -> pd.DataFrame:
         df (pd.DataFrame): the dataset as pandas dataframe.
     """
     filepath = settings.pop('filepath')
+    logger.info(f'Extract file from {filepath}')
     _, file_extension = os.path.splitext(filepath)
 
-    if file_extension == FileExtension.csv:
+    if file_extension == utils.FileExtension.csv:
         df = pd.read_csv(filepath, **settings)
-    elif file_extension in FileExtension.excel:
+    elif file_extension in utils.FileExtension.excel:
         df = pd.read_excel(filepath, **settings)
     else:
         raise data_exception.FileExtensionException(file_extension)

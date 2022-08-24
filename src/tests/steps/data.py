@@ -3,7 +3,7 @@ import unittest
 from src.steps import data, base
 
 
-class DataTest(unittest.TestCase):
+class DataTestOld(unittest.TestCase):
     def setUp(self):
         self.default_settings = {
             'data': {

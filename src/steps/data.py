@@ -12,7 +12,7 @@ class DataStep(base.BaseStep):
     Attributes:
         default_settings (Dict): the default settings for the steps.
         user_settings (Dict): the user defined settings for the steps.
-        dataset (data.Dataset): the dataset to be handled.
+        _dataset (data.Dataset): the dataset to be handled.
     """
 
     def __init__(self, default_settings: Dict, user_settings: Dict) -> None:
@@ -24,14 +24,18 @@ class DataStep(base.BaseStep):
             default_settings (Dict): the default settings for the steps.
             user_settings (Dict): the user defined settings for the steps.
         """
-        # Getting default settings for data steps
+        # Getting default settings
         default_settings = default_settings.get(base.StepType.data)
         # Getting user settings if it exists
         user_settings = user_settings.get(base.StepType.data, {})
         super().__init__(default_settings, user_settings)
 
         # TODO: identify the dataset type. Assuming TabularDataset for now.
-        self.dataset = tabular.TabularDataset()
+        self._dataset = tabular.TabularDataset()
+
+    @property
+    def dataset(self) -> tabular.TabularDataset:
+        return self._dataset
 
     def extract(self) -> None:
         """
@@ -72,6 +76,6 @@ class DataStep(base.BaseStep):
                 the current steps: the dataset.
         """
         self.execute()
-        metadata.update({'dataset': self.dataset})
+        metadata.update({'dataset': self._dataset})
 
         return metadata

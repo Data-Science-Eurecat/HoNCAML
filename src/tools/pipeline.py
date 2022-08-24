@@ -1,10 +1,9 @@
-from src.tools.startup import logger, params
-from src.tools import utils
-from src.exceptions import step as step_exceptions
 from typing import Dict
-from src.steps import base as base_step
-from src.steps import data as data_step
-import importlib
+
+from src.exceptions import step as step_exceptions
+from src.steps import base as base_step, data as data_step
+from src.tools import utils
+from src.tools.startup import logger, params
 
 
 class Pipeline:
@@ -52,18 +51,6 @@ class Pipeline:
 
             self.steps.append(step)
 
-            """
-            if key in params['pipeline_steps']:
-                library = params['pipeline_steps'][key].pop('library')
-                steps = utils.import_library(
-                    library, {'default_settings': params['pipeline_steps'][key],
-                              'user_settings': self.pipeline_content[key]})
-                self.steps.append(steps)
-            else:
-                raise exceptions.steps.StepDoesNotExist(key)
-            """
-
     def run(self):
         for step in self.steps:
             self.objects = step.run(self.objects)
-            i = 0

@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Dict
+
 from src.tools import utils
 
 
@@ -47,10 +48,10 @@ class BaseStep(ABC):
             self.step_settings.get(StepPhase.load, None)
 
     def __str__(self):
-        return self.step_settings
+        return str(self.step_settings)
 
     def __repr__(self):
-        return self.step_settings
+        return str(self.step_settings)
 
     def _merge_settings(
             self, default_settings: Dict, user_settings: Dict) -> Dict:

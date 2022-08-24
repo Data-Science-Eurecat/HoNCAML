@@ -134,3 +134,12 @@ def update_dict_from_default_dict(
             source_dict[key] = overrides_dict[key]
 
     return source_dict
+
+
+class FileExtension:
+    """
+    This class contains the available files formats to read data.
+    """
+    csv = '.csv'
+    excel = ['.xlsx', '.xls']
+    # Adding more file extensions here

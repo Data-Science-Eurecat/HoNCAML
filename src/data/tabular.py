@@ -3,6 +3,7 @@ from typing import Dict, Tuple
 
 from src.data import base, extract, transform, load
 from src.exceptions import data as data_exception
+from src.tools import custom_typing as ct
 from src.tools.startup import logger
 
 
@@ -14,8 +15,10 @@ class TabularDataset(base.BaseDataset):
     Attributes:
         action_settings (Dict): the parameters that define each action from 
         the ETL process.
+        features ()
+        target (ct.): the dataset target column.
         dataset (pd.DataFrame): the dataframe read from the tabular file data.
-        target (pd.DataFrame): the dataset target column.
+
     """
 
     def __init__(self) -> None:
@@ -23,10 +26,45 @@ class TabularDataset(base.BaseDataset):
         This is a constructor method of class. This function initializes
         the parameters for this specific dataset.
         """
-        self.features = None
-        self.target = None
+        self.features: ct.StrList = []
+        self.target: ct.StrList = []
 
-        self.dataset = None
+        self.dataset: pd.DataFrame = pd.DataFrame()
+
+    @property
+    def x(self) -> ct.Array:
+        """
+        The 'x' property. This is a getter function for getting x features
+        from dataset.
+
+        Returns:
+            pd.Dataframe with x features.
+        """
+        x = self.dataset[self.features] if self.features else self.dataset
+        return x.values
+
+    @property
+    def y(self) -> ct.Array:
+        """
+        The 'y' property. This is a getter function for getting target dataset.
+
+        Returns:
+            pd.Dataframe with target.
+        """
+        return self.dataset[self.target].values
+
+    @property
+    def values(self) -> Tuple[ct.Array, ct.Array]:
+        """
+        The 'values' property. This is a getter function for getting values
+        from dataset
+
+        Returns:
+            two arrays. First one is for x features. Second one is for targets.
+        """
+        x = self.dataset[self.features] if self.features else self.dataset
+        y = self.dataset[self.target]
+        return x.values, y.values
 
     def _clean_dataset(
             self, dataset: pd.DataFrame) -> pd.DataFrame:
@@ -55,7 +93,7 @@ class TabularDataset(base.BaseDataset):
                 dataset[self.target]
             except KeyError as e:
                 logger.warning(f'Dataset column features does not exists {e}')
-                raise data_exception.ColumnDoesNotExists(f'{self.features}')
+                raise data_exception.ColumnDoesNotExists(f'{self.target}')
 
         return dataset
 
@@ -89,6 +127,3 @@ class TabularDataset(base.BaseDataset):
         """
         dataset = pd.concat((self.dataset, self.target), axis=1)
         load.save_dataframe(dataset, settings)
-
-    def get_data(self) -> Tuple[pd.DataFrame, pd.DataFrame]:
-        return self.dataset[self.features], self.dataset[self.target]
