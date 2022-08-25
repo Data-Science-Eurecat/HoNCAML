@@ -1,7 +1,8 @@
 from typing import Dict
 
-from src.data import tabular
+from src.data import tabular, normalization
 from src.steps import base
+from src.tools.startup import logger
 
 
 class DataStep(base.BaseStep):
@@ -44,23 +45,42 @@ class DataStep(base.BaseStep):
         """
         return self._dataset
 
-    def _extract(self) -> None:
+    def _extract(self, settings: Dict) -> None:
         """
-        The extract process from the data step ETL.
+        The extract process from the data step ETL. This function reads the
+        dataset file specified in the settings dict.
         """
-        self.dataset.read(self._extract_settings)
+        logger.info('Running extract phase...')
+        self.dataset.read(settings)
+        logger.info('Extract phase complete.')
 
-    def _transform(self) -> None:
+    def _transform(self, settings: Dict) -> None:
         """
-        The transform process from the data step ETL.
-        """
-        self.dataset.preprocess(self._transform_settings)
+        The transform process from the data step ETL. This function prepare
+        dataset for a set of transformations to apply.
 
-    def _load(self) -> None:
+        Firstly, it checks if the dataset will be normalized, for this reason
+        it creates a new instance of Normalization class as a Dataset class
+        attribute.
+
+        Secondly, it runs the basic transformations to a dataset.
+        """
+        logger.info('Running transform phase...')
+        # Check normalization settings
+        if normalize_settings := settings.pop('normalize', None):
+            self.dataset.normalization = normalization.Normalization(
+                normalize_settings)
+
+        self.dataset.preprocess(settings)
+        logger.info('Transform phase complete.')
+
+    def _load(self, settings: Dict) -> None:
         """
         The load process from the data step ETL.
         """
-        self.dataset.save(self._load_settings)
+        logger.info('Running load phase...')
+        self.dataset.save(settings)
+        logger.info('Load phase complete.')
 
     def _validate_step(self) -> None:
         """

@@ -3,7 +3,7 @@ import unittest
 from src.steps import data, base
 
 
-class DataTestOld(unittest.TestCase):
+class DataTest(unittest.TestCase):
     def setUp(self):
         self.default_settings = {
             'data': {
@@ -123,3 +123,5 @@ class DataTestOld(unittest.TestCase):
 
         self.assertTrue('some_param' in step_settings[self.transform])
         self.assertTrue('new_override_param' in step_settings[self.transform])
+
+    # Test normalization

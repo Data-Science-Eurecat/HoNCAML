@@ -28,7 +28,7 @@ class Pipeline:
             execution_id (str): the execution identifier.
         """
         self._pipeline_content = pipeline_content
-        logger.debug(f'Pipeline content {pipeline_content}')
+        logger.info(f'Pipeline content {pipeline_content}')
 
         self._execution_id = execution_id
 
@@ -48,12 +48,14 @@ class Pipeline:
                 step = data_step.DataStep(
                     params['pipeline_steps'], self._pipeline_content)
             elif step_name == base_step.StepType.model:
-                step = None
+                raise NotImplementedError('ModelStep is not implemented')
             else:
                 raise step_exceptions.StepDoesNotExists(step_name)
 
             self._steps.append(step)
 
     def run(self) -> None:
-        for step in self._steps:
+        for i, step in enumerate(self._steps, start=1):
+            logger.info(f'Running step {i}/{len(self._steps)} ...')
             self._metadata = step.run(self._metadata)
+            logger.info('Step execution complete.')

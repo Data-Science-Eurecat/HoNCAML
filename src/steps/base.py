@@ -102,7 +102,7 @@ class BaseStep(ABC):
         pass
 
     @abstractmethod
-    def _extract(self) -> None:
+    def _extract(self, settings: Dict) -> None:
         """
         The extract process from the step ETL. This function must be
         implemented by child classes.
@@ -110,7 +110,7 @@ class BaseStep(ABC):
         pass
 
     @abstractmethod
-    def _transform(self) -> None:
+    def _transform(self, settings: Dict) -> None:
         """
         The transform process from the step ETL. This function must be
         implemented by child classes.
@@ -118,7 +118,7 @@ class BaseStep(ABC):
         pass
 
     @abstractmethod
-    def _load(self) -> None:
+    def _load(self, settings: Dict) -> None:
         """
         The load process from the step ETL. This function must be
         implemented by child classes.
@@ -131,11 +131,11 @@ class BaseStep(ABC):
         This function runs the current steps.
         """
         if StepPhase.extract in self._step_settings:
-            self._extract()
+            self._extract(self._extract_settings.copy())
         if StepPhase.transform in self._step_settings:
-            self._transform()
+            self._transform(self._transform_settings.copy())
         if StepPhase.load in self._step_settings:
-            self._load()
+            self._load(self._load_settings.copy())
 
 
 class StepType:

@@ -13,12 +13,10 @@ class TabularDataset(base.BaseDataset):
     encoding the data as tables.
 
     Attributes:
-        action_settings (Dict): the parameters that define each action from 
-        the ETL process.
-        _features ()
-        _target (ct.): the dataset target column.
+        _features (ct.StrList):
+        _target (ct.StrList): the dataset target column.
         _dataset (pd.DataFrame): the dataframe read from the tabular file data.
-
+        # _normalization (Union[Normalization, None]):
     """
 
     def __init__(self) -> None:
@@ -26,6 +24,8 @@ class TabularDataset(base.BaseDataset):
         This is a constructor method of class. This function initializes
         the parameters for this specific dataset.
         """
+        super().__init__()
+
         self._features: ct.StrList = []
         self._target: ct.StrList = []
 
@@ -98,6 +98,7 @@ class TabularDataset(base.BaseDataset):
         """
         x = self._dataset[self._features] if self._features else self._dataset
         y = self._dataset[self._target]
+
         return x.values, y.values
 
     def _clean_dataset(

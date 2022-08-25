@@ -6,7 +6,7 @@ from src.data import tabular
 from src.exceptions import data as data_exception
 
 
-def _mock_up_read_dataframe():
+def _mock_up_read_dataframe() -> pd.DataFrame:
     data = {
         'col1': [1, 2, 3],
         'col2': [4, 5, 6],

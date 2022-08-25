@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Dict
+from typing import Dict, Union, Callable
 
 
 class BaseDataset(ABC):
@@ -9,15 +9,25 @@ class BaseDataset(ABC):
     Attributes:
         action_settings (Dict): the parameters that define each action from 
         the ETL process.
+        _normalization (Union[normalization.Normalization):
     """
 
-    @abstractmethod
     def __init__(self) -> None:
         """
         This is a constructor method of class. This function initializes
         the common parameters for a dataset.
         """
         pass
+
+        self._normalization: Union[Callable, None] = None
+
+    @property
+    def normalization(self) -> Callable:
+        return self._normalization
+
+    @normalization.setter
+    def normalization(self, value) -> None:
+        self._normalization = value
 
     @abstractmethod
     def read(self, settings: Dict):
