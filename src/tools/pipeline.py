@@ -46,7 +46,7 @@ class Pipeline:
         for step_name, step_content in self._pipeline_content.items():
             if step_name == base_step.StepType.data:
                 step = data_step.DataStep(
-                    params['pipeline_steps'], self._pipeline_content)
+                    params['pipeline_steps'][step_name], step_content)
             elif step_name == base_step.StepType.model:
                 raise NotImplementedError('ModelStep is not implemented')
             else:

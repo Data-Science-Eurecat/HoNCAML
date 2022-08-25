@@ -28,8 +28,8 @@ data:
           - target1
           - target2
 
-  # load:
-  # filepath: data/processed/dataset.csv
+# load:
+# filepath: data/processed/dataset.csv
 
 # Model Step settings
 model:
@@ -54,4 +54,4 @@ model:
   load:
     filepath: models/model.sav
 
- Benchmark Step settings
+  # Benchmark Step settings

@@ -25,10 +25,6 @@ class DataStep(base.BaseStep):
             default_settings (Dict): the default settings for the steps.
             user_settings (Dict): the user defined settings for the steps.
         """
-        # Getting default settings
-        default_settings = default_settings.get(base.StepType.data)
-        # Getting user settings if it exists
-        user_settings = user_settings.get(base.StepType.data, {})
         super().__init__(default_settings, user_settings)
 
         # TODO: identify the dataset type. Assuming TabularDataset for now.

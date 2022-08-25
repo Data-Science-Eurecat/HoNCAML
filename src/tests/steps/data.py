@@ -10,26 +10,23 @@ from src.tests import utils
 class DataTest(unittest.TestCase):
     def setUp(self):
         self.default_settings = {
-            'data': {
-                'extract': {
-                    'filepath': 'data/raw/dataset.csv',
-                    'target': ['target1']},
-                'transform': {
-                    'some_param': 'some_value',
-                    'normalize': {
-                        'features': {
-                            'module': 'sklearn.preprocessing.StandardScaler',
-                        },
-                        'target': {
-                            'module': 'sklearn.preprocessing.StandardScaler',
-                            'module_params': {'default_param': False},
-                            'columns': ['target']
-                        }
+            'extract': {
+                'filepath': 'data/raw/dataset.csv',
+                'target': ['target1']},
+            'transform': {
+                'some_param': 'some_value',
+                'normalize': {
+                    'features': {
+                        'module': 'sklearn.preprocessing.StandardScaler',
+                    },
+                    'target': {
+                        'module': 'sklearn.preprocessing.StandardScaler',
+                        'module_params': {'default_param': False},
+                        'columns': ['target']
                     }
                 }
             }
         }
-        self.data_step = base.StepType.data
         self.extract = base.StepPhase.extract
         self.transform = base.StepPhase.transform
         self.load = base.StepPhase.load
@@ -40,26 +37,26 @@ class DataTest(unittest.TestCase):
         empty_user_settings = dict()
         step = data.DataStep(self.default_settings, empty_user_settings)
         self.assertDictEqual(
-            self.default_settings.get(self.data_step), step.step_settings)
+            self.default_settings, step.step_settings)
 
         # user settings contains filepath
         user_settings = {
-            'data': {
-                'extract':
-                    {'filepath': 'override_path/override_file.csv',
-                     'new_param': 90},
-            }
+            'extract':
+                {
+                    'filepath': 'override_path/override_file.csv',
+                    'new_param': 90
+                },
         }
         step = data.DataStep(self.default_settings, user_settings)
         # The result dict has the same number of phases
         self.assertEqual(
-            len(self.default_settings.get(self.data_step)),
+            len(self.default_settings),
             len(step.step_settings))
 
         # Extract
         # Check the override params
         self.assertEqual(
-            user_settings.get(self.data_step)[self.extract]['filepath'],
+            user_settings[self.extract]['filepath'],
             step.step_settings[self.extract]['filepath'])
         self.assertTrue(
             'new_param' in step.step_settings[self.extract])
@@ -70,44 +67,42 @@ class DataTest(unittest.TestCase):
         # Test: When user_settings does not have 'normalize' key it returns
         # default norm
         user_settings = {
-            'data': {
-                'transform': {
-                    'override_param': {
-                        'param1': 1,
-                        'param2': 2,
-                    }}
+            'transform': {
+                'override_param': {
+                    'param1': 1,
+                    'param2': 2,
+                }
             }
         }
         step = data.DataStep(self.default_settings, user_settings)
         self.assertDictEqual(
-            self.default_settings[self.data_step][self.transform]['normalize'],
+            self.default_settings[self.transform]['normalize'],
             step.step_settings[self.transform]['normalize'])
         self.assertDictEqual(
-            user_settings[self.data_step]['transform'],
+            user_settings['transform'],
             {'override_param': {'param1': 1, 'param2': 2}})
 
         user_settings = {
-            'data': {
-                'transform': {
-                    'new_override_param': [1, 2, 3],
-                    'normalize': {
-                        'features': {
-                            'module': 'override_scaler',
-                            'module_params': {'param1': 10},
-                            'columns': ['col1', 'col2', 'col3']
-                        },
-                        'target': {
-                            'module_params': {'param1': 10, 'with_std': False},
-                            'columns': ['target1', 'target2']
-                        }
-                    }}
+            'transform': {
+                'new_override_param': [1, 2, 3],
+                'normalize': {
+                    'features': {
+                        'module': 'override_scaler',
+                        'module_params': {'param1': 10},
+                        'columns': ['col1', 'col2', 'col3']
+                    },
+                    'target': {
+                        'module_params': {'param1': 10, 'with_std': False},
+                        'columns': ['target1', 'target2']
+                    }
+                }
             }
         }
         # Check the default params for transform phase
         step = data.DataStep(self.default_settings, user_settings)
         step_settings = step.step_settings
-        default_transform = self.default_settings[self.data_step]['transform']
-        user_transform = user_settings[self.data_step]['transform']
+        default_transform = self.default_settings['transform']
+        user_transform = user_settings['transform']
         self.assertEqual(
             user_transform['normalize']['features']['module'],
             step_settings[self.transform]['normalize']['features']['module'])
