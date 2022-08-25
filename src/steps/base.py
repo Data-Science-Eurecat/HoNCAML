@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Dict
-
+import copy
 from src.tools import utils
 
 
@@ -155,11 +155,11 @@ class BaseStep(ABC):
         This function runs the current steps.
         """
         if StepPhase.extract in self._step_settings:
-            self._extract(self._extract_settings.copy())
+            self._extract(copy.deepcopy(self._extract_settings))
         if StepPhase.transform in self._step_settings:
-            self._transform(self._transform_settings.copy())
+            self._transform(copy.deepcopy(self._transform_settings))
         if StepPhase.load in self._step_settings:
-            self._load(self._load_settings.copy())
+            self._load(copy.deepcopy(self._load_settings))
 
 
 class StepType:
