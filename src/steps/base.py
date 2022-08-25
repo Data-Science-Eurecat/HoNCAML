@@ -58,6 +58,39 @@ class BaseStep(ABC):
         """
         return self._step_settings
 
+    @property
+    def extract_settings(self) -> Dict:
+        """
+        This is a getter method. This function returns the '_extract_settings'
+        attribute.
+
+        Returns:
+            (str): a dict with settings of step
+        """
+        return self._extract_settings
+
+    @property
+    def transform_settings(self) -> Dict:
+        """
+        This is a getter method. This function returns the
+        '_transform_settings' attribute.
+
+        Returns:
+            (str): a dict with settings of step
+        """
+        return self._transform_settings
+
+    @property
+    def load_settings(self) -> Dict:
+        """
+        This is a getter method. This function returns the '_load_settings'
+        attribute.
+
+        Returns:
+            (str): a dict with settings of step
+        """
+        return self.load_settings
+
     def __str__(self):
         return str(self._step_settings)
 

@@ -9,7 +9,7 @@ class BaseDataset(ABC):
     Attributes:
         action_settings (Dict): the parameters that define each action from 
         the ETL process.
-        _normalization (Union[normalization.Normalization):
+        _normalization (Union[normalization.Normalization]):
     """
 
     def __init__(self) -> None:
@@ -17,7 +17,6 @@ class BaseDataset(ABC):
         This is a constructor method of class. This function initializes
         the common parameters for a dataset.
         """
-        pass
 
         self._normalization: Union[Callable, None] = None
 

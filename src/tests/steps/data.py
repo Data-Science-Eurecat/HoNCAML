@@ -1,5 +1,5 @@
 import unittest
-
+import copy
 from src.steps import data, base
 
 
@@ -124,4 +124,33 @@ class DataTest(unittest.TestCase):
         self.assertTrue('some_param' in step_settings[self.transform])
         self.assertTrue('new_override_param' in step_settings[self.transform])
 
-    # Test normalization
+    # Test _transform method
+    def test_when_transform_contains_normalization_creates_new_instance(self):
+        empty_user_settings = {}
+        step = data.DataStep(self.default_settings, empty_user_settings)
+        step._transform(copy.deepcopy(step.transform_settings))
+        norm = step.dataset.normalization
+
+        self.assertTrue(step.dataset.normalization is not None)
+        self.assertEqual(
+            norm.features_normalizer,
+            step.transform_settings['normalize']['features'])
+        self.assertListEqual(
+            norm.target,
+            step.transform_settings['normalize']['target']['columns'])
+        target_normalizer = step.transform_settings['normalize']['target']
+        del target_normalizer['columns']
+        self.assertDictEqual(norm.target_normalizer, target_normalizer)
+
+    def test_when_transform_not_contains_normalization_is_none(self):
+        default_without_normalize_settings = {
+            'data':
+                {'transform': {
+                    'param1': [1, 2, 3],
+                    'param2': {'col1': 1}
+                }}}
+        empty_user_settings = {}
+        step = data.DataStep(
+            default_without_normalize_settings, empty_user_settings)
+        step._transform(step.step_settings)
+        self.assertTrue(step.dataset.normalization is None)
