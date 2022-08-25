@@ -1,7 +1,11 @@
-from typing import Dict
-import pandas as pd
-import os
 import joblib
+import os
+import pandas as pd
+from typing import Dict
+
+from src.exceptions import data as data_exception
+from src.tools import utils
+from src.tools.startup import logger
 
 
 def save_dataframe(dataset: pd.DataFrame, settings: Dict) -> None:
@@ -12,14 +16,16 @@ def save_dataframe(dataset: pd.DataFrame, settings: Dict) -> None:
         dataset (pd.DataFrame): the dataset.
         settings (Dict): Params used for data processing.
     """
-    filepath = os.path.join(settings['path'], settings['data'])
-    extension = settings['data'].split('.')[-1].lower()
-    if extension == 'csv':
+    filepath = settings.pop('filepath')
+    logger.info(f'Load file {filepath}')
+    _, file_extension = os.path.splitext(filepath)
+
+    if file_extension == utils.FileExtension.csv:
         dataset.to_csv(filepath, index=False)
-    elif extension in ['xlsx', 'xls']:
+    elif file_extension in utils.FileExtension.excel:
         dataset.to_excel(filepath, index=False)
     else:
-        raise Exception(f'File extension {extension} not recognized')
+        raise data_exception.FileExtensionException(file_extension)
 
 
 def save_model(model: object, settings: Dict) -> None:

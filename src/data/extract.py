@@ -1,18 +1,12 @@
-from typing import Dict, Tuple
-import pandas as pd
-import os
-import yaml
 import joblib
+import os
+import pandas as pd
+import yaml
+from typing import Dict
+
 from src.exceptions import data as data_exception
-
-
-class FileExtension:
-    """
-    This class contains the available files formats to read data.
-    """
-    csv = 'csv'
-    excel = ['xlsx', 'xls']
-    # Adding more file extensions here
+from src.tools import utils
+from src.tools.startup import logger
 
 
 def read_yaml(file_path: str) -> Dict:
@@ -42,15 +36,14 @@ def read_dataframe(settings: Dict) -> pd.DataFrame:
     Returns:
         df (pd.DataFrame): the dataset as pandas dataframe.
     """
-    filepath = os.path.join(settings['filepath'], settings['data'])
+    filepath = settings.pop('filepath')
+    logger.info(f'Extract file from {filepath}')
     _, file_extension = os.path.splitext(filepath)
 
-    if file_extension == FileExtension.csv:
-        # TODO: adding kwargs
-        df = pd.read_csv(filepath)
-    elif file_extension in FileExtension.excel:
-        # TODO: adding kwargs
-        df = pd.read_excel(filepath)
+    if file_extension == utils.FileExtension.csv:
+        df = pd.read_csv(filepath, **settings)
+    elif file_extension in utils.FileExtension.excel:
+        df = pd.read_excel(filepath, **settings)
     else:
         raise data_exception.FileExtensionException(file_extension)
 

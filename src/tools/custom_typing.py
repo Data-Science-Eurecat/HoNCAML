@@ -1,13 +1,17 @@
-import numpy as np
+import numpy.typing as npt
 import pandas as pd
-from typing import Tuple, Union, Generator, Optional
+from typing import Tuple, Union, Generator, Optional, List
 from typing_extensions import Protocol
 
+# Generic typing
+
 Number = Union[int, float]
-Dataset = Union[pd.DataFrame, pd.Series, np.ndarray]
+Array = npt.ArrayLike
+Dataset = Union[pd.DataFrame, pd.Series, Array]
+StrList = List[str]
 
 
-# Cross validation typing:
+# Cross validation typing
 
 class SklearnCrossValidation(Protocol):
     def split(

@@ -1,7 +1,8 @@
 from typing import Dict
 
-from src.data import tabular
+from src.data import tabular, normalization
 from src.steps import base
+from src.tools.startup import logger
 
 
 class DataStep(base.BaseStep):
@@ -12,7 +13,7 @@ class DataStep(base.BaseStep):
     Attributes:
         default_settings (Dict): the default settings for the steps.
         user_settings (Dict): the user defined settings for the steps.
-        dataset (data.Dataset): the dataset to be handled.
+        _dataset (data.Dataset): the dataset to be handled.
     """
 
     def __init__(self, default_settings: Dict, user_settings: Dict) -> None:
@@ -24,54 +25,81 @@ class DataStep(base.BaseStep):
             default_settings (Dict): the default settings for the steps.
             user_settings (Dict): the user defined settings for the steps.
         """
-        # Getting default settings for data steps
-        default_settings = default_settings.get(base.StepType.data)
-        # Getting user settings if it exists
-        user_settings = user_settings.get(base.StepType.data, {})
         super().__init__(default_settings, user_settings)
 
         # TODO: identify the dataset type. Assuming TabularDataset for now.
-        self.dataset = tabular.TabularDataset()
+        self._dataset = tabular.TabularDataset()
 
-    def extract(self) -> None:
+    @property
+    def dataset(self) -> tabular.TabularDataset:
         """
-        The extract process from the data step ETL.
-        """
-        self.dataset.read(self.extract_settings)
+        This is a getter method. This function returns the '_dataset'
+        attribute.
 
-    def transform(self) -> None:
+        Returns:
+            (str): dataset instance.
         """
-        The transform process from the data step ETL.
-        """
-        self.dataset.preprocess(self.transform_settings)
+        return self._dataset
 
-    def load(self) -> None:
+    def _extract(self, settings: Dict) -> None:
+        """
+        The extract process from the data step ETL. This function reads the
+        dataset file specified in the settings dict.
+        """
+        logger.info('Running extract phase...')
+        self.dataset.read(settings)
+        logger.info('Extract phase complete.')
+
+    def _transform(self, settings: Dict) -> None:
+        """
+        The transform process from the data step ETL. This function prepare
+        dataset for a set of transformations to apply.
+
+        Firstly, it checks if the dataset will be normalized, for this reason
+        it creates a new instance of Normalization class as a Dataset class
+        attribute.
+
+        Secondly, it runs the basic transformations to a dataset.
+        """
+        logger.info('Running transform phase...')
+        # Check normalization settings
+        if normalize_settings := settings.pop('normalize', None):
+            logger.info('Getting normalization parameters.')
+            self.dataset.normalization = normalization.Normalization(
+                normalize_settings)
+
+        self.dataset.preprocess(settings)
+        logger.info('Transform phase complete.')
+
+    def _load(self, settings: Dict) -> None:
         """
         The load process from the data step ETL.
         """
-        self.dataset.save(self.load_settings)
+        logger.info('Running load phase...')
+        self.dataset.save(settings)
+        logger.info('Load phase complete.')
 
-    def validate_step(self) -> None:
+    def _validate_step(self) -> None:
         """
         Validates the settings for the step ensuring that the step has the
         mandatory keys to run.
         """
         pass
 
-    def run(self, objects: Dict) -> Dict:
+    def run(self, metadata: Dict) -> Dict:
         """
         Run the data steps. Using the dataset created run the ETL functions for
         the specific dataset: extract, transform and load.
 
         Args:
-            objects (Dict): the objects output from each different previous
+            metadata (Dict): the objects output from each different previous
                 steps.
 
         Returns:
-            objects (Dict): the previous objects updated with the ones from
+            metadata (Dict): the previous objects updated with the ones from
                 the current steps: the dataset.
         """
         self.execute()
+        metadata.update({'dataset': self._dataset})
 
-        objects.update({'dataset': self.dataset})
-        return objects
+        return metadata

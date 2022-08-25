@@ -1,10 +1,9 @@
-from src.tools.startup import logger, params
-from src.tools import utils
-from src.exceptions import step as step_exceptions
 from typing import Dict
-from src.steps import base as base_step
-from src.steps import data as data_step
-import importlib
+
+from src.exceptions import step as step_exceptions
+from src.steps import base as base_step, data as data_step
+from src.tools import utils
+from src.tools.startup import logger, params
 
 
 class Pipeline:
@@ -13,10 +12,10 @@ class Pipeline:
     pipeline to be executed and runs each of the steps defined.
 
     Attributes:
-        steps (List[steps.Step]): the steps defining the pipeline.
-        objects (Dict): the objects output from each steps.
-        pipeline_content (Dict): the settings defining the pipeline steps.
-        execution_id (str): the execution identifier.
+        _steps (List[steps.Step]): the steps defining the pipeline.
+        _metadata (Dict): the objects output from each step.
+        _pipeline_content (Dict): the settings defining the pipeline steps.
+        _execution_id (str): the execution identifier.
     """
 
     def __init__(self, pipeline_content: Dict, execution_id: str) -> None:
@@ -28,11 +27,14 @@ class Pipeline:
             pipeline_content (Dict): the settings defining the pipeline steps.
             execution_id (str): the execution identifier.
         """
-        self.pipeline_content = pipeline_content
-        self.execution_id = execution_id
-        self.steps = []
-        self.objects = {}
-        logger.debug(f'Pipeline content {pipeline_content}')
+        self._pipeline_content = pipeline_content
+        logger.info(f'Pipeline content {pipeline_content}')
+
+        self._execution_id = execution_id
+
+        self._steps = []
+        self._metadata = {}
+
         self._setup_pipeline()
 
     def _setup_pipeline(self):
@@ -40,30 +42,20 @@ class Pipeline:
         This function builds the pipeline structure. Using the user defined
         pipeline_content, it creates all the required steps to be executed.
         """
-        utils.validate_pipeline(self.pipeline_content)
-        for step_name, step_content in self.pipeline_content.items():
+        utils.validate_pipeline(self._pipeline_content)
+        for step_name, step_content in self._pipeline_content.items():
             if step_name == base_step.StepType.data:
                 step = data_step.DataStep(
-                    params['pipeline_steps'], self.pipeline_content)
+                    params['pipeline_steps'][step_name], step_content)
             elif step_name == base_step.StepType.model:
-                step = None
+                raise NotImplementedError('ModelStep is not implemented')
             else:
                 raise step_exceptions.StepDoesNotExists(step_name)
 
-            self.steps.append(step)
+            self._steps.append(step)
 
-            """
-            if key in params['pipeline_steps']:
-                library = params['pipeline_steps'][key].pop('library')
-                steps = utils.import_library(
-                    library, {'default_settings': params['pipeline_steps'][key],
-                              'user_settings': self.pipeline_content[key]})
-                self.steps.append(steps)
-            else:
-                raise exceptions.steps.StepDoesNotExist(key)
-            """
-
-    def run(self):
-        for step in self.steps:
-            self.objects = step.run(self.objects)
-            i = 0
+    def run(self) -> None:
+        for i, step in enumerate(self._steps, start=1):
+            logger.info(f'Running step {i}/{len(self._steps)} ...')
+            self._metadata = step.run(self._metadata)
+            logger.info('Step execution complete.')
