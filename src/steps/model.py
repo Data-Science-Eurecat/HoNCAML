@@ -56,7 +56,8 @@ class ModelStep(base.BaseStep):
         The extract process from the model step ETL.
         """
         self._initialize_model(
-            self.extract_settings['filepath'].split('/')[-1].split('.')[0])
+            self.extract_settings['filepath'].split('/')[-1].split('.')[0],
+            self.extract_settings['filepath'].split('/')[-1].split('.')[1],)
         self.model.read(self.extract_settings)
 
     def transform(self) -> None:
@@ -65,7 +66,7 @@ class ModelStep(base.BaseStep):
         """
         if self.model is None:
             model_type = self.estimator_config['module'].split('.')[0]
-            self._initialize_model(model_type)
+            self._initialize_model(model_type, self.estimator_type)
             self.model.build_model(
                 self.estimator_config, self.dataset.normalizations)
         if ModelActions.fit in self.transform_settings:
@@ -121,15 +122,17 @@ class ModelStep(base.BaseStep):
         predictions = self.model.predict(X, **settings)
         return predictions
 
-    def _initialize_model(self, model_type: str) -> None:
+    def _initialize_model(self, model_type: str, estimator_type: str) -> None:
         """
         Initialize the specific type of model.
 
         Args:
             model_type (str): the kind of model to initialize.
+            estimator_type (str): the kind of estimator to be used. Valid
+                values are `regressor` and `classifier`.
         """
         if model_type == base_model.ModelType.sklearn:
-            self.model = sklearn_model.SklearnModel(self.estimator_type)
+            self.model = sklearn_model.SklearnModel(estimator_type)
         else:
             raise model_exceptions.ModelDoesNotExists(model_type)
 

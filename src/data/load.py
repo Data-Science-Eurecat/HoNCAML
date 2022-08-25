@@ -23,5 +23,5 @@ def save_dataframe(dataset: pd.DataFrame, settings: Dict) -> None:
 
 
 def save_model(model: object, settings: Dict) -> None:
-    filepath = os.path.join(settings['path'], settings['file'])
+    filepath = os.path.join(settings['path'], settings['filename'])
     joblib.dump(model, filepath)

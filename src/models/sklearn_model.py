@@ -1,6 +1,6 @@
 from typing import Dict, List
 from src.tools import custom_typing as ct
-from src.data import extract
+from src.data import extract, load
 from src.models import base, general
 from src.tools import utils
 from sklearn import compose, pipeline
@@ -11,6 +11,7 @@ class SklearnModel(base.BaseModel):
     Scikit Learn model wrapper.
 
     Attributes:
+        estimator_module (str): the module name of the estimator (sklearn)
         estimator_type (str): the kind of estimator to be used. Valid values
             are `regressor` and `classifier`.
         estimator (TODO sklearn.base.BaseEstimator?): an sklearn estimator.
@@ -25,6 +26,7 @@ class SklearnModel(base.BaseModel):
                 are `regressor` and `classifier`.
         """
         super().__init__(estimator_type)
+        self.estimator_module = 'sklearn'
 
     def read(self, settings: Dict) -> None:
         """
@@ -123,6 +125,6 @@ class SklearnModel(base.BaseModel):
             settings (Dict): the parameter settings defining the store
                 operation.
         """
-        filename = utils.generate_unique_id(
-            self.estimator_type, adding_uuid=True)
-        pass
+        settings['filename'] = utils.generate_unique_id(
+            self.estimator_module, self.estimator_type, adding_uuid=True)
+        load.save_model(self.estimator, settings)
