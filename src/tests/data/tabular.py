@@ -37,7 +37,7 @@ class TabularTest(unittest.TestCase):
 
         # CSV
         tabular_obj.read(self.settings_with_csv.copy())
-        result_dataset = tabular_obj.dataset
+        result_dataset = tabular_obj.dataframe
 
         self.assertListEqual(
             tabular_obj._features, self.settings_with_csv['features'])
@@ -98,7 +98,7 @@ class TabularTest(unittest.TestCase):
 
         # Excel
         tabular_obj.read(self.settings_with_excel.copy())
-        result_dataset = tabular_obj.dataset
+        result_dataset = tabular_obj.dataframe
 
         self.assertListEqual(
             tabular_obj._features, self.settings_with_csv['features'])
