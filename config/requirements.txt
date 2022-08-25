@@ -14,7 +14,7 @@ pluggy==1.0.0
 py==1.10.0
 pylint==2.11.1
 pyparsing==2.4.7
-pytest==6.2.5
+pytest==7.1.2
 PyYAML==6.0
 scikit-learn==1.0.2
 toml==0.10.2
