@@ -1,6 +1,5 @@
 import argparse
 
-from src.tools.startup import logger
 from src.tools import execution
 
 if __name__ == '__main__':
@@ -13,6 +12,5 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     pipeline = args.pipeline
-    logger.debug(pipeline)
 
     execution.Execution(pipeline).run()

@@ -68,6 +68,7 @@ class DataStep(base.BaseStep):
         logger.info('Running transform phase...')
         # Check normalization settings
         if normalize_settings := settings.pop('normalize', None):
+            logger.info('Getting normalization parameters.')
             self.dataset.normalization = normalization.Normalization(
                 normalize_settings)
 

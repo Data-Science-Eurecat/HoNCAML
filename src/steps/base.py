@@ -4,15 +4,6 @@ from typing import Dict
 from src.tools import utils
 
 
-class StepProcesses:
-    """
-    Class with the aim to store processes from a step (the ETL ones).
-    """
-    extract = 'extract'
-    transform = 'transform'
-    load = 'load'
-
-
 class BaseStep(ABC):
     """
     Abstract class Step to wrap a pipeline step. It defines the base structure
@@ -65,7 +56,7 @@ class BaseStep(ABC):
         attribute.
 
         Returns:
-            (str): a dict with settings of step
+            (str): a dict with settings of extract phase
         """
         return self._extract_settings
 
@@ -76,7 +67,7 @@ class BaseStep(ABC):
         '_transform_settings' attribute.
 
         Returns:
-            (str): a dict with settings of step
+            (str): a dict with settings of transform phase
         """
         return self._transform_settings
 
@@ -87,7 +78,7 @@ class BaseStep(ABC):
         attribute.
 
         Returns:
-            (str): a dict with settings of step
+            (str): a dict with settings of load phase
         """
         return self.load_settings
 

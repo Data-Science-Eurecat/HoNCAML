@@ -1,19 +1,11 @@
+import copy
 import pandas as pd
 import unittest
 from unittest.mock import patch
 
 from src.data import tabular
 from src.exceptions import data as data_exception
-
-
-def _mock_up_read_dataframe() -> pd.DataFrame:
-    data = {
-        'col1': [1, 2, 3],
-        'col2': [4, 5, 6],
-        'target1': [10, 20, 30],
-        'target2': [40, 50, 60]
-    }
-    return pd.DataFrame(data)
+from src.tests import utils
 
 
 class TabularTest(unittest.TestCase):
@@ -38,8 +30,8 @@ class TabularTest(unittest.TestCase):
     @patch('pandas.read_csv')
     @patch('pandas.read_excel')
     def test_read_dataset(self, read_csv_mock_up, read_excel_mock_up):
-        read_csv_mock_up.return_value = _mock_up_read_dataframe()
-        read_excel_mock_up.return_value = _mock_up_read_dataframe()
+        read_csv_mock_up.return_value = utils.mock_up_read_dataframe()
+        read_excel_mock_up.return_value = utils.mock_up_read_dataframe()
 
         tabular_obj = tabular.TabularDataset()
 
@@ -51,6 +43,7 @@ class TabularTest(unittest.TestCase):
             tabular_obj._features, self.settings_with_csv['features'])
         self.assertListEqual(
             tabular_obj.target, self.settings_with_csv['target'])
+        self.assertTrue(isinstance(tabular_obj.dataframe, pd.DataFrame))
 
         total_columns = \
             self.settings_with_csv['features'] + \
@@ -81,6 +74,27 @@ class TabularTest(unittest.TestCase):
         }
         with self.assertRaises(data_exception.ColumnDoesNotExists):
             tabular_obj.read(settings_with_wrong_target_columns)
+
+        # If features list is empty, it includes all features without target
+        settings_without_features_list = {
+            'filepath': 'fake/file/path.csv',
+            'target':
+                ['target1']
+        }
+        tabular_obj.read(copy.deepcopy(settings_without_features_list))
+        fake_df = utils.mock_up_read_dataframe()
+        df_columns_without_target = fake_df \
+            .drop(columns=settings_without_features_list['target']) \
+            .columns.to_list()
+        self.assertListEqual(tabular_obj.features, df_columns_without_target)
+
+        # If features and target list is empty, it includes all columns
+        settings_without_features_list = {
+            'filepath': 'fake/file/path.csv',
+        }
+        tabular_obj.read(copy.deepcopy(settings_without_features_list))
+        self.assertListEqual(tabular_obj.features, fake_df.columns.to_list())
+        self.assertListEqual(tabular_obj.target, [])
 
         # Excel
         tabular_obj.read(self.settings_with_excel.copy())

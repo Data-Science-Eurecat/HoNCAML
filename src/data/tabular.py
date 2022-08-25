@@ -16,7 +16,6 @@ class TabularDataset(base.BaseDataset):
         _features (ct.StrList):
         _target (ct.StrList): the dataset target column.
         _dataset (pd.DataFrame): the dataframe read from the tabular file data.
-        # _normalization (Union[Normalization, None]):
     """
 
     def __init__(self) -> None:
@@ -54,7 +53,7 @@ class TabularDataset(base.BaseDataset):
         return self._target
 
     @property
-    def dataset(self) -> pd.DataFrame:
+    def dataframe(self) -> pd.DataFrame:
         """
         This is a getter method. This function returns the '_dataset'
         attribute.
@@ -73,8 +72,7 @@ class TabularDataset(base.BaseDataset):
         Returns:
             (pd.Dataframe): pd.DataFrame with x features.
         """
-        x = self._dataset[self._features] if self._features else self._dataset
-        return x.values
+        return self._dataset[self._features].values
 
     @property
     def y(self) -> ct.Array:
@@ -96,10 +94,10 @@ class TabularDataset(base.BaseDataset):
             (Tuple[np.ndarray], Tuple[np.ndarray]): First array contains x
             feature values. Second one contains targets.
         """
-        x = self._dataset[self._features] if self._features else self._dataset
-        y = self._dataset[self._target]
+        x = self._dataset[self._features].values
+        y = self._dataset[self._target].values
 
-        return x.values, y.values
+        return x, y
 
     def _clean_dataset(
             self, dataset: pd.DataFrame) -> pd.DataFrame:
@@ -121,6 +119,9 @@ class TabularDataset(base.BaseDataset):
             except KeyError as e:
                 logger.warning(f'Dataset column features does not exists {e}')
                 raise data_exception.ColumnDoesNotExists(f'{self._features}')
+        else:
+            self._features = dataset \
+                .drop(columns=self.target).columns.to_list()
 
         # Check if dataset has a target column/s
         if self._target:

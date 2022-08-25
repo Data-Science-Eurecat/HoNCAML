@@ -1,11 +1,12 @@
-from typing import Dict, Tuple
-import pandas as pd
-import os
-import yaml
 import joblib
+import os
+import pandas as pd
+import yaml
+from typing import Dict
+
 from src.exceptions import data as data_exception
-from src.tools.startup import logger
 from src.tools import utils
+from src.tools.startup import logger
 
 
 def read_yaml(file_path: str) -> Dict:

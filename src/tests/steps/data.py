@@ -1,6 +1,10 @@
-import unittest
 import copy
+import pandas as pd
+import unittest
+from unittest.mock import patch
+
 from src.steps import data, base
+from src.tests import utils
 
 
 class DataTest(unittest.TestCase):
@@ -9,7 +13,7 @@ class DataTest(unittest.TestCase):
             'data': {
                 'extract': {
                     'filepath': 'data/raw/dataset.csv',
-                    'target': ['target']},
+                    'target': ['target1']},
                 'transform': {
                     'some_param': 'some_value',
                     'normalize': {
@@ -123,6 +127,29 @@ class DataTest(unittest.TestCase):
 
         self.assertTrue('some_param' in step_settings[self.transform])
         self.assertTrue('new_override_param' in step_settings[self.transform])
+
+    # Test _extract method
+    @patch('pandas.read_csv')
+    @patch('pandas.read_excel')
+    def test_extract_phase(self, read_csv_mock_up, read_excel_mock_up):
+        read_csv_mock_up.return_value = utils.mock_up_read_dataframe()
+        read_excel_mock_up.return_value = utils.mock_up_read_dataframe()
+
+        fake_df = utils.mock_up_read_dataframe()
+
+        empty_user_settings = {}
+
+        # When settings does not have features, it includes all features
+        # without target.
+        step = data.DataStep(self.default_settings, empty_user_settings)
+        step._extract(copy.deepcopy(step.extract_settings))
+
+        self.assertListEqual(
+            step.dataset.target, step.extract_settings['target'])
+        features = fake_df \
+            .drop(columns=step.extract_settings['target']).columns.to_list()
+        self.assertListEqual(features, step.dataset.features)
+        self.assertTrue(isinstance(step.dataset.dataframe, pd.DataFrame))
 
     # Test _transform method
     def test_when_transform_contains_normalization_creates_new_instance(self):
