@@ -25,11 +25,11 @@ class BaseStep(ABC):
             default_settings (Dict): the default settings for the steps.
             user_settings (Dict): the user defined settings for the steps.
         """
-        # Check if it runs the parent method or child method
-        self._validate_step()
-
         self._step_settings = self._merge_settings(
             default_settings.copy(), user_settings.copy())
+
+        # Check if it runs the parent method or child method
+        self._validate_step()
 
         self._extract_settings = \
             self._step_settings.get(StepPhase.extract, None)
@@ -149,6 +149,13 @@ class BaseStep(ABC):
         """
         pass
 
+    @abstractmethod
+    def run(self, metadata: Dict) -> Dict:
+        """
+        Run the step.
+        """
+        pass
+
     def execute(self) -> None:
         """
         This function executes the ETL processes from the current step.
@@ -168,9 +175,11 @@ class StepType:
     following:
         - data
         - model
+        - benchmark
     """
     data = 'data'
     model = 'model'
+    benchmark = 'benchmark'
 
 
 class StepPhase:

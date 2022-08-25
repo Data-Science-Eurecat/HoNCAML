@@ -1,14 +1,21 @@
 from typing import Dict, List
 
 from src.steps import base
-from src.tools import utils
+from src.models import base as base_model
 from src.models import sklearn_model, general
 from src.data import transform
+from src.exceptions import model as model_exceptions
 
 
 class ModelActions:
     fit = 'fit'
     predict = 'predict'
+
+
+default_estimator = {
+    'module': 'sklearn.ensemble.RandomForestClassifier',
+    'hyperparameters': {}
+}
 
 
 class ModelStep(base.BaseStep):
@@ -31,30 +38,11 @@ class ModelStep(base.BaseStep):
             default_settings (Dict): the default settings for the steps.
             user_settings (Dict): the user defined settings for the steps.
         """
+        self.estimator_type = user_settings.pop('estimator_type')
+        self.estimator_config = user_settings.pop(
+            'estimator_config', default_estimator)
         super().__init__(default_settings, user_settings)
-        # TODO: get the model config from one of the settings
-        self.model_config = self.step_settings.get('model_config', None)
-
-        # TODO: identify the model type. Assuming SklearnModel.
-        # TODO: split the filename with '.' and it gets the library and
-        #  estimator_type
-        self.model = sklearn_model.SklearnModel(
-            self.step_settings.pop('estimator_type'))
-
-    def _merge_settings(
-            self, default_settings: Dict, user_settings: Dict) -> Dict:
-        """
-        Merge the user defined settings with the default ones.
-
-        Args:
-            default_settings (Dict): the default settings for the step.
-            default_settings (Dict): the user defined settings for the step.
-
-        Returns:
-            merged_settings (Dict): the user and default settings merged.
-        """
-        step_settings = utils.merge_settings(default_settings, user_settings)
-        return step_settings
+        self.model = None
 
     def validate_step(self) -> None:
         """
@@ -67,20 +55,31 @@ class ModelStep(base.BaseStep):
         """
         The extract process from the model step ETL.
         """
+        self._initialize_model(
+            self.extract_settings['filepath'].split('/')[-1].split('.')[0],
+            self.extract_settings['filepath'].split('/')[-1].split('.')[1],)
         self.model.read(self.extract_settings)
 
     def transform(self) -> None:
         """
         The transform process from the model step ETL.
         """
-        if self.model.estimator is None:
+        if self.model is None:
+            model_type = self.estimator_config['module'].split('.')[0]
+            self._initialize_model(model_type, self.estimator_type)
             self.model.build_model(
-                self.model_config, self.dataset.normalizations)
+                self.estimator_config, self.dataset.normalizations)
         if ModelActions.fit in self.transform_settings:
             self._fit(self.transform_settings['fit'])
         if ModelActions.predict in self.transform_settings:
             self.predictions = self._predict(
                 self.transform_settings['predict'])
+
+    def load(self) -> None:
+        """
+        The load process from the model step ETL.
+        """
+        self.model.save(self.load_settings)
 
     def _fit(self, settings: Dict) -> None:
         """
@@ -123,31 +122,39 @@ class ModelStep(base.BaseStep):
         predictions = self.model.predict(X, **settings)
         return predictions
 
-    def load(self) -> None:
+    def _initialize_model(self, model_type: str, estimator_type: str) -> None:
         """
-        The load process from the model step ETL.
-        """
-        self.model.save(self.load_settings)
+        Initialize the specific type of model.
 
-    def run(self, objects: Dict) -> None:
+        Args:
+            model_type (str): the kind of model to initialize.
+            estimator_type (str): the kind of estimator to be used. Valid
+                values are `regressor` and `classifier`.
+        """
+        if model_type == base_model.ModelType.sklearn:
+            self.model = sklearn_model.SklearnModel(estimator_type)
+        else:
+            raise model_exceptions.ModelDoesNotExists(model_type)
+
+    def run(self, metadata: Dict) -> Dict:
         """
         Run the model steps. Using the model created run the ETL functions for
         the specific model: extract, transform and load.
 
         Args:
-            objects (Dict): the objects output from each different previous
+            metadata (Dict): the objects output from each different previous
                 steps.
 
         Returns:
-            objects (Dict): the previous objects updated with the ones from
+            metadata (Dict): the previous objects updated with the ones from
                 the current steps: ?.
         """
         # Feed the model with the objects
-        self.dataset = objects['dataset']
-        if objects.get('model_config', None) is not None:
-            self.model_config = objects['model_config']
+        self.dataset = metadata['dataset']
+        if metadata.get('model', None) is not None:
+            self.model = metadata['model']
 
-        self.execute(objects)
+        self.execute(metadata)
 
-        objects.update({'model': self.model})
-        return objects
+        metadata.update({'model': self.model})
+        return metadata

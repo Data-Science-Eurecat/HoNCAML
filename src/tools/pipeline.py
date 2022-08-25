@@ -4,6 +4,8 @@ from src.exceptions import step as step_exceptions
 from src.steps import base as base_step, data as data_step
 from src.tools import utils
 from src.tools.startup import logger, params
+from src.steps import model as model_step
+from src.steps import benchmark as benchmark_step
 
 
 class Pipeline:
@@ -48,13 +50,17 @@ class Pipeline:
                 step = data_step.DataStep(
                     params['pipeline_steps'][step_name], step_content)
             elif step_name == base_step.StepType.model:
-                raise NotImplementedError('ModelStep is not implemented')
+                step = model_step.ModelStep(
+                    params['pipeline_steps'][step_name], step_content)
+            elif step_name == base_step.StepType.benchmark:
+                step = benchmark_step.BenchmarkStep(
+                    params['pipeline_steps'][step_name], step_content)
             else:
                 raise step_exceptions.StepDoesNotExists(step_name)
 
-            self._steps.append(step)
+            self.steps.append(step)
 
-    def run(self) -> None:
+    def run(self):
         for i, step in enumerate(self._steps, start=1):
             logger.info(f'Running step {i}/{len(self._steps)} ...')
             self._metadata = step.run(self._metadata)

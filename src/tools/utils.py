@@ -50,13 +50,15 @@ def ensure_input_list(obj: object) -> list:
 
 
 def generate_unique_id(
-        estimator_name: str = None, adding_uuid: bool = False) -> str:
+        estimator_module: str = None, estimator_type: str = None,
+        adding_uuid: bool = False) -> str:
     """
     This function generates a unique string id based on current timestamp and
     uuid4.
 
     Args:
         estimator_name (str): name of estimator that pipeline contains
+        estimator_name (str): type of estimator that pipeline contains
         adding_uuid (optional, bool): adding uuid4 in generated id.
 
     Returns:
@@ -66,8 +68,11 @@ def generate_unique_id(
     if adding_uuid:
         unique_id = f'{unique_id}_{uuid.uuid4()}'
 
-    if estimator_name:
-        unique_id = f'{estimator_name}.{unique_id}'
+    if estimator_type:
+        unique_id = f'{estimator_type}.{unique_id}'
+
+    if estimator_module:
+        unique_id = f'{estimator_module}.{unique_id}'
 
     return unique_id
 
