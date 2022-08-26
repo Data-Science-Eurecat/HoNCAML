@@ -1,8 +1,7 @@
 from typing import Dict
 
-from src.data import tabular, normalization
+from src.data import tabular, normalization, base as base_dataset
 from src.steps import base
-from src.tools.startup import logger
 
 
 class DataStep(base.BaseStep):
@@ -11,8 +10,6 @@ class DataStep(base.BaseStep):
     functionalities to perform the ETL on the requested data.
 
     Attributes:
-        default_settings (Dict): the default settings for the steps.
-        user_settings (Dict): the user defined settings for the steps.
         _dataset (data.Dataset): the dataset to be handled.
     """
 
@@ -31,24 +28,32 @@ class DataStep(base.BaseStep):
         self._dataset = tabular.TabularDataset()
 
     @property
-    def dataset(self) -> tabular.TabularDataset:
+    def dataset(self) -> base_dataset.BaseDataset:
         """
         This is a getter method. This function returns the '_dataset'
         attribute.
 
         Returns:
-            (str): dataset instance.
+            (base_dataset.BaseDataset): dataset instance.
         """
         return self._dataset
+
+    def _validate_step(self) -> None:
+        """
+        Validates the settings for the step ensuring that the step has the
+        mandatory keys to run.
+        """
+        pass
 
     def _extract(self, settings: Dict) -> None:
         """
         The extract process from the data step ETL. This function reads the
         dataset file specified in the settings dict.
+
+        Args:
+            settings (Dict): the settings defining the extract ETL process.
         """
-        logger.info('Running extract phase...')
-        self.dataset.read(settings)
-        logger.info('Extract phase complete.')
+        self._dataset.read(settings)
 
     def _transform(self, settings: Dict) -> None:
         """
@@ -60,31 +65,25 @@ class DataStep(base.BaseStep):
         attribute.
 
         Secondly, it runs the basic transformations to a dataset.
+
+        Args:
+            settings (Dict): the settings defining the transform ETL process.
         """
-        logger.info('Running transform phase...')
         # Check normalization settings
         if normalize_settings := settings.pop('normalize', None):
-            logger.info('Getting normalization parameters.')
-            self.dataset.normalization = normalization.Normalization(
+            self._dataset.normalization = normalization.Normalization(
                 normalize_settings)
 
-        self.dataset.preprocess(settings)
-        logger.info('Transform phase complete.')
+        self._dataset.preprocess(settings)
 
     def _load(self, settings: Dict) -> None:
         """
         The load process from the data step ETL.
-        """
-        logger.info('Running load phase...')
-        self.dataset.save(settings)
-        logger.info('Load phase complete.')
 
-    def _validate_step(self) -> None:
+        Args:
+            settings (Dict): the settings defining the load ETL process.
         """
-        Validates the settings for the step ensuring that the step has the
-        mandatory keys to run.
-        """
-        pass
+        self._dataset.save(settings)
 
     def run(self, metadata: Dict) -> Dict:
         """

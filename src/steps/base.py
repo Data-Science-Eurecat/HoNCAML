@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Dict
 import copy
 from src.tools import utils
+from src.tools.startup import logger
 
 
 class BaseStep(ABC):
@@ -130,6 +131,9 @@ class BaseStep(ABC):
         """
         The extract process from the step ETL. This function must be
         implemented by child classes.
+
+        Args:
+            settings (Dict): the settings defining the extract ETL process.
         """
         pass
 
@@ -138,6 +142,9 @@ class BaseStep(ABC):
         """
         The transform process from the step ETL. This function must be
         implemented by child classes.
+
+        Args:
+            settings (Dict): the settings defining the transform ETL process.
         """
         pass
 
@@ -146,6 +153,9 @@ class BaseStep(ABC):
         """
         The load process from the step ETL. This function must be
         implemented by child classes.
+
+        Args:
+            settings (Dict): the settings defining the load ETL process.
         """
         pass
 
@@ -162,11 +172,17 @@ class BaseStep(ABC):
         This function runs the current steps.
         """
         if StepPhase.extract in self._step_settings:
+            logger.info('Running extract phase...')
             self._extract(copy.deepcopy(self._extract_settings))
+            logger.info('Extract phase complete.')
         if StepPhase.transform in self._step_settings:
+            logger.info('Running transform phase...')
             self._transform(copy.deepcopy(self._transform_settings))
+            logger.info('Transform phase complete.')
         if StepPhase.load in self._step_settings:
+            logger.info('Running load phase...')
             self._load(copy.deepcopy(self._load_settings))
+            logger.info('Load phase complete.')
 
 
 class StepType:

@@ -58,9 +58,12 @@ class Pipeline:
             else:
                 raise step_exceptions.StepDoesNotExists(step_name)
 
-            self.steps.append(step)
+            self._steps.append(step)
 
     def run(self):
+        """
+        Run the pipeline, that is to run each step consecutively.
+        """
         for i, step in enumerate(self._steps, start=1):
             logger.info(f'Running step {i}/{len(self._steps)} ...')
             self._metadata = step.run(self._metadata)

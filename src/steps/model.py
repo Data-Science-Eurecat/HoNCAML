@@ -25,8 +25,12 @@ class ModelStep(base.BaseStep):
     and load functions allow the steps to save or restore a model.
 
     Attributes:
-        default_settings (Dict): the default settings for the steps.
-        user_settings (Dict): the user defined settings for the steps.
+        _estimator_type (str): the kind of estimator to be used. Valid
+            values are `regressor` and `classifier`.
+        _estimator_config (Dict): the definition of the estimator: the module
+            and their hyperparameters.
+        _model (base_model.BaseModel): the model from this library wrapping the
+            specific estimator.
     """
 
     def __init__(self, default_settings: Dict, user_settings: Dict) -> None:
@@ -38,48 +42,82 @@ class ModelStep(base.BaseStep):
             default_settings (Dict): the default settings for the steps.
             user_settings (Dict): the user defined settings for the steps.
         """
-        self.estimator_type = user_settings.pop('estimator_type')
-        self.estimator_config = user_settings.pop(
-            'estimator_config', default_estimator)
         super().__init__(default_settings, user_settings)
-        self.model = None
+        self._estimator_type = user_settings.pop('estimator_type')
+        self._estimator_config = user_settings.pop(
+            'estimator_config', default_estimator)
+        self._model = None
 
-    def validate_step(self) -> None:
+    @property
+    def model(self) -> base_model.BaseModel:
+        """
+        This is a getter method. This function returns the '_model'
+        attribute.
+
+        Returns:
+            (base_model.BaseModel): model instance.
+        """
+        return self._model
+
+    def _validate_step(self) -> None:
         """
         Validates the settings for the step ensuring that the step has the
         mandatory keys to run.
         """
         pass
 
-    def extract(self) -> None:
+    def _initialize_model(self, model_type: str, estimator_type: str) -> None:
+        """
+        Initialize the specific type of model.
+
+        Args:
+            model_type (str): the kind of model to initialize.
+            estimator_type (str): the kind of estimator to be used. Valid
+                values are `regressor` and `classifier`.
+        """
+        if model_type == base_model.ModelType.sklearn:
+            self._model = sklearn_model.SklearnModel(estimator_type)
+        else:
+            raise model_exceptions.ModelDoesNotExists(model_type)
+
+    def _extract(self, settings: Dict) -> None:
         """
         The extract process from the model step ETL.
+
+        Args:
+            settings (Dict): the settings defining the extract ETL process.
         """
         self._initialize_model(
-            self.extract_settings['filepath'].split('/')[-1].split('.')[0],
-            self.extract_settings['filepath'].split('/')[-1].split('.')[1],)
-        self.model.read(self.extract_settings)
+            settings['filepath'].split('/')[-1].split('.')[0],
+            settings['filepath'].split('/')[-1].split('.')[1],)
+        self._model.read(settings)
 
-    def transform(self) -> None:
+    def _transform(self, settings: Dict) -> None:
         """
         The transform process from the model step ETL.
-        """
-        if self.model is None:
-            model_type = self.estimator_config['module'].split('.')[0]
-            self._initialize_model(model_type, self.estimator_type)
-            self.model.build_model(
-                self.estimator_config, self.dataset.normalizations)
-        if ModelActions.fit in self.transform_settings:
-            self._fit(self.transform_settings['fit'])
-        if ModelActions.predict in self.transform_settings:
-            self.predictions = self._predict(
-                self.transform_settings['predict'])
 
-    def load(self) -> None:
+        Args:
+            settings (Dict): the settings defining the transform ETL process.
+        """
+        if self._model is None:
+            model_type = self._estimator_config['module'].split('.')[0]
+            self._initialize_model(model_type, self._estimator_type)
+            # TODO: Refactor the normalizations
+            self._model.build_model(
+                self._estimator_config, self._dataset.normalizations)
+        if ModelActions.fit in settings:
+            self._fit(settings['fit'])
+        if ModelActions.predict in settings:
+            self._predictions = self._predict(settings['predict'])
+
+    def _load(self, settings: Dict) -> None:
         """
         The load process from the model step ETL.
+
+        Args:
+            settings (Dict): the settings defining the load ETL process.
         """
-        self.model.save(self.load_settings)
+        self._model.save(settings)
 
     def _fit(self, settings: Dict) -> None:
         """
@@ -89,23 +127,23 @@ class ModelStep(base.BaseStep):
         Args:
             settings (Dict): the training and cross-validation configuration.
         """
-        X, y = self.dataset.get_data()
+        x, y = self._dataset.values
         if settings.get('cross_validation', None) is not None:
             # Run the cross-validation
             cv_split = transform.CrossValidationSplit(
                 settings['cross_validation'].pop('strategy'))
 
             results = []
-            for split, X_train, X_test, y_train, y_test in \
-                    cv_split.split(X, y, settings.pop('cross_validation')):
+            for split, x_train, x_test, y_train, y_test in \
+                    cv_split.split(x, y, settings.pop('cross_validation')):
                 # Afegir normalizations
-                self.model.fit(X_train, y_train, **settings)
+                self._model.fit(x_train, y_train, **settings)
 
-                results.append(self.model.evaluate(X_test, y_test, **settings))
+                results.append(self.model.evaluate(x_test, y_test, **settings))
         # Group cv metrics
-        self.cv_results = general.aggregate_cv_results(results)
+        self._cv_results = general.aggregate_cv_results(results)
         # Train the model with whole data
-        self.model.fit(X, y)
+        self.model.fit(x, y, **settings)
 
     def _predict(self, settings: Dict) -> List:
         """
@@ -118,23 +156,9 @@ class ModelStep(base.BaseStep):
         Returns:
             predictions (List): the prediction for each sample.
         """
-        X, y = self.dataset.get_data()
-        predictions = self.model.predict(X, **settings)
+        x = self._dataset.x
+        predictions = self._model.predict(x, **settings)
         return predictions
-
-    def _initialize_model(self, model_type: str, estimator_type: str) -> None:
-        """
-        Initialize the specific type of model.
-
-        Args:
-            model_type (str): the kind of model to initialize.
-            estimator_type (str): the kind of estimator to be used. Valid
-                values are `regressor` and `classifier`.
-        """
-        if model_type == base_model.ModelType.sklearn:
-            self.model = sklearn_model.SklearnModel(estimator_type)
-        else:
-            raise model_exceptions.ModelDoesNotExists(model_type)
 
     def run(self, metadata: Dict) -> Dict:
         """
@@ -147,14 +171,15 @@ class ModelStep(base.BaseStep):
 
         Returns:
             metadata (Dict): the previous objects updated with the ones from
-                the current steps: ?.
+                the current steps: the best estimator as a model from this
+                library.
         """
         # Feed the model with the objects
-        self.dataset = metadata['dataset']
+        self._dataset = metadata['dataset']
         if metadata.get('model', None) is not None:
-            self.model = metadata['model']
+            self._model = metadata['model']
 
         self.execute(metadata)
 
-        metadata.update({'model': self.model})
+        metadata.update({'model': self._model})
         return metadata
