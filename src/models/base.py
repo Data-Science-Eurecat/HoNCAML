@@ -8,9 +8,9 @@ class BaseModel(ABC):
     Model base class.
 
     Attributes:
-        estimator_type (str): the kind of estimator to be used. Valid values
+        _estimator_type (str): the kind of estimator to be used. Valid values
             are `regressor` and `classifier`.
-        estimator (TODO type): an estimator defined by child classes.
+        _estimator (TODO type): an estimator defined by child classes.
     """
 
     def __init__(self, estimator_type: str) -> None:
@@ -21,8 +21,8 @@ class BaseModel(ABC):
             estimator_type (str): the kind of estimator to be used. Valid values
                 are `regressor` and `classifier`.
         """
-        self.estimator_type = estimator_type
-        self.estimator = None
+        self._estimator_type = estimator_type
+        self._estimator = None
 
     @abstractmethod
     def read(self, settings: Dict) -> None:
@@ -51,26 +51,26 @@ class BaseModel(ABC):
         pass
 
     @abstractmethod
-    def fit(self, X: ct.Dataset, y: ct.Dataset, **kwargs: Dict) -> None:
+    def fit(self, x: ct.Dataset, y: ct.Dataset, **kwargs: Dict) -> None:
         """
         Train the estimator on the specified dataset. This function must be
         implemented by child classes.
 
         Args:
-            X (ct.Dataset): the dataset features.
+            x (ct.Dataset): the dataset features.
             y (ct.Dataset): the dataset target.
             **kwargs (Dict): extra parameters.
         """
         pass
 
     @abstractmethod
-    def predict(self, X: ct.Dataset, **kwargs: Dict) -> List:
+    def predict(self, x: ct.Dataset, **kwargs: Dict) -> List:
         """
         Use the estimator to make predictions on the given dataset features.
         This function must be implemented by child classes.
 
         Args:
-            X (ct.Dataset): the dataset features.
+            x (ct.Dataset): the dataset features.
             **kwargs (Dict): extra parameters.
 
         Returns:
@@ -79,13 +79,13 @@ class BaseModel(ABC):
         pass
 
     @abstractmethod
-    def evaluate(self, X: ct.Dataset, y: ct.Dataset, **kwargs: Dict) -> Dict:
+    def evaluate(self, x: ct.Dataset, y: ct.Dataset, **kwargs: Dict) -> Dict:
         """
         Evaluate the estimator on the given dataset. This function must be
         implemented by child classes.
 
         Args:
-            X (ct.Dataset): the dataset features.
+            x (ct.Dataset): the dataset features.
             y (ct.Dataset): the dataset target.
             **kwargs (Dict): extra parameters.
 
@@ -109,7 +109,7 @@ class BaseModel(ABC):
 
 class ModelType:
     """
-    This class defines the valid types of models. The valid steps are the
+    This class defines the available types of models. The valid steps are the
     following:
         - sklearn
     """

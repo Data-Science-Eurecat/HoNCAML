@@ -9,12 +9,6 @@ from sklearn import compose, pipeline
 class SklearnModel(base.BaseModel):
     """
     Scikit Learn model wrapper.
-
-    Attributes:
-        estimator_module (str): the module name of the estimator (sklearn)
-        estimator_type (str): the kind of estimator to be used. Valid values
-            are `regressor` and `classifier`.
-        estimator (TODO sklearn.base.BaseEstimator?): an sklearn estimator.
     """
 
     def __init__(self, estimator_type: str) -> None:
@@ -26,7 +20,28 @@ class SklearnModel(base.BaseModel):
                 are `regressor` and `classifier`.
         """
         super().__init__(estimator_type)
-        self.estimator_module = 'sklearn'
+
+    @property  # TODO: set the return type
+    def estimator(self):
+        """
+        This is a getter method. This function returns the '_estimator'
+        attribute.
+
+        Returns:
+            (TODO): the sklearn estimator.
+        """
+        return self._estimator
+
+    @property
+    def estimator_type(self) -> str:
+        """
+        This is a getter method. This function returns the '_estimator_type'
+        attribute.
+
+        Returns:
+            (str): the estimator_type
+        """
+        return self._estimator
 
     def read(self, settings: Dict) -> None:
         """
@@ -36,7 +51,7 @@ class SklearnModel(base.BaseModel):
             settings (Dict): the parameter settings defining the read 
                 operation.
         """
-        self.model = extract.read_model(settings)
+        self._estimator = extract.read_model(settings)
 
     def build_model(self, model_config: Dict, normalizations: Dict) -> None:
         """
@@ -62,7 +77,7 @@ class SklearnModel(base.BaseModel):
             model_config['module'], model_config['hyperparameters'])
         pipeline_steps.append(('estimator', estimator))
 
-        self.estimator = pipeline.Pipeline(pipeline_steps)
+        self._estimator = pipeline.Pipeline(pipeline_steps)
 
         if normalizations.get('target', None) is not None:
             target_norm = normalizations['target']
@@ -71,46 +86,46 @@ class SklearnModel(base.BaseModel):
                     target_norm['module']), target_norm['columns'])],
                 remainder='passthrough')
 
-            self.estimator = compose.TransformedTargetRegressor(
-                regressor=self.estimator, transformer=ct_target)
+            self._estimator = compose.TransformedTargetRegressor(
+                regressor=self._estimator, transformer=ct_target)
 
-    def fit(self, X: ct.Dataset, y: ct.Dataset, **kwargs) -> None:
+    def fit(self, x: ct.Dataset, y: ct.Dataset, **kwargs) -> None:
         """
         Train the estimator on the specified dataset.
 
         Args:
-            X (ct.Dataset): the dataset features.
+            x (ct.Dataset): the dataset features.
             y (ct.Dataset): the dataset target.
             **kwargs (Dict): extra parameters.
         """
-        self.estimator = self.estimator.fit(X, y)
+        self._estimator = self._estimator.fit(x, y)
 
-    def predict(self, X: ct.Dataset, **kwargs) -> List:
+    def predict(self, x: ct.Dataset, **kwargs) -> List:
         """
         Use the estimator to make predictions on the given dataset features.
 
         Args:
-            X (ct.Dataset): the dataset features.
+            x (ct.Dataset): the dataset features.
             **kwargs (Dict): extra parameters.
 
         Returns:
             predictions (List): the resulting predictions from the estimator.
         """
-        return self.estimator.predict(X)
+        return self._estimator.predict(x)
 
-    def evaluate(self, X: ct.Dataset, y: ct.Dataset, **kwargs) -> Dict:
+    def evaluate(self, x: ct.Dataset, y: ct.Dataset, **kwargs) -> Dict:
         """
         Evaluate the estimator on the given dataset.
 
         Args:
-            X (ct.Dataset): the dataset features.
+            x (ct.Dataset): the dataset features.
             y (ct.Dataset): the dataset target.
             **kwargs (Dict): extra parameters.
 
         Returns:
             metrics (Dict): the resulting metrics from the evaluation.
         """
-        y_pred = self.estimator.predict(X)
+        y_pred = self._estimator.predict(x)
         if self.estimator_type == 'regressor':
             metrics = general.compute_regression_metrics(y, y_pred)
         else:
@@ -126,5 +141,5 @@ class SklearnModel(base.BaseModel):
                 operation.
         """
         settings['filename'] = utils.generate_unique_id(
-            self.estimator_module, self.estimator_type, adding_uuid=True)
-        load.save_model(self.estimator, settings)
+            base.ModelType.sklearn, self._estimator_type, adding_uuid=True)
+        load.save_model(self._estimator, settings)
