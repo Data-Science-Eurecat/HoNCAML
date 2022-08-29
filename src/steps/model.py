@@ -63,7 +63,15 @@ class ModelStep(base.BaseStep):
         """
         Validates the settings for the step ensuring that the step has the
         mandatory keys to run.
+
+        - estimator_type required (unless extract)
+        - si estimator_config -> estimator_config.module required
+        - si extract -> filepath required + format module_name.type.(.*)
+        - si transform -> fit or predict
+        - si fit -> si cross-val -> strategy required
+        - si load -> path required
         """
+
         pass
 
     def _initialize_model(self, model_type: str, estimator_type: str) -> None:
