@@ -126,7 +126,7 @@ class SklearnModel(base.BaseModel):
             metrics (Dict): the resulting metrics from the evaluation.
         """
         y_pred = self._estimator.predict(x)
-        if self.estimator_type == 'regressor':
+        if self._estimator_type == 'regressor':
             metrics = general.compute_regression_metrics(y, y_pred)
         else:
             metrics = general.compute_classification_metrics(y, y_pred)
@@ -141,5 +141,5 @@ class SklearnModel(base.BaseModel):
                 operation.
         """
         settings['filename'] = utils.generate_unique_id(
-            base.ModelType.sklearn, self._estimator_type, adding_uuid=True)
+            base.ModelType.sklearn, self._estimator_type) + '.sav'
         load.save_model(self._estimator, settings)

@@ -105,15 +105,15 @@ class BaseStep(ABC):
         """
         step_settings = {}
         for phase in step_phases:
-            # Getting params of phase
-            phase_default_settings = default_settings.get(phase, {})
-            phase_user_settings = user_settings.get(phase, {})
+            if phase in user_settings:
+                # Getting params of phase
+                phase_default_settings = default_settings.get(phase, {})
+                phase_user_settings = user_settings.get(phase, {})
 
-            # Combine default settings and user settings
-            phase_settings = utils.update_dict_from_default_dict(
-                phase_default_settings, phase_user_settings)
+                # Combine default settings and user settings
+                phase_settings = utils.update_dict_from_default_dict(
+                    phase_default_settings, phase_user_settings)
 
-            if phase_settings:
                 step_settings[phase] = phase_settings
 
         return step_settings

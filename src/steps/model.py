@@ -104,7 +104,7 @@ class ModelStep(base.BaseStep):
             self._initialize_model(model_type, self._estimator_type)
             # TODO: Refactor the normalizations
             self._model.build_model(
-                self._estimator_config, self._dataset.normalizations)
+                self._estimator_config, {})  # self._dataset.normalizations)
         if ModelActions.fit in settings:
             self._fit(settings['fit'])
         if ModelActions.predict in settings:
@@ -135,13 +135,14 @@ class ModelStep(base.BaseStep):
 
             results = []
             for split, x_train, x_test, y_train, y_test in \
-                    cv_split.split(x, y, settings.pop('cross_validation')):
+                    cv_split.split(x, y, **settings.pop('cross_validation')):
                 # Afegir normalizations
                 self._model.fit(x_train, y_train, **settings)
 
                 results.append(self.model.evaluate(x_test, y_test, **settings))
         # Group cv metrics
         self._cv_results = general.aggregate_cv_results(results)
+        print(self._cv_results)
         # Train the model with whole data
         self.model.fit(x, y, **settings)
 
