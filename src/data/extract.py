@@ -58,6 +58,6 @@ def read_model(settings: Dict) -> object:
     Returns:
         model (object): The read model from disk.
     """
-    filepath = os.path.join(settings['path'], settings['file'])
+    filepath = settings['filepath']
     model = joblib.load(filepath)
     return model

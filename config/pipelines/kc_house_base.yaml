@@ -1,0 +1,22 @@
+data:
+  extract:
+    filepath: data/raw/kc_house_data.csv
+    
+  transform:
+    normalize:
+      features:
+
+model:
+  estimator_type: regressor
+  estimator_config:
+    module: sklearn.ensemble.RandomForestRegressor
+    hyperparameters:
+      n_estimators: 100
+  
+  transform:
+    fit:
+      cross_validation:
+        strategy: k_fold
+  
+  load:
+    path: models/

@@ -179,7 +179,7 @@ class ModelStep(base.BaseStep):
         if metadata.get('model', None) is not None:
             self._model = metadata['model']
 
-        self.execute(metadata)
+        self.execute()
 
         metadata.update({'model': self._model})
         return metadata

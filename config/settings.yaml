@@ -41,7 +41,7 @@ pipeline_steps:
 
     transform:
       fit:
-        cross_validate:
+        cross_validation:
           strategy: k_fold
           n_splits: 10
           random_seed: 90
