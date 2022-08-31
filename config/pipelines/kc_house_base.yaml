@@ -1,0 +1,39 @@
+data:
+  extract:
+    filepath: data/raw/kc_house_data.csv
+    target: 
+      - price
+    features:
+      - bedrooms
+      - bathrooms
+      - sqft_living
+      - sqft_lot
+      - floors
+      - waterfront
+      - view
+      - condition
+      - grade
+      - sqft_above
+      - sqft_basement
+      - yr_built
+      - yr_renovated
+      - zipcode
+      - lat
+      - long
+      - sqft_living15
+      - sqft_lot15
+
+model:
+  estimator_type: regressor
+  estimator_config:
+    module: sklearn.ensemble.RandomForestRegressor
+    hyperparameters:
+      n_estimators: 100
+  
+  transform:
+    fit:
+      cross_validation:
+        strategy: k_fold
+        n_splits: 2
+  
+  load:

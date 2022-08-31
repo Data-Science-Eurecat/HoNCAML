@@ -118,27 +118,30 @@ def merge_settings(
 
 
 def update_dict_from_default_dict(
-        source_dict: Dict, overrides_dict: Dict) -> Dict:
+        default_dict: Dict, source_dict: Dict) -> Dict:
     """
-    Given two dictionaries, this function combine both dictionaries values
-    and 'overrides_dict' values prevails. In addition, it is a recursive
-    function when the value of dict is another dict.
+    Given two dictionaries combine both dictionary values having source_dict
+    values prevailing over default ones. In addition, it throws a recursion
+    over the dictionary values.
 
     Args:
-        source_dict (Dict): dictionary to modify
-        overrides_dict (Dict): dictionary with override values
+        default_dict (Dict): dictionary with the default values.
+        source_dict (Dict): dictionary to be updated.
 
     Returns:
-        a dict with values of both dicts.
+        source_dict (Dict): a dict with merged values.
     """
-    for key, value in overrides_dict.items():
-        if isinstance(value, dict) and value:
-            returned = update_dict_from_default_dict(
-                source_dict.get(key, {}), value)
-            source_dict[key] = returned
-        else:
-            source_dict[key] = overrides_dict[key]
 
+    if source_dict is None:
+        source_dict = {}
+    for key, value in default_dict.items():
+        if key not in source_dict:
+            if not isinstance(value, dict) and value is not None:
+                source_dict[key] = value
+        else:
+            if isinstance(value, dict):
+                source_dict[key] = update_dict_from_default_dict(
+                    value, source_dict[key])
     return source_dict
 
 

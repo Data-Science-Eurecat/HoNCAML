@@ -82,11 +82,12 @@ pipeline_steps:
         cross_validation:
           strategy: k_fold
           n_splits: 10
-          random_seed: 90
+          shuffle: True
+          random_state: 90
       predict:
 
     load:
-      path: models/
+      path: data/models/
 
   # Benchmark Step settings
   benchmark:
