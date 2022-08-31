@@ -17,7 +17,38 @@ pipeline_rules:
 # Step validation rules
 step_rules:
   data:
+    extract:
+      filepath: 
+        - required: True
+      target: 
+        - required: True
+    transform:
+      normalize:
+        features:
+          module: 
+            - required: True
+        target:
+          module: 
+            - required: True
+    load:
+      path: 
+        - required: True
   model:
+    estimator_type: 
+      - required: True
+      - allowed: ['regressor', 'classifier']
+    estimator_config:
+      module: 
+        - required: True
+    extract:
+      filepath: 
+        - required: True
+    transform:
+      fit:
+        cross_validation:
+          strategy: 
+            - required: True
+      predict:    
   benchmark:
     
 
@@ -48,7 +79,7 @@ pipeline_steps:
 
     transform:
       fit:
-        cross_validate:
+        cross_validation:
           strategy: k_fold
           n_splits: 10
           random_seed: 90

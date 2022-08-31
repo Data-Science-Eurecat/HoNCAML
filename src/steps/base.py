@@ -3,6 +3,7 @@ from typing import Dict
 import copy
 from src.tools import utils
 from src.tools.startup import logger
+from src.exceptions import step as step_exception
 
 
 class BaseStep(ABC):
@@ -17,7 +18,8 @@ class BaseStep(ABC):
         _load_settings (Dict): the settings defining the load ETL process.
     """
 
-    def __init__(self, default_settings: Dict, user_settings: Dict) -> None:
+    def __init__(self, default_settings: Dict, user_settings: Dict,
+                 step_rules: Dict) -> None:
         """
         This is a constructor method of class. This function initializes
         the common steps parameters.
@@ -26,6 +28,7 @@ class BaseStep(ABC):
             default_settings (Dict): the default settings for the steps.
             user_settings (Dict): the user defined settings for the steps.
         """
+        self._step_rules = step_rules
         self._step_settings = self._merge_settings(
             default_settings.copy(), user_settings.copy())
 
@@ -118,13 +121,14 @@ class BaseStep(ABC):
 
         return step_settings
 
-    @abstractmethod
     def _validate_step(self) -> None:
         """
         Validates the settings for the step ensuring that the step has the
         mandatory keys to run.
         """
-        pass
+        validator = utils.build_validator(self._step_rules)
+        if not validator.validate(self._step_settings):
+            raise step_exception.StepValidationError(validator.errors)
 
     @abstractmethod
     def _extract(self, settings: Dict) -> None:

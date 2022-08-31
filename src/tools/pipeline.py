@@ -48,13 +48,16 @@ class Pipeline:
         for step_name, step_content in self._pipeline_content.items():
             if step_name == base_step.StepType.data:
                 step = data_step.DataStep(
-                    params['pipeline_steps'][step_name], step_content)
+                    params['pipeline_steps'][step_name], step_content,
+                    params['step_rules'][step_name])
             elif step_name == base_step.StepType.model:
                 step = model_step.ModelStep(
-                    params['pipeline_steps'][step_name], step_content)
+                    params['pipeline_steps'][step_name], step_content,
+                    params['step_rules'][step_name])
             elif step_name == base_step.StepType.benchmark:
                 step = benchmark_step.BenchmarkStep(
-                    params['pipeline_steps'][step_name], step_content)
+                    params['pipeline_steps'][step_name], step_content,
+                    params['step_rules'][step_name])
             else:
                 raise step_exceptions.StepDoesNotExists(step_name)
 

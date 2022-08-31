@@ -2,6 +2,7 @@ import datetime
 import importlib
 import uuid
 from typing import Dict, Callable
+from cerberus import Validator
 
 from src.exceptions import settings as settings_exception
 
@@ -139,6 +140,34 @@ def update_dict_from_default_dict(
             source_dict[key] = overrides_dict[key]
 
     return source_dict
+
+
+def build_validator(rules: Dict) -> Validator:
+    """
+    """
+    schema = {}
+    for key, value in rules.items():
+        if isinstance(value, dict):
+            schema[key] = build_validator_schema(rules[key])
+        else:
+            schema[key] = reduce(lambda a, b: {**a, **b}, value)
+    return Validator(schema)
+
+
+def build_validator_schema(rules: Dict) -> Dict:
+    """
+    """
+    schema = {'type': 'dict'}
+    for key, value in rules.items():
+        if isinstance(value, dict):
+            schema['keysrules'] = {'allowed': list(value.keys())}
+            schema['valuesrules'] = build_validator_schema(rules[key])
+        else:
+            if value is not None:
+                schema['schema'] = schema.get('schema', {})
+                schema['schema'][key] = reduce(lambda a, b: {**a, **b}, value)
+
+    return schema
 
 
 class FileExtension:
