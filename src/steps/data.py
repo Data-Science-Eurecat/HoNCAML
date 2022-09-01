@@ -13,7 +13,8 @@ class DataStep(base.BaseStep):
         _dataset (data.Dataset): the dataset to be handled.
     """
 
-    def __init__(self, default_settings: Dict, user_settings: Dict) -> None:
+    def __init__(self, default_settings: Dict, user_settings: Dict,
+                 step_rules: Dict) -> None:
         """
         This is a constructor method of class. This function initializes
         the parameters and set up the current steps.
@@ -22,7 +23,7 @@ class DataStep(base.BaseStep):
             default_settings (Dict): the default settings for the steps.
             user_settings (Dict): the user defined settings for the steps.
         """
-        super().__init__(default_settings, user_settings)
+        super().__init__(default_settings, user_settings, step_rules)
 
         # TODO: identify the dataset type. Assuming TabularDataset for now.
         self._dataset = tabular.TabularDataset()
@@ -37,13 +38,6 @@ class DataStep(base.BaseStep):
             (base_dataset.BaseDataset): dataset instance.
         """
         return self._dataset
-
-    def _validate_step(self) -> None:
-        """
-        Validates the settings for the step ensuring that the step has the
-        mandatory keys to run.
-        """
-        pass
 
     def _extract(self, settings: Dict) -> None:
         """

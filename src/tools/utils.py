@@ -3,7 +3,7 @@ import importlib
 import uuid
 from typing import Dict, Callable
 from cerberus import Validator
-
+from functools import reduce
 from src.exceptions import settings as settings_exception
 
 
@@ -154,7 +154,9 @@ def build_validator(rules: Dict) -> Validator:
             schema[key] = build_validator_schema(rules[key])
         else:
             schema[key] = reduce(lambda a, b: {**a, **b}, value)
-    return Validator(schema)
+    import json
+    print(json.dumps(schema, indent=2))
+    return Validator(schema, allow_unknown=True)
 
 
 def build_validator_schema(rules: Dict) -> Dict:
@@ -163,7 +165,7 @@ def build_validator_schema(rules: Dict) -> Dict:
     schema = {'type': 'dict'}
     for key, value in rules.items():
         if isinstance(value, dict):
-            schema['keysrules'] = {'allowed': list(value.keys())}
+            schema['keysrules'] = {'allowed': list(rules.keys())}
             schema['valuesrules'] = build_validator_schema(rules[key])
         else:
             if value is not None:

@@ -33,7 +33,8 @@ class ModelStep(base.BaseStep):
             specific estimator.
     """
 
-    def __init__(self, default_settings: Dict, user_settings: Dict) -> None:
+    def __init__(self, default_settings: Dict, user_settings: Dict,
+                 step_rules: Dict) -> None:
         """
         This is a constructor method of class. This function initializes
         the parameters and set up the current steps.
@@ -42,7 +43,7 @@ class ModelStep(base.BaseStep):
             default_settings (Dict): the default settings for the steps.
             user_settings (Dict): the user defined settings for the steps.
         """
-        super().__init__(default_settings, user_settings)
+        super().__init__(default_settings, user_settings, step_rules)
         self._estimator_type = user_settings.pop('estimator_type')
         self._estimator_config = user_settings.pop(
             'estimator_config', default_estimator)
@@ -58,21 +59,6 @@ class ModelStep(base.BaseStep):
             (base_model.BaseModel): model instance.
         """
         return self._model
-
-    def _validate_step(self) -> None:
-        """
-        Validates the settings for the step ensuring that the step has the
-        mandatory keys to run.
-
-        - estimator_type required (unless extract)
-        - si estimator_config -> estimator_config.module required
-        - si extract -> filepath required + format module_name.type.(.*)
-        - si transform -> fit or predict
-        - si fit -> si cross-val -> strategy required
-        - si load -> path required
-        """
-
-        pass
 
     def _initialize_model(self, model_type: str, estimator_type: str) -> None:
         """

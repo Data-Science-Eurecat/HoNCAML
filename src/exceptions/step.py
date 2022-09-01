@@ -9,6 +9,6 @@ class StepDoesNotExists(Exception):
 
 class StepValidationError(Exception):
     def __init__(self, errors):
-        self.message = f'The step has some validation errors:\n\
-            {json.dumps(errors, indent=2)}'
+        self.message = f'The step has some validation errors:\
+            \n{json.dumps(errors, indent=2)}'
         super().__init__(self.message)

@@ -34,12 +34,12 @@ step_rules:
       path: 
         - required: True
   model:
-    estimator_type: 
-      - required: True
-      - allowed: ['regressor', 'classifier']
-    estimator_config:
-      module: 
-        - required: True
+    # estimator_type: 
+    #   - required: True
+    #   - allowed: ['regressor', 'classifier']
+    # estimator_config:
+    #   module: 
+    #     - required: True
     extract:
       filepath: 
         - required: True
