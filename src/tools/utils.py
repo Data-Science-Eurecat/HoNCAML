@@ -147,6 +147,15 @@ def update_dict_from_default_dict(
 
 def build_validator(rules: Dict) -> Validator:
     """
+    Builds a cerberus.Validator object by creating a rule schema based on the
+    rules given by parameter as a dictionary.
+
+    Args:
+        rules (Dict): the rules to validate the input with.
+
+    Returns:
+        validator (Validator): the validator build with the schema defined by
+            the input rules.
     """
     schema = {}
     for key, value in rules.items():
@@ -154,13 +163,19 @@ def build_validator(rules: Dict) -> Validator:
             schema[key] = build_validator_schema(rules[key])
         else:
             schema[key] = reduce(lambda a, b: {**a, **b}, value)
-    import json
-    print(json.dumps(schema, indent=2))
+
     return Validator(schema, allow_unknown=True)
 
 
 def build_validator_schema(rules: Dict) -> Dict:
     """
+    Build the schema for the validator given the rules as a dictionary.
+
+    Args:
+        rules (Dict): the rules to validate the input with.
+
+    Returns:
+        schema (Dict): the schema built with the rules given.
     """
     schema = {'type': 'dict'}
     for key, value in rules.items():
