@@ -78,19 +78,6 @@ def generate_unique_id(
     return unique_id
 
 
-def validate_pipeline(pipeline_content: Dict) -> None:
-    """
-    Validate the pipeline steps based on the rules defined to prevent invalid
-    executions.
-
-    Args:
-        pipeline_content (Dict): the settings defining the pipeline steps.
-    """
-    # TODO: loop the steps and check the rules defined by the settings.yaml file: params['pipeline_rules']
-    # Raise an exception when the rule validation fail
-    pass
-
-
 def merge_settings(
         base_settings: Dict, user_settings: Dict, acc_key: str = '') -> Dict:
     """

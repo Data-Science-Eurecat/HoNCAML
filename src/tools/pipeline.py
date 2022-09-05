@@ -44,7 +44,7 @@ class Pipeline:
         This function builds the pipeline structure. Using the user defined
         pipeline_content, it creates all the required steps to be executed.
         """
-        utils.validate_pipeline(self._pipeline_content)
+        self._validate_pipeline(self._pipeline_content)
         for step_name, step_content in self._pipeline_content.items():
             if step_name == base_step.StepType.data:
                 step = data_step.DataStep(
@@ -62,6 +62,18 @@ class Pipeline:
                 raise step_exceptions.StepDoesNotExists(step_name)
 
             self._steps.append(step)
+
+    def _validate_pipeline(pipeline_content: Dict) -> None:
+        """
+        Validate the pipeline steps based on the rules defined to prevent invalid
+        executions.
+
+        Args:
+            pipeline_content (Dict): the settings defining the pipeline steps.
+        """
+        # TODO: loop the steps and check the rules defined by the settings.yaml file: params['pipeline_rules']
+        # Raise an exception when the rule validation fail
+        pass
 
     def run(self):
         """

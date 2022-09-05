@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Dict, List
 from src.tools import custom_typing as ct
+from src.exceptions import model as model_exceptions
 
 
 class BaseModel(ABC):
@@ -21,6 +22,8 @@ class BaseModel(ABC):
             estimator_type (str): the kind of estimator to be used. Valid values
                 are `regressor` and `classifier`.
         """
+        if estimator_type not in estimator_types:
+            raise model_exceptions.EstimatorTypeNotAllowed(estimator_type)
         self._estimator_type = estimator_type
         self._estimator = None
 
@@ -109,8 +112,25 @@ class BaseModel(ABC):
 
 class ModelType:
     """
-    This class defines the available types of models. The valid steps are the
+    This class defines the available types of models. The valid values are the
     following:
         - sklearn
     """
     sklearn = 'sklearn'
+
+
+class EstimatorType:
+    """
+    This class defines the available types of estimators. The valid values are
+    the following:
+        - classifier
+        - regressor
+    """
+    classifier = 'classifier'
+    regressor = 'regressor'
+
+
+estimator_types = [
+    EstimatorType.classifier,
+    EstimatorType.regressor
+]

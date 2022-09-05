@@ -13,7 +13,7 @@ class ModelActions:
 
 
 default_estimator = {
-    'module': 'sklearn.ensemble.RandomForestClassifier',
+    'module': 'sklearn.ensemble.RandomForestRegressor',
     'hyperparameters': {}
 }
 
@@ -44,7 +44,7 @@ class ModelStep(base.BaseStep):
             user_settings (Dict): the user defined settings for the steps.
         """
         super().__init__(default_settings, user_settings, step_rules)
-        self._estimator_type = user_settings.pop('estimator_type')
+        self._estimator_type = user_settings.pop('estimator_type', None)
         self._estimator_config = user_settings.pop(
             'estimator_config', default_estimator)
         self._model = None
@@ -133,12 +133,13 @@ class ModelStep(base.BaseStep):
                 # Afegir normalizations
                 self._model.fit(x_train, y_train, **settings)
 
-                results.append(self.model.evaluate(x_test, y_test, **settings))
-        # Group cv metrics
-        self._cv_results = general.aggregate_cv_results(results)
-        print(self._cv_results)
+                results.append(self._model.evaluate(
+                    x_test, y_test, **settings))
+            # Group cv metrics
+            self._cv_results = general.aggregate_cv_results(results)
+            print(self._cv_results)
         # Train the model with whole data
-        self.model.fit(x, y, **settings)
+        self._model.fit(x, y, **settings)
 
     def _predict(self, settings: Dict) -> List:
         """

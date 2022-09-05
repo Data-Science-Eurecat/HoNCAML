@@ -1,10 +1,26 @@
 from src.tools import utils
 import unittest
+from sklearn.ensemble import RandomForestRegressor
 
 
 class UtilsTest(unittest.TestCase):
     def setUp(self):
         pass
+
+    # Test import_library
+    def test_import_library(self):
+        # Import sklearn model without params
+        module = 'sklearn.ensemble.RandomForestRegressor'
+        result = utils.import_library(module)
+        self.assertIsInstance(result, RandomForestRegressor)
+
+        # Import sklearn model with params
+        module = 'sklearn.ensemble.RandomForestRegressor'
+        params = {'n_estimators': 10}
+        result = utils.import_library(module, params)
+        self.assertIsInstance(result, RandomForestRegressor)
+        self.assertEqual(result.get_params()[
+                         'n_estimators'], params['n_estimators'])
 
     # Test ensure_input_list method
     def test_ensure_input_list_no_list(self):
