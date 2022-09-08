@@ -31,6 +31,22 @@ data:
 # load:
 # filepath: data/processed/dataset.csv
 
+benchmark:
+  transform:
+    models:
+      - module: sklearn.ensemble.RandomForestRegressor
+        search_space:
+          - n_estimators:
+            method: randint
+            value: [2, 10]
+          
+      - module: sklearn.linear_model.LinearRegression
+        search_space:
+          - fit_intercept:
+            method: choice
+            value: [True, False]
+    search_algorithm: 
+
 # Model Step settings
 model:
   estimator_type: regressor # | classifier
