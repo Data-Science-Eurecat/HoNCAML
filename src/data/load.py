@@ -1,7 +1,8 @@
 import joblib
 import os
 import pandas as pd
-from typing import Dict
+import numpy as np
+from typing import Dict, List
 
 from src.exceptions import data as data_exception
 from src.tools import utils
@@ -29,5 +30,25 @@ def save_dataframe(dataset: pd.DataFrame, settings: Dict) -> None:
 
 
 def save_model(model: object, settings: Dict) -> None:
+    """
+    Save a model into disk.
+
+    Args:
+        model (object): the model object.
+        settings (Dict): parameters to save the model.
+    """
     filepath = os.path.join(settings['path'], settings['filename'])
     joblib.dump(model, filepath)
+
+
+def save_predictions(predictions: List, settings: Dict) -> None:
+    """
+    Save the list of predictions to disk.
+
+    Args:
+        predictions (List): list of predictions to be saved.
+        settings (Dict): parameters to save the predictions.
+    """
+    filename = utils.generate_unique_id('predictions')
+    filepath = os.path.join(settings['path'], filename)
+    np.save(filepath, predictions)

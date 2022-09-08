@@ -1,10 +1,12 @@
 from typing import Dict, List
 
+from src.tools.startup import logger
 from src.steps import base
 from src.models import base as base_model
 from src.models import sklearn_model, general
 from src.data import transform
 from src.exceptions import model as model_exceptions
+from src.data import load
 
 
 class ModelActions:
@@ -102,7 +104,7 @@ class ModelStep(base.BaseStep):
         if ModelActions.fit in settings:
             self._fit(settings['fit'])
         if ModelActions.predict in settings:
-            self._predictions = self._predict(settings['predict'])
+            self._predict(settings['predict'])
 
     def _load(self, settings: Dict) -> None:
         """
@@ -130,31 +132,27 @@ class ModelStep(base.BaseStep):
             results = []
             for split, x_train, x_test, y_train, y_test in \
                     cv_split.split(x, y, **settings.pop('cross_validation')):
-                # Afegir normalizations
                 self._model.fit(x_train, y_train, **settings)
 
                 results.append(self._model.evaluate(
                     x_test, y_test, **settings))
             # Group cv metrics
             self._cv_results = general.aggregate_cv_results(results)
-            print(self._cv_results)
+            logger.info(self._cv_results)
         # Train the model with whole data
         self._model.fit(x, y, **settings)
 
-    def _predict(self, settings: Dict) -> List:
+    def _predict(self, settings: Dict) -> None:
         """
         The predict function for the model step. It performs predictions for
         the whole dataset by using the model.
 
         Args:
             settings (Dict): the predict configuration.
-
-        Returns:
-            predictions (List): the prediction for each sample.
         """
         x = self._dataset.x
         predictions = self._model.predict(x, **settings)
-        return predictions
+        load.save_predictions(settings)
 
     def run(self, metadata: Dict) -> Dict:
         """

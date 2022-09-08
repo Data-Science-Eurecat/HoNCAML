@@ -32,8 +32,8 @@ class BaseStep(ABC):
         self._step_settings = self._merge_settings(
             default_settings.copy(), user_settings.copy())
 
-        # Check if it runs the parent method or child method
-        self._validate_step()
+        # TODO: review and fix step validation
+        # self._validate_step()
 
         self._extract_settings = \
             self._step_settings.get(StepPhase.extract, None)

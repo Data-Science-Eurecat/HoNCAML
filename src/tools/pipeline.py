@@ -63,7 +63,7 @@ class Pipeline:
 
             self._steps.append(step)
 
-    def _validate_pipeline(pipeline_content: Dict) -> None:
+    def _validate_pipeline(self, pipeline_content: Dict) -> None:
         """
         Validate the pipeline steps based on the rules defined to prevent invalid
         executions.

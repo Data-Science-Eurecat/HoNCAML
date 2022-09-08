@@ -43,6 +43,8 @@ step_rules:
           strategy: 
             - required: True
       predict:
+        path:
+          - required: True
     load:
       path:
         - required: True
@@ -82,6 +84,7 @@ pipeline_steps:
           shuffle: True
           random_state: 90
       predict:
+        path: data/processed
 
     load:
       path: data/models/
@@ -89,8 +92,13 @@ pipeline_steps:
   # Benchmark Step settings
   benchmark:
     extract:
+      # read a previously saved learner
     transform:
+      # List the models and hyperparameters to be tuned
+      # Learner parameters
+
     load:
+      # save the learner to disk and the results
 
 # Available models settings
 models:

@@ -5,28 +5,11 @@ from unittest.mock import patch
 
 from src.steps import data, base
 from src.tests import utils
+from src.tools.startup import params
 
 
 class DataTest(unittest.TestCase):
     def setUp(self):
-        self.default_settings = {
-            'extract': {
-                'filepath': 'data/raw/dataset.csv',
-                'target': ['target1']},
-            'transform': {
-                'some_param': 'some_value',
-                'normalize': {
-                    'features': {
-                        'module': 'sklearn.preprocessing.StandardScaler',
-                    },
-                    'target': {
-                        'module': 'sklearn.preprocessing.StandardScaler',
-                        'module_params': {'default_param': False},
-                        'columns': ['target']
-                    }
-                }
-            }
-        }
         self.extract = base.StepPhase.extract
         self.transform = base.StepPhase.transform
         self.load = base.StepPhase.load
@@ -35,9 +18,11 @@ class DataTest(unittest.TestCase):
     def test_merge_default_settings_and_user_settings(self):
         # Empty user settings
         empty_user_settings = dict()
-        step = data.DataStep(self.default_settings, empty_user_settings)
+        step = data.DataStep(params['pipeline_steps']['data'],
+                             empty_user_settings,
+                             params['step_rules']['data'])
         self.assertDictEqual(
-            self.default_settings, step.step_settings)
+            params['pipeline_steps']['data'], step.step_settings)
 
         # user settings contains filepath
         user_settings = {
@@ -47,10 +32,12 @@ class DataTest(unittest.TestCase):
                     'new_param': 90
                 },
         }
-        step = data.DataStep(self.default_settings, user_settings)
+        step = data.DataStep(params['pipeline_steps']['data'],
+                             user_settings,
+                             params['step_rules']['data'])
         # The result dict has the same number of phases
         self.assertEqual(
-            len(self.default_settings),
+            len(params['pipeline_steps']['data']),
             len(step.step_settings))
 
         # Extract
@@ -74,9 +61,11 @@ class DataTest(unittest.TestCase):
                 }
             }
         }
-        step = data.DataStep(self.default_settings, user_settings)
+        step = data.DataStep(params['pipeline_steps']['data'],
+                             user_settings,
+                             params['step_rules']['data'])
         self.assertDictEqual(
-            self.default_settings[self.transform]['normalize'],
+            params['pipeline_steps']['data'][self.transform]['normalize'],
             step.step_settings[self.transform]['normalize'])
         self.assertDictEqual(
             user_settings['transform'],
@@ -99,9 +88,11 @@ class DataTest(unittest.TestCase):
             }
         }
         # Check the default params for transform phase
-        step = data.DataStep(self.default_settings, user_settings)
+        step = data.DataStep(params['pipeline_steps']['data'],
+                             user_settings,
+                             params['step_rules']['data'])
         step_settings = step.step_settings
-        default_transform = self.default_settings['transform']
+        default_transform = params['pipeline_steps']['data']['transform']
         user_transform = user_settings['transform']
         self.assertEqual(
             user_transform['normalize']['features']['module'],
@@ -136,7 +127,9 @@ class DataTest(unittest.TestCase):
 
         # When settings does not have features, it includes all features
         # without target.
-        step = data.DataStep(self.default_settings, empty_user_settings)
+        step = data.DataStep(params['pipeline_steps']['data'],
+                             empty_user_settings,
+                             params['step_rules']['data'])
         step._extract(copy.deepcopy(step.extract_settings))
 
         self.assertListEqual(
@@ -149,7 +142,9 @@ class DataTest(unittest.TestCase):
     # Test _transform method
     def test_when_transform_contains_normalization_creates_new_instance(self):
         empty_user_settings = {}
-        step = data.DataStep(self.default_settings, empty_user_settings)
+        step = data.DataStep(params['pipeline_steps']['data'],
+                             empty_user_settings,
+                             params['step_rules']['data'])
         step._transform(copy.deepcopy(step.transform_settings))
         norm = step.dataset.normalization
 
@@ -172,7 +167,8 @@ class DataTest(unittest.TestCase):
                     'param2': {'col1': 1}
                 }}}
         empty_user_settings = {}
-        step = data.DataStep(
-            default_without_normalize_settings, empty_user_settings)
+        step = data.DataStep(params['step_rules']['data'],
+                             default_without_normalize_settings,
+                             empty_user_settings)
         step._transform(step.step_settings)
         self.assertTrue(step.dataset.normalization is None)
