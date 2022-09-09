@@ -1,6 +1,7 @@
 from src.tools import utils
 import unittest
 from sklearn.ensemble import RandomForestRegressor
+from cerberus import Validator
 
 
 class UtilsTest(unittest.TestCase):
@@ -23,7 +24,7 @@ class UtilsTest(unittest.TestCase):
                          'n_estimators'], params['n_estimators'])
 
     # Test ensure_input_list method
-    def test_ensure_input_list_no_list(self):
+    def test_ensure_input_list(self):
         # No list
         obj = 1
         expected = [1]
@@ -42,75 +43,165 @@ class UtilsTest(unittest.TestCase):
         result = utils.ensure_input_list(obj)
         self.assertListEqual(expected, result)
 
+    # Test generate_unique_id
+    def test_generate_unique_id(self):
+        estimator_module = None
+        estimator_type = None
+        adding_uuid = False
+        unique_id = utils.generate_unique_id(
+            estimator_module, estimator_type, adding_uuid)
+        self.assertRegex(unique_id, r'^\d{4}\d{2}\d{2}-\d{2}\d{2}\d{2}$')
+
+        estimator_module = 'module'
+        estimator_type = None
+        adding_uuid = False
+        unique_id = utils.generate_unique_id(
+            estimator_module, estimator_type, adding_uuid)
+        self.assertRegex(
+            unique_id, r'^module.\d{4}\d{2}\d{2}-\d{2}\d{2}\d{2}$')
+
+        estimator_module = 'module'
+        estimator_type = 'type'
+        adding_uuid = False
+        unique_id = utils.generate_unique_id(
+            estimator_module, estimator_type, adding_uuid)
+        self.assertRegex(
+            unique_id, r'^module.type.\d{4}\d{2}\d{2}-\d{2}\d{2}\d{2}$')
+
+        estimator_module = 'module'
+        estimator_type = 'type'
+        adding_uuid = True
+        unique_id = utils.generate_unique_id(
+            estimator_module, estimator_type, adding_uuid)
+        self.assertRegex(
+            unique_id, r'^module.type.\d{4}\d{2}\d{2}-\d{2}\d{2}\d{2}_[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$')
+
     # Test update_dict_from_default_dict method
     def test_update_dict_from_default_dict(self):
         default_dict = {
-            'filepath': 'default/path/file.csv',
-            'target': ['default_target1', 'default_target2'],
-            'param4': 2
+            'key1': {
+                'nested_key1': {
+                    'nested_key2': 1
+                }
+            },
+            'nested_key3': 2,
+            'nested_key4': 3,
         }
+        source_dict = None
+        output_dict = utils.update_dict_from_default_dict(
+            default_dict, source_dict)
+        self.assertEqual(output_dict, {
+            'nested_key3': 2,
+            'nested_key4': 3,
+        })
 
-        # Empty input dict
-        result = utils.update_dict_from_default_dict({}, default_dict)
-        self.assertEqual(len(result), len(default_dict))
-        self.assertDictEqual(result, default_dict)
+        source_dict = {}
+        output_dict = utils.update_dict_from_default_dict(
+            default_dict, source_dict)
+        self.assertEqual(output_dict, {
+            'nested_key3': 2,
+            'nested_key4': 3,
+        })
 
-        # Dict with two params
-        input_dict = {
-            'filepath': 'not/override/file.csv',
-            'new_param': 90
+        source_dict = {
+            'nested_key3': 20,
+            'nested_key4': 30,
         }
-        result = utils.update_dict_from_default_dict(default_dict, input_dict)
-        self.assertEqual(len(result), len({**input_dict, **default_dict}))
-        self.assertEqual(result['filepath'], input_dict['filepath'])
-        self.assertEqual(result['target'], default_dict['target'])
-        self.assertEqual(result['param4'], default_dict['param4'])
-        self.assertTrue('new_param' in result)
+        output_dict = utils.update_dict_from_default_dict(
+            default_dict, source_dict)
+        self.assertEqual(output_dict, {
+            'nested_key3': 20,
+            'nested_key4': 30,
+        })
 
-        # Empty default dict
-        result = utils.update_dict_from_default_dict(input_dict, {})
-        self.assertEqual(len(result), len(input_dict))
-        self.assertDictEqual(result, input_dict)
-
-        # Input dict with 2 parameters
-        input_dict = {
-            'filepath': 'not/override/file.csv',
-            'new_param': 90,
-            'target': ['new_target']
+        source_dict = {
+            'key1': {}
         }
-        result = utils.update_dict_from_default_dict(default_dict, input_dict)
-        self.assertEqual(len(result), len({**input_dict, **default_dict}))
-        self.assertEqual(result['filepath'], input_dict['filepath'])
-        self.assertEqual(result['target'], input_dict['target'])
-        self.assertEqual(result['param4'], default_dict['param4'])
-        self.assertTrue('new_param' in result)
+        output_dict = utils.update_dict_from_default_dict(
+            default_dict, source_dict)
+        self.assertEqual(output_dict, {
+            'key1': {},
+            'nested_key3': 2,
+            'nested_key4': 3,
+        })
 
-        # Both empty dicts
-        result = utils.update_dict_from_default_dict({}, {})
-        self.assertDictEqual(result, {})
+        source_dict = {
+            'key1': {
+                'nested_key1': {}
+            }
+        }
+        output_dict = utils.update_dict_from_default_dict(
+            default_dict, source_dict)
+        self.assertEqual(output_dict, {
+            'key1': {
+                'nested_key1': {
+                    'nested_key2': 1
+                }
+            },
+            'nested_key3': 2,
+            'nested_key4': 3,
+        })
 
-        source = {'hello1': 1}
-        overrides = {'hello2': 2}
-        utils.update_dict_from_default_dict(source, overrides)
-        self.assertDictEqual(source, {'hello1': 1, 'hello2': 2})
+        source_dict = {
+            'key1': {
+                'nested_key1': {
+                    'nested_key2': 10
+                }
+            }
+        }
+        output_dict = utils.update_dict_from_default_dict(
+            default_dict, source_dict)
+        self.assertEqual(output_dict, {
+            'key1': {
+                'nested_key1': {
+                    'nested_key2': 10
+                }
+            },
+            'nested_key3': 2,
+            'nested_key4': 3,
+        })
 
-        source = {'hello': 'to_override'}
-        overrides = {'hello': 'over'}
-        utils.update_dict_from_default_dict(source, overrides)
-        self.assertDictEqual(source, {'hello': 'over'})
+    # Test build_validator
+    def test_build_validator(self):
+        rules = {
+            'rule1': {
+                'nested_rule': [
+                    {'required': True}
+                ]
+            }
+        }
+        validator = utils.build_validator(rules)
+        self.assertIsInstance(validator, Validator)
 
-        source = {'hello': {'value': 'to_override', 'no_change': 1}}
-        overrides = {'hello': {'value': 'over'}}
-        utils.update_dict_from_default_dict(source, overrides)
-        self.assertDictEqual(
-            source, {'hello': {'value': 'over', 'no_change': 1}})
+        rules = {
+            'rule1': [
+                {'required': True}
+            ]
+        }
+        validator = utils.build_validator(rules)
+        self.assertIsInstance(validator, Validator)
 
-        source = {'hello': {'value': 'to_override', 'no_change': 1}}
-        overrides = {'hello': {'value': {}}}
-        utils.update_dict_from_default_dict(source, overrides)
-        self.assertDictEqual(source, {'hello': {'value': {}, 'no_change': 1}})
-
-        source = {'hello': {'value': {}, 'no_change': 1}}
-        overrides = {'hello': {'value': 2}}
-        utils.update_dict_from_default_dict(source, overrides)
-        self.assertDictEqual(source, {'hello': {'value': 2, 'no_change': 1}})
+    # Test build_validator_schema
+    def test_build_validator_schema(self):
+        rules = {
+            'rule1': {
+                'nested_rule1': [
+                    {'required': True}
+                ]
+            }
+        }
+        schema = utils.build_validator_schema(rules)
+        self.assertDictEqual(schema, {
+            'type': 'dict',
+            'keysrules': {
+                'allowed': ['rule1']
+            },
+            'valuesrules': {
+                'type': 'dict',
+                'schema': {
+                    'nested_rule1': {
+                        'required': True
+                    }
+                },
+            }
+        })

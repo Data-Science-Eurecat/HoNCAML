@@ -4,7 +4,6 @@ import uuid
 from typing import Dict, Callable
 from cerberus import Validator
 from functools import reduce
-from src.exceptions import settings as settings_exception
 
 
 def import_library(module: str, params: Dict = None) -> Callable:
@@ -76,32 +75,6 @@ def generate_unique_id(
         unique_id = f'{estimator_module}.{unique_id}'
 
     return unique_id
-
-
-def merge_settings(
-        base_settings: Dict, user_settings: Dict, acc_key: str = '') -> Dict:
-    """
-    Update the base settings with the user defined settings recursively.
-
-    Args:
-        base_settings (Dict): the library base settings.
-        user_settings (Dict): the user modified settings.
-        acc_key (str): the accumulated key path from the settings.
-
-    Returns:
-        base_settings (Dict): the base settings updated with the user ones.
-    """
-    for key in user_settings:
-        acc_key = f'{acc_key}.{key}' if acc_key != '' else f'{key}'
-        if key in base_settings:
-            if isinstance(user_settings[key], dict):
-                base_settings[key] = merge_settings(
-                    base_settings[key], user_settings[key], acc_key)
-            else:
-                base_settings[key] = user_settings[key]
-        else:
-            raise settings_exception.SettingParameterDoesNotExist(acc_key)
-    return base_settings
 
 
 def update_dict_from_default_dict(
