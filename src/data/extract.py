@@ -1,7 +1,12 @@
-from typing import Dict, Tuple
-import pandas as pd
+import joblib
 import os
+import pandas as pd
 import yaml
+from typing import Dict
+
+from src.exceptions import data as data_exception
+from src.tools import utils
+from src.tools.startup import logger
 
 
 def read_yaml(file_path: str) -> Dict:
@@ -21,7 +26,7 @@ def read_yaml(file_path: str) -> Dict:
     return params
 
 
-def read_data(settings: Dict) -> Tuple[pd.DataFrame, pd.DataFrame]:
+def read_dataframe(settings: Dict) -> pd.DataFrame:
     """
     Read data from disk using specified settings.
 
@@ -29,17 +34,30 @@ def read_data(settings: Dict) -> Tuple[pd.DataFrame, pd.DataFrame]:
         settings (Dict): Params used for input data extraction.
 
     Returns:
-        dataset, target (Tuple[pd.DataFrame, pd.DataFrame]): the dataset and
-        the target column.
+        df (pd.DataFrame): the dataset as pandas dataframe.
     """
-    filepath = os.path.join(settings['path'], settings['data'])
-    extension = settings['data'].split('.')[-1].lower()
-    if extension == 'csv':
-        df_datatype = pd.read_csv(filepath)
-    elif extension in ['xlsx', 'xls']:
-        df_datatype = pd.read_excel(filepath)
+    filepath = settings.pop('filepath')
+    logger.info(f'Extract file from {filepath}')
+    _, file_extension = os.path.splitext(filepath)
+
+    if file_extension == utils.FileExtension.csv:
+        df = pd.read_csv(filepath, **settings)
+    elif file_extension in utils.FileExtension.excel:
+        df = pd.read_excel(filepath, **settings)
     else:
-        raise Exception(f'File extension {extension} not recognized')
-    dataset = df_datatype.drop(settings['target'], axis=1)
-    target = df_datatype[[settings['target']]]
-    return dataset, target
+        raise data_exception.FileExtensionException(file_extension)
+
+    return df
+
+
+def read_model(settings: Dict) -> object:
+    """
+    Load a trained model from a given path.
+    Args:
+        settings (Dict): the settings containing the path to the file.
+    Returns:
+        model (object): The read model from disk.
+    """
+    filepath = settings['filepath']
+    model = joblib.load(filepath)
+    return model

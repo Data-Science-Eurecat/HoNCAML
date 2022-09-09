@@ -1,24 +1,54 @@
-from typing import Dict
-import pandas as pd
+import joblib
 import os
+import pandas as pd
+import numpy as np
+from typing import Dict, List
+
+from src.exceptions import data as data_exception
+from src.tools import utils
+from src.tools.startup import logger
 
 
-def save_data(dataset: pd.DataFrame, target: pd.DataFrame, settings: Dict)\
-        -> None:
+def save_dataframe(dataset: pd.DataFrame, settings: Dict) -> None:
     """
     Save the dataset and target columns to disk using the settings given.
 
     Args:
         dataset (pd.DataFrame): the dataset.
-        dataset (pd.DataFrame): the target column.
         settings (Dict): Params used for data processing.
     """
-    df = pd.concat((dataset, target), axis=1)
-    filepath = os.path.join(settings['path'], settings['data'])
-    extension = settings['data'].split('.')[-1].lower()
-    if extension == 'csv':
-        df.to_csv(filepath, index=False)
-    elif extension in ['xlsx', 'xls']:
-        df.to_excel(filepath, index=False)
+    filepath = settings.pop('filepath')
+    logger.info(f'Load file {filepath}')
+    _, file_extension = os.path.splitext(filepath)
+
+    if file_extension == utils.FileExtension.csv:
+        dataset.to_csv(filepath, index=False)
+    elif file_extension in utils.FileExtension.excel:
+        dataset.to_excel(filepath, index=False)
     else:
-        raise Exception(f'File extension {extension} not recognized')
+        raise data_exception.FileExtensionException(file_extension)
+
+
+def save_model(model: object, settings: Dict) -> None:
+    """
+    Save a model into disk.
+
+    Args:
+        model (object): the model object.
+        settings (Dict): parameters to save the model.
+    """
+    filepath = os.path.join(settings['path'], settings['filename'])
+    joblib.dump(model, filepath)
+
+
+def save_predictions(predictions: List, settings: Dict) -> None:
+    """
+    Save the list of predictions to disk.
+
+    Args:
+        predictions (List): list of predictions to be saved.
+        settings (Dict): parameters to save the predictions.
+    """
+    filename = utils.generate_unique_id('predictions')
+    filepath = os.path.join(settings['path'], filename)
+    np.save(filepath, predictions)

@@ -1,8 +1,11 @@
-from src.tools.startup import logger, params
-from src.tools import utils
-from src import exceptions
 from typing import Dict
-import importlib
+
+from src.exceptions import step as step_exceptions
+from src.steps import base as base_step, data as data_step
+from src.tools import utils
+from src.tools.startup import logger, params
+from src.steps import model as model_step
+from src.steps import benchmark as benchmark_step
 
 
 class Pipeline:
@@ -11,9 +14,10 @@ class Pipeline:
     pipeline to be executed and runs each of the steps defined.
 
     Attributes:
-        steps (List[step.Step]): the steps defining the pipeline.
-        pipeline_content (Dict): the settings defining the pipeline steps.
-        execution_id (str): the execution identifier.
+        _steps (List[steps.Step]): the steps defining the pipeline.
+        _metadata (Dict): the objects output from each step.
+        _pipeline_content (Dict): the settings defining the pipeline steps.
+        _execution_id (str): the execution identifier.
     """
 
     def __init__(self, pipeline_content: Dict, execution_id: str) -> None:
@@ -25,10 +29,14 @@ class Pipeline:
             pipeline_content (Dict): the settings defining the pipeline steps.
             execution_id (str): the execution identifier.
         """
-        self.pipeline_content = pipeline_content
-        self.execution_id = execution_id
-        self.steps = []
-        logger.debug(f'Pipeline content {pipeline_content}')
+        self._pipeline_content = pipeline_content
+        logger.info(f'Pipeline content {pipeline_content}')
+
+        self._execution_id = execution_id
+
+        self._steps = []
+        self._metadata = {}
+
         self._setup_pipeline()
 
     def _setup_pipeline(self):
@@ -36,18 +44,42 @@ class Pipeline:
         This function builds the pipeline structure. Using the user defined
         pipeline_content, it creates all the required steps to be executed.
         """
-        utils.validate_pipeline(self.pipeline_content)
-        for key in self.pipeline_content:
-            if key in params['pipeline_steps']:
-                step_module = params['pipeline_steps'][key]['library']
-                library = '.'.join(step_module.split('.')[:-1])
-                module = importlib.import_module(library)
-                name = step_module.split('.')[-1]
-                step = getattr(module, name)(
-                    params['pipeline_steps'][key], self.pipeline_content[key])
-                self.steps.append(step)
+        self._validate_pipeline(self._pipeline_content)
+        for step_name, step_content in self._pipeline_content.items():
+            if step_name == base_step.StepType.data:
+                step = data_step.DataStep(
+                    params['pipeline_steps'][step_name], step_content,
+                    params['step_rules'][step_name])
+            elif step_name == base_step.StepType.model:
+                step = model_step.ModelStep(
+                    params['pipeline_steps'][step_name], step_content,
+                    params['step_rules'][step_name])
+            elif step_name == base_step.StepType.benchmark:
+                step = benchmark_step.BenchmarkStep(
+                    params['pipeline_steps'][step_name], step_content,
+                    params['step_rules'][step_name])
             else:
-                raise exceptions.step.StepDoesNotExist(key)
+                raise step_exceptions.StepDoesNotExists(step_name)
+
+            self._steps.append(step)
+
+    def _validate_pipeline(self, pipeline_content: Dict) -> None:
+        """
+        Validate the pipeline steps based on the rules defined to prevent invalid
+        executions.
+
+        Args:
+            pipeline_content (Dict): the settings defining the pipeline steps.
+        """
+        # TODO: loop the steps and check the rules defined by the settings.yaml file: params['pipeline_rules']
+        # Raise an exception when the rule validation fail
+        pass
 
     def run(self):
-        raise NotImplementedError('This function is not implemented.')
+        """
+        Run the pipeline, that is to run each step consecutively.
+        """
+        for i, step in enumerate(self._steps, start=1):
+            logger.info(f'Running step {i}/{len(self._steps)} ...')
+            self._metadata = step.run(self._metadata)
+            logger.info('Step execution complete.')

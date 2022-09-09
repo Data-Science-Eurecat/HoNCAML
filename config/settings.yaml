@@ -14,35 +14,92 @@ pipeline_folder: config/pipelines
 # Pipeline validation rules
 pipeline_rules:
 
-# Pipeline step settings (default settings for each pipeline step)
+# Step validation rules
+step_rules:
+  data:
+    extract:
+      filepath: 
+        - required: True
+      target: 
+        - required: True
+    transform:
+      normalize:
+        features:
+          module: 
+            - required: True
+        target:
+          module: 
+            - required: True
+    load:
+      path: 
+        - required: True
+  model:
+    extract:
+      filepath: 
+        - required: True
+    transform:
+      fit:
+        cross_validation:
+          strategy: 
+            - required: True
+      predict:
+        path:
+          - required: True
+    load:
+      path:
+        - required: True
+  benchmark:
+    
+
+# Pipeline steps settings (default settings for each pipeline steps)
 pipeline_steps:
   # Data Step settings
   data:
-    library: src.data.data_step.DataStep
     extract:
-      path: data/raw
-      data: dataset.csv
-      target: target
+      filepath: data/raw/dataset.csv
+      target:
+        - target
 
     transform:
-      
-    load:
-      path: data/processed
-      data: dataset.csv
+      normalize:
+        features:
+          module: sklearn.preprocessing.StandardScaler
+        target:
+          module: sklearn.preprocessing.StandardScaler
+
+    # load:
+    #  path: data/processed
+    #  data: dataset.csv
 
   # Model Step settings
   model:
-    library: src.models.model_step.ModelStep
     extract:
+      filepath: models/sklearn.regressor.20220819-122417.sav
+
     transform:
-      train:
+      fit:
+        cross_validation:
+          strategy: k_fold
+          n_splits: 10
+          shuffle: True
+          random_state: 90
       predict:
-      evaluate:
+        path: data/processed
+
     load:
+      path: data/models/
 
   # Benchmark Step settings
   benchmark:
-    library: src.models.benchmark_step.BenchmarkStep
     extract:
+      # read a previously saved learner
     transform:
+      # List the models and hyperparameters to be tuned
+      # Learner parameters
+
     load:
+      # save the learner to disk and the results
+
+# Available models settings
+models:
+  # List the models with their available hyperparameters to tune with their limits.
