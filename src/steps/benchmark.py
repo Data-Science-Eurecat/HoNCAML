@@ -28,9 +28,9 @@ class BenchmarkStep(base.BaseStep):
         """
         super().__init__(default_settings, user_settings, step_rules)
 
-        # TODO: identify optimizer type (bayesian, random, ...)
-        self._optimizer = None
-        self._models = []
+        # TODO: instance the Tuner class with the requested parameters
+        self._tuner = None  # tune.Tuner (de ray)
+        self._trainables = []  # models.Trainable: one for each model to be tuned
 
     def _extract(self, settings: Dict) -> None:
         """
