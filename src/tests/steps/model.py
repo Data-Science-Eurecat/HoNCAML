@@ -179,6 +179,7 @@ class ModelTest(unittest.TestCase):
         self.assertIsNotNone(step._cv_results)
 
         # Predict (also fit to avoid not fitted predictor error)
+        # TODO: mock save predictions
         user_settings = {
             'estimator_type': 'regressor',
             'transform': {'predict': {}, 'fit': None},
@@ -245,6 +246,7 @@ class ModelTest(unittest.TestCase):
 
     def test_predict(self):
         # Predict
+        # TODO: mock save predictions
         transform_user_settings = {
             'transform': {'predict': {}},
         }

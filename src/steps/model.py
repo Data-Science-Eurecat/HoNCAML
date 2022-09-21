@@ -152,7 +152,7 @@ class ModelStep(base.BaseStep):
         """
         x = self._dataset.x
         predictions = self._model.predict(x, **settings)
-        load.save_predictions(settings)
+        load.save_predictions(predictions, settings)
 
     def run(self, metadata: Dict) -> Dict:
         """
