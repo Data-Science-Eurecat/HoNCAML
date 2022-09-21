@@ -9,7 +9,7 @@ from src.models import sklearn_model
 from src.data import tabular
 
 
-class GeneralTest(unittest.TestCase):
+class SklearnTest(unittest.TestCase):
     def setUp(self) -> None:
         self.dataset = tabular.TabularDataset()
         self.dataset._dataset = utils.mock_up_read_dataframe()
