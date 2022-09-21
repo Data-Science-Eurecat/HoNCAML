@@ -6,6 +6,14 @@ from src.models import sklearn_model
 from src.exceptions import model as model_exceptions
 
 
+def mock_up_read_pipeline() -> Dict:
+    pipeline_content = {
+        'data': {},
+        'model': {},
+    }
+    return pipeline_content
+
+
 def mock_up_read_dataframe() -> pd.DataFrame:
     """
     This method generates a dataframe for testing purposes.
