@@ -6,6 +6,12 @@ from src.models import sklearn_model
 from src.exceptions import model as model_exceptions
 
 
+def mock_up_yaml() -> Dict:
+    yaml_content = \
+        "{'key1': {'nest_key1': 1,'nest_key2': 2,},'key2': 'value',}"
+    return yaml_content
+
+
 def mock_up_read_pipeline() -> Dict:
     pipeline_content = {
         'data': {},

@@ -1,9 +1,14 @@
 import copy
 import pandas as pd
+import numpy as np
 import unittest
 from unittest.mock import patch
+import tempfile
+import shutil
+import os
 
-from src.data import tabular
+
+from src.data import tabular, extract
 from src.exceptions import data as data_exception
 from src.tests import utils
 
@@ -25,6 +30,121 @@ class TabularTest(unittest.TestCase):
             'target':
                 ['target1', 'target2']
         }
+
+        self.tabular_obj = tabular.TabularDataset()
+
+        self.test_dir = tempfile.mkdtemp()
+
+    def tearDown(self):
+        # Remove the directory after the test
+        shutil.rmtree(self.test_dir)
+
+    @patch('pandas.read_csv')
+    def test_features(self, read_csv_mock_up):
+        read_csv_mock_up.return_value = utils.mock_up_read_dataframe()
+        self.tabular_obj.read(self.settings_with_csv.copy())
+        features = self.tabular_obj.features
+        self.assertIsInstance(features, list)
+        self.assertEqual(features, self.tabular_obj._features)
+
+    @patch('pandas.read_csv')
+    def test_target(self, read_csv_mock_up):
+        read_csv_mock_up.return_value = utils.mock_up_read_dataframe()
+        self.tabular_obj.read(self.settings_with_csv.copy())
+        target = self.tabular_obj.target
+        self.assertIsInstance(target, list)
+        self.assertEqual(target, self.tabular_obj._target)
+
+    @patch('pandas.read_csv')
+    def test_dataframe(self, read_csv_mock_up):
+        read_csv_mock_up.return_value = utils.mock_up_read_dataframe()
+        self.tabular_obj.read(self.settings_with_csv.copy())
+        dataframe = self.tabular_obj.dataframe
+        self.assertIsInstance(dataframe, pd.DataFrame)
+        self.assertTrue(dataframe.equals(self.tabular_obj._dataset))
+
+    @patch('pandas.read_csv')
+    def test_x(self, read_csv_mock_up):
+        read_csv_mock_up.return_value = utils.mock_up_read_dataframe()
+        self.tabular_obj.read(self.settings_with_csv.copy())
+        x = self.tabular_obj.x
+        self.assertIsInstance(x, np.ndarray)
+        self.assertTrue(np.array_equal(
+            x, self.tabular_obj._dataset[['col1', 'col2']].values))
+
+    @patch('pandas.read_csv')
+    def test_y(self, read_csv_mock_up):
+        read_csv_mock_up.return_value = utils.mock_up_read_dataframe()
+        self.tabular_obj.read(self.settings_with_csv.copy())
+        y = self.tabular_obj.y
+        self.assertIsInstance(y, np.ndarray)
+        self.assertTrue(np.array_equal(
+            y, self.tabular_obj._dataset[['target1', 'target2']].values))
+
+    @patch('pandas.read_csv')
+    def test_values(self, read_csv_mock_up):
+        read_csv_mock_up.return_value = utils.mock_up_read_dataframe()
+        self.tabular_obj.read(self.settings_with_csv.copy())
+        x, y = self.tabular_obj.values
+        self.assertIsInstance(x, np.ndarray)
+        self.assertIsInstance(y, np.ndarray)
+        self.assertTrue(np.array_equal(
+            x, self.tabular_obj._dataset[['col1', 'col2']].values))
+        self.assertTrue(np.array_equal(
+            y, self.tabular_obj._dataset[['target1', 'target2']].values))
+
+    @patch('pandas.read_csv')
+    def test_clean_dataset(self, read_csv_mock_up):
+        read_csv_mock_up.return_value = utils.mock_up_read_dataframe()
+        # Features and target correct
+        settings = self.settings_with_csv.copy()
+        self.tabular_obj._features = settings.pop('features')
+        self.tabular_obj._target = settings.pop('target')
+        dataset = extract.read_dataframe(settings)
+        cleaned_dataset = self.tabular_obj._clean_dataset(dataset)
+        self.assertIsInstance(cleaned_dataset, pd.DataFrame)
+        self.assertTrue(cleaned_dataset.equals(
+            dataset[self.tabular_obj._features + self.tabular_obj._target]))
+
+        # Features not set
+        settings = self.settings_with_csv.copy()
+        settings.pop('features')
+        self.tabular_obj._features = []
+        self.tabular_obj._target = settings.pop('target')
+        dataset = extract.read_dataframe(settings)
+        cleaned_dataset = self.tabular_obj._clean_dataset(dataset)
+        self.assertIsInstance(cleaned_dataset, pd.DataFrame)
+        self.assertEqual(self.tabular_obj._features, ['col1', 'col2'])
+        self.assertTrue(cleaned_dataset.equals(
+            dataset[self.tabular_obj._features + self.tabular_obj._target]))
+
+        # Features not set, target not exists
+        settings = self.settings_with_csv.copy()
+        settings.pop('features')
+        self.tabular_obj._features = []
+        settings.pop('target')
+        self.tabular_obj._target = ['target0']
+        dataset = extract.read_dataframe(settings)
+        with self.assertRaises(data_exception.ColumnDoesNotExists):
+            self.tabular_obj._clean_dataset(dataset)
+
+        # Feature column does not exist
+        settings = self.settings_with_csv.copy()
+        settings.pop('features')
+        self.tabular_obj._features = ['col0']
+        self.tabular_obj._target = settings.pop('target')
+        dataset = extract.read_dataframe(settings)
+        with self.assertRaises(data_exception.ColumnDoesNotExists):
+            self.tabular_obj._clean_dataset(dataset)
+
+        # Target column does not exist
+        settings = self.settings_with_csv.copy()
+        self.tabular_obj._features = settings.pop('features')
+        settings.pop('target')
+        self.tabular_obj._target = ['target0']
+        dataset = extract.read_dataframe(settings)
+        with self.assertRaises(data_exception.ColumnDoesNotExists):
+            self.tabular_obj._clean_dataset(dataset)
 
     # Test class tabular.TabularDataset method read
     @patch('pandas.read_csv')
@@ -110,3 +230,22 @@ class TabularTest(unittest.TestCase):
             self.settings_with_csv['target']
         for col in total_columns:
             self.assertIn(col, result_dataset)
+
+    @patch('pandas.read_csv')
+    def test_preprocess(self, read_csv_mock_up):
+        read_csv_mock_up.return_value = utils.mock_up_read_dataframe()
+        self.tabular_obj.read(self.settings_with_csv.copy())
+        # TODO: set preprocessing transformations once implemented
+        settings = {}
+        self.tabular_obj.preprocess(settings)
+        # TODO: make the assertions
+
+    @patch('pandas.read_csv')
+    def test_preprocess(self, read_csv_mock_up):
+        read_csv_mock_up.return_value = utils.mock_up_read_dataframe()
+        self.tabular_obj.read(self.settings_with_csv.copy())
+        filepath = os.path.join(self.test_dir, 'dataset.csv')
+        settings = {'filepath': filepath}
+        self.tabular_obj.save(settings)
+        self.assertTrue(os.path.exists(filepath))
+        self.assertTrue(os.stat(filepath).st_size > 0)

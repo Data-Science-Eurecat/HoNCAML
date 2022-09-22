@@ -113,6 +113,7 @@ class TabularDataset(base.BaseDataset):
         Returns:
             (pd.DataFrame): cleaned dataframe.
         """
+        # NOTE: empty features & invalid target -> KeyError not handled
         if self._features:
             try:
                 dataset = dataset[self._features + self._target]
@@ -121,8 +122,9 @@ class TabularDataset(base.BaseDataset):
                 raise data_exception.ColumnDoesNotExists(f'{self._features}')
         else:
             self._features = dataset \
-                .drop(columns=self.target).columns.to_list()
+                .drop(columns=self._target).columns.to_list()
 
+        # NOTE: what does the following snippet?
         # Check if dataset has a target column/s
         if self._target:
             try:
@@ -161,5 +163,4 @@ class TabularDataset(base.BaseDataset):
         """
         ETL data load. Save the dataset into disk.
         """
-        dataset = pd.concat((self._dataset, self._target), axis=1)
-        load.save_dataframe(dataset, settings)
+        load.save_dataframe(self._dataset, settings)
