@@ -1,6 +1,10 @@
 import unittest
 from unittest.mock import patch
+import tempfile
+import shutil
+import os
 
+from sklearn.utils import validation
 from src.steps import model, base
 from src.tests import utils
 from src.tools.startup import params
@@ -8,9 +12,6 @@ from src.exceptions import step as step_exception
 from src.exceptions import model as model_exception
 from src.models import sklearn_model
 from src.data import tabular
-from sklearn.utils import validation
-import tempfile
-import shutil
 
 
 class ModelTest(unittest.TestCase):
@@ -105,18 +106,19 @@ class ModelTest(unittest.TestCase):
         })
 
     def test_validate_step(self):
-        # Override settings
-        override_user_settings = {
-            'extract': {'filepath': None},
-            'transform': {'fit': {'cross_validation': {
-                'strategy': None}}
-            },
-            'load': {'path': None}
-        }
-        with self.assertRaises(step_exception.StepValidationError):
-            step = model.ModelStep(params['pipeline_steps']['model'],
-                                   override_user_settings,
-                                   params['step_rules']['model'])
+        pass
+        # TODO: refactor test once validate step applies
+        # override_user_settings = {
+        #     'extract': {'filepath': None},
+        #     'transform': {'fit': {'cross_validation': {
+        #         'strategy': None}}
+        #     },
+        #     'load': {'path': None}
+        # }
+        # with self.assertRaises(step_exception.StepValidationError):
+        #     step = model.ModelStep(params['pipeline_steps']['model'],
+        #                            override_user_settings,
+        #                            params['step_rules']['model'])
 
     def test_initialize_model(self):
         step = model.ModelStep(params['pipeline_steps']['model'], {},
@@ -179,10 +181,9 @@ class ModelTest(unittest.TestCase):
         self.assertIsNotNone(step._cv_results)
 
         # Predict (also fit to avoid not fitted predictor error)
-        # TODO: mock save predictions
         user_settings = {
             'estimator_type': 'regressor',
-            'transform': {'predict': {}, 'fit': None},
+            'transform': {'predict': {'path': self.test_dir}, 'fit': None},
         }
         step = model.ModelStep(params['pipeline_steps']['model'],
                                user_settings,
@@ -191,6 +192,9 @@ class ModelTest(unittest.TestCase):
         step._transform(step._transform_settings)
         self.assertIsNone(
             validation.check_is_fitted(step._model.estimator))
+        files_in_test_dir = os.listdir(self.test_dir)
+        self.assertTrue(any(f.startswith('predictions')
+                        for f in files_in_test_dir))
 
     def test_load(self):
         # User settings
@@ -206,9 +210,9 @@ class ModelTest(unittest.TestCase):
             'hyperparameters': {}
         }, {})
         step._load(step._load_settings)
-        print(step._load_settings)
-        # self.assertTrue(os.path.exists())
-        # TODO: finish test assertions
+        files_in_test_dir = os.listdir(self.test_dir)
+        self.assertTrue(any(f.startswith('sklearn.regressor')
+                        for f in files_in_test_dir))
 
     def test_fit(self):
         # Only fit
@@ -248,7 +252,7 @@ class ModelTest(unittest.TestCase):
         # Predict
         # TODO: mock save predictions
         transform_user_settings = {
-            'transform': {'predict': {}},
+            'transform': {'predict': {'path': self.test_dir}},
         }
         step = model.ModelStep(params['pipeline_steps']['model'],
                                transform_user_settings,
@@ -259,8 +263,10 @@ class ModelTest(unittest.TestCase):
             {'module': 'sklearn.ensemble.RandomForestRegressor',
                 'hyperparameters': {}}, {})
         step._fit({'fit': None})
-        predictions = step._predict(step._transform_settings['predict'])
-        self.assertIsNotNone(predictions)
+        step._predict(step._transform_settings['predict'])
+        files_in_test_dir = os.listdir(self.test_dir)
+        self.assertTrue(any(f.startswith('predictions')
+                        for f in files_in_test_dir))
 
     def test_run(self):
         # TODO: make test

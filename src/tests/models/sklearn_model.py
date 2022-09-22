@@ -2,6 +2,9 @@ import unittest
 from unittest.mock import patch
 from sklearn.utils import validation
 import numpy as np
+import tempfile
+import shutil
+import os
 
 from src.tests import utils
 from src.tools.startup import params
@@ -15,6 +18,12 @@ class SklearnTest(unittest.TestCase):
         self.dataset._dataset = utils.mock_up_read_dataframe()
         self.dataset._features = ['col1', 'col2']
         self.dataset._target = ['target1', 'target2']
+
+        self.test_dir = tempfile.mkdtemp()
+
+    def tearDown(self):
+        # Remove the directory after the test
+        shutil.rmtree(self.test_dir)
 
     @patch('joblib.load')
     def test_read(self, read_model_mockup):
@@ -82,5 +91,7 @@ class SklearnTest(unittest.TestCase):
         normalizations = {}
         sk_model = sklearn_model.SklearnModel(estimator_type)
         sk_model.build_model(model_config, normalizations)
-        sk_model.save(params['pipeline_steps']['model']['load'])
-        # TODO: finish test assertions
+        sk_model.save({'path': self.test_dir})
+        files_in_test_dir = os.listdir(self.test_dir)
+        self.assertTrue(any(f.startswith('sklearn.regressor')
+                        for f in files_in_test_dir))
