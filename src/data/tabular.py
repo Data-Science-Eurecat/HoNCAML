@@ -113,7 +113,6 @@ class TabularDataset(base.BaseDataset):
         Returns:
             (pd.DataFrame): cleaned dataframe.
         """
-        # NOTE: empty features & invalid target -> KeyError not handled
         if self._features:
             try:
                 dataset = dataset[self._features + self._target]
@@ -121,15 +120,9 @@ class TabularDataset(base.BaseDataset):
                 logger.warning(f'Dataset column features does not exists {e}')
                 raise data_exception.ColumnDoesNotExists(f'{self._features}')
         else:
-            # NOTE: es podria posar el try except pel target aquí i borrar l'snippet de després
-            self._features = dataset \
-                .drop(columns=self._target).columns.to_list()
-
-        # NOTE: what does the following snippet?
-        # Check if dataset has a target column/s
-        if self._target:
             try:
-                dataset[self._target]
+                self._features = dataset \
+                    .drop(columns=self._target).columns.to_list()
             except KeyError as e:
                 logger.warning(f'Dataset column features does not exists {e}')
                 raise data_exception.ColumnDoesNotExists(f'{self._target}')

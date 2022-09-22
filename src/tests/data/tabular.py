@@ -119,15 +119,14 @@ class TabularTest(unittest.TestCase):
             dataset[self.tabular_obj._features + self.tabular_obj._target]))
 
         # Features not set, target not exists
-        # TODO: uncomment once issue solved
-        # settings = self.settings_with_csv.copy()
-        # settings.pop('features')
-        # self.tabular_obj._features = []
-        # settings.pop('target')
-        # self.tabular_obj._target = ['target0']
-        # dataset = extract.read_dataframe(settings)
-        # with self.assertRaises(data_exception.ColumnDoesNotExists):
-        #     self.tabular_obj._clean_dataset(dataset)
+        settings = self.settings_with_csv.copy()
+        settings.pop('features')
+        self.tabular_obj._features = []
+        settings.pop('target')
+        self.tabular_obj._target = ['target0']
+        dataset = extract.read_dataframe(settings)
+        with self.assertRaises(data_exception.ColumnDoesNotExists):
+            self.tabular_obj._clean_dataset(dataset)
 
         # Feature column does not exist
         settings = self.settings_with_csv.copy()
