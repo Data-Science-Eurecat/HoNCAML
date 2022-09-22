@@ -121,6 +121,7 @@ class TabularDataset(base.BaseDataset):
                 logger.warning(f'Dataset column features does not exists {e}')
                 raise data_exception.ColumnDoesNotExists(f'{self._features}')
         else:
+            # NOTE: es podria posar el try except pel target aquí i borrar l'snippet de després
             self._features = dataset \
                 .drop(columns=self._target).columns.to_list()
 
@@ -156,8 +157,7 @@ class TabularDataset(base.BaseDataset):
         """
         ETL data transform. Apply the transformations requested to the data.
         """
-        self._dataset, self._target = transform.process_data(
-            self._dataset, self._target, settings)
+        self._dataset = transform.process_data(self._dataset, settings)
 
     def save(self, settings: Dict):
         """
