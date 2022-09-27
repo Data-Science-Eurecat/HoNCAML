@@ -120,6 +120,14 @@ class ModelTest(unittest.TestCase):
         #                            override_user_settings,
         #                            params['step_rules']['model'])
 
+    def test_model(self):
+        step = model.ModelStep(params['pipeline_steps']['model'], {},
+                               params['step_rules']['model'])
+        # Successful init
+        step._initialize_model('sklearn', 'regressor')
+        model_ = step.model
+        self.assertIsInstance(model_, sklearn_model.SklearnModel)
+
     def test_initialize_model(self):
         step = model.ModelStep(params['pipeline_steps']['model'], {},
                                params['step_rules']['model'])

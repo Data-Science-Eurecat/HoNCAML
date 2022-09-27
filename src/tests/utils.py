@@ -51,7 +51,6 @@ def mock_up_read_model(model_type: str, estimator_type: str,
     """
     if model_type == base_model.ModelType.sklearn:
         model = sklearn_model.SklearnModel(estimator_type)
-    else:
-        raise model_exceptions.ModelDoesNotExists(model_type)
+
     model.build_model(model_config, {})
     return model
