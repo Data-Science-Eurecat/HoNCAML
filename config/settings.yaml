@@ -68,8 +68,7 @@ pipeline_steps:
           module: sklearn.preprocessing.StandardScaler
 
     # load:
-    #  path: data/processed
-    #  data: dataset.csv
+    #  filepath: data/processed/dataset.csv
 
   # Model Step settings
   model:

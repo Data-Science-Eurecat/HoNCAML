@@ -3,6 +3,7 @@ import pandas as pd
 import unittest
 from sklearn import model_selection
 
+from src.tests import utils
 from src.data import transform
 from src.exceptions import data as data_exceptions
 
@@ -13,6 +14,48 @@ class TransformTest(unittest.TestCase):
         self.repeated_k_fold = 'repeated_k_fold'
         self.shuffle_split = 'shuffle_split'
         self.leave_one_out = 'leave_one_out'
+
+    def test_process_data(self):
+        # TODO: make test once logic implemented
+        dataset = utils.mock_up_read_dataframe()
+        settings = {}
+        transform.process_data(dataset, settings)
+
+    def test_get_train_test_dataset(self):
+        # Pandas dataframe dataset
+        dataset = utils.mock_up_read_dataframe()
+        train_idx = np.array([0, 1])
+        test_idx = np.array([2])
+        x_train, x_test = transform.get_train_test_dataset(
+            dataset, train_idx, test_idx)
+        self.assertIsInstance(x_train, pd.DataFrame)
+        self.assertIsInstance(x_test, pd.DataFrame)
+        self.assertTrue(x_train.equals(dataset.iloc[[0, 1]]))
+        self.assertTrue(x_test.equals(dataset.iloc[[2]]))
+
+        # Numpy array dataset
+        dataset = utils.mock_up_read_dataframe().values
+        train_idx = np.array([0, 1])
+        test_idx = np.array([2])
+        x_train, x_test = transform.get_train_test_dataset(
+            dataset, train_idx, test_idx)
+        self.assertIsInstance(x_train, np.ndarray)
+        self.assertIsInstance(x_test, np.ndarray)
+        self.assertTrue(np.array_equal(x_train, dataset[[0, 1]]))
+        self.assertTrue(np.array_equal(x_test, dataset[[2]]))
+
+        # Bad type dataset
+        dataset = 'aaa'
+        train_idx = np.array([0, 1])
+        test_idx = np.array([2])
+        with self.assertRaises(ValueError):
+            transform.get_train_test_dataset(dataset, train_idx, test_idx)
+
+    def test_cross_validation_split_strategy(self):
+        cv = transform.CrossValidationSplit(self.k_fold)
+        strategy = cv.strategy
+        self.assertEqual(strategy, cv._strategy)
+        self.assertEqual(strategy, self.k_fold)
 
     # Test class CrossValidationSplit
     def test_cross_validation_creates_instance_based_on_strategy(self):

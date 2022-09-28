@@ -6,6 +6,20 @@ from src.models import sklearn_model
 from src.exceptions import model as model_exceptions
 
 
+def mock_up_yaml() -> Dict:
+    yaml_content = \
+        "{'key1': {'nest_key1': 1,'nest_key2': 2,},'key2': 'value',}"
+    return yaml_content
+
+
+def mock_up_read_pipeline() -> Dict:
+    pipeline_content = {
+        'data': {},
+        'model': {},
+    }
+    return pipeline_content
+
+
 def mock_up_read_dataframe() -> pd.DataFrame:
     """
     This method generates a dataframe for testing purposes.
@@ -37,7 +51,6 @@ def mock_up_read_model(model_type: str, estimator_type: str,
     """
     if model_type == base_model.ModelType.sklearn:
         model = sklearn_model.SklearnModel(estimator_type)
-    else:
-        raise model_exceptions.ModelDoesNotExists(model_type)
+
     model.build_model(model_config, {})
     return model

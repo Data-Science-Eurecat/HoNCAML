@@ -120,13 +120,9 @@ class TabularDataset(base.BaseDataset):
                 logger.warning(f'Dataset column features does not exists {e}')
                 raise data_exception.ColumnDoesNotExists(f'{self._features}')
         else:
-            self._features = dataset \
-                .drop(columns=self.target).columns.to_list()
-
-        # Check if dataset has a target column/s
-        if self._target:
             try:
-                dataset[self._target]
+                self._features = dataset \
+                    .drop(columns=self._target).columns.to_list()
             except KeyError as e:
                 logger.warning(f'Dataset column features does not exists {e}')
                 raise data_exception.ColumnDoesNotExists(f'{self._target}')
@@ -154,12 +150,10 @@ class TabularDataset(base.BaseDataset):
         """
         ETL data transform. Apply the transformations requested to the data.
         """
-        self._dataset, self._target = transform.process_data(
-            self._dataset, self._target, settings)
+        self._dataset = transform.process_data(self._dataset, settings)
 
     def save(self, settings: Dict):
         """
         ETL data load. Save the dataset into disk.
         """
-        dataset = pd.concat((self._dataset, self._target), axis=1)
-        load.save_dataframe(dataset, settings)
+        load.save_dataframe(self._dataset, settings)

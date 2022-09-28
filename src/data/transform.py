@@ -7,23 +7,19 @@ from src.exceptions import data as data_exceptions
 from src.tools import custom_typing as ct
 
 
-def process_data(
-        dataset: pd.DataFrame, target: pd.DataFrame, settings: Dict) \
-        -> Tuple[pd.DataFrame, pd.DataFrame]:
+def process_data(dataset: pd.DataFrame, settings: Dict) -> pd.DataFrame:
     """
     Preprocess the dataset and target column with settings given.
 
     Args:
         dataset (pd.DataFrame): the dataset.
-        target (pd.DataFrame): the target column.
         settings (Dict): Params used for data processing.
 
     Returns:
-        dataset, target (Tuple[pd.DataFrame, pd.DataFrame]): the dataset and
-        the target column.
+        dataset (pd.DataFrame): the dataset.
     """
     # TODO: preprocessing logic
-    return dataset, target
+    return dataset
 
 
 # Cross validation utilities

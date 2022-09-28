@@ -1,6 +1,10 @@
 import unittest
 from unittest.mock import patch
+import tempfile
+import shutil
+import os
 
+from sklearn.utils import validation
 from src.steps import model, base
 from src.tests import utils
 from src.tools.startup import params
@@ -8,10 +12,6 @@ from src.exceptions import step as step_exception
 from src.exceptions import model as model_exception
 from src.models import sklearn_model
 from src.data import tabular
-from sklearn.utils import validation
-import tempfile
-import shutil
-import os
 
 
 class ModelTest(unittest.TestCase):
@@ -105,160 +105,177 @@ class ModelTest(unittest.TestCase):
             }
         })
 
-        def test_validate_step(self):
-            # Override settings
-            override_user_settings = {
-                'extract': {'filepath': None},
-                'transform': {'fit': {'cross_validation': {
-                    'strategy': None}}
-                },
-                'load': {'path': None}
-            }
-            with self.assertRaises(step_exception.StepValidationError):
-                step = model.ModelStep(params['pipeline_steps']['model'],
-                                       override_user_settings,
-                                       params['step_rules']['model'])
+    def test_validate_step(self):
+        pass
+        # TODO: refactor test once validate step applies
+        # override_user_settings = {
+        #     'extract': {'filepath': None},
+        #     'transform': {'fit': {'cross_validation': {
+        #         'strategy': None}}
+        #     },
+        #     'load': {'path': None}
+        # }
+        # with self.assertRaises(step_exception.StepValidationError):
+        #     step = model.ModelStep(params['pipeline_steps']['model'],
+        #                            override_user_settings,
+        #                            params['step_rules']['model'])
 
-        def test_initialize_model(self):
-            step = model.ModelStep(params['pipeline_steps']['model'], {},
-                                   params['step_rules']['model'])
-            # Successful init
-            step._initialize_model('sklearn', 'regressor')
-            self.assertIsInstance(step._model, sklearn_model.SklearnModel)
+    def test_model(self):
+        step = model.ModelStep(params['pipeline_steps']['model'], {},
+                               params['step_rules']['model'])
+        # Successful init
+        step._initialize_model('sklearn', 'regressor')
+        model_ = step.model
+        self.assertIsInstance(model_, sklearn_model.SklearnModel)
 
-            # Invalid model type
-            with self.assertRaises(model_exception.ModelDoesNotExists):
-                step._initialize_model('invalid_model', 'regressor')
+    def test_initialize_model(self):
+        step = model.ModelStep(params['pipeline_steps']['model'], {},
+                               params['step_rules']['model'])
+        # Successful init
+        step._initialize_model('sklearn', 'regressor')
+        self.assertIsInstance(step._model, sklearn_model.SklearnModel)
 
-            # invalid estimator_type
-            with self.assertRaises(model_exception.EstimatorTypeNotAllowed):
-                step._initialize_model('sklearn', 'invalid_type')
+        # Invalid model type
+        with self.assertRaises(model_exception.ModelDoesNotExists):
+            step._initialize_model('invalid_model', 'regressor')
 
-        @patch('joblib.load')
-        def test_extract(self, read_model_mockup):
-            model_config = {'module': 'sklearn.ensemble.RandomForestRegressor',
-                            'hyperparameters': {}}
-            read_model_mockup.return_value = utils.mock_up_read_model(
-                'sklearn', 'regressor', model_config)._estimator
+        # invalid estimator_type
+        with self.assertRaises(model_exception.EstimatorTypeNotAllowed):
+            step._initialize_model('sklearn', 'invalid_type')
 
-            user_settings = {
-                'extract': {'filepath': 'sklearn.regressor.1234.sav'},
-            }
-            step = model.ModelStep(params['pipeline_steps']['model'],
-                                   user_settings,
-                                   params['step_rules']['model'])
-            step._extract(step._extract_settings)
-            self.assertIsInstance(step._model, sklearn_model.SklearnModel)
-            self.assertIsNotNone(step._model._estimator)
+    @patch('joblib.load')
+    def test_extract(self, read_model_mockup):
+        model_config = {'module': 'sklearn.ensemble.RandomForestRegressor',
+                        'hyperparameters': {}}
+        read_model_mockup.return_value = utils.mock_up_read_model(
+            'sklearn', 'regressor', model_config).estimator
 
-        def test_transform(self):
-            # Fit
-            user_settings = {
-                'estimator_type': 'regressor',
-                'transform': {'fit': None},
-            }
-            step = model.ModelStep(params['pipeline_steps']['model'],
-                                   user_settings,
-                                   params['step_rules']['model'])
-            step._dataset = self.dataset
-            step._transform(step._transform_settings)
-            self.assertIsNone(
-                validation.check_is_fitted(step._model.estimator))
+        user_settings = {
+            'extract': {'filepath': 'sklearn.regressor.1234.sav'},
+        }
+        step = model.ModelStep(params['pipeline_steps']['model'],
+                               user_settings,
+                               params['step_rules']['model'])
+        step._extract(step._extract_settings)
+        self.assertIsInstance(step._model, sklearn_model.SklearnModel)
+        self.assertIsNotNone(step._model.estimator)
 
-            # Fit and cross-validate
-            user_settings = {
-                'estimator_type': 'regressor',
-                'transform': {'fit': {'cross_validation': {'n_splits': 2}}},
-            }
-            step = model.ModelStep(params['pipeline_steps']['model'],
-                                   user_settings,
-                                   params['step_rules']['model'])
-            step._dataset = self.dataset
-            step._transform(step._transform_settings)
-            self.assertIsNone(
-                validation.check_is_fitted(step._model.estimator))
-            self.assertIsNotNone(step._cv_results)
+    def test_transform(self):
+        # Fit
+        user_settings = {
+            'estimator_type': 'regressor',
+            'transform': {'fit': None},
+        }
+        step = model.ModelStep(params['pipeline_steps']['model'],
+                               user_settings,
+                               params['step_rules']['model'])
+        step._dataset = self.dataset
+        step._transform(step._transform_settings)
+        self.assertIsNone(
+            validation.check_is_fitted(step._model.estimator))
 
-            # Predict (also fit to avoid not fitted predictor error)
-            user_settings = {
-                'estimator_type': 'regressor',
-                'transform': {'predict': {}, 'fit': None},
-            }
-            step = model.ModelStep(params['pipeline_steps']['model'],
-                                   user_settings,
-                                   params['step_rules']['model'])
-            step._dataset = self.dataset
-            step._transform(step._transform_settings)
-            self.assertIsNone(
-                validation.check_is_fitted(step._model.estimator))
+        # Fit and cross-validate
+        user_settings = {
+            'estimator_type': 'regressor',
+            'transform': {'fit': {'cross_validation': {'n_splits': 2}}},
+        }
+        step = model.ModelStep(params['pipeline_steps']['model'],
+                               user_settings,
+                               params['step_rules']['model'])
+        step._dataset = self.dataset
+        step._transform(step._transform_settings)
+        self.assertIsNone(
+            validation.check_is_fitted(step._model.estimator))
+        self.assertIsNotNone(step._cv_results)
 
-        def test_load(self):
-            # User settings
-            user_settings = {
-                'load': {'path': self.test_dir}
-            }
-            step = model.ModelStep(params['pipeline_steps']['model'],
-                                   user_settings,
-                                   params['step_rules']['model'])
-            step._initialize_model('sklearn', 'regressor')
-            step._model.build_model({
-                'module': 'sklearn.ensemble.RandomForestRegressor',
-                'hyperparameters': {}
-            }, {})
-            step._load(step._load_settings)
-            print(step._load_settings)
-            # self.assertTrue(os.path.exists())
+        # Predict (also fit to avoid not fitted predictor error)
+        user_settings = {
+            'estimator_type': 'regressor',
+            'transform': {'predict': {'path': self.test_dir}, 'fit': None},
+        }
+        step = model.ModelStep(params['pipeline_steps']['model'],
+                               user_settings,
+                               params['step_rules']['model'])
+        step._dataset = self.dataset
+        step._transform(step._transform_settings)
+        self.assertIsNone(
+            validation.check_is_fitted(step._model.estimator))
+        files_in_test_dir = os.listdir(self.test_dir)
+        self.assertTrue(any(f.startswith('predictions')
+                        for f in files_in_test_dir))
 
-        def test_fit(self):
-            # Only fit
-            transform_user_settings = {
-                'transform': {'fit': None},
-            }
-            step = model.ModelStep(params['pipeline_steps']['model'],
-                                   transform_user_settings,
-                                   params['step_rules']['model'])
-            step._dataset = self.dataset
-            step._initialize_model('sklearn', 'regressor')
-            step._model.build_model(
-                {'module': 'sklearn.ensemble.RandomForestRegressor',
-                 'hyperparameters': {}}, {})
-            step._fit(step._transform_settings['fit'])
-            self.assertIsNone(
-                validation.check_is_fitted(step._model.estimator))
+    def test_load(self):
+        # User settings
+        user_settings = {
+            'load': {'path': self.test_dir}
+        }
+        step = model.ModelStep(params['pipeline_steps']['model'],
+                               user_settings,
+                               params['step_rules']['model'])
+        step._initialize_model('sklearn', 'regressor')
+        step._model.build_model({
+            'module': 'sklearn.ensemble.RandomForestRegressor',
+            'hyperparameters': {}
+        }, {})
+        step._load(step._load_settings)
+        files_in_test_dir = os.listdir(self.test_dir)
+        self.assertTrue(any(f.startswith('sklearn.regressor')
+                        for f in files_in_test_dir))
 
-            # Fit and cross-validation
-            transform_user_settings = {
-                'transform': {'fit': {'cross_validation': {'n_splits': 2}}},
-            }
-            step = model.ModelStep(params['pipeline_steps']['model'],
-                                   transform_user_settings,
-                                   params['step_rules']['model'])
-            step._dataset = self.dataset
-            step._initialize_model('sklearn', 'regressor')
-            step._model.build_model(
-                {'module': 'sklearn.ensemble.RandomForestRegressor',
-                 'hyperparameters': {}}, {})
-            step._fit(step._transform_settings['fit'])
-            self.assertIsNone(
-                validation.check_is_fitted(step._model.estimator))
-            self.assertIsNotNone(step._cv_results)
+    def test_fit(self):
+        # Only fit
+        transform_user_settings = {
+            'transform': {'fit': None},
+        }
+        step = model.ModelStep(params['pipeline_steps']['model'],
+                               transform_user_settings,
+                               params['step_rules']['model'])
+        step._dataset = self.dataset
+        step._initialize_model('sklearn', 'regressor')
+        step._model.build_model(
+            {'module': 'sklearn.ensemble.RandomForestRegressor',
+                'hyperparameters': {}}, {})
+        step._fit(step._transform_settings['fit'])
+        self.assertIsNone(
+            validation.check_is_fitted(step._model.estimator))
 
-        def test_predict(self):
-            # Predict
-            transform_user_settings = {
-                'transform': {'predict': {}},
-            }
-            step = model.ModelStep(params['pipeline_steps']['model'],
-                                   transform_user_settings,
-                                   params['step_rules']['model'])
-            step._dataset = self.dataset
-            step._initialize_model('sklearn', 'regressor')
-            step._model.build_model(
-                {'module': 'sklearn.ensemble.RandomForestRegressor',
-                 'hyperparameters': {}}, {})
-            step._fit({'fit': None})
-            predictions = step._predict(step._transform_settings['predict'])
-            self.assertIsNotNone(predictions)
+        # Fit and cross-validation
+        transform_user_settings = {
+            'transform': {'fit': {'cross_validation': {'n_splits': 2}}},
+        }
+        step = model.ModelStep(params['pipeline_steps']['model'],
+                               transform_user_settings,
+                               params['step_rules']['model'])
+        step._dataset = self.dataset
+        step._initialize_model('sklearn', 'regressor')
+        step._model.build_model(
+            {'module': 'sklearn.ensemble.RandomForestRegressor',
+                'hyperparameters': {}}, {})
+        step._fit(step._transform_settings['fit'])
+        self.assertIsNone(
+            validation.check_is_fitted(step._model.estimator))
+        self.assertIsNotNone(step._cv_results)
 
-        def test_run(self):
-            pass
+    def test_predict(self):
+        # Predict
+        # TODO: mock save predictions
+        transform_user_settings = {
+            'transform': {'predict': {'path': self.test_dir}},
+        }
+        step = model.ModelStep(params['pipeline_steps']['model'],
+                               transform_user_settings,
+                               params['step_rules']['model'])
+        step._dataset = self.dataset
+        step._initialize_model('sklearn', 'regressor')
+        step._model.build_model(
+            {'module': 'sklearn.ensemble.RandomForestRegressor',
+                'hyperparameters': {}}, {})
+        step._fit({'fit': None})
+        step._predict(step._transform_settings['predict'])
+        files_in_test_dir = os.listdir(self.test_dir)
+        self.assertTrue(any(f.startswith('predictions')
+                        for f in files_in_test_dir))
+
+    def test_run(self):
+        # TODO: make test
+        pass
