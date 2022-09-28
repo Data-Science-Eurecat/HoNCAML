@@ -1,0 +1,143 @@
+from abc import ABC, abstractmethod
+from typing import Dict, List, Callable
+
+from honcaml.exceptions import model as model_exceptions
+from honcaml.tools import custom_typing as ct
+from honcaml.tools import utils
+
+
+class BaseModel(ABC):
+    """
+    Model base class.
+
+    Attributes:
+        _estimator_type (str): the kind of estimator to be used. Valid values
+            are `regressor` and `classifier`.
+        _estimator (TODO type): an estimator defined by child classes.
+    """
+
+    def __init__(self, estimator_type: str) -> None:
+        """
+        Base class constructor. Initializes the common attributes.
+
+        Args:
+            estimator_type (str): the kind of estimator to be used. Valid values
+                are `regressor` and `classifier`.
+        """
+        if estimator_type not in estimator_types:
+            raise model_exceptions.EstimatorTypeNotAllowed(estimator_type)
+        self._estimator_type = estimator_type
+        self._estimator = None
+
+    @staticmethod
+    def _import_model_library(model_config: dict) -> Callable:
+        return utils.import_library(
+            model_config['module'], model_config['hyperparameters'])
+
+    @abstractmethod
+    def read(self, settings: Dict) -> None:
+        """
+        Read an estimator from disk. This function must be implemented by
+        child classes.
+
+        Args:
+            settings (Dict): the parameter settings defining the read 
+                operation.
+        """
+        pass
+
+    @abstractmethod
+    def build_model(self, model_config: Dict, normalizations: Dict) -> None:
+        """
+        Create the requested estimator. This function must be implemented by
+        child classes.
+
+        Args:
+            model_config (Dict): the model configuration: the module and their
+                hyperparameters.
+            normalizations (Dict): the definition of normalizations applied to
+                the dataset during the model pipeline.
+        """
+        pass
+
+    @abstractmethod
+    def fit(self, x: ct.Dataset, y: ct.Dataset, **kwargs: Dict) -> None:
+        """
+        Train the estimator on the specified dataset. This function must be
+        implemented by child classes.
+
+        Args:
+            x (ct.Dataset): the dataset features.
+            y (ct.Dataset): the dataset target.
+            **kwargs (Dict): extra parameters.
+        """
+        pass
+
+    @abstractmethod
+    def predict(self, x: ct.Dataset, **kwargs: Dict) -> List:
+        """
+        Use the estimator to make predictions on the given dataset features.
+        This function must be implemented by child classes.
+
+        Args:
+            x (ct.Dataset): the dataset features.
+            **kwargs (Dict): extra parameters.
+
+        Returns:
+            predictions (List): the resulting predictions from the estimator.
+        """
+        pass
+
+    @abstractmethod
+    def evaluate(self, x: ct.Dataset, y: ct.Dataset, **kwargs: Dict) -> Dict:
+        """
+        Evaluate the estimator on the given dataset. This function must be
+        implemented by child classes.
+
+        Args:
+            x (ct.Dataset): the dataset features.
+            y (ct.Dataset): the dataset target.
+            **kwargs (Dict): extra parameters.
+
+        Returns:
+            metrics (Dict): the resulting metrics from the evaluation.
+        """
+        pass
+
+    @abstractmethod
+    def save(self, settings: Dict) -> None:
+        """
+        Store the estimator to disk. This function must be implemented by
+        child classes.
+
+        Args:
+            settings (Dict): the parameter settings defining the store
+                operation.
+        """
+        pass
+
+
+class ModelType:
+    """
+    This class defines the available types of models. The valid values are the
+    following:
+        - sklearn
+    """
+    sklearn = 'sklearn'
+
+
+class EstimatorType:
+    """
+    This class defines the available types of estimators. The valid values are
+    the following:
+        - classifier
+        - regressor
+    """
+    classifier = 'classifier'
+    regressor = 'regressor'
+
+
+estimator_types = [
+    EstimatorType.classifier,
+    EstimatorType.regressor
+]
