@@ -2,7 +2,6 @@ from typing import Dict
 
 from honcaml.exceptions import step as step_exceptions
 from honcaml.steps import base as base_step, data as data_step
-from honcaml.tools import utils
 from honcaml.tools.startup import logger, params
 from honcaml.steps import model as model_step
 from honcaml.steps import benchmark as benchmark_step
@@ -65,14 +64,15 @@ class Pipeline:
 
     def _validate_pipeline(self, pipeline_content: Dict) -> None:
         """
-        Validate the pipeline steps based on the rules defined to prevent invalid
-        executions.
+        Validate the pipeline steps based on the rules defined to prevent
+        invalid executions.
 
         Args:
             pipeline_content (Dict): the settings defining the pipeline steps.
         """
-        # TODO: loop the steps and check the rules defined by the settings.yaml file: params['pipeline_rules']
-        # Raise an exception when the rule validation fail
+        # TODO: Loop the steps and check the rules defined by the settings.yaml
+        #    file: params['pipeline_rules']
+        #    Raise an exception when the rule validation fail
         pass
 
     def run(self):

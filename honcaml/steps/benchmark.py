@@ -1,7 +1,6 @@
 from typing import Dict
 
 from honcaml.steps import base
-from honcaml.tools import utils
 
 
 class BenchmarkStep(base.BaseStep):
@@ -30,7 +29,7 @@ class BenchmarkStep(base.BaseStep):
 
         # TODO: instance the Tuner class with the requested parameters
         self._tuner = None  # tune.Tuner (de ray)
-        self._trainables = []  # models.Trainable: one for each model to be tuned
+        self._trainables = []  # models.Trainable: one for model to be tuned
 
     def _extract(self, settings: Dict) -> None:
         """

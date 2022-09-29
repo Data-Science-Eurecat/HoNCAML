@@ -74,6 +74,7 @@ target/
 
 # DotEnv configuration
 .env
+.venv
 
 # Database
 *.db
@@ -108,3 +109,7 @@ bin/
 # exclude reports
 /reports/figures
 /reports/metrics
+
+# Exclude tags
+TAGS
+

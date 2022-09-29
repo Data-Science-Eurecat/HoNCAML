@@ -13,8 +13,10 @@ class BaseStep(ABC):
 
     Attributes:
         _step_settings (Dict): the settings that define the step.
-        _extract_settings (Dict): the settings defining the extract ETL process.
-        _transform_settings (Dict): the settings defining the transform ETL process.
+        _extract_settings (Dict): the settings defining the extract ETL
+            process.
+        _transform_settings (Dict): the settings defining the transform ETL
+            process.
         _load_settings (Dict): the settings defining the load ETL process.
     """
 
@@ -193,9 +195,9 @@ class StepType:
     """
     This class defines the valid types of steps. The valid steps are the
     following:
-        - data
-        - model
-        - benchmark
+    - data
+    - model
+    - benchmark
     """
     data = 'data'
     model = 'model'

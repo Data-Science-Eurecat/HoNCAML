@@ -15,4 +15,5 @@ Contents
 
 .. toctree::
    usage
-   modules
+   reference
+   :maxdepth: 2

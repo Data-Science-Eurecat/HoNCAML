@@ -21,8 +21,8 @@ class BaseModel(ABC):
         Base class constructor. Initializes the common attributes.
 
         Args:
-            estimator_type (str): the kind of estimator to be used. Valid values
-                are `regressor` and `classifier`.
+            estimator_type (str): the kind of estimator to be used. Valid
+                values are `regressor` and `classifier`.
         """
         if estimator_type not in estimator_types:
             raise model_exceptions.EstimatorTypeNotAllowed(estimator_type)
@@ -41,7 +41,7 @@ class BaseModel(ABC):
         child classes.
 
         Args:
-            settings (Dict): the parameter settings defining the read 
+            settings (Dict): the parameter settings defining the read
                 operation.
         """
         pass
@@ -121,7 +121,7 @@ class ModelType:
     """
     This class defines the available types of models. The valid values are the
     following:
-        - sklearn
+    - sklearn
     """
     sklearn = 'sklearn'
 
@@ -130,8 +130,8 @@ class EstimatorType:
     """
     This class defines the available types of estimators. The valid values are
     the following:
-        - classifier
-        - regressor
+    - classifier
+    - regressor
     """
     classifier = 'classifier'
     regressor = 'regressor'

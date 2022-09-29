@@ -80,13 +80,13 @@ formatter = logging.Formatter(log_params['formatter']['format'],formatter15,37
 from honcaml.exceptions import step as step_exceptionsstep_exceptions3,25
 from honcaml.steps import base as base_step, data as data_stepbase_step4,80
 from honcaml.steps import base as base_step, data as data_stepdata_step4,80
-from honcaml.steps import model as model_stepmodel_step7,224
-from honcaml.steps import benchmark as benchmark_stepbenchmark_step8,270
-class Pipeline:Pipeline11,326
-    def __init__(self, pipeline_content: Dict, execution_id: str) -> None:__init__23,777
-    def _setup_pipeline(self):_setup_pipeline42,1396
-    def _validate_pipeline(self, pipeline_content: Dict) -> None:_validate_pipeline66,2536
-    def run(self):run78,3006
+from honcaml.steps import model as model_stepmodel_step6,192
+from honcaml.steps import benchmark as benchmark_stepbenchmark_step7,238
+class Pipeline:Pipeline10,294
+    def __init__(self, pipeline_content: Dict, execution_id: str) -> None:__init__22,745
+    def _setup_pipeline(self):_setup_pipeline41,1364
+    def _validate_pipeline(self, pipeline_content: Dict) -> None:_validate_pipeline65,2504
+    def run(self):run78,2990
 
 /home/joan.erraez/Documents/Projects/honcaml/honcaml/tools/__init__.py,0
 
@@ -112,32 +112,32 @@ class Execution:Execution10,192
     def run(self) -> None:run75,2473
 
 /home/joan.erraez/Documents/Projects/honcaml/honcaml/steps/benchmark.py,387
-class BenchmarkStep(base.BaseStep):BenchmarkStep7,90
-    def __init__(self, default_settings: Dict, user_settings: Dict,__init__19,606
-    def _extract(self, settings: Dict) -> None:_extract35,1306
-    def _transform(self, settings: Dict) -> None:_transform44,1540
-    def _load(self, settings: Dict) -> None:_load53,1780
-    def run(self, metadata: Dict) -> Dict:run62,2005
+class BenchmarkStep(base.BaseStep):BenchmarkStep6,58
+    def __init__(self, default_settings: Dict, user_settings: Dict,__init__18,574
+    def _extract(self, settings: Dict) -> None:_extract34,1269
+    def _transform(self, settings: Dict) -> None:_transform43,1503
+    def _load(self, settings: Dict) -> None:_load52,1743
+    def run(self, metadata: Dict) -> Dict:run61,1968
 
 /home/joan.erraez/Documents/Projects/honcaml/honcaml/steps/__init__.py,0
 
-/home/joan.erraez/Documents/Projects/honcaml/honcaml/steps/model.py,968
-from honcaml.models import base as base_modelbase_model5,103
-from honcaml.exceptions import model as model_exceptionsmodel_exceptions8,234
-class ModelActions:ModelActions12,323
-    fit = 'fit'fit13,343
-    predict = 'predict'predict14,359
-default_estimator = {default_estimator17,385
-class ModelStep(base.BaseStep):ModelStep23,493
-    def __init__(self, default_settings: Dict, user_settings: Dict,__init__38,1135
-    def model(self) -> base_model.BaseModel:model55,1848
-    def _initialize_model(self, model_type: str, estimator_type: str) -> None:_initialize_model65,2102
-    def _extract(self, settings: Dict) -> None:_extract79,2666
-    def _transform(self, settings: Dict) -> None:_transform91,3077
-    def _load(self, settings: Dict) -> None:_load109,3807
-    def _fit(self, settings: Dict) -> None:_fit118,4050
-    def _predict(self, settings: Dict) -> None:_predict145,5171
-    def run(self, metadata: Dict) -> Dict:run157,5576
+/home/joan.erraez/Documents/Projects/honcaml/honcaml/steps/model.py,967
+from honcaml.models import base as base_modelbase_model5,97
+from honcaml.exceptions import model as model_exceptionsmodel_exceptions8,228
+class ModelActions:ModelActions12,317
+    fit = 'fit'fit13,337
+    predict = 'predict'predict14,353
+default_estimator = {default_estimator17,379
+class ModelStep(base.BaseStep):ModelStep23,487
+    def __init__(self, default_settings: Dict, user_settings: Dict,__init__38,1129
+    def model(self) -> base_model.BaseModel:model55,1842
+    def _initialize_model(self, model_type: str, estimator_type: str) -> None:_initialize_model65,2096
+    def _extract(self, settings: Dict) -> None:_extract79,2660
+    def _transform(self, settings: Dict) -> None:_transform91,3071
+    def _load(self, settings: Dict) -> None:_load109,3801
+    def _fit(self, settings: Dict) -> None:_fit118,4044
+    def _predict(self, settings: Dict) -> None:_predict145,5165
+    def run(self, metadata: Dict) -> Dict:run157,5570
 
 /home/joan.erraez/Documents/Projects/honcaml/honcaml/steps/data.py,533
 from honcaml.data import tabular, normalization, base as base_datasetbase_dataset3,25
@@ -152,29 +152,29 @@ class DataStep(base.BaseStep):DataStep7,128
 /home/joan.erraez/Documents/Projects/honcaml/honcaml/steps/base.py,1279
 from honcaml.exceptions import step as step_exceptionstep_exception6,145
 class BaseStep(ABC):BaseStep9,201
-    def __init__(self, default_settings: Dict, user_settings: Dict,__init__21,681
-    def step_settings(self) -> Dict:step_settings46,1621
-    def extract_settings(self) -> Dict:extract_settings57,1893
-    def transform_settings(self) -> Dict:transform_settings68,2183
-    def load_settings(self) -> Dict:load_settings79,2481
-    def __str__(self):__str__89,2744
-    def __repr__(self):__repr__92,2808
-    def _merge_settings(_merge_settings95,2873
-    def _validate_step(self) -> None:_validate_step124,4006
-    def _extract(self, settings: Dict) -> None:_extract134,4382
-    def _transform(self, settings: Dict) -> None:_transform145,4686
-    def _load(self, settings: Dict) -> None:_load156,4996
-    def run(self, metadata: Dict) -> Dict:run167,5291
-    def execute(self) -> None:execute173,5394
-class StepType:StepType192,6227
-    data = 'data'data200,6398
-    model = 'model'model201,6416
-    benchmark = 'benchmark'benchmark202,6436
-class StepPhase:StepPhase205,6466
-    extract = 'extract'extract209,6570
-    transform = 'transform'transform210,6594
-    load = 'load'load211,6622
-step_phases = [step_phases215,6673
+    def __init__(self, default_settings: Dict, user_settings: Dict,__init__23,705
+    def step_settings(self) -> Dict:step_settings48,1645
+    def extract_settings(self) -> Dict:extract_settings59,1917
+    def transform_settings(self) -> Dict:transform_settings70,2207
+    def load_settings(self) -> Dict:load_settings81,2505
+    def __str__(self):__str__91,2768
+    def __repr__(self):__repr__94,2832
+    def _merge_settings(_merge_settings97,2897
+    def _validate_step(self) -> None:_validate_step126,4030
+    def _extract(self, settings: Dict) -> None:_extract136,4406
+    def _transform(self, settings: Dict) -> None:_transform147,4710
+    def _load(self, settings: Dict) -> None:_load158,5020
+    def run(self, metadata: Dict) -> Dict:run169,5315
+    def execute(self) -> None:execute175,5418
+class StepType:StepType194,6251
+    data = 'data'data202,6410
+    model = 'model'model203,6428
+    benchmark = 'benchmark'benchmark204,6448
+class StepPhase:StepPhase207,6478
+    extract = 'extract'extract211,6582
+    transform = 'transform'transform212,6606
+    load = 'load'load213,6634
+step_phases = [step_phases217,6685
 
 /home/joan.erraez/Documents/Projects/honcaml/honcaml/visualization/.gitkeep,0
 
@@ -187,11 +187,13 @@ class SklearnModel(base.BaseModel):SklearnModel9,228
     def estimator(self):estimator25,685
     def estimator_type(self) -> str:estimator_type36,932
     def read(self, settings: Dict) -> None:read46,1177
-    def build_model(self, model_config: Dict, normalizations: Dict) -> None:build_model56,1451
-    def fit(self, x: ct.Dataset, y: ct.Dataset, **kwargs) -> None:fit92,3083
-    def predict(self, x: ct.Dataset, **kwargs) -> List:predict103,3441
-    def evaluate(self, x: ct.Dataset, y: ct.Dataset, **kwargs) -> Dict:evaluate116,3849
-    def save(self, settings: Dict) -> None:save135,4517
+    def build_model(self, model_config: Dict, normalizations: Dict) -> None:build_model56,1450
+    def fit(self, x: ct.Dataset, y: ct.Dataset, **kwargs) -> None:fit92,3082
+    def predict(self, x: ct.Dataset, **kwargs) -> List:predict103,3440
+    def evaluate(self, x: ct.Dataset, y: ct.Dataset, **kwargs) -> Dict:evaluate116,3848
+    def save(self, settings: Dict) -> None:save135,4516
+
+/home/joan.erraez/Documents/Projects/honcaml/honcaml/models/__init__.py,0
 
 /home/joan.erraez/Documents/Projects/honcaml/honcaml/models/.gitkeep,0
 
@@ -214,31 +216,30 @@ from honcaml.exceptions import model as model_exceptionsmodel_exceptions4,112
 class BaseModel(ABC):BaseModel7,171
     def __init__(self, estimator_type: str) -> None:__init__17,444
     def read(self, settings: Dict) -> None:read31,957
-    def build_model(self, model_config: Dict, normalizations: Dict) -> None:build_model43,1269
-    def fit(self, x: ct.Dataset, y: ct.Dataset, **kwargs: Dict) -> None:fit57,1765
-    def predict(self, x: ct.Dataset, **kwargs: Dict) -> List:predict70,2170
-    def evaluate(self, x: ct.Dataset, y: ct.Dataset, **kwargs: Dict) -> Dict:evaluate85,2635
-    def save(self, settings: Dict) -> None:save101,3133
-class ModelType:ModelType113,3426
-    sklearn = 'sklearn'sklearn119,3571
-class EstimatorType:EstimatorType122,3597
-    classifier = 'classifier'classifier129,3773
-    regressor = 'regressor'regressor130,3803
-estimator_types = [estimator_types133,3833
+    def build_model(self, model_config: Dict, normalizations: Dict) -> None:build_model43,1268
+    def fit(self, x: ct.Dataset, y: ct.Dataset, **kwargs: Dict) -> None:fit57,1764
+    def predict(self, x: ct.Dataset, **kwargs: Dict) -> List:predict70,2169
+    def evaluate(self, x: ct.Dataset, y: ct.Dataset, **kwargs: Dict) -> Dict:evaluate85,2634
+    def save(self, settings: Dict) -> None:save101,3132
+class ModelType:ModelType113,3425
+    sklearn = 'sklearn'sklearn119,3566
+class EstimatorType:EstimatorType122,3592
+    classifier = 'classifier'classifier129,3760
+    regressor = 'regressor'regressor130,3790
+estimator_types = [estimator_types133,3820
 
 /home/joan.erraez/Documents/Projects/honcaml/honcaml/main.py,138
     parser = argparse.ArgumentParser(parser6,81
     args = parser.parse_args()args13,292
     pipeline = args.pipelinepipeline14,323
 
-/home/joan.erraez/Documents/Projects/honcaml/honcaml/tests/utils.py,445
+/home/joan.erraez/Documents/Projects/honcaml/honcaml/tests/utils.py,365
 import pandas as pdpd1,0
 from honcaml.models import base as base_modelbase_model4,45
-from honcaml.exceptions import model as model_exceptionsmodel_exceptions6,132
-def mock_up_yaml() -> Dict:mock_up_yaml9,191
-def mock_up_read_pipeline() -> Dict:mock_up_read_pipeline15,336
-def mock_up_read_dataframe() -> pd.DataFrame:mock_up_read_dataframe23,475
-def mock_up_read_model(model_type: str, estimator_type: str,mock_up_read_model39,820
+def mock_up_yaml() -> Dict:mock_up_yaml8,134
+def mock_up_read_pipeline() -> Dict:mock_up_read_pipeline14,279
+def mock_up_read_dataframe() -> pd.DataFrame:mock_up_read_dataframe22,418
+def mock_up_read_model(model_type: str, estimator_type: str,mock_up_read_model38,763
 
 /home/joan.erraez/Documents/Projects/honcaml/honcaml/tests/tools/utils.py,525
 class UtilsTest(unittest.TestCase):UtilsTest7,132
@@ -246,9 +247,9 @@ class UtilsTest(unittest.TestCase):UtilsTest7,132
     def test_import_library(self):test_import_library12,229
     def test_ensure_input_list(self):test_ensure_input_list27,879
     def test_generate_unique_id(self):test_generate_unique_id47,1405
-    def test_update_dict_from_default_dict(self):test_update_dict_from_default_dict80,2730
-    def test_build_validator(self):test_build_validator165,5032
-    def test_build_validator_schema(self):test_build_validator_schema185,5561
+    def test_update_dict_from_default_dict(self):test_update_dict_from_default_dict83,2841
+    def test_build_validator(self):test_build_validator168,5143
+    def test_build_validator_schema(self):test_build_validator_schema188,5672
 
 /home/joan.erraez/Documents/Projects/honcaml/honcaml/tests/tools/pipeline.py,349
 from honcaml.exceptions import step as step_exceptionsstep_exceptions6,133
@@ -386,6 +387,8 @@ from honcaml.exceptions import data as data_exceptiondata_exception7,81
 def read_yaml(file_path: str) -> Dict:read_yaml12,210
 def read_dataframe(settings: Dict) -> pd.DataFrame:read_dataframe29,577
 def read_model(settings: Dict) -> object:read_model53,1280
+
+/home/joan.erraez/Documents/Projects/honcaml/honcaml/data/__init__.py,0
 
 /home/joan.erraez/Documents/Projects/honcaml/honcaml/data/.gitkeep,0
 
@@ -571,36 +574,155 @@ class DataStep(base.BaseStep):DataStep7,128
 /home/joan.erraez/Documents/Projects/honcaml/build/lib/honcaml/steps/base.py,1279
 from honcaml.exceptions import step as step_exceptionstep_exception6,145
 class BaseStep(ABC):BaseStep9,201
-    def __init__(self, default_settings: Dict, user_settings: Dict,__init__21,681
-    def step_settings(self) -> Dict:step_settings46,1621
-    def extract_settings(self) -> Dict:extract_settings57,1893
-    def transform_settings(self) -> Dict:transform_settings68,2183
-    def load_settings(self) -> Dict:load_settings79,2481
-    def __str__(self):__str__89,2744
-    def __repr__(self):__repr__92,2808
-    def _merge_settings(_merge_settings95,2873
-    def _validate_step(self) -> None:_validate_step124,4006
-    def _extract(self, settings: Dict) -> None:_extract134,4382
-    def _transform(self, settings: Dict) -> None:_transform145,4686
-    def _load(self, settings: Dict) -> None:_load156,4996
-    def run(self, metadata: Dict) -> Dict:run167,5291
-    def execute(self) -> None:execute173,5394
-class StepType:StepType192,6227
-    data = 'data'data200,6398
-    model = 'model'model201,6416
-    benchmark = 'benchmark'benchmark202,6436
-class StepPhase:StepPhase205,6466
-    extract = 'extract'extract209,6570
-    transform = 'transform'transform210,6594
-    load = 'load'load211,6622
-step_phases = [step_phases215,6673
+    def __init__(self, default_settings: Dict, user_settings: Dict,__init__23,705
+    def step_settings(self) -> Dict:step_settings48,1645
+    def extract_settings(self) -> Dict:extract_settings59,1917
+    def transform_settings(self) -> Dict:transform_settings70,2207
+    def load_settings(self) -> Dict:load_settings81,2505
+    def __str__(self):__str__91,2768
+    def __repr__(self):__repr__94,2832
+    def _merge_settings(_merge_settings97,2897
+    def _validate_step(self) -> None:_validate_step126,4030
+    def _extract(self, settings: Dict) -> None:_extract136,4406
+    def _transform(self, settings: Dict) -> None:_transform147,4710
+    def _load(self, settings: Dict) -> None:_load158,5020
+    def run(self, metadata: Dict) -> Dict:run169,5315
+    def execute(self) -> None:execute175,5418
+class StepType:StepType194,6251
+    data = 'data'data202,6410
+    model = 'model'model203,6428
+    benchmark = 'benchmark'benchmark204,6448
+class StepPhase:StepPhase207,6478
+    extract = 'extract'extract211,6582
+    transform = 'transform'transform212,6606
+    load = 'load'load213,6634
+step_phases = [step_phases217,6685
 
 /home/joan.erraez/Documents/Projects/honcaml/build/lib/honcaml/__init__.py,0
+
+/home/joan.erraez/Documents/Projects/honcaml/build/lib/honcaml/models/sklearn_model.py,733
+from honcaml.tools import custom_typing as ctct2,30
+class SklearnModel(base.BaseModel):SklearnModel9,228
+    def __init__(self, estimator_type: str) -> None:__init__14,313
+    def estimator(self):estimator25,685
+    def estimator_type(self) -> str:estimator_type36,932
+    def read(self, settings: Dict) -> None:read46,1177
+    def build_model(self, model_config: Dict, normalizations: Dict) -> None:build_model56,1451
+    def fit(self, x: ct.Dataset, y: ct.Dataset, **kwargs) -> None:fit92,3083
+    def predict(self, x: ct.Dataset, **kwargs) -> List:predict103,3441
+    def evaluate(self, x: ct.Dataset, y: ct.Dataset, **kwargs) -> Dict:evaluate116,3849
+    def save(self, settings: Dict) -> None:save135,4517
+
+/home/joan.erraez/Documents/Projects/honcaml/build/lib/honcaml/models/__init__.py,0
+
+/home/joan.erraez/Documents/Projects/honcaml/build/lib/honcaml/models/general.py,362
+from honcaml.tools import custom_typing as ctct2,30
+import sklearn.metrics as sk_metricssk_metrics3,76
+import pandas as pdpd4,113
+def aggregate_cv_results(cv_results: List[Dict]) -> Dict:aggregate_cv_results7,135
+def compute_regression_metrics(compute_regression_metrics24,660
+def compute_classification_metrics(compute_classification_metrics55,1804
+
+/home/joan.erraez/Documents/Projects/honcaml/build/lib/honcaml/models/trainable.py,119
+class Trainable(tune.Trainable):Trainable4,23
+    def setup(self, config):setup5,56
+    def step(self):step8,137
+
+/home/joan.erraez/Documents/Projects/honcaml/build/lib/honcaml/models/base.py,973
+from honcaml.tools import custom_typing as ctct3,66
+from honcaml.exceptions import model as model_exceptionsmodel_exceptions4,112
+class BaseModel(ABC):BaseModel7,171
+    def __init__(self, estimator_type: str) -> None:__init__17,444
+    def read(self, settings: Dict) -> None:read31,957
+    def build_model(self, model_config: Dict, normalizations: Dict) -> None:build_model43,1269
+    def fit(self, x: ct.Dataset, y: ct.Dataset, **kwargs: Dict) -> None:fit57,1765
+    def predict(self, x: ct.Dataset, **kwargs: Dict) -> List:predict70,2170
+    def evaluate(self, x: ct.Dataset, y: ct.Dataset, **kwargs: Dict) -> Dict:evaluate85,2635
+    def save(self, settings: Dict) -> None:save101,3133
+class ModelType:ModelType113,3426
+    sklearn = 'sklearn'sklearn119,3567
+class EstimatorType:EstimatorType122,3593
+    classifier = 'classifier'classifier129,3761
+    regressor = 'regressor'regressor130,3791
+estimator_types = [estimator_types133,3821
 
 /home/joan.erraez/Documents/Projects/honcaml/build/lib/honcaml/main.py,138
     parser = argparse.ArgumentParser(parser6,81
     args = parser.parse_args()args13,292
     pipeline = args.pipelinepipeline14,323
+
+/home/joan.erraez/Documents/Projects/honcaml/build/lib/honcaml/data/load.py,381
+import pandas as pdpd3,24
+import numpy as npnp4,44
+from honcaml.exceptions import data as data_exceptiondata_exception7,94
+def save_dataframe(dataset: pd.DataFrame, settings: Dict) -> None:save_dataframe12,223
+def save_model(model: object, settings: Dict) -> None:save_model32,905
+def save_predictions(predictions: List, settings: Dict) -> None:save_predictions44,1215
+
+/home/joan.erraez/Documents/Projects/honcaml/build/lib/honcaml/data/extract.py,293
+import pandas as pdpd3,24
+from honcaml.exceptions import data as data_exceptiondata_exception7,81
+def read_yaml(file_path: str) -> Dict:read_yaml12,210
+def read_dataframe(settings: Dict) -> pd.DataFrame:read_dataframe29,577
+def read_model(settings: Dict) -> object:read_model53,1280
+
+/home/joan.erraez/Documents/Projects/honcaml/build/lib/honcaml/data/__init__.py,0
+
+/home/joan.erraez/Documents/Projects/honcaml/build/lib/honcaml/data/normalization.py,590
+from honcaml.tools import custom_typing as ctct3,31
+class Normalization:Normalization6,79
+    def __init__(self, settings: Dict) -> None:__init__20,589
+    def features(self) -> ct.StrList:features40,1330
+    def features_normalizer(self) -> Dict:features_normalizer51,1598
+    def target(self) -> ct.StrList:target62,1928
+    def target_normalizer(self) -> Dict:target_normalizer73,2190
+    def _get_columns(settings: Dict, key: str) -> List[str]:_get_columns84,2519
+    def _get_module_and_parameters(settings: Dict, key: str) -> Dict:_get_module_and_parameters101,3098
+
+/home/joan.erraez/Documents/Projects/honcaml/build/lib/honcaml/data/transform.py,878
+import numpy as npnp1,0
+import pandas as pdpd2,19
+from honcaml.exceptions import data as data_exceptionsdata_exceptions6,107
+from honcaml.tools import custom_typing as ctct7,162
+def process_data(dataset: pd.DataFrame, settings: Dict) -> pd.DataFrame:process_data10,210
+def get_train_test_dataset(get_train_test_dataset27,621
+class _CVStrategy:_CVStrategy60,1862
+    k_fold = 'k_fold'k_fold65,1956
+    repeated_k_fold = 'repeated_k_fold'repeated_k_fold66,1978
+    shuffle_split = 'shuffle_split'shuffle_split67,2018
+    leave_one_out = 'leave_one_out'leave_one_out68,2054
+class CrossValidationSplit:CrossValidationSplit71,2092
+    def __init__(self, strategy: str) -> None:__init__80,2314
+    def strategy(self) -> str:strategy96,2808
+    def _create_cross_validation_instance(_create_cross_validation_instance106,3047
+    def split(split136,4283
+
+/home/joan.erraez/Documents/Projects/honcaml/build/lib/honcaml/data/tabular.py,793
+import pandas as pdpd1,0
+from honcaml.exceptions import data as data_exceptiondata_exception5,108
+from honcaml.tools import custom_typing as ctct6,162
+class TabularDataset(base.BaseDataset):TabularDataset10,251
+    def __init__(self) -> None:__init__21,599
+    def features(self) -> ct.StrList:features34,953
+    def target(self) -> ct.StrList:target45,1219
+    def dataframe(self) -> pd.DataFrame:dataframe56,1476
+    def x(self) -> ct.Array:x67,1744
+    def y(self) -> ct.Array:y78,2032
+    def values(self) -> Tuple[ct.Array, ct.Array]:values88,2302
+    def _clean_dataset(_clean_dataset102,2755
+    def read(self, settings: Dict) -> None:read132,3845
+    def preprocess(self, settings: Dict):preprocess149,4453
+    def save(self, settings: Dict):save155,4669
+
+/home/joan.erraez/Documents/Projects/honcaml/build/lib/honcaml/data/base.py,463
+from honcaml.data import normalization as normnorm4,68
+class BaseDataset(ABC):BaseDataset7,117
+    def __init__(self) -> None:__init__16,349
+    def normalization(self) -> norm.Normalization:normalization25,607
+    def normalization(self, value: norm.Normalization) -> None:normalization36,909
+    def read(self, settings: Dict):read47,1239
+    def preprocess(self, settings: Dict):preprocess54,1411
+    def save(self, settings: Dict):save61,1591
 
 /home/joan.erraez/Documents/Projects/honcaml/docs/Makefile,197
 SPHINXOPTS    ?=SPHINXOPTS6,151
@@ -618,11 +740,11 @@ InstallationInstallation4,13
 Welcome to HONCAML's documentation!Welcome to HONCAML's documentation!6,218
 ContentsContents13,344
 
-/home/joan.erraez/Documents/Projects/honcaml/docs/source/modules.rst,41
+/home/joan.erraez/Documents/Projects/honcaml/docs/source/reference.rst,41
 ReferenceReference1,0
 StepsSteps4,21
 
-/home/joan.erraez/Documents/Projects/honcaml/docs/source/conf.py,380
+/home/joan.erraez/Documents/Projects/honcaml/docs/source/conf.py,430
 project = 'HONCAML'project10,387
 copyright = '2022, Eurecat'copyright11,407
 author = 'Joan Erráez'author12,435
@@ -631,13 +753,61 @@ extensions = [extensions18,642
 templates_path = ['_templates']templates_path22,686
 exclude_patterns = []exclude_patterns23,718
 html_theme = 'alabaster'html_theme28,909
-html_static_path = ['_static']html_static_path29,934
+html_theme_options = {html_theme_options29,934
+html_static_path = ['_static']html_static_path33,1040
+
+/home/joan.erraez/Documents/Projects/honcaml/docs/build/html/py-modindex.html,690
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"documentation_options11,372
+   <h1>Python Module Index</h1>Python Module Index39,1237
+     <tr class="cap" id="cap-h"><td></td><td>cap-h47,1463
+              id="toggle-1" style="display: none" alt="-" /></td>toggle-151,1620
+<h1 class="logo"><a href="index.html">HONCAML</a></h1>HONCAML204,8228
+<h3>Navigation</h3>Navigation213,8291
+<h3>Related Topics</h3>Related Topics220,8527
+<div id="searchbox" style="display: none" role="search">searchbox226,8640
+  <h3 id="searchlabel">Quick search</h3>searchlabel227,8697
+  <h3 id="searchlabel">Quick search</h3>Quick search227,8697
+
+/home/joan.erraez/Documents/Projects/honcaml/docs/build/html/honcaml.html,1630
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"documentation_options12,454
+  <section id="honcaml-package">honcaml-package36,1315
+<h1>honcaml package<a class="headerlink" href="#honcaml-package" title="Permalink to this headinhoncaml package¶37,1348
+<section id="subpackages">subpackages38,1459
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this heading">¶</aSubpackages¶39,1486
+<section id="submodules">submodules285,33573
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">¶</a><Submodules¶286,33599
+<section id="module-honcaml.main">module-honcaml.main288,33711
+<span id="honcaml-main-module"></span><h2>honcaml.main module<a class="headerlink" href="#modulehoncaml-main-module289,33746
+<span id="honcaml-main-module"></span><h2>honcaml.main module<a class="headerlink" href="#modulehoncaml.main module¶289,33746
+<section id="module-honcaml">module-honcaml291,33914
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-honcamlmodule-contents292,33944
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-honcamlModule contents¶292,33944
+<h1 class="logo"><a href="index.html">HONCAML</a></h1>HONCAML303,34292
+<h3>Navigation</h3>Navigation312,34355
+<h3>Related Topics</h3>Related Topics319,34591
+<div id="searchbox" style="display: none" role="search">searchbox325,34704
+  <h3 id="searchlabel">Quick search</h3>searchlabel326,34761
+  <h3 id="searchlabel">Quick search</h3>Quick search326,34761
+
+/home/joan.erraez/Documents/Projects/honcaml/docs/build/html/_sources/honcaml.tools.rst.txt,0
+
+/home/joan.erraez/Documents/Projects/honcaml/docs/build/html/_sources/honcaml.exceptions.rst.txt,0
 
 /home/joan.erraez/Documents/Projects/honcaml/docs/build/html/_sources/modules.rst.txt,0
 
+/home/joan.erraez/Documents/Projects/honcaml/docs/build/html/_sources/reference.rst.txt,0
+
+/home/joan.erraez/Documents/Projects/honcaml/docs/build/html/_sources/honcaml.steps.rst.txt,0
+
 /home/joan.erraez/Documents/Projects/honcaml/docs/build/html/_sources/usage.rst.txt,0
 
+/home/joan.erraez/Documents/Projects/honcaml/docs/build/html/_sources/honcaml.models.rst.txt,0
+
+/home/joan.erraez/Documents/Projects/honcaml/docs/build/html/_sources/honcaml.data.rst.txt,0
+
 /home/joan.erraez/Documents/Projects/honcaml/docs/build/html/_sources/index.rst.txt,0
+
+/home/joan.erraez/Documents/Projects/honcaml/docs/build/html/_sources/honcaml.rst.txt,0
 
 /home/joan.erraez/Documents/Projects/honcaml/docs/build/html/search.html,556
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"documentation_options12,364
@@ -647,7 +817,7 @@ html_static_path = ['_static']html_static_path29,934
   <div id="search-results">search-results67,1996
 <h1 class="logo"><a href="index.html">HONCAML</a></h1>HONCAML78,2220
 <h3>Navigation</h3>Navigation87,2283
-<h3>Related Topics</h3>Related Topics94,2517
+<h3>Related Topics</h3>Related Topics94,2519
 
 /home/joan.erraez/Documents/Projects/honcaml/docs/build/html/_static/bizstyle.js,145
 const initialiseBizStyle = () => {initialiseBizStyle12,250
@@ -6138,172 +6308,172 @@ div.math:hover a.headerlink {div.math:hover a.headerlink879,14241
 /home/joan.erraez/Documents/Projects/honcaml/docs/build/html/_static/alabaster.css,8524
 body {body5,109
 div.document {div.document15,250
-div.documentwrapper {div.documentwrapper20,316
-div.bodywrapper {div.bodywrapper25,375
-div.sphinxsidebar {div.sphinxsidebar29,421
-hr {hr35,505
-div.body {div.body39,544
-div.body > .section {div.body > .section45,634
-div.footer {div.footer49,681
-div.footer a {div.footer a57,809
-p.caption {p.caption61,844
-div.relations {div.relations67,910
-div.sphinxsidebar a {div.sphinxsidebar a72,949
-div.sphinxsidebar a:hover {div.sphinxsidebar a:hover78,1054
-div.sphinxsidebarwrapper {div.sphinxsidebarwrapper82,1120
-div.sphinxsidebarwrapper p.logo {div.sphinxsidebarwrapper p.logo86,1174
-div.sphinxsidebarwrapper h1.logo {div.sphinxsidebarwrapper h1.logo92,1278
-div.sphinxsidebarwrapper h1.logo-name {div.sphinxsidebarwrapper h1.logo-name99,1409
-div.sphinxsidebarwrapper p.blurb {div.sphinxsidebarwrapper p.blurb103,1473
-div.sphinxsidebar h3,div.sphinxsidebar h3108,1554
-div.sphinxsidebar h4 {div.sphinxsidebar h4109,1576
-div.sphinxsidebar h4 {div.sphinxsidebar h4118,1737
-div.sphinxsidebar h3 a {div.sphinxsidebar h3 a122,1784
-div.sphinxsidebar p.logo a,div.sphinxsidebar p.logo a126,1829
-div.sphinxsidebar h3 a,div.sphinxsidebar h3 a127,1857
-div.sphinxsidebar p.logo a:hover,div.sphinxsidebar p.logo a:hover128,1881
-div.sphinxsidebar h3 a:hover {div.sphinxsidebar h3 a:hover129,1915
-div.sphinxsidebar p {div.sphinxsidebar p133,1967
-div.sphinxsidebar ul {div.sphinxsidebar ul138,2029
-div.sphinxsidebar ul li.toctree-l1 > a {div.sphinxsidebar ul li.toctree-l1 > a144,2108
-div.sphinxsidebar ul li.toctree-l2 > a {div.sphinxsidebar ul li.toctree-l2 > a148,2173
-div.sphinxsidebar input {div.sphinxsidebar input152,2238
-div.sphinxsidebar hr {div.sphinxsidebar hr158,2348
-div.sphinxsidebar .badge {div.sphinxsidebar .badge169,2507
-div.sphinxsidebar .badge:hover {div.sphinxsidebar .badge:hover173,2562
-div.sphinxsidebar h3.donation {div.sphinxsidebar h3.donation178,2683
-a {a184,2822
-a:hover {a:hover189,2881
-div.body h1,div.body h1194,2946
-div.body h2,div.body h2195,2959
-div.body h3,div.body h3196,2972
-div.body h4,div.body h4197,2985
-div.body h5,div.body h5198,2998
-div.body h6 {div.body h6199,3011
-div.body h1 { margin-top: 0; padding-top: 0; font-size: 240%; }div.body h1206,3133
-div.body h2 { font-size: 180%; }div.body h2207,3197
-div.body h3 { font-size: 150%; }div.body h3208,3230
-div.body h4 { font-size: 130%; }div.body h4209,3263
-div.body h5 { font-size: 100%; }div.body h5210,3296
-div.body h6 { font-size: 100%; }div.body h6211,3329
-a.headerlink {a.headerlink213,3363
-a.headerlink:hover {a.headerlink:hover219,3445
-div.body p, div.body dd, div.body li {div.body p224,3511
-div.body p, div.body dd, div.body li {div.body dd224,3511
-div.body p, div.body dd, div.body li {div.body li224,3511
-div.admonition {div.admonition228,3577
-div.admonition tt.xref, div.admonition code.xref, div.admonition a tt {div.admonition tt.xref235,3699
-div.admonition tt.xref, div.admonition code.xref, div.admonition a tt {div.admonition code.xref235,3699
-div.admonition tt.xref, div.admonition code.xref, div.admonition a tt {div.admonition a tt235,3699
-div.admonition p.admonition-title {div.admonition p.admonition-title240,3843
-div.admonition p.last {div.admonition p.last249,4021
-div.highlight {div.highlight253,4070
-dt:target, .highlight {dt:target257,4117
-dt:target, .highlight {.highlight257,4117
-div.warning {div.warning261,4169
-div.danger {div.danger266,4242
-div.error {div.error274,4438
-div.caution {div.caution282,4633
-div.attention {div.attention287,4706
-div.important {div.important292,4781
-div.note {div.note297,4856
-div.tip {div.tip302,4926
-div.hint {div.hint307,4995
-div.seealso {div.seealso312,5065
-div.topic {div.topic317,5138
-p.admonition-title {p.admonition-title321,5181
-p.admonition-title:after {p.admonition-title:after325,5226
-pre, tt, code {pre329,5274
-pre, tt, code {tt329,5274
-pre, tt, code {code329,5274
-.hll {.hll334,5412
-img.screenshot {img.screenshot341,5512
-tt.descname, tt.descclassname, code.descname, code.descclassname {tt.descname344,5532
-tt.descname, tt.descclassname, code.descname, code.descclassname {tt.descclassname344,5532
-tt.descname, tt.descclassname, code.descname, code.descclassname {code.descname344,5532
-tt.descname, tt.descclassname, code.descname, code.descclassname {code.descclassname344,5532
-tt.descname, code.descname {tt.descname348,5625
-tt.descname, code.descname {code.descname348,5625
-img.screenshot {img.screenshot352,5684
-table.docutils {table.docutils358,5819
-table.docutils td, table.docutils th {table.docutils td365,5982
-table.docutils td, table.docutils th {table.docutils th365,5982
-table.field-list, table.footnote {table.field-list370,6079
-table.field-list, table.footnote {table.footnote370,6079
-table.footnote {table.footnote377,6214
-table.footnote + table.footnote {table.footnote + table.footnote385,6346
-table.field-list th {table.field-list th390,6428
-table.field-list td {table.field-list td394,6479
-table.field-list p {table.field-list p398,6520
-.field-name {.field-name405,6677
-table.footnote td.label {table.footnote td.label412,6795
-table.footnote td {table.footnote td417,6875
-dl {dl421,6924
-dl dd {dl dd426,6963
-blockquote {blockquote430,6997
-ul, ol {ul435,7053
-ul, ol {ol435,7053
-pre {pre441,7186
-div.viewcode-block:target {div.viewcode-block:target448,7286
-dl pre, blockquote pre, li pre {dl pre452,7339
-dl pre, blockquote pre, li pre {blockquote pre452,7339
-dl pre, blockquote pre, li pre {li pre452,7339
-tt, code {tt457,7419
-tt, code {code457,7419
-tt.xref, code.xref, a tt {tt.xref463,7509
-tt.xref, code.xref, a tt {code.xref463,7509
-tt.xref, code.xref, a tt {a tt463,7509
-a.reference {a.reference468,7605
-a.image-reference, a.image-reference:hover {a.image-reference474,7727
-a.image-reference, a.image-reference:hover {a.image-reference:hover474,7727
-a.reference:hover {a.reference:hover478,7800
-a.footnote-reference {a.footnote-reference482,7861
-a.footnote-reference:hover {a.footnote-reference:hover489,8000
-a:hover tt, a:hover code {a:hover tt493,8070
-a:hover tt, a:hover code {a:hover code493,8070
-    div.sphinxsidebar {div.sphinxsidebar500,8163
-    div.document {div.document504,8214
-    div.documentwrapper {div.documentwrapper509,8261
-    div.bodywrapper {div.bodywrapper516,8380
-    ul {ul523,8495
-	li > ul {li > ul527,8532
-    .document {.document532,8632
-    .footer {.footer536,8673
-    .bodywrapper {.bodywrapper540,8712
-    .footer {.footer544,8754
-    .github {.github548,8793
-    body {body560,8884
-    div.documentwrapper {div.documentwrapper565,8949
-    div.sphinxsidebar {div.sphinxsidebar570,9029
-    div.sphinxsidebar h3, div.sphinxsidebar h4, div.sphinxsidebar p,div.sphinxsidebar h3580,9243
-    div.sphinxsidebar h3, div.sphinxsidebar h4, div.sphinxsidebar p,div.sphinxsidebar h4580,9243
-    div.sphinxsidebar h3, div.sphinxsidebar h4, div.sphinxsidebar p,div.sphinxsidebar p580,9243
-    div.sphinxsidebar h3 a {div.sphinxsidebar h3 a581,9312
-    div.sphinxsidebar a {div.sphinxsidebar a585,9369
-    div.sphinxsidebar p.logo {div.sphinxsidebar p.logo589,9423
-    div.document {div.document593,9484
-    div.footer {div.footer598,9550
-    div.bodywrapper {div.bodywrapper602,9597
-    div.body {div.body606,9645
-    .rtd_doc_footer {.rtd_doc_footer611,9710
-    .document {.document615,9762
-    .footer {.footer619,9806
-    .footer {.footer623,9848
-    .github {.github627,9890
-.revsys-inline {.revsys-inline635,9950
-div#changelog > div.section > ul > li > p:only-child {div#changelog > div.section > ul > li > p:only-child643,10205
-table.docutils.citation, table.docutils.citation td, table.docutils.citation th {table.docutils.citation648,10358
-table.docutils.citation, table.docutils.citation td, table.docutils.citation th {table.docutils.citation td648,10358
-table.docutils.citation, table.docutils.citation td, table.docutils.citation th {table.docutils.citation th648,10358
-.related {.related659,10626
-.related.top {.related.top665,10703
-.related.bottom {.related.bottom670,10781
-.related ul {.related ul674,10834
-.related li {.related li680,10904
-nav#rellinks {nav#rellinks684,10942
-nav#rellinks li+li:before {nav#rellinks li+li:before688,10978
-nav#breadcrumbs li+li:before {nav#breadcrumbs li+li:before692,11027
-    div.related {div.related698,11137
+div.documentwrapper {div.documentwrapper20,317
+div.bodywrapper {div.bodywrapper25,376
+div.sphinxsidebar {div.sphinxsidebar29,422
+hr {hr35,506
+div.body {div.body39,545
+div.body > .section {div.body > .section45,635
+div.footer {div.footer49,682
+div.footer a {div.footer a57,811
+p.caption {p.caption61,846
+div.relations {div.relations67,912
+div.sphinxsidebar a {div.sphinxsidebar a72,951
+div.sphinxsidebar a:hover {div.sphinxsidebar a:hover78,1056
+div.sphinxsidebarwrapper {div.sphinxsidebarwrapper82,1122
+div.sphinxsidebarwrapper p.logo {div.sphinxsidebarwrapper p.logo86,1176
+div.sphinxsidebarwrapper h1.logo {div.sphinxsidebarwrapper h1.logo92,1280
+div.sphinxsidebarwrapper h1.logo-name {div.sphinxsidebarwrapper h1.logo-name99,1411
+div.sphinxsidebarwrapper p.blurb {div.sphinxsidebarwrapper p.blurb103,1475
+div.sphinxsidebar h3,div.sphinxsidebar h3108,1556
+div.sphinxsidebar h4 {div.sphinxsidebar h4109,1578
+div.sphinxsidebar h4 {div.sphinxsidebar h4118,1739
+div.sphinxsidebar h3 a {div.sphinxsidebar h3 a122,1786
+div.sphinxsidebar p.logo a,div.sphinxsidebar p.logo a126,1831
+div.sphinxsidebar h3 a,div.sphinxsidebar h3 a127,1859
+div.sphinxsidebar p.logo a:hover,div.sphinxsidebar p.logo a:hover128,1883
+div.sphinxsidebar h3 a:hover {div.sphinxsidebar h3 a:hover129,1917
+div.sphinxsidebar p {div.sphinxsidebar p133,1969
+div.sphinxsidebar ul {div.sphinxsidebar ul138,2031
+div.sphinxsidebar ul li.toctree-l1 > a {div.sphinxsidebar ul li.toctree-l1 > a144,2110
+div.sphinxsidebar ul li.toctree-l2 > a {div.sphinxsidebar ul li.toctree-l2 > a148,2175
+div.sphinxsidebar input {div.sphinxsidebar input152,2240
+div.sphinxsidebar hr {div.sphinxsidebar hr158,2350
+div.sphinxsidebar .badge {div.sphinxsidebar .badge169,2509
+div.sphinxsidebar .badge:hover {div.sphinxsidebar .badge:hover173,2564
+div.sphinxsidebar h3.donation {div.sphinxsidebar h3.donation178,2685
+a {a184,2824
+a:hover {a:hover189,2883
+div.body h1,div.body h1194,2948
+div.body h2,div.body h2195,2961
+div.body h3,div.body h3196,2974
+div.body h4,div.body h4197,2987
+div.body h5,div.body h5198,3000
+div.body h6 {div.body h6199,3013
+div.body h1 { margin-top: 0; padding-top: 0; font-size: 240%; }div.body h1206,3135
+div.body h2 { font-size: 180%; }div.body h2207,3199
+div.body h3 { font-size: 150%; }div.body h3208,3232
+div.body h4 { font-size: 130%; }div.body h4209,3265
+div.body h5 { font-size: 100%; }div.body h5210,3298
+div.body h6 { font-size: 100%; }div.body h6211,3331
+a.headerlink {a.headerlink213,3365
+a.headerlink:hover {a.headerlink:hover219,3447
+div.body p, div.body dd, div.body li {div.body p224,3513
+div.body p, div.body dd, div.body li {div.body dd224,3513
+div.body p, div.body dd, div.body li {div.body li224,3513
+div.admonition {div.admonition228,3579
+div.admonition tt.xref, div.admonition code.xref, div.admonition a tt {div.admonition tt.xref235,3701
+div.admonition tt.xref, div.admonition code.xref, div.admonition a tt {div.admonition code.xref235,3701
+div.admonition tt.xref, div.admonition code.xref, div.admonition a tt {div.admonition a tt235,3701
+div.admonition p.admonition-title {div.admonition p.admonition-title240,3845
+div.admonition p.last {div.admonition p.last249,4023
+div.highlight {div.highlight253,4072
+dt:target, .highlight {dt:target257,4119
+dt:target, .highlight {.highlight257,4119
+div.warning {div.warning261,4171
+div.danger {div.danger266,4244
+div.error {div.error274,4440
+div.caution {div.caution282,4635
+div.attention {div.attention287,4708
+div.important {div.important292,4783
+div.note {div.note297,4858
+div.tip {div.tip302,4928
+div.hint {div.hint307,4997
+div.seealso {div.seealso312,5067
+div.topic {div.topic317,5140
+p.admonition-title {p.admonition-title321,5183
+p.admonition-title:after {p.admonition-title:after325,5228
+pre, tt, code {pre329,5276
+pre, tt, code {tt329,5276
+pre, tt, code {code329,5276
+.hll {.hll334,5414
+img.screenshot {img.screenshot341,5514
+tt.descname, tt.descclassname, code.descname, code.descclassname {tt.descname344,5534
+tt.descname, tt.descclassname, code.descname, code.descclassname {tt.descclassname344,5534
+tt.descname, tt.descclassname, code.descname, code.descclassname {code.descname344,5534
+tt.descname, tt.descclassname, code.descname, code.descclassname {code.descclassname344,5534
+tt.descname, code.descname {tt.descname348,5627
+tt.descname, code.descname {code.descname348,5627
+img.screenshot {img.screenshot352,5686
+table.docutils {table.docutils358,5821
+table.docutils td, table.docutils th {table.docutils td365,5984
+table.docutils td, table.docutils th {table.docutils th365,5984
+table.field-list, table.footnote {table.field-list370,6081
+table.field-list, table.footnote {table.footnote370,6081
+table.footnote {table.footnote377,6216
+table.footnote + table.footnote {table.footnote + table.footnote385,6348
+table.field-list th {table.field-list th390,6430
+table.field-list td {table.field-list td394,6481
+table.field-list p {table.field-list p398,6522
+.field-name {.field-name405,6679
+table.footnote td.label {table.footnote td.label412,6797
+table.footnote td {table.footnote td417,6877
+dl {dl421,6926
+dl dd {dl dd426,6965
+blockquote {blockquote430,6999
+ul, ol {ul435,7055
+ul, ol {ol435,7055
+pre {pre441,7188
+div.viewcode-block:target {div.viewcode-block:target448,7288
+dl pre, blockquote pre, li pre {dl pre452,7341
+dl pre, blockquote pre, li pre {blockquote pre452,7341
+dl pre, blockquote pre, li pre {li pre452,7341
+tt, code {tt457,7421
+tt, code {code457,7421
+tt.xref, code.xref, a tt {tt.xref463,7511
+tt.xref, code.xref, a tt {code.xref463,7511
+tt.xref, code.xref, a tt {a tt463,7511
+a.reference {a.reference468,7607
+a.image-reference, a.image-reference:hover {a.image-reference474,7729
+a.image-reference, a.image-reference:hover {a.image-reference:hover474,7729
+a.reference:hover {a.reference:hover478,7802
+a.footnote-reference {a.footnote-reference482,7863
+a.footnote-reference:hover {a.footnote-reference:hover489,8002
+a:hover tt, a:hover code {a:hover tt493,8072
+a:hover tt, a:hover code {a:hover code493,8072
+    div.sphinxsidebar {div.sphinxsidebar500,8165
+    div.document {div.document504,8216
+    div.documentwrapper {div.documentwrapper509,8263
+    div.bodywrapper {div.bodywrapper516,8382
+    ul {ul523,8497
+	li > ul {li > ul527,8534
+    .document {.document532,8634
+    .footer {.footer536,8675
+    .bodywrapper {.bodywrapper540,8714
+    .footer {.footer544,8756
+    .github {.github548,8795
+    body {body560,8886
+    div.documentwrapper {div.documentwrapper565,8951
+    div.sphinxsidebar {div.sphinxsidebar570,9031
+    div.sphinxsidebar h3, div.sphinxsidebar h4, div.sphinxsidebar p,div.sphinxsidebar h3580,9245
+    div.sphinxsidebar h3, div.sphinxsidebar h4, div.sphinxsidebar p,div.sphinxsidebar h4580,9245
+    div.sphinxsidebar h3, div.sphinxsidebar h4, div.sphinxsidebar p,div.sphinxsidebar p580,9245
+    div.sphinxsidebar h3 a {div.sphinxsidebar h3 a581,9314
+    div.sphinxsidebar a {div.sphinxsidebar a585,9371
+    div.sphinxsidebar p.logo {div.sphinxsidebar p.logo589,9425
+    div.document {div.document593,9486
+    div.footer {div.footer598,9552
+    div.bodywrapper {div.bodywrapper602,9599
+    div.body {div.body606,9647
+    .rtd_doc_footer {.rtd_doc_footer611,9712
+    .document {.document615,9764
+    .footer {.footer619,9808
+    .footer {.footer623,9850
+    .github {.github627,9892
+.revsys-inline {.revsys-inline635,9952
+div#changelog > div.section > ul > li > p:only-child {div#changelog > div.section > ul > li > p:only-child643,10207
+table.docutils.citation, table.docutils.citation td, table.docutils.citation th {table.docutils.citation648,10360
+table.docutils.citation, table.docutils.citation td, table.docutils.citation th {table.docutils.citation td648,10360
+table.docutils.citation, table.docutils.citation td, table.docutils.citation th {table.docutils.citation th648,10360
+.related {.related659,10628
+.related.top {.related.top665,10705
+.related.bottom {.related.bottom670,10783
+.related ul {.related ul674,10836
+.related li {.related li680,10906
+nav#rellinks {nav#rellinks684,10944
+nav#rellinks li+li:before {nav#rellinks li+li:before688,10980
+nav#breadcrumbs li+li:before {nav#breadcrumbs li+li:before692,11029
+    div.related {div.related698,11139
 
 /home/joan.erraez/Documents/Projects/honcaml/docs/build/html/_static/doctools.js,1287
 const BLACKLISTED_KEY_CONTROL_ELEMENTS = new Set([BLACKLISTED_KEY_CONTROL_ELEMENTS13,236
@@ -6904,57 +7074,263 @@ var stopwords = ["a", "and", "are", "as", "at", "be", "but", "by", "for", "if", 
   this.stemWord = function (w) {stemWord67,1722
 var Stemmer = function() {Stemmer21,657
 
-/home/joan.erraez/Documents/Projects/honcaml/docs/build/html/modules.html,885
+/home/joan.erraez/Documents/Projects/honcaml/docs/build/html/honcaml.data.html,8587
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"documentation_options12,459
+  <section id="honcaml-data-package">honcaml-data-package36,1320
+<h1>honcaml.data package<a class="headerlink" href="#honcaml-data-package" title="Permalink to thoncaml.data package¶37,1358
+<section id="submodules">submodules38,1479
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">¶</a><Submodules¶39,1505
+<section id="module-honcaml.data.base">module-honcaml.data.base41,1617
+<span id="honcaml-data-base-module"></span><h2>honcaml.data.base module<a class="headerlink" hrehoncaml-data-base-module42,1657
+<span id="honcaml-data-base-module"></span><h2>honcaml.data.base module<a class="headerlink" hrehoncaml.data.base module¶42,1657
+<dt class="sig sig-object py" id="honcaml.data.base.BaseDataset">honcaml.data.base.BaseDataset44,1851
+<dt class="sig sig-object py" id="honcaml.data.base.BaseDataset._normalization">honcaml.data.base.BaseDataset._normalization49,2449
+<dt class="sig sig-object py" id="honcaml.data.base.BaseDataset.normalization">honcaml.data.base.BaseDataset.normalization61,2985
+<dt class="sig sig-object py" id="honcaml.data.base.BaseDataset.preprocess">honcaml.data.base.BaseDataset.preprocess76,3968
+<dt class="sig sig-object py" id="honcaml.data.base.BaseDataset.read">honcaml.data.base.BaseDataset.read82,4712
+<dt class="sig sig-object py" id="honcaml.data.base.BaseDataset.save">honcaml.data.base.BaseDataset.save88,5436
+<section id="module-honcaml.data.extract">module-honcaml.data.extract96,6157
+<span id="honcaml-data-extract-module"></span><h2>honcaml.data.extract module<a class="headerlinhoncaml-data-extract-module97,6200
+<span id="honcaml-data-extract-module"></span><h2>honcaml.data.extract module<a class="headerlinhoncaml.data.extract module¶97,6200
+<dt class="sig sig-object py" id="honcaml.data.extract.read_dataframe">honcaml.data.extract.read_dataframe99,6406
+<dt class="sig sig-object py" id="honcaml.data.extract.read_model">honcaml.data.extract.read_model116,7676
+<dt class="sig sig-object py" id="honcaml.data.extract.read_yaml">honcaml.data.extract.read_yaml132,8841
+<section id="module-honcaml.data.load">module-honcaml.data.load147,10005
+<span id="honcaml-data-load-module"></span><h2>honcaml.data.load module<a class="headerlink" hrehoncaml-data-load-module148,10045
+<span id="honcaml-data-load-module"></span><h2>honcaml.data.load module<a class="headerlink" hrehoncaml.data.load module¶148,10045
+<dt class="sig sig-object py" id="honcaml.data.load.save_dataframe">honcaml.data.load.save_dataframe150,10242
+<dt class="sig sig-object py" id="honcaml.data.load.save_model">honcaml.data.load.save_model164,11650
+<dt class="sig sig-object py" id="honcaml.data.load.save_predictions">honcaml.data.load.save_predictions178,12989
+<section id="module-honcaml.data.normalization">module-honcaml.data.normalization192,14375
+<span id="honcaml-data-normalization-module"></span><h2>honcaml.data.normalization module<a clashoncaml-data-normalization-module193,14424
+<span id="honcaml-data-normalization-module"></span><h2>honcaml.data.normalization module<a clashoncaml.data.normalization module¶193,14424
+<dt class="sig sig-object py" id="honcaml.data.normalization.Normalization">honcaml.data.normalization.Normalization195,14645
+<dt class="sig sig-object py" id="honcaml.data.normalization.Normalization._features">honcaml.data.normalization.Normalization._features201,15616
+<dt class="sig sig-object py" id="honcaml.data.normalization.Normalization._target">honcaml.data.normalization.Normalization._target212,16099
+<dt class="sig sig-object py" id="honcaml.data.normalization.Normalization._features_normalizer"honcaml.data.normalization.Normalization._features_normalizer223,16576
+<dt class="sig sig-object py" id="honcaml.data.normalization.Normalization._target_normalizer">honcaml.data.normalization.Normalization._target_normalizer235,17125
+<dt class="sig sig-object py" id="honcaml.data.normalization.Normalization.features">honcaml.data.normalization.Normalization.features247,17666
+<dt class="sig sig-object py" id="honcaml.data.normalization.Normalization.features_normalizer">honcaml.data.normalization.Normalization.features_normalizer262,18635
+<dt class="sig sig-object py" id="honcaml.data.normalization.Normalization.target">honcaml.data.normalization.Normalization.target277,19557
+<dt class="sig sig-object py" id="honcaml.data.normalization.Normalization.target_normalizer">honcaml.data.normalization.Normalization.target_normalizer292,20518
+<section id="module-honcaml.data.tabular">module-honcaml.data.tabular309,21431
+<span id="honcaml-data-tabular-module"></span><h2>honcaml.data.tabular module<a class="headerlinhoncaml-data-tabular-module310,21474
+<span id="honcaml-data-tabular-module"></span><h2>honcaml.data.tabular module<a class="headerlinhoncaml.data.tabular module¶310,21474
+<dt class="sig sig-object py" id="honcaml.data.tabular.TabularDataset">honcaml.data.tabular.TabularDataset312,21677
+<dt class="sig sig-object py" id="honcaml.data.tabular.TabularDataset._features">honcaml.data.tabular.TabularDataset._features318,22477
+<dt class="sig sig-object py" id="honcaml.data.tabular.TabularDataset._target">honcaml.data.tabular.TabularDataset._target328,22914
+<dt class="sig sig-object py" id="honcaml.data.tabular.TabularDataset._dataset">honcaml.data.tabular.TabularDataset._dataset339,23379
+<dt class="sig sig-object py" id="honcaml.data.tabular.TabularDataset.dataframe">honcaml.data.tabular.TabularDataset.dataframe350,23868
+<dt class="sig sig-object py" id="honcaml.data.tabular.TabularDataset.features">honcaml.data.tabular.TabularDataset.features365,24711
+<dt class="sig sig-object py" id="honcaml.data.tabular.TabularDataset.preprocess">honcaml.data.tabular.TabularDataset.preprocess380,25670
+<dt class="sig sig-object py" id="honcaml.data.tabular.TabularDataset.read">honcaml.data.tabular.TabularDataset.read386,26340
+<dt class="sig sig-object py" id="honcaml.data.tabular.TabularDataset.save">honcaml.data.tabular.TabularDataset.save400,27481
+<dt class="sig sig-object py" id="honcaml.data.tabular.TabularDataset.target">honcaml.data.tabular.TabularDataset.target406,28109
+<dt class="sig sig-object py" id="honcaml.data.tabular.TabularDataset.values">honcaml.data.tabular.TabularDataset.values421,29059
+<dt class="sig sig-object py" id="honcaml.data.tabular.TabularDataset.x">honcaml.data.tabular.TabularDataset.x437,34483
+<dt class="sig sig-object py" id="honcaml.data.tabular.TabularDataset.y">honcaml.data.tabular.TabularDataset.y452,37442
+<section id="module-honcaml.data.transform">module-honcaml.data.transform468,40391
+<span id="honcaml-data-transform-module"></span><h2>honcaml.data.transform module<a class="headehoncaml-data-transform-module469,40436
+<span id="honcaml-data-transform-module"></span><h2>honcaml.data.transform module<a class="headehoncaml.data.transform module¶469,40436
+<dt class="sig sig-object py" id="honcaml.data.transform.CrossValidationSplit">honcaml.data.transform.CrossValidationSplit471,40645
+<dt class="sig sig-object py" id="honcaml.data.transform.CrossValidationSplit._strategy">honcaml.data.transform.CrossValidationSplit._strategy477,41623
+<dt class="sig sig-object py" id="honcaml.data.transform.CrossValidationSplit.split">honcaml.data.transform.CrossValidationSplit.split488,42105
+<dt class="sig sig-object py" id="honcaml.data.transform.CrossValidationSplit.strategy">honcaml.data.transform.CrossValidationSplit.strategy513,59586
+<dt class="sig sig-object py" id="honcaml.data.transform.get_train_test_dataset">honcaml.data.transform.get_train_test_dataset530,60442
+<dt class="sig sig-object py" id="honcaml.data.transform.process_data">honcaml.data.transform.process_data557,70011
+<section id="module-honcaml.data">module-honcaml.data577,71593
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-honcamlmodule-contents578,71628
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-honcamlModule contents¶578,71628
+<h1 class="logo"><a href="index.html">HONCAML</a></h1>HONCAML589,71981
+<h3>Navigation</h3>Navigation598,72044
+<h3>Related Topics</h3>Related Topics605,72280
+<div id="searchbox" style="display: none" role="search">searchbox611,72393
+  <h3 id="searchlabel">Quick search</h3>searchlabel612,72450
+  <h3 id="searchlabel">Quick search</h3>Quick search612,72450
+
+/home/joan.erraez/Documents/Projects/honcaml/docs/build/html/modules.html,641
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"documentation_options12,446
+  <section id="honcaml">honcaml36,1307
+<h1>honcaml<a class="headerlink" href="#honcaml" title="Permalink to this heading">¶</a></h1>honcaml¶37,1332
+<h1 class="logo"><a href="index.html">HONCAML</a></h1>HONCAML108,7461
+<h3>Navigation</h3>Navigation117,7524
+<h3>Related Topics</h3>Related Topics124,7760
+<div id="searchbox" style="display: none" role="search">searchbox130,7873
+  <h3 id="searchlabel">Quick search</h3>searchlabel131,7930
+  <h3 id="searchlabel">Quick search</h3>Quick search131,7930
+
+/home/joan.erraez/Documents/Projects/honcaml/docs/build/html/searchindex.js,0
+
+/home/joan.erraez/Documents/Projects/honcaml/docs/build/html/usage.html,794
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"documentation_options12,444
+  <section id="usage">usage38,1457
+<h1>Usage<a class="headerlink" href="#usage" title="Permalink to this heading">¶</a></h1>Usage¶39,1480
+<section id="installation">installation40,1571
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this heading">¶<Installation¶41,1599
+<h1 class="logo"><a href="index.html">HONCAML</a></h1>HONCAML56,2155
+<h3>Navigation</h3>Navigation65,2218
+<h3>Related Topics</h3>Related Topics75,2584
+<div id="searchbox" style="display: none" role="search">searchbox83,2891
+  <h3 id="searchlabel">Quick search</h3>searchlabel84,2948
+  <h3 id="searchlabel">Quick search</h3>Quick search84,2948
+
+/home/joan.erraez/Documents/Projects/honcaml/docs/build/html/genindex.html,673
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"documentation_options11,358
+<h1 id="index">Index</h1>index36,1208
+<h1 id="index">Index</h1>Index36,1208
+<h2 id="_">_</h2>_43,1351
+<h2 id="_">_</h2>_43,1351
+<h2 id="B">B</h2>B59,2167
+<h2 id="B">B</h2>B59,2167
+<h1 class="logo"><a href="index.html">HONCAML</a></h1>HONCAML75,2624
+<h3>Navigation</h3>Navigation84,2687
+<h3>Related Topics</h3>Related Topics91,2923
+<div id="searchbox" style="display: none" role="search">searchbox97,3036
+  <h3 id="searchlabel">Quick search</h3>searchlabel98,3093
+  <h3 id="searchlabel">Quick search</h3>Quick search98,3093
+
+/home/joan.erraez/Documents/Projects/honcaml/docs/build/html/honcaml.steps.html,4542
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"documentation_options12,460
+  <section id="honcaml-steps-package">honcaml-steps-package36,1321
+<h1>honcaml.steps package<a class="headerlink" href="#honcaml-steps-package" title="Permalink tohoncaml.steps package¶37,1360
+<section id="submodules">submodules38,1483
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">¶</a><Submodules¶39,1509
+<section id="honcaml-steps-base-module">honcaml-steps-base-module41,1621
+<h2>honcaml.steps.base module<a class="headerlink" href="#honcaml-steps-base-module" title="Permhoncaml.steps.base module¶42,1662
+<section id="module-honcaml.steps.benchmark">module-honcaml.steps.benchmark219,11091
+<span id="honcaml-steps-benchmark-module"></span><h2>honcaml.steps.benchmark module<a class="heahoncaml-steps-benchmark-module220,11137
+<span id="honcaml-steps-benchmark-module"></span><h2>honcaml.steps.benchmark module<a class="heahoncaml.steps.benchmark module¶220,11137
+<dt class="sig sig-object py" id="honcaml.steps.benchmark.BenchmarkStep">honcaml.steps.benchmark.BenchmarkStep222,11349
+<dt class="sig sig-object py" id="honcaml.steps.benchmark.BenchmarkStep.default_settings">honcaml.steps.benchmark.BenchmarkStep.default_settings230,13062
+<dt class="sig sig-object py" id="honcaml.steps.benchmark.BenchmarkStep.user_settings">honcaml.steps.benchmark.BenchmarkStep.user_settings241,13561
+<dt class="sig sig-object py" id="honcaml.steps.benchmark.BenchmarkStep.run">honcaml.steps.benchmark.BenchmarkStep.run252,14053
+<section id="module-honcaml.steps.data">module-honcaml.steps.data278,15437
+<span id="honcaml-steps-data-module"></span><h2>honcaml.steps.data module<a class="headerlink" hhoncaml-steps-data-module279,15478
+<span id="honcaml-steps-data-module"></span><h2>honcaml.steps.data module<a class="headerlink" hhoncaml.steps.data module¶279,15478
+<dt class="sig sig-object py" id="honcaml.steps.data.DataStep">honcaml.steps.data.DataStep281,15675
+<dt class="sig sig-object py" id="honcaml.steps.data.DataStep._dataset">honcaml.steps.data.DataStep._dataset287,17195
+<dt class="sig sig-object py" id="honcaml.steps.data.DataStep.dataset">honcaml.steps.data.DataStep.dataset298,17648
+<dt class="sig sig-object py" id="honcaml.steps.data.DataStep.run">honcaml.steps.data.DataStep.run313,18602
+<section id="module-honcaml.steps.model">module-honcaml.steps.model338,19943
+<span id="honcaml-steps-model-module"></span><h2>honcaml.steps.model module<a class="headerlink"honcaml-steps-model-module339,19985
+<span id="honcaml-steps-model-module"></span><h2>honcaml.steps.model module<a class="headerlink"honcaml.steps.model module¶339,19985
+<dt class="sig sig-object py" id="honcaml.steps.model.ModelActions">honcaml.steps.model.ModelActions341,20185
+<dt class="sig sig-object py" id="honcaml.steps.model.ModelActions.fit">honcaml.steps.model.ModelActions.fit345,20757
+<dt class="sig sig-object py" id="honcaml.steps.model.ModelActions.predict">honcaml.steps.model.ModelActions.predict350,21208
+<dt class="sig sig-object py" id="honcaml.steps.model.ModelStep">honcaml.steps.model.ModelStep357,21683
+<dt class="sig sig-object py" id="honcaml.steps.model.ModelStep._estimator_type">honcaml.steps.model.ModelStep._estimator_type364,23293
+<dt class="sig sig-object py" id="honcaml.steps.model.ModelStep._estimator_config">honcaml.steps.model.ModelStep._estimator_config376,23839
+<dt class="sig sig-object py" id="honcaml.steps.model.ModelStep._model">honcaml.steps.model.ModelStep._model388,24360
+<dt class="sig sig-object py" id="honcaml.steps.model.ModelStep.model">honcaml.steps.model.ModelStep.model400,24853
+<dt class="sig sig-object py" id="honcaml.steps.model.ModelStep.run">honcaml.steps.model.ModelStep.run415,25797
+<section id="module-honcaml.steps">module-honcaml.steps441,27175
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-honcamlmodule-contents442,27211
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-honcamlModule contents¶442,27211
+<h1 class="logo"><a href="index.html">HONCAML</a></h1>HONCAML453,27565
+<h3>Navigation</h3>Navigation462,27628
+<h3>Related Topics</h3>Related Topics469,27864
+<div id="searchbox" style="display: none" role="search">searchbox475,27977
+  <h3 id="searchlabel">Quick search</h3>searchlabel476,28034
+  <h3 id="searchlabel">Quick search</h3>Quick search476,28034
+
+/home/joan.erraez/Documents/Projects/honcaml/docs/build/html/.doctrees/index.doctree,0
+
+/home/joan.erraez/Documents/Projects/honcaml/docs/build/html/.doctrees/honcaml.steps.doctree,0
+
+/home/joan.erraez/Documents/Projects/honcaml/docs/build/html/.doctrees/honcaml.exceptions.doctree,0
+
+/home/joan.erraez/Documents/Projects/honcaml/docs/build/html/.doctrees/honcaml.data.doctree,0
+
+/home/joan.erraez/Documents/Projects/honcaml/docs/build/html/.doctrees/honcaml.models.doctree,0
+
+/home/joan.erraez/Documents/Projects/honcaml/docs/build/html/.doctrees/honcaml.tools.doctree,0
+
+/home/joan.erraez/Documents/Projects/honcaml/docs/build/html/.doctrees/usage.doctree,0
+
+/home/joan.erraez/Documents/Projects/honcaml/docs/build/html/.doctrees/modules.doctree,0
+
+/home/joan.erraez/Documents/Projects/honcaml/docs/build/html/.doctrees/reference.doctree,0
+
+/home/joan.erraez/Documents/Projects/honcaml/docs/build/html/.doctrees/environment.pickle,0
+
+/home/joan.erraez/Documents/Projects/honcaml/docs/build/html/.doctrees/honcaml.doctree,0
+
+/home/joan.erraez/Documents/Projects/honcaml/docs/build/html/reference.html,1427
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"documentation_options12,448
   <section id="reference">reference37,1365
 <h1>Reference<a class="headerlink" href="#reference" title="Permalink to this heading">¶</a></hReference¶38,1392
 <section id="steps">steps39,1491
 <h2>Steps<a class="headerlink" href="#steps" title="Permalink to this heading">¶</a></h2>Steps¶40,1512
 <dt class="sig sig-object py" id="honcaml.steps.base.BaseStep">honcaml.steps.base.BaseStep43,1706
-<h1 class="logo"><a href="index.html">HONCAML</a></h1>HONCAML66,3502
-<h3>Navigation</h3>Navigation75,3565
-<h3>Related Topics</h3>Related Topics88,4106
-<div id="searchbox" style="display: none" role="search">searchbox95,4300
-  <h3 id="searchlabel">Quick search</h3>searchlabel96,4357
-  <h3 id="searchlabel">Quick search</h3>Quick search96,4357
-
-/home/joan.erraez/Documents/Projects/honcaml/docs/build/html/searchindex.js,0
-
-/home/joan.erraez/Documents/Projects/honcaml/docs/build/html/usage.html,794
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"documentation_options12,444
-  <section id="usage">usage37,1393
-<h1>Usage<a class="headerlink" href="#usage" title="Permalink to this heading">¶</a></h1>Usage¶38,1416
-<section id="installation">installation39,1507
-<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this heading">¶<Installation¶40,1535
-<h1 class="logo"><a href="index.html">HONCAML</a></h1>HONCAML55,2091
-<h3>Navigation</h3>Navigation64,2154
-<h3>Related Topics</h3>Related Topics73,2426
-<div id="searchbox" style="display: none" role="search">searchbox80,2652
-  <h3 id="searchlabel">Quick search</h3>searchlabel81,2709
-  <h3 id="searchlabel">Quick search</h3>Quick search81,2709
-
-/home/joan.erraez/Documents/Projects/honcaml/docs/build/html/genindex.html,617
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"documentation_options11,358
-<h1 id="index">Index</h1>index36,1208
-<h1 id="index">Index</h1>Index36,1208
-<h2 id="B">B</h2>B42,1312
-<h2 id="B">B</h2>B42,1312
-<h1 class="logo"><a href="index.html">HONCAML</a></h1>HONCAML58,1767
-<h3>Navigation</h3>Navigation67,1830
-<h3>Related Topics</h3>Related Topics74,2064
-<div id="searchbox" style="display: none" role="search">searchbox80,2177
-  <h3 id="searchlabel">Quick search</h3>searchlabel81,2234
-  <h3 id="searchlabel">Quick search</h3>Quick search81,2234
-
-/home/joan.erraez/Documents/Projects/honcaml/docs/build/html/.doctrees/index.doctree,0
-
-/home/joan.erraez/Documents/Projects/honcaml/docs/build/html/.doctrees/usage.doctree,0
-
-/home/joan.erraez/Documents/Projects/honcaml/docs/build/html/.doctrees/modules.doctree,0
-
-/home/joan.erraez/Documents/Projects/honcaml/docs/build/html/.doctrees/environment.pickle,0
+<dt class="sig sig-object py" id="honcaml.steps.base.BaseStep._step_settings">honcaml.steps.base.BaseStep._step_settings48,2974
+<dt class="sig sig-object py" id="honcaml.steps.base.BaseStep._extract_settings">honcaml.steps.base.BaseStep._extract_settings59,3446
+<dt class="sig sig-object py" id="honcaml.steps.base.BaseStep._transform_settings">honcaml.steps.base.BaseStep._transform_settings71,3939
+<dt class="sig sig-object py" id="honcaml.steps.base.BaseStep._load_settings">honcaml.steps.base.BaseStep._load_settings83,4440
+<h1 class="logo"><a href="index.html">HONCAML</a></h1>HONCAML105,5111
+<h3>Navigation</h3>Navigation114,5174
+<h3>Related Topics</h3>Related Topics124,5522
+<div id="searchbox" style="display: none" role="search">searchbox131,5716
+  <h3 id="searchlabel">Quick search</h3>searchlabel132,5773
+  <h3 id="searchlabel">Quick search</h3>Quick search132,5773
 
 /home/joan.erraez/Documents/Projects/honcaml/docs/build/html/objects.inv,0
+
+/home/joan.erraez/Documents/Projects/honcaml/docs/build/html/honcaml.models.html,6438
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"documentation_options12,461
+  <section id="honcaml-models-package">honcaml-models-package36,1322
+<h1>honcaml.models package<a class="headerlink" href="#honcaml-models-package" title="Permalink honcaml.models package¶37,1362
+<section id="submodules">submodules38,1487
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">¶</a><Submodules¶39,1513
+<section id="module-honcaml.models.base">module-honcaml.models.base41,1625
+<span id="honcaml-models-base-module"></span><h2>honcaml.models.base module<a class="headerlink"honcaml-models-base-module42,1667
+<span id="honcaml-models-base-module"></span><h2>honcaml.models.base module<a class="headerlink"honcaml.models.base module¶42,1667
+<dt class="sig sig-object py" id="honcaml.models.base.BaseModel">honcaml.models.base.BaseModel44,1867
+<dt class="sig sig-object py" id="honcaml.models.base.BaseModel._estimator_type">honcaml.models.base.BaseModel._estimator_type49,2729
+<dt class="sig sig-object py" id="honcaml.models.base.BaseModel._estimator">honcaml.models.base.BaseModel._estimator61,3275
+<dt class="sig sig-object py" id="honcaml.models.base.BaseModel.build_model">honcaml.models.base.BaseModel.build_model72,3745
+<dt class="sig sig-object py" id="honcaml.models.base.BaseModel.evaluate">honcaml.models.base.BaseModel.evaluate89,5282
+<dt class="sig sig-object py" id="honcaml.models.base.BaseModel.fit">honcaml.models.base.BaseModel.fit111,11927
+<dt class="sig sig-object py" id="honcaml.models.base.BaseModel.predict">honcaml.models.base.BaseModel.predict127,18354
+<dt class="sig sig-object py" id="honcaml.models.base.BaseModel.read">honcaml.models.base.BaseModel.read148,22392
+<dt class="sig sig-object py" id="honcaml.models.base.BaseModel.save">honcaml.models.base.BaseModel.save161,23484
+<dt class="sig sig-object py" id="honcaml.models.base.EstimatorType">honcaml.models.base.EstimatorType176,24588
+<dt class="sig sig-object py" id="honcaml.models.base.EstimatorType.classifier">honcaml.models.base.EstimatorType.classifier184,25285
+<dt class="sig sig-object py" id="honcaml.models.base.EstimatorType.regressor">honcaml.models.base.EstimatorType.regressor189,25766
+<dt class="sig sig-object py" id="honcaml.models.base.ModelType">honcaml.models.base.ModelType196,26251
+<dt class="sig sig-object py" id="honcaml.models.base.ModelType.sklearn">honcaml.models.base.ModelType.sklearn203,26917
+<section id="module-honcaml.models.general">module-honcaml.models.general210,27375
+<span id="honcaml-models-general-module"></span><h2>honcaml.models.general module<a class="headehoncaml-models-general-module211,27420
+<span id="honcaml-models-general-module"></span><h2>honcaml.models.general module<a class="headehoncaml.models.general module¶211,27420
+<dt class="sig sig-object py" id="honcaml.models.general.aggregate_cv_results">honcaml.models.general.aggregate_cv_results213,27632
+<dt class="sig sig-object py" id="honcaml.models.general.compute_classification_metrics">honcaml.models.general.compute_classification_metrics232,29192
+<dt class="sig sig-object py" id="honcaml.models.general.compute_regression_metrics">honcaml.models.general.compute_regression_metrics253,31363
+<section id="module-honcaml.models.sklearn_model">module-honcaml.models.sklearn_model274,33533
+<span id="honcaml-models-sklearn-model-module"></span><h2>honcaml.models.sklearn_model module<a honcaml-models-sklearn-model-module275,33584
+<span id="honcaml-models-sklearn-model-module"></span><h2>honcaml.models.sklearn_model module<a honcaml.models.sklearn_model module¶275,33584
+<dt class="sig sig-object py" id="honcaml.models.sklearn_model.SklearnModel">honcaml.models.sklearn_model.SklearnModel277,33811
+<dt class="sig sig-object py" id="honcaml.models.sklearn_model.SklearnModel.build_model">honcaml.models.sklearn_model.SklearnModel.build_model282,34832
+<dt class="sig sig-object py" id="honcaml.models.sklearn_model.SklearnModel.estimator">honcaml.models.sklearn_model.SklearnModel.estimator299,36328
+<dt class="sig sig-object py" id="honcaml.models.sklearn_model.SklearnModel.estimator_type">honcaml.models.sklearn_model.SklearnModel.estimator_type314,37043
+<dt class="sig sig-object py" id="honcaml.models.sklearn_model.SklearnModel.evaluate">honcaml.models.sklearn_model.SklearnModel.evaluate329,37898
+<dt class="sig sig-object py" id="honcaml.models.sklearn_model.SklearnModel.fit">honcaml.models.sklearn_model.SklearnModel.fit350,44307
+<dt class="sig sig-object py" id="honcaml.models.sklearn_model.SklearnModel.predict">honcaml.models.sklearn_model.SklearnModel.predict365,50498
+<dt class="sig sig-object py" id="honcaml.models.sklearn_model.SklearnModel.read">honcaml.models.sklearn_model.SklearnModel.read385,54300
+<dt class="sig sig-object py" id="honcaml.models.sklearn_model.SklearnModel.save">honcaml.models.sklearn_model.SklearnModel.save397,55281
+<section id="module-honcaml.models.trainable">module-honcaml.models.trainable411,56263
+<span id="honcaml-models-trainable-module"></span><h2>honcaml.models.trainable module<a class="hhoncaml-models-trainable-module412,56310
+<span id="honcaml-models-trainable-module"></span><h2>honcaml.models.trainable module<a class="hhoncaml.models.trainable module¶412,56310
+<dt class="sig sig-object py" id="honcaml.models.trainable.Trainable">honcaml.models.trainable.Trainable414,56525
+<dt class="sig sig-object py" id="honcaml.models.trainable.Trainable.setup">honcaml.models.trainable.Trainable.setup418,59721
+<dt class="sig sig-object py" id="honcaml.models.trainable.Trainable.step">honcaml.models.trainable.Trainable.step433,60556
+<section id="module-honcaml.models">module-honcaml.models454,61548
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-honcamlmodule-contents455,61585
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-honcamlModule contents¶455,61585
+<h1 class="logo"><a href="index.html">HONCAML</a></h1>HONCAML466,61940
+<h3>Navigation</h3>Navigation475,62003
+<h3>Related Topics</h3>Related Topics482,62239
+<div id="searchbox" style="display: none" role="search">searchbox488,62352
+  <h3 id="searchlabel">Quick search</h3>searchlabel489,62409
+  <h3 id="searchlabel">Quick search</h3>Quick search489,62409
 
 /home/joan.erraez/Documents/Projects/honcaml/docs/build/html/index.html,869
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"documentation_options12,476
@@ -6962,12 +7338,101 @@ var Stemmer = function() {Stemmer21,657
 <h1>Welcome to HONCAML’s documentation!<a class="headerlink" href="#welcome-to-honcaml-s-documWelcome to HONCAML’s documentation!¶38,1445
 <section id="contents">contents41,1643
 <h2>Contents<a class="headerlink" href="#contents" title="Permalink to this heading">¶</a></h2>Contents¶42,1667
-<h1 class="logo"><a href="#">HONCAML</a></h1>HONCAML68,2630
-<h3>Navigation</h3>Navigation77,2684
-<h3>Related Topics</h3>Related Topics84,2918
-<div id="searchbox" style="display: none" role="search">searchbox91,3095
-  <h3 id="searchlabel">Quick search</h3>searchlabel92,3152
-  <h3 id="searchlabel">Quick search</h3>Quick search92,3152
+<h1 class="logo"><a href="#">HONCAML</a></h1>HONCAML65,2429
+<h3>Navigation</h3>Navigation74,2483
+<h3>Related Topics</h3>Related Topics81,2719
+<div id="searchbox" style="display: none" role="search">searchbox88,2896
+  <h3 id="searchlabel">Quick search</h3>searchlabel89,2953
+  <h3 id="searchlabel">Quick search</h3>Quick search89,2953
+
+/home/joan.erraez/Documents/Projects/honcaml/docs/build/html/honcaml.exceptions.html,3729
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"documentation_options12,465
+  <section id="honcaml-exceptions-package">honcaml-exceptions-package36,1326
+<h1>honcaml.exceptions package<a class="headerlink" href="#honcaml-exceptions-package" title="Pehoncaml.exceptions package¶37,1370
+<section id="submodules">submodules38,1503
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">¶</a><Submodules¶39,1529
+<section id="module-honcaml.exceptions.data">module-honcaml.exceptions.data41,1641
+<span id="honcaml-exceptions-data-module"></span><h2>honcaml.exceptions.data module<a class="heahoncaml-exceptions-data-module42,1687
+<span id="honcaml-exceptions-data-module"></span><h2>honcaml.exceptions.data module<a class="heahoncaml.exceptions.data module¶42,1687
+<dt class="sig sig-object py" id="honcaml.exceptions.data.CVStrategyDoesNotExist">honcaml.exceptions.data.CVStrategyDoesNotExist44,1903
+<dt class="sig sig-object py" id="honcaml.exceptions.data.ColumnDoesNotExists">honcaml.exceptions.data.ColumnDoesNotExists50,2807
+<dt class="sig sig-object py" id="honcaml.exceptions.data.FileExtensionException">honcaml.exceptions.data.FileExtensionException56,3700
+<section id="module-honcaml.exceptions.model">module-honcaml.exceptions.model62,4590
+<span id="honcaml-exceptions-model-module"></span><h2>honcaml.exceptions.model module<a class="hhoncaml-exceptions-model-module63,4637
+<span id="honcaml-exceptions-model-module"></span><h2>honcaml.exceptions.model module<a class="hhoncaml.exceptions.model module¶63,4637
+<dt class="sig sig-object py" id="honcaml.exceptions.model.EstimatorTypeNotAllowed">honcaml.exceptions.model.EstimatorTypeNotAllowed65,4856
+<dt class="sig sig-object py" id="honcaml.exceptions.model.ModelDoesNotExists">honcaml.exceptions.model.ModelDoesNotExists71,5648
+<section id="module-honcaml.exceptions.pipeline">module-honcaml.exceptions.pipeline77,6406
+<span id="honcaml-exceptions-pipeline-module"></span><h2>honcaml.exceptions.pipeline module<a clhoncaml-exceptions-pipeline-module78,6456
+<span id="honcaml-exceptions-pipeline-module"></span><h2>honcaml.exceptions.pipeline module<a clhoncaml.exceptions.pipeline module¶78,6456
+<dt class="sig sig-object py" id="honcaml.exceptions.pipeline.PipelineDoesNotExist">honcaml.exceptions.pipeline.PipelineDoesNotExist80,6684
+<section id="module-honcaml.exceptions.step">module-honcaml.exceptions.step86,7584
+<span id="honcaml-exceptions-step-module"></span><h2>honcaml.exceptions.step module<a class="heahoncaml-exceptions-step-module87,7630
+<span id="honcaml-exceptions-step-module"></span><h2>honcaml.exceptions.step module<a class="heahoncaml.exceptions.step module¶87,7630
+<dt class="sig sig-object py" id="honcaml.exceptions.step.StepDoesNotExists">honcaml.exceptions.step.StepDoesNotExists89,7846
+<dt class="sig sig-object py" id="honcaml.exceptions.step.StepValidationError">honcaml.exceptions.step.StepValidationError95,8612
+<section id="module-honcaml.exceptions">module-honcaml.exceptions101,9366
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-honcamlmodule-contents102,9407
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-honcamlModule contents¶102,9407
+<h1 class="logo"><a href="index.html">HONCAML</a></h1>HONCAML113,9766
+<h3>Navigation</h3>Navigation122,9829
+<h3>Related Topics</h3>Related Topics129,10065
+<div id="searchbox" style="display: none" role="search">searchbox135,10178
+  <h3 id="searchlabel">Quick search</h3>searchlabel136,10235
+  <h3 id="searchlabel">Quick search</h3>Quick search136,10235
+
+/home/joan.erraez/Documents/Projects/honcaml/docs/build/html/honcaml.tools.html,5809
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"documentation_options12,460
+  <section id="honcaml-tools-package">honcaml-tools-package36,1321
+<h1>honcaml.tools package<a class="headerlink" href="#honcaml-tools-package" title="Permalink tohoncaml.tools package¶37,1360
+<section id="submodules">submodules38,1483
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">¶</a><Submodules¶39,1509
+<section id="module-honcaml.tools.custom_typing">module-honcaml.tools.custom_typing41,1621
+<span id="honcaml-tools-custom-typing-module"></span><h2>honcaml.tools.custom_typing module<a clhoncaml-tools-custom-typing-module42,1671
+<span id="honcaml-tools-custom-typing-module"></span><h2>honcaml.tools.custom_typing module<a clhoncaml.tools.custom_typing module¶42,1671
+<dt class="sig sig-object py" id="honcaml.tools.custom_typing.SklearnCrossValidation">honcaml.tools.custom_typing.SklearnCrossValidation44,1895
+<dt class="sig sig-object py" id="honcaml.tools.custom_typing.SklearnCrossValidation.split">honcaml.tools.custom_typing.SklearnCrossValidation.split48,2845
+<section id="module-honcaml.tools.execution">module-honcaml.tools.execution55,8727
+<span id="honcaml-tools-execution-module"></span><h2>honcaml.tools.execution module<a class="heahoncaml-tools-execution-module56,8773
+<span id="honcaml-tools-execution-module"></span><h2>honcaml.tools.execution module<a class="heahoncaml.tools.execution module¶56,8773
+<dt class="sig sig-object py" id="honcaml.tools.execution.Execution">honcaml.tools.execution.Execution58,8985
+<dt class="sig sig-object py" id="honcaml.tools.execution.Execution._pipeline_name">honcaml.tools.execution.Execution._pipeline_name65,9994
+<dt class="sig sig-object py" id="honcaml.tools.execution.Execution._execution_id">honcaml.tools.execution.Execution._execution_id76,10467
+<dt class="sig sig-object py" id="honcaml.tools.execution.Execution._pipeline">honcaml.tools.execution.Execution._pipeline87,10933
+<dt class="sig sig-object py" id="honcaml.tools.execution.Execution.run">honcaml.tools.execution.Execution.run98,11516
+<section id="module-honcaml.tools.pipeline">module-honcaml.tools.pipeline107,12115
+<span id="honcaml-tools-pipeline-module"></span><h2>honcaml.tools.pipeline module<a class="headehoncaml-tools-pipeline-module108,12160
+<span id="honcaml-tools-pipeline-module"></span><h2>honcaml.tools.pipeline module<a class="headehoncaml.tools.pipeline module¶108,12160
+<dt class="sig sig-object py" id="honcaml.tools.pipeline.Pipeline">honcaml.tools.pipeline.Pipeline110,12369
+<dt class="sig sig-object py" id="honcaml.tools.pipeline.Pipeline._steps">honcaml.tools.pipeline.Pipeline._steps116,13571
+<dt class="sig sig-object py" id="honcaml.tools.pipeline.Pipeline._metadata">honcaml.tools.pipeline.Pipeline._metadata127,14037
+<dt class="sig sig-object py" id="honcaml.tools.pipeline.Pipeline._pipeline_content">honcaml.tools.pipeline.Pipeline._pipeline_content138,14502
+<dt class="sig sig-object py" id="honcaml.tools.pipeline.Pipeline._execution_id">honcaml.tools.pipeline.Pipeline._execution_id149,14998
+<dt class="sig sig-object py" id="honcaml.tools.pipeline.Pipeline.run">honcaml.tools.pipeline.Pipeline.run160,15462
+<section id="module-honcaml.tools.startup">module-honcaml.tools.startup168,15884
+<span id="honcaml-tools-startup-module"></span><h2>honcaml.tools.startup module<a class="headerlhoncaml-tools-startup-module169,15928
+<span id="honcaml-tools-startup-module"></span><h2>honcaml.tools.startup module<a class="headerlhoncaml.tools.startup module¶169,15928
+<section id="module-honcaml.tools.utils">module-honcaml.tools.utils171,16123
+<span id="honcaml-tools-utils-module"></span><h2>honcaml.tools.utils module<a class="headerlink"honcaml-tools-utils-module172,16165
+<span id="honcaml-tools-utils-module"></span><h2>honcaml.tools.utils module<a class="headerlink"honcaml.tools.utils module¶172,16165
+<dt class="sig sig-object py" id="honcaml.tools.utils.FileExtension">honcaml.tools.utils.FileExtension174,16365
+<dt class="sig sig-object py" id="honcaml.tools.utils.FileExtension.csv">honcaml.tools.utils.FileExtension.csv179,17009
+<dt class="sig sig-object py" id="honcaml.tools.utils.FileExtension.excel">honcaml.tools.utils.FileExtension.excel184,17463
+<dt class="sig sig-object py" id="honcaml.tools.utils.build_validator">honcaml.tools.utils.build_validator191,17970
+<dt class="sig sig-object py" id="honcaml.tools.utils.build_validator_schema">honcaml.tools.utils.build_validator_schema213,19390
+<dt class="sig sig-object py" id="honcaml.tools.utils.ensure_input_list">honcaml.tools.utils.ensure_input_list230,20693
+<dt class="sig sig-object py" id="honcaml.tools.utils.generate_unique_id">honcaml.tools.utils.generate_unique_id247,21884
+<dt class="sig sig-object py" id="honcaml.tools.utils.import_library">honcaml.tools.utils.import_library266,24526
+<dt class="sig sig-object py" id="honcaml.tools.utils.update_dict_from_default_dict">honcaml.tools.utils.update_dict_from_default_dict285,26426
+<section id="module-honcaml.tools">module-honcaml.tools307,28185
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-honcamlmodule-contents308,28221
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-honcamlModule contents¶308,28221
+<h1 class="logo"><a href="index.html">HONCAML</a></h1>HONCAML319,28575
+<h3>Navigation</h3>Navigation328,28638
+<h3>Related Topics</h3>Related Topics335,28874
+<div id="searchbox" style="display: none" role="search">searchbox341,28987
+  <h3 id="searchlabel">Quick search</h3>searchlabel342,29044
+  <h3 id="searchlabel">Quick search</h3>Quick search342,29044
 
 /home/joan.erraez/Documents/Projects/honcaml/docs/build/html/.buildinfo,0
 
@@ -6994,11 +7459,65 @@ set BUILDDIR=buildBUILDDIR11,157
 
 /home/joan.erraez/Documents/Projects/honcaml/data/interim/.gitkeep,0
 
+/home/joan.erraez/Documents/Projects/honcaml/data/logs/20220929_132453.log,0
+
+/home/joan.erraez/Documents/Projects/honcaml/data/logs/20220929_132323.log,0
+
 /home/joan.erraez/Documents/Projects/honcaml/data/logs/20220928_192834.log,0
+
+/home/joan.erraez/Documents/Projects/honcaml/data/logs/20220929_131616.log,0
+
+/home/joan.erraez/Documents/Projects/honcaml/data/logs/20220929_124400.log,0
+
+/home/joan.erraez/Documents/Projects/honcaml/data/logs/20220929_131524.log,0
+
+/home/joan.erraez/Documents/Projects/honcaml/data/logs/20220929_114153.log,0
+
+/home/joan.erraez/Documents/Projects/honcaml/data/logs/20220929_124529.log,0
+
+/home/joan.erraez/Documents/Projects/honcaml/data/logs/20220929_123054.log,0
 
 /home/joan.erraez/Documents/Projects/honcaml/data/logs/20220928_192920.log,0
 
+/home/joan.erraez/Documents/Projects/honcaml/data/logs/20220929_124654.log,0
+
+/home/joan.erraez/Documents/Projects/honcaml/data/logs/20220929_130124.log,0
+
+/home/joan.erraez/Documents/Projects/honcaml/data/logs/20220929_114525.log,0
+
+/home/joan.erraez/Documents/Projects/honcaml/data/logs/20220929_114555.log,0
+
+/home/joan.erraez/Documents/Projects/honcaml/data/logs/20220929_110715.log,0
+
+/home/joan.erraez/Documents/Projects/honcaml/data/logs/20220929_114033.log,0
+
+/home/joan.erraez/Documents/Projects/honcaml/data/logs/20220929_132719.log,0
+
+/home/joan.erraez/Documents/Projects/honcaml/data/logs/20220929_130610.log,0
+
+/home/joan.erraez/Documents/Projects/honcaml/data/logs/20220929_131501.log,0
+
+/home/joan.erraez/Documents/Projects/honcaml/data/logs/20220929_113947.log,0
+
+/home/joan.erraez/Documents/Projects/honcaml/data/logs/20220929_114242.log,0
+
+/home/joan.erraez/Documents/Projects/honcaml/data/logs/20220929_121528.log,0
+
+/home/joan.erraez/Documents/Projects/honcaml/data/logs/20220929_123917.log,0
+
 /home/joan.erraez/Documents/Projects/honcaml/data/logs/.gitkeep,0
+
+/home/joan.erraez/Documents/Projects/honcaml/data/logs/20220929_114545.log,0
+
+/home/joan.erraez/Documents/Projects/honcaml/data/logs/20220929_124622.log,0
+
+/home/joan.erraez/Documents/Projects/honcaml/data/logs/20220929_111233.log,0
+
+/home/joan.erraez/Documents/Projects/honcaml/data/logs/20220929_123027.log,0
+
+/home/joan.erraez/Documents/Projects/honcaml/data/logs/20220929_131339.log,0
+
+/home/joan.erraez/Documents/Projects/honcaml/data/logs/20220929_111254.log,0
 
 /home/joan.erraez/Documents/Projects/honcaml/AUTHORS.md,100
 CreditsCredits1,0
