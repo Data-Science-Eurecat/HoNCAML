@@ -1,14 +1,7 @@
-<<<<<<<< HEAD:honcaml/models/evaluate.py
-========
 from typing import Dict, List
 from honcaml.tools import custom_typing as ct
 import sklearn.metrics as sk_metrics
->>>>>>>> 9bcf8e0 (First version of documentation working):honcaml/models/general.py
 import pandas as pd
-import sklearn.metrics as sk_metrics
-from typing import Dict, List
-
-from src.tools import custom_typing as ct
 
 
 def aggregate_cv_results(cv_results: List[Dict]) -> Dict:

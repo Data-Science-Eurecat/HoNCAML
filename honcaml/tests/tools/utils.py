@@ -73,8 +73,11 @@ class UtilsTest(unittest.TestCase):
         adding_uuid = True
         unique_id = utils.generate_unique_id(
             estimator_module, estimator_type, adding_uuid)
-        self.assertRegex(
-            unique_id, r'^module.type.\d{4}\d{2}\d{2}-\d{2}\d{2}\d{2}_[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$')
+        regex_1 = r'module.type.\d{4}\d{2}\d{2}-\d{2}\d{2}\d{2}_'
+        regex_2 = r'[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-'
+        regex_3 = r'[089ab][0-9a-f]{3}-[0-9a-f]{12}'
+        regex = r'^' + regex_1 + regex_2 + regex_3 + r'$'
+        self.assertRegex(unique_id, regex)
 
     # Test update_dict_from_default_dict method
     def test_update_dict_from_default_dict(self):

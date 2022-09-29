@@ -18,8 +18,8 @@ class SklearnModel(base.BaseModel):
         The class constructor which initializes the base class.
 
         Args:
-            estimator_type (str): the kind of estimator to be used. Valid values
-                are `regressor` and `classifier`.
+            estimator_type (str): the kind of estimator to be used. Valid
+                values are `regressor` and `classifier`.
         """
         super().__init__(estimator_type)
         self._estimator = None
@@ -67,7 +67,7 @@ class SklearnModel(base.BaseModel):
         Read an estimator from disk.
 
         Args:
-            settings (Dict): the parameter settings defining the read 
+            settings (Dict): the parameter settings defining the read
                 operation.
         """
         self._estimator = extract.read_model(settings)

@@ -86,20 +86,21 @@ class DataTest(unittest.TestCase):
                              user_settings,
                              params['step_rules']['data'])
         step_settings = step.step_settings
-        default_transform = params['pipeline_steps']['data']['transform']
         user_transform = user_settings['transform']
         self.assertEqual(
             user_transform['normalize']['features']['module'],
             step_settings[self.transform]['normalize']['features']['module'])
 
         self.assertDictEqual(
-            step_settings[self.transform]['normalize']['features']['module_params'],
+            step_settings[self.transform]['normalize']['features'][
+                'module_params'],
             user_transform['normalize']['features']['module_params'],
         )
 
         self.assertDictEqual(
             user_transform['normalize']['target']['module_params'],
-            step_settings[self.transform]['normalize']['target']['module_params'])
+            step_settings[self.transform]['normalize']['target'][
+                'module_params'])
 
         self.assertListEqual(
             user_transform['normalize']['target']['columns'],
@@ -131,27 +132,6 @@ class DataTest(unittest.TestCase):
             .drop(columns=step.extract_settings['target']).columns.to_list()
         self.assertListEqual(features, step.dataset.features)
         self.assertTrue(isinstance(step.dataset.dataframe, pd.DataFrame))
-
-    # Test _transform method
-    # def test_when_transform_contains_normalization_creates_new_instance(self):
-    #     empty_user_settings = {'transform': {
-    #         'normalize': {'features': {}, 'target': {}}}}
-    #     step = data.DataStep(params['pipeline_steps']['data'],
-    #                          empty_user_settings,
-    #                          params['step_rules']['data'])
-    #     step._transform(copy.deepcopy(step.transform_settings))
-    #     norm = step.dataset.normalization
-
-    #     self.assertTrue(step.dataset.normalization is not None)
-    #     self.assertEqual(
-    #         norm.features_normalizer,
-    #         step.transform_settings['normalize']['features'])
-    #     self.assertListEqual(
-    #         norm.target,
-    #         step.transform_settings['normalize']['target']['columns'])
-    #     target_normalizer = step.transform_settings['normalize']['target']
-    #     del target_normalizer['columns']
-    #     self.assertDictEqual(norm.target_normalizer, target_normalizer)
 
     def test_when_transform_not_contains_normalization_is_none(self):
         default_without_normalize_settings = {

@@ -1,11 +1,7 @@
 import pandas as pd
 import unittest
 
-<<<<<<<< HEAD:honcaml/tests/models/evaluate.py
-from src.models import evaluate
-========
-from honcaml.models import general
->>>>>>>> 9bcf8e0 (First version of documentation working):honcaml/tests/models/general.py
+from honcaml.models import evaluate
 
 
 class EvaluateTest(unittest.TestCase):

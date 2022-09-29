@@ -1,5 +1,4 @@
 import unittest
-from unittest.mock import patch
 import tempfile
 import shutil
 import os
@@ -7,7 +6,6 @@ import yaml
 
 from honcaml.tools.startup import params
 from honcaml.tools import execution
-from honcaml.tools import utils
 from honcaml.tests import utils as test_utils
 from honcaml.exceptions import pipeline as pipeline_exception
 
