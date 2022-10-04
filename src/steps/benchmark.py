@@ -30,7 +30,7 @@ class BenchmarkStep(base.BaseStep):
 
         # TODO: instance the Tuner class with the requested parameters
         self._tuner = None  # tune.Tuner (de ray)
-        self._trainables = []  # models.Trainable: one for each model to be tuned
+        # Caldria un tuner per model
 
     def _extract(self, settings: Dict) -> None:
         """

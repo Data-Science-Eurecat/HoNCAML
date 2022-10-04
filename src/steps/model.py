@@ -62,20 +62,6 @@ class ModelStep(base.BaseStep):
         """
         return self._model
 
-    def _initialize_model(self, model_type: str, estimator_type: str) -> None:
-        """
-        Initialize the specific type of model.
-
-        Args:
-            model_type (str): the kind of model to initialize.
-            estimator_type (str): the kind of estimator to be used. Valid
-                values are `regressor` and `classifier`.
-        """
-        if model_type == base_model.ModelType.sklearn:
-            self._model = sklearn_model.SklearnModel(estimator_type)
-        else:
-            raise model_exceptions.ModelDoesNotExists(model_type)
-
     def _extract(self, settings: Dict) -> None:
         """
         The extract process from the model step ETL.
@@ -83,7 +69,7 @@ class ModelStep(base.BaseStep):
         Args:
             settings (Dict): the settings defining the extract ETL process.
         """
-        self._initialize_model(
+        self._model = general.initialize_model(
             settings['filepath'].split('/')[-1].split('.')[0],
             settings['filepath'].split('/')[-1].split('.')[1],)
         self._model.read(settings)
@@ -97,7 +83,8 @@ class ModelStep(base.BaseStep):
         """
         if self._model is None:
             model_type = self._estimator_config['module'].split('.')[0]
-            self._initialize_model(model_type, self._estimator_type)
+            self._model = general.initialize_model(
+                model_type, self._estimator_type)
             # TODO: Refactor the normalizations
             self._model.build_model(
                 self._estimator_config, {})  # self._dataset.normalizations)
@@ -127,17 +114,10 @@ class ModelStep(base.BaseStep):
         if settings.get('cross_validation', None) is not None:
             # Run the cross-validation
             cv_split = transform.CrossValidationSplit(
-                settings['cross_validation'].pop('strategy'))
-
-            results = []
-            for split, x_train, x_test, y_train, y_test in \
-                    cv_split.split(x, y, **settings.pop('cross_validation')):
-                self._model.fit(x_train, y_train, **settings)
-
-                results.append(self._model.evaluate(
-                    x_test, y_test, **settings))
-            # Group cv metrics
-            self._cv_results = general.aggregate_cv_results(results)
+                settings['cross_validation'].pop('strategy'),
+                **settings.pop('cross_validation'))
+            self._cv_results = general.cross_validate_model(
+                self._model, x, y, cv_split, **settings, **settings)
             logger.info(self._cv_results)
         # Train the model with whole data
         self._model.fit(x, y, **settings)

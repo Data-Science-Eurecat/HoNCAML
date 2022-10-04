@@ -77,7 +77,7 @@ class CrossValidationSplit:
         _strategy (str): cross-validation strategy name.
     """
 
-    def __init__(self, strategy: str) -> None:
+    def __init__(self, strategy: str, **kwargs) -> None:
         """
         Constructor method. This function receives a cross-validation strategy
         to apply to a dataset.
@@ -91,6 +91,7 @@ class CrossValidationSplit:
                 - leave_one_out
         """
         self._strategy: str = strategy
+        self._kwargs = kwargs
 
     @property
     def strategy(self) -> str:
@@ -103,8 +104,7 @@ class CrossValidationSplit:
         """
         return self._strategy
 
-    def _create_cross_validation_instance(
-            self, **kwargs) -> ct.SklearnCrossValidation:
+    def _create_cross_validation_instance(self) -> ct.SklearnCrossValidation:
         """
         This function creates a new instance of one of the cross-validation
         strategies implemented in sklearn.model_selection. In addition, with
@@ -120,11 +120,11 @@ class CrossValidationSplit:
             sklearn module.
         """
         if self._strategy == _CVStrategy.k_fold:
-            cv_object = model_selection.KFold(**kwargs)
+            cv_object = model_selection.KFold(**self._kwargs)
         elif self._strategy == _CVStrategy.repeated_k_fold:
-            cv_object = model_selection.RepeatedKFold(**kwargs)
+            cv_object = model_selection.RepeatedKFold(**self._kwargs)
         elif self._strategy == _CVStrategy.shuffle_split:
-            cv_object = model_selection.ShuffleSplit(**kwargs)
+            cv_object = model_selection.ShuffleSplit(**self._kwargs)
         elif self._strategy == _CVStrategy.leave_one_out:
             cv_object = model_selection.LeaveOneOut()
         # Adding more strategies here
@@ -134,8 +134,7 @@ class CrossValidationSplit:
         return cv_object
 
     def split(
-            self, x: ct.Dataset, y: ct.Dataset = None, **kwargs) \
-            -> ct.CVGenerator:
+            self, x: ct.Dataset, y: ct.Dataset = None) -> ct.CVGenerator:
         """
         Given a dataset (pd.DataFrame, pd.Series or np.ndarray) this function
         executes a split method from sklearn cross-validation strategies. In
@@ -151,7 +150,7 @@ class CrossValidationSplit:
         Returns:
             (ct.CVGenerator): the split number, train set and test set.
         """
-        cv_object = self._create_cross_validation_instance(**kwargs)
+        cv_object = self._create_cross_validation_instance()
 
         for split, (train_index, test_index) in \
                 enumerate(cv_object.split(x, y), start=1):
