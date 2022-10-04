@@ -13,15 +13,15 @@ class TabularDataset(base.BaseDataset):
     encoding the data as tables.
 
     Attributes:
-        _features (ct.StrList):
-        _target (ct.StrList): the dataset target column.
-        _dataset (pd.DataFrame): the dataframe read from the tabular file data.
+        _features (ct.StrList): Features to be used in dataset.
+        _target (ct.StrList): Dataset target column.
+        _dataset (pd.DataFrame): Dataset in tabular format.
     """
 
     def __init__(self) -> None:
         """
-        This is a constructor method of class. This function initializes
-        the parameters for this specific dataset.
+        Constructor method of class. It initialises the parameters for this
+        specific dataset.
         """
         super().__init__()
 
@@ -33,54 +33,50 @@ class TabularDataset(base.BaseDataset):
     @property
     def features(self) -> ct.StrList:
         """
-        This is a getter method. This function returns the '_features'
-        attribute.
+        Getter method for the '_features' attribute.
 
         Returns:
-            (List[str]): list of features columns.
+            '_features' attribute value.
         """
         return self._features
 
     @property
     def target(self) -> ct.StrList:
         """
-        This is a getter method. This function returns the '_target'
-        attribute.
+        Getter method for the '_target' attribute.
 
         Returns:
-            (List[str]): list of target columns
+            '_target' attribute value.
         """
         return self._target
 
     @property
     def dataframe(self) -> pd.DataFrame:
         """
-        This is a getter method. This function returns the '_dataset'
-        attribute.
+        Getter method for the '_dataset' attribute.
 
         Returns:
-            (pd.DataFrame): dataset as pd.DataFrame
+            '_dataset' attribute value.
         """
         return self._dataset
 
     @property
     def x(self) -> pd.DataFrame:
         """
-        This is a getter method. This function returns the x features
-        from dataset.
+        Getter method of features from a dataset.
 
         Returns:
-            (pd.Dataframe): pd.DataFrame with x features.
+            Array of x features.
         """
         return self._dataset[self._features]
 
     @property
     def y(self) -> ct.Array:
         """
-        This is a getter method. This function returns the target from dataset.
+        Getter method of target from dataset.
 
         Returns:
-            (ct.Array): numpy array with target.
+            Array of target.
         """
         y = self._dataset[self._target].values
         if len(self._target) == 1:
@@ -90,12 +86,11 @@ class TabularDataset(base.BaseDataset):
     @property
     def values(self) -> Tuple[ct.Array, ct.Array]:
         """
-        This is a getter method. This function returns the x and y values from
-        dataset as np.ndarray.
+        Getter method of features and target from dataset.
 
         Returns:
-            (Tuple[np.ndarray], Tuple[np.ndarray]): First array contains x
-            feature values. Second one contains targets.
+            - Array with features.
+            - Array with targets.
         """
         x = self._dataset[self._features].values
         y = self._dataset[self._target].values
@@ -105,22 +100,21 @@ class TabularDataset(base.BaseDataset):
     def _clean_dataset(
             self, dataset: pd.DataFrame) -> pd.DataFrame:
         """
-        Given a dataframe, this function runs a set of validations, and
-        selected the columns.
-        The validations are the following:
-            - features and target columns exists
+        Clean dataset with previous validation. The validations are the
+        following:
+            - features and target columns exists.
 
         Args:
-            dataset (pd.DataFrame): dataframe to clean.
+            dataset: Dataset to check.
 
         Returns:
-            (pd.DataFrame): cleaned dataframe.
+            Cleaned dataset.
         """
         if self._features:
             try:
                 dataset = dataset[self._features + self._target]
             except KeyError as e:
-                logger.warning(f'Dataset column features does not exists {e}')
+                logger.warning(f'Dataset column features does not exist {e}')
                 raise data_exception.ColumnDoesNotExists(f'{self._features}')
         else:
             try:
@@ -134,13 +128,13 @@ class TabularDataset(base.BaseDataset):
 
     def read(self, settings: Dict) -> None:
         """
-        ETL data extract. Firstly, it stores in a list the features and target.
-        Then it reads data from a file that encodes the data as tables
-        (e.g. excel, csv). Finally, it cleans dataframes columns and checks
-        if columns exists.
+        ETL data extract. It follows these steps:
+        - Store in a list the features and target.
+        - Read data from a file with tabular data (e.g. excel, csv).
+        - Clean dataset columns and checks if columns exists.
 
         Args:
-            settings (Dict): a dict that contains settings.
+            settings: Input settings for dataset.
         """
         self._features = settings.pop('features', [])
         self._target = settings.pop('target', [])

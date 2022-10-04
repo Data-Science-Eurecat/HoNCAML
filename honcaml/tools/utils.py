@@ -8,13 +8,12 @@ from typing import Dict, Callable
 
 def import_library(module: str, params: Dict = None) -> Callable:
     """
-    Given a module name and dict params, this function imports the module and
-    creates a new callable with specific parameters.
+    Imports the module specified and creates a new callable with specific
+    parameters.
 
     Args:
-        module (str): module name.
-        params (Dict): dict that contains the parameters for the specific
-            module initialization.
+        module: Module name.
+        params: Parameters for the specific module initialization.
 
     Returns:
         callable of imported module with parameters.
@@ -53,16 +52,15 @@ def generate_unique_id(
         estimator_module: str = None, estimator_type: str = None,
         adding_uuid: bool = False) -> str:
     """
-    This function generates a unique string id based on current timestamp and
-    uuid4.
+    Generates a unique string id based on current timestamp and uuid4.
 
     Args:
-        estimator_module (str): name of estimator that pipeline contains
-        estimator_type (str): type of estimator that pipeline contains
-        adding_uuid (optional, bool): adding uuid4 in generated id.
+        estimator_module: Name of estimator that pipeline contains.
+        estimator_type: Type of estimator that pipeline contains.
+        adding_uuid: Whether to add uuid4 in generated id.
 
     Returns:
-        a unique id string.
+        A unique id string.
     """
     unique_id = datetime.datetime.now().strftime('%Y%m%d-%H%M%S')
     if adding_uuid:
@@ -80,16 +78,15 @@ def generate_unique_id(
 def update_dict_from_default_dict(
         default_dict: Dict, source_dict: Dict) -> Dict:
     """
-    Given two dictionaries combine both dictionary values having source_dict
-    values prevailing over default ones. In addition, it throws a recursion
-    over the dictionary values.
+    Combines two configurations prevailing the second over the default one.
+    In addition, it throws a recursion over the dictionary values.
 
     Args:
-        default_dict (Dict): dictionary with the default values.
-        source_dict (Dict): dictionary to be updated.
+        default_dict: Default configuration.
+        source_dict: New configuration.
 
     Returns:
-        source_dict (Dict): a dict with merged values.
+        A configuration with merged values.
     """
     if source_dict is None:
         source_dict = {}
@@ -106,15 +103,13 @@ def update_dict_from_default_dict(
 
 def build_validator(rules: Dict) -> Validator:
     """
-    Builds a cerberus.Validator object by creating a rule schema based on the
-    rules given by parameter as a dictionary.
+    Builds a cerberus.Validator object by creating a rule schema.
 
     Args:
-        rules (Dict): the rules to validate the input with.
+        rules: Rules to validate the input with.
 
     Returns:
-        validator (Validator): the validator build with the schema defined by
-            the input rules.
+        The validator build with the schema defined by the input rules.
     """
     schema = {}
     for key, value in rules.items():
@@ -128,13 +123,13 @@ def build_validator(rules: Dict) -> Validator:
 
 def build_validator_schema(rules: Dict) -> Dict:
     """
-    Build the schema for the validator given the rules as a dictionary.
+    Builds the schema for the validator.
 
     Args:
-        rules (Dict): the rules to validate the input with.
+        rules: Rules to validate the input with.
 
     Returns:
-        schema (Dict): the schema built with the rules given.
+        The schema built with the rules given.
     """
     schema = {'type': 'dict'}
     for key, value in rules.items():
@@ -151,7 +146,7 @@ def build_validator_schema(rules: Dict) -> Dict:
 
 class FileExtension:
     """
-    This class contains the available files formats to read data.
+    Defines the available file formats to read data.
     """
     csv = '.csv'
     excel = ['.xlsx', '.xls']

@@ -14,8 +14,8 @@ def save_dataframe(dataset: pd.DataFrame, settings: Dict) -> None:
     Save the dataset and target columns to disk using the settings given.
 
     Args:
-        dataset (pd.DataFrame): the dataset.
-        settings (Dict): Params used for data processing.
+        dataset: Input dataset.
+        settings: Parameters used for data processing.
     """
     filepath = settings.pop('filepath')
     logger.info(f'Load file {filepath}')
@@ -34,8 +34,8 @@ def save_model(model: object, settings: Dict) -> None:
     Save a model into disk.
 
     Args:
-        model (object): the model object.
-        settings (Dict): parameters to save the model.
+        model: Input model.
+        settings: Parameters to save the model.
     """
     filepath = os.path.join(settings['path'], settings['filename'])
     joblib.dump(model, filepath)
@@ -46,8 +46,8 @@ def save_predictions(predictions: List, settings: Dict) -> None:
     Save the list of predictions to disk.
 
     Args:
-        predictions (List): list of predictions to be saved.
-        settings (Dict): parameters to save the predictions.
+        predictions: List of predictions to be saved.
+        settings: Parameters to save the predictions.
     """
     filename = utils.generate_unique_id('predictions')
     filepath = os.path.join(settings['path'], filename)

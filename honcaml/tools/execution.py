@@ -9,23 +9,22 @@ from honcaml.tools.startup import logger, params
 
 class Execution:
     """
-    The aim of this class is to execute ML pipelines. First, it reads the
-    pipeline content and creates a new Pipeline instance with pipeline file
-    content.
+    Class to execute ML pipelines. First, it reads the pipeline content and
+    creates a new Pipeline instance with pipeline file content.
 
     Attributes:
-        _pipeline_name (str): pipeline name to execute
-        _execution_id (str): execution identifier
-        _pipeline (pipeline.Pipeline): pipeline instance to run
+        _pipeline_name (str): Pipeline name to execute.
+        _execution_id (str): Execution identifier.
+        _pipeline (pipeline.Pipeline): Pipeline instance to run.
     """
 
     def __init__(self, pipeline_name: str) -> None:
         """
-        This is a constructor method of class. This function initializes
-        the params for running a pipeline.
+        Constructor method of class. It initializes the parameters for running
+        a pipeline.
 
         Args:
-            pipeline_name (str): pipeline name.
+            pipeline_name: Pipeline name.
         """
         self._pipeline_name = pipeline_name
         self._execution_id = utils.generate_unique_id()
@@ -39,10 +38,10 @@ class Execution:
 
     def _get_pipeline_path(self) -> None:
         """
-        This function generates pipeline file path concatenating the pipeline
-        folder and filename. In addition, at the end of the filename it adds
-        'yaml' extension. Finally, this function checks if the pipeline exists.
-        If it does not exist raise a PipelineDoesNotExist exception.
+        Generates pipeline file path concatenating the pipeline folder and
+        filename, assuming 'yaml' format'. Finally, this function checks if the
+        pipeline exists. If it does not exist it raises a PipelineDoesNotExist
+        exception.
         """
         filename = f'{self._pipeline_name}.yaml'
         self.pipeline_path = os.path.join(
@@ -54,27 +53,26 @@ class Execution:
 
     def _read_pipeline_file(self) -> Dict:
         """
-        This function reads a pipeline file as yaml file.
+        Reads a pipeline file as yaml file.
 
         Returns:
-            (Dict): pipeline content as dict
+            Pipeline content.
         """
         return extract.read_yaml(self.pipeline_path)
 
     def _parse_pipeline(self) -> Dict:
         """
-        This function is divided in two steps. First one gets the pipeline
-        full path. Second one gets the pipeline content.
+        Parses pipeline in two steps: first getting the path and then getting
+        the content.
 
         Returns:
-            (Dict): pipeline content as dict
+            Pipeline content.
         """
         self._get_pipeline_path()
         return self._read_pipeline_file()
 
     def run(self) -> None:
         """
-        This function parse the pipeline file and creates a new Pipeline
-        instance to run.
+        Parses the pipeline file and creates a new Pipeline instance to run.
         """
         self._pipeline.run()

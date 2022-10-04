@@ -9,24 +9,24 @@ from honcaml.steps import benchmark as benchmark_step
 
 class Pipeline:
     """
-    The pipeline class containing the steps defined by the user. Defines the
+    The pipeline class contains the steps defined by the user. It defines the
     pipeline to be executed and runs each of the steps defined.
 
     Attributes:
-        _steps (List[steps.Step]): the steps defining the pipeline.
-        _metadata (Dict): the objects output from each step.
-        _pipeline_content (Dict): the settings defining the pipeline steps.
-        _execution_id (str): the execution identifier.
+        _steps (List[steps.Step]): Steps defining the pipeline.
+        _metadata (Dict): Objects output from each step.
+        _pipeline_content (Dict): Settings defining the pipeline steps.
+        _execution_id (str): Execution identifier.
     """
 
     def __init__(self, pipeline_content: Dict, execution_id: str) -> None:
         """
-        This is a constructor method of class. This function initializes
-        the params and steps that define the pipeline.
+        Constructor method of class. It initializes the parameters and steps
+        that define the pipeline.
 
         Args:
-            pipeline_content (Dict): the settings defining the pipeline steps.
-            execution_id (str): the execution identifier.
+            pipeline_content: Settings defining the pipeline steps.
+            execution_id: Execution identifier.
         """
         self._pipeline_content = pipeline_content
         logger.info(f'Pipeline content {pipeline_content}')
@@ -40,8 +40,8 @@ class Pipeline:
 
     def _setup_pipeline(self):
         """
-        This function builds the pipeline structure. Using the user defined
-        pipeline_content, it creates all the required steps to be executed.
+        Builds the pipeline structure. Using the user defined pipeline_content,
+        it creates all the required steps to be executed.
         """
         self._validate_pipeline(self._pipeline_content)
         for step_name, step_content in self._pipeline_content.items():
@@ -64,11 +64,11 @@ class Pipeline:
 
     def _validate_pipeline(self, pipeline_content: Dict) -> None:
         """
-        Validate the pipeline steps based on the rules defined to prevent
+        Validates the pipeline steps based on the rules defined to prevent
         invalid executions.
 
         Args:
-            pipeline_content (Dict): the settings defining the pipeline steps.
+            pipeline_content: Settings defining the pipeline steps.
         """
         # TODO: Loop the steps and check the rules defined by the settings.yaml
         #    file: params['pipeline_rules']
@@ -77,7 +77,7 @@ class Pipeline:
 
     def run(self):
         """
-        Run the pipeline, that is to run each step consecutively.
+        Run the pipeline, which means to run each step consecutively.
         """
         for i, step in enumerate(self._steps, start=1):
             logger.info(f'Running step {i}/{len(self._steps)} ...')

@@ -10,22 +10,21 @@ class Normalization:
     features and target.
 
     Attributes:
-        _features (List[str]): list of columns to normalize.
-        _target (List[str]): list of targets to normalize.
-        _features_normalizer (Dict): normalization module and parameters to
+        _features (List[str]): Columns to normalize.
+        _target (List[str]): Targets to normalize.
+        _features_normalizer (Dict): Normalization module and parameters to
             apply to a list of features.
-        _target_normalizer (Dict): normalization module and parameters to
+        _target_normalizer (Dict): Normalization module and parameters to
             apply to a list of targets.
     """
 
     def __init__(self, settings: Dict) -> None:
         """
-        This is a constructor method of class. Given a settings dict, this
-        function process the values of settings ans stores it to a class
-        attributes.
+        Constructor method of class. Given a settings dict, this function
+        process the values of settings ans stores it to a class attributes.
 
         Args:
-            settings (Dict): a dict with normalization configuration.
+            settings: Normalization configuration.
         """
         # Features
         self._features: ct.StrList = self._get_columns(settings, 'features')
@@ -40,11 +39,10 @@ class Normalization:
     @property
     def features(self) -> ct.StrList:
         """
-        This is a getter method. This function returns the list of features
-        to normalize.
+        Getter method for '_features' attribute.
 
         Returns:
-            (List[str]): a list of features.
+            '_features' current value.
         """
         return self._features
 
@@ -78,22 +76,20 @@ class Normalization:
     @property
     def target(self) -> ct.StrList:
         """
-        This is a getter method. This function returns the list of targets
-        to normalize.
+        Getter method for '_target' attribute.
 
         Returns:
-            (List[str]): a list of targets.
+            '_target' current value.
         """
         return self._target
 
     @property
     def target_normalizer(self) -> Callable:
         """
-        This is a getter method. This function returns a tuple with the
-        normalization module and parameters to apply to a target.
+        Getter method for '_target_normalizer' attribute.
 
         Returns:
-            (Tuple[str, dict]): a module and parameters for target.
+            '_target_normalizer' current value.
         """
         module, params = self._get_module_and_params(self._target_normalizer)
         return utils.import_library(module, params)
@@ -101,33 +97,30 @@ class Normalization:
     @staticmethod
     def _get_columns(settings: Dict, key: str) -> List[str]:
         """
-        Given a settings as dict and key, this function gets the list of
-        columns if key exists.
+        Get the list of columns for key in settings.
 
         Args:
-            settings (Dict): normalization settings as dict.
-            key (str): a key to get columns list. The possible values are
-                'features' or 'target'.
+            settings: Normalization settings as dict.
+            key: A key to get columns list. The possible values are 'features'
+                or 'target'.
 
         Returns:
-            (List[str]): list of columns if the key exists. Otherwise, it gets
-                empty list.
+            Columns if the key exists. Otherwise, it gets an empty list.
         """
         return settings.get(key, {}).pop('columns', [])
 
     @staticmethod
     def _get_module_and_parameters(settings: Dict, key: str) -> Dict:
         """
-        Given a settings as dict and key, this function gets the all values
-        from key. The values of dict could be 'module' and 'module_parameters.
+        Get all values from key in settings, which correspond to module and
+        parameters.
 
         Args:
-            settings (Dict): normalization settings as dict.
-            key (str): a key to get values. The possible values are
-                'features' or 'target'.
+            settings: Normalization settings.
+            key: Key to get values from. Possible values are 'features' or
+                'target'.
 
         Returns:
-            (Dict): a dict values if the key exists. Otherwise, it gets
-                empty dict.
+            Key value if the key exists. Otherwise, it gets empty dict.
         """
         return settings.pop(key, {})

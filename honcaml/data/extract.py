@@ -12,14 +12,13 @@ from honcaml.tools.startup import logger
 
 def read_yaml(file_path: str) -> Dict:
     """
-    Given a yaml file path, this function reads content and returns it as a
-    Python dict.
+    Given a yaml file path, this function reads content and returns it.
 
     Args:
-        file_path (str): yaml's file path.
+        file_path: Yaml's file path.
 
     Returns:
-        a Python dict with file content.
+        Parsed information from file.
     """
     with open(file_path, encoding='utf8') as file:
         params = yaml.safe_load(file)
@@ -32,10 +31,10 @@ def read_dataframe(settings: Dict) -> pd.DataFrame:
     Read data from disk using specified settings.
 
     Args:
-        settings (Dict): Params used for input data extraction.
+        settings: Parameters used for input data extraction.
 
     Returns:
-        df (pd.DataFrame): the dataset as pandas dataframe.
+        Dataset in tabular format.
     """
     filepath = settings.pop('filepath')
     logger.info(f'Extract file from {filepath}')
@@ -54,10 +53,12 @@ def read_dataframe(settings: Dict) -> pd.DataFrame:
 def read_model(settings: Dict) -> ct.SklearnModelTyping:
     """
     Load a trained model from a given path.
+
     Args:
-        settings (Dict): the settings containing the path to the file.
+        settings: Settings containing the path to the file.
+
     Returns:
-        model (object): The read model from disk.
+        Model object
     """
     filepath = settings['filepath']
     model = joblib.load(filepath)

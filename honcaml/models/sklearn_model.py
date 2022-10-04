@@ -15,10 +15,10 @@ class SklearnModel(base.BaseModel):
 
     def __init__(self, estimator_type: str) -> None:
         """
-        The class constructor which initializes the base class.
+        Class constructor which initializes the base class.
 
         Args:
-            estimator_type (str): the kind of estimator to be used. Valid
+            estimator_type (str): The kind of estimator to be used. Valid
                 values are `regressor` and `classifier`.
         """
         super().__init__(estimator_type)
@@ -27,22 +27,20 @@ class SklearnModel(base.BaseModel):
     @property
     def estimator(self) -> ct.SklearnModelTyping:
         """
-        This is a getter method. This function returns the '_estimator'
-        attribute.
+        Getter method for the '_estimator' attribute.
 
         Returns:
-            (TODO): the sklearn estimator.
+            '_estimator' current value.
         """
         return self._estimator
 
     @property
     def estimator_type(self) -> str:
         """
-        This is a getter method. This function returns the '_estimator_type'
-        attribute.
+        Getter method for the '_estimator_type' attribute.
 
         Returns:
-            (str): the estimator_type
+            '_estimator_type' current value.
         """
         return self._estimator_type
 
@@ -67,23 +65,21 @@ class SklearnModel(base.BaseModel):
         Read an estimator from disk.
 
         Args:
-            settings (Dict): the parameter settings defining the read
-                operation.
+            settings: Parameter settings defining the read operation.
         """
         self._estimator = extract.read_model(settings)
 
     def build_model(self, model_config: Dict,
                     normalizations: normalization.Normalization) -> None:
         """
-        Create the sklearn estimator. It builds an sklearn pipeline to handle
+        Creates the sklearn estimator. It builds an sklearn pipeline to handle
         the requested normalizations.
 
         Args:
-            model_config (Dict): the model configuration: the module and their
+            model_config: Model configuration, i.e. module and its
                 hyperparameters.
-            normalizations (normalization.Normalization): the definition of
-                normalizations applied to the dataset during the
-                model pipeline.
+            normalizations: Definition of normalizations that applies to
+                the dataset during the model pipeline.
         """
         pipeline_steps = []
         # Preprocessing
@@ -114,39 +110,38 @@ class SklearnModel(base.BaseModel):
 
     def fit(self, x: ct.Dataset, y: ct.Dataset, **kwargs) -> None:
         """
-        Train the estimator on the specified dataset.
-
+        Trains the estimator on the specified dataset.
         Args:
-            x (ct.Dataset): the dataset features.
-            y (ct.Dataset): the dataset target.
-            **kwargs (Dict): extra parameters.
+            x: Dataset features.
+            y: Dataset target.
+            **kwargs: Extra parameters.
         """
         self._estimator = self._estimator.fit(x, y)
 
     def predict(self, x: ct.Dataset, **kwargs) -> List:
         """
-        Use the estimator to make predictions on the given dataset features.
+        Uses the estimator to make predictions on the given dataset features.
 
         Args:
-            x (ct.Dataset): the dataset features.
-            **kwargs (Dict): extra parameters.
+            x: Dataset features.
+            **kwargs: Extra parameters.
 
         Returns:
-            predictions (List): the resulting predictions from the estimator.
+            Resulting predictions from the estimator.
         """
         return self._estimator.predict(x)
 
     def evaluate(self, x: ct.Dataset, y: ct.Dataset, **kwargs) -> Dict:
         """
-        Evaluate the estimator on the given dataset.
+        Evaluates the estimator on the given dataset.
 
         Args:
-            x (ct.Dataset): the dataset features.
-            y (ct.Dataset): the dataset target.
-            **kwargs (Dict): extra parameters.
+            x: Dataset features.
+            y: Dataset target.
+            **kwargs: Extra parameters.
 
         Returns:
-            metrics (Dict): the resulting metrics from the evaluation.
+            Resulting metrics from the evaluation.
         """
         y_pred = self._estimator.predict(x)
         if self._estimator_type == 'regressor':
@@ -157,11 +152,10 @@ class SklearnModel(base.BaseModel):
 
     def save(self, settings: Dict) -> None:
         """
-        Store the estimator to disk.
+        Stores the estimator to disk.
 
         Args:
-            settings (Dict): the parameter settings defining the store
-                operation.
+            settings: Parameter settings defining the store operation.
         """
         settings['filename'] = utils.generate_unique_id(
             base.ModelType.sklearn, self._estimator_type) + '.sav'

@@ -22,10 +22,10 @@ def mock_up_read_pipeline() -> Dict:
 
 def mock_up_read_dataframe() -> pd.DataFrame:
     """
-    This method generates a dataframe for testing purposes.
+    Generates a dataframe for testing purposes.
 
     Returns:
-        (pd.DataFrame): fake dataframe
+        Fake dataframe.
     """
     data = {
         'col1': [1, 2, 3],
@@ -40,15 +40,15 @@ def mock_up_read_model(model_type: str, estimator_type: str,
                        model_config: Dict, norm_config: dict = None) \
         -> base_model.BaseModel:
     """
-    This method generates a model based on the type set for testing purposes.
+    Generates a model based on the type set for testing purposes.
 
     Args:
-        model_type (str): the kind of model to fake.
-        estimator_type (str): the kind of estimator to fake.
-        model_config (Dict): the estimator config to fake.
+        model_type: The kind of model to fake.
+        model_type: The kind of estimator to fake.
+        model_config: The estimator config to fake.
 
     Returns:
-        model (base.BaseModel): the fake model.
+        The fake model.
     """
     if norm_config is None:
         norm_config = {}

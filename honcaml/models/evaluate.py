@@ -6,15 +6,14 @@ import pandas as pd
 
 def aggregate_cv_results(cv_results: List[Dict]) -> Dict:
     """
-    Compute the cross validation results given a list of results containing
+    Computes cross validation results given a list of results containing
     the evaluated metrics for each partition of the data.
 
     Args:
-        cv_results (List[Dict]): List of results containing each evaluated
-            metric.
+        cv_results: Results containing each evaluated metric.
 
     Returns:
-        mean_results (dict): The averaged metrics from the data partitions.
+        Averaged metrics from data partitions.
     """
     df_results = pd.DataFrame(cv_results)
     mean_results = df_results.mean(axis=0).to_dict()
@@ -24,15 +23,15 @@ def aggregate_cv_results(cv_results: List[Dict]) -> Dict:
 def compute_regression_metrics(
         y_true: pd.Series, y_predicted: pd.Series) -> Dict[str, ct.Number]:
     """
-    This function computes regression metrics including 'max_error', 'MAPE',
-    'MAE' and other commonly used regression metrics.
+    Computes regression metrics from true values and predictions; available
+    options are specified within.
 
     Args:
-        y_true (pd.Series): series of ground truth outputs
-        y_predicted (pd.Series): series of predicted outputs
+        y_true: Ground truth outputs.
+        y_predicted: Predicted outputs.
 
     Returns:
-        metrics (Dict): the resulting metrics.
+        Resulting metrics.
     """
     metrics = {
         # 'max_error': sk_metrics.max_error(y_true, y_predicted),
@@ -55,14 +54,14 @@ def compute_regression_metrics(
 def compute_classification_metrics(
         y_true: pd.Series, y_predicted: pd.Series) -> Dict[str, ct.Number]:
     """
-    This function computes classification metrics including [...] and other
-    commonly used classification metrics.
+    Computes classification metrics from true values and predictions; available
+    options are specified within.
 
     Args:
-        y_true (pd.Series): series of ground truth outputs
-        y_predicted (pd.Series): series of predicted outputs
+        y_true: Series of ground truth outputs.
+        y_predicted: Series of predicted outputs.
 
     Returns:
-        metrics (Dict): the resulting metrics.
+        Resulting metrics.
     """
     raise NotImplementedError('Not implemented yet')

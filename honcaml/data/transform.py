@@ -12,11 +12,11 @@ def process_data(dataset: pd.DataFrame, settings: Dict) -> pd.DataFrame:
     Preprocess the dataset and target column with settings given.
 
     Args:
-        dataset (pd.DataFrame): the dataset.
-        settings (Dict): Params used for data processing.
+        dataset: Input dataset.
+        settings: Parameters used for data processing.
 
     Returns:
-        dataset (pd.DataFrame): the dataset.
+        Processed dataset.
     """
     # TODO: preprocessing logic
     return dataset
@@ -28,14 +28,12 @@ def get_train_test_dataset(
         dataset: ct.Dataset, train_index: np.ndarray,
         test_index: np.ndarray) -> Tuple[ct.Dataset, ct.Dataset]:
     """
-    Given a dataset, train index and test index, this function splits the
-    dataset into train and test based on index/position.
+    Split the dataset into train and test based on index/position.
 
     Args:
-        dataset (Dataset): dataset to split into train and test based on
-            dataset's index/position.
-        train_index (np.ndarray): dataset train indexes.
-        test_index (np.ndarray): dataset test indexes.
+        dataset: Input dataset.
+        train_index: Train indexes.
+        test_index: Dataset test indexes.
 
     Notes:
         Always select the train and test split based on position, for
@@ -44,7 +42,7 @@ def get_train_test_dataset(
         On the other hand, with np.ndarray the normal slicing is fine.
 
     Returns:
-        a tuple that it contains train and test sets.
+        Train and test datasets.
     """
     if isinstance(dataset, (pd.DataFrame, pd.Series)):
         x_train, x_test = dataset.iloc[train_index], dataset.iloc[test_index]
@@ -74,16 +72,16 @@ class CrossValidationSplit:
     from sklearn framework.
 
     Attributes:
-        _strategy (str): cross-validation strategy name.
+        _strategy (str): Cross-validation strategy name.
     """
 
     def __init__(self, strategy: str) -> None:
         """
-        Constructor method. This function receives a cross-validation strategy
-        to apply to a dataset.
+        Constructor method. It receives a cross-validation strategy to apply to
+        a dataset.
 
         Args:
-            strategy (str): Cross-validation strategy to apply. The available
+            strategy: Cross-validation strategy to apply. The available
                 options are the following:
                 - k_fold
                 - repeated_k_fold
@@ -95,20 +93,19 @@ class CrossValidationSplit:
     @property
     def strategy(self) -> str:
         """
-        This is a getter method. This function returns the '_strategy'
-        attribute.
+        Getter method for the '_strategy' attribute.
 
         Returns:
-            (str): cross-validation strategy
+            '_strategy' current value.
         """
         return self._strategy
 
     def _create_cross_validation_instance(
             self, **kwargs) -> ct.SklearnCrossValidation:
         """
-        This function creates a new instance of one of the cross-validation
-        strategies implemented in sklearn.model_selection. In addition, with
-        kwargs argument, it is possible to pass all the possible parameters
+        Creates a new instance of one of the cross-validation strategies
+        implemented in sklearn.model_selection. In addition, with *kwargs
+        argument, it is possible to pass all the possible parameters
         of the chosen strategy.
 
         Notes:
@@ -116,8 +113,7 @@ class CrossValidationSplit:
             exception.
 
         Returns:
-            (ct.SklearnCrossValidation): a new instance of cross-validation
-            sklearn module.
+            A new instance of cross-validation sklearn module.
         """
         if self._strategy == _CVStrategy.k_fold:
             cv_object = model_selection.KFold(**kwargs)
@@ -137,19 +133,21 @@ class CrossValidationSplit:
             self, x: ct.Dataset, y: ct.Dataset = None, **kwargs) \
             -> ct.CVGenerator:
         """
-        Given a dataset (pd.DataFrame, pd.Series or np.ndarray) this function
-        executes a split method from sklearn cross-validation strategies. In
+        Execute a split method from sklearn cross-validation strategies. In
         addition, the 'kwargs' parameter allows passing additional arguments
-        when it creates the object instance.
-        The valid x and y datasets types are: pd.DataFrame, pd.Series
-        and np.ndarray.
+        when it creates the object instance. The valid x and y datasets types
+        are: pd.DataFrame, pd.Series and np.ndarray.
 
         Args:
-            x (Dataset): dataset with features to split.
-            y (optional, Dataset): dataset with targets to split.
+            x: Dataset with features to split.
+            y: Dataset with targets to split.
 
-        Returns:
-            (ct.CVGenerator): the split number, train set and test set.
+        Yields:
+            - Split number
+            - Feature array for training
+            - Feature array for test
+            - Target array for training
+            - Target array for test
         """
         cv_object = self._create_cross_validation_instance(**kwargs)
 

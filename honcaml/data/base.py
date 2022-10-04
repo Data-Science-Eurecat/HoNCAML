@@ -9,36 +9,34 @@ class BaseDataset(ABC):
     Base class defining a dataset.
 
     Attributes:
-        _normalization (Union[norm.Normalization, None]): class to store the
+        _normalization (Union[norm.Normalization, None]): Class to store the
             normalization parameters for features and target.
     """
 
     def __init__(self) -> None:
         """
-        This is a constructor method of class. This function initializes
-        the common parameters for a dataset.
+        Constructor method of class. It initializes the common parameters for a
+        dataset.
         """
-
         self._normalization: Union[norm.Normalization, None] = None
 
     @property
     def normalization(self) -> norm.Normalization:
         """
-        This is a getter method. This function returns the '_normalization'
-        attribute.
+        Getter method for '_normalization' attribute.
 
         Returns:
-            (pd.DataFrame): dataset as pd.DataFrame
+            '_normalization' current value.
         """
         return self._normalization
 
     @normalization.setter
     def normalization(self, value: norm.Normalization) -> None:
         """
-        This is a setter method. Given a Normalization instance, this function
-        assigned it to a _normalization attribute.
+        Setter method for '_normalization' attribute.
+
         Args:
-            value (norm.Normalization):
+            value: Value to assign to attribute.
 
         """
         self._normalization = value
@@ -46,20 +44,20 @@ class BaseDataset(ABC):
     @abstractmethod
     def read(self, settings: Dict):
         """
-        ETL data extract. This function must be implemented by child classes.
+        ETL data extract. Must be implemented by child classes.
         """
         pass
 
     @abstractmethod
     def preprocess(self, settings: Dict):
         """
-        ETL data transform. This function must be implemented by child classes.
+        ETL data transform. Must be implemented by child classes.
         """
         pass
 
     @abstractmethod
     def save(self, settings: Dict):
         """
-        ETL data load. This function must be implemented by child classes.
+        ETL data load. Must be implemented by child classes.
         """
         pass

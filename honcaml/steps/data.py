@@ -6,22 +6,22 @@ from honcaml.steps import base
 
 class DataStep(base.BaseStep):
     """
-    The Data step class is an step of the main pipeline. It contains the
+    The data step class is a step of the main pipeline. It contains the
     functionalities to perform the ETL on the requested data.
 
     Attributes:
-        _dataset (data.Dataset): the dataset to be handled.
+        _dataset (data.Dataset): Dataset to be handled.
     """
 
     def __init__(self, default_settings: Dict, user_settings: Dict,
                  step_rules: Dict) -> None:
         """
-        This is a constructor method of class. This function initializes
-        the parameters and set up the current steps.
+        Constructor method of class. It initializes the parameters and set up
+        the current steps.
 
         Args:
-            default_settings (Dict): the default settings for the steps.
-            user_settings (Dict): the user defined settings for the steps.
+            default_settings: Default settings for the steps.
+            user_settings: User-defined settings for the steps.
         """
         super().__init__(default_settings, user_settings, step_rules)
 
@@ -31,28 +31,27 @@ class DataStep(base.BaseStep):
     @property
     def dataset(self) -> base_dataset.BaseDataset:
         """
-        This is a getter method. This function returns the '_dataset'
-        attribute.
+        Getter method for the '_dataset' attribute.
 
         Returns:
-            (base_dataset.BaseDataset): dataset instance.
+            '_dataset' current value.
         """
         return self._dataset
 
     def _extract(self, settings: Dict) -> None:
         """
-        The extract process from the data step ETL. This function reads the
-        dataset file specified in the settings dict.
+        Extract process from the data step ETL. It reads the dataset file
+        specified in the configuration.
 
         Args:
-            settings (Dict): the settings defining the extract ETL process.
+            settings: Settings defining the extract ETL process.
         """
         self._dataset.read(settings)
 
     def _transform(self, settings: Dict) -> None:
         """
-        The transform process from the data step ETL. This function prepare
-        dataset for a set of transformations to apply.
+        Transform process from the data step ETL. It prepares the dataset for a
+        set of transformations to apply.
 
         Firstly, it checks if the dataset will be normalized, for this reason
         it creates a new instance of Normalization class as a Dataset class
@@ -61,7 +60,7 @@ class DataStep(base.BaseStep):
         Secondly, it runs the basic transformations to a dataset.
 
         Args:
-            settings (Dict): the settings defining the transform ETL process.
+            settings: Settings defining the transform ETL process.
         """
         # Check normalization settings
         if normalize_settings := settings.pop('normalize', None):
@@ -72,25 +71,23 @@ class DataStep(base.BaseStep):
 
     def _load(self, settings: Dict) -> None:
         """
-        The load process from the data step ETL.
+        Load process from the data step ETL.
 
         Args:
-            settings (Dict): the settings defining the load ETL process.
+            settings: Settings defining the load ETL process.
         """
         self._dataset.save(settings)
 
     def run(self, metadata: Dict) -> Dict:
         """
-        Run the data steps. Using the dataset created run the ETL functions for
-        the specific dataset: extract, transform and load.
+        Runs the data steps. Using the dataset created run the ETL functions
+        for the specific dataset: extract, transform and load.
 
         Args:
-            metadata (Dict): the objects output from each different previous
-                steps.
+            metadata: Accumulated pipeline metadata.
 
         Returns:
-            metadata (Dict): the previous objects updated with the ones from
-                the current steps: the dataset.
+            metadata: Updated pipeline metadata with datasat included.
         """
         self.execute()
         metadata.update({'dataset': self._dataset})

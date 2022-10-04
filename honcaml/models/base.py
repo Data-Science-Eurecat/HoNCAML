@@ -11,9 +11,9 @@ class BaseModel(ABC):
     Model base class.
 
     Attributes:
-        _estimator_type (str): the kind of estimator to be used. Valid values
+        _estimator_type (str): The kind of estimator to be used. Valid values
             are `regressor` and `classifier`.
-        _estimator (TODO type): an estimator defined by child classes.
+        _estimator: Estimator defined by child classes.
     """
 
     def __init__(self, estimator_type: str) -> None:
@@ -21,7 +21,7 @@ class BaseModel(ABC):
         Base class constructor. Initializes the common attributes.
 
         Args:
-            estimator_type (str): the kind of estimator to be used. Valid
+            estimator_type: The kind of estimator to be used. Valid
                 values are `regressor` and `classifier`.
         """
         if estimator_type not in estimator_types:
@@ -37,25 +37,22 @@ class BaseModel(ABC):
     @abstractmethod
     def read(self, settings: Dict) -> None:
         """
-        Read an estimator from disk. This function must be implemented by
-        child classes.
+        Reads an estimator from disk. Must be implemented by child classes.
 
         Args:
-            settings (Dict): the parameter settings defining the read
-                operation.
+            settings: Parameters configuring read operation.
         """
         pass
 
     @abstractmethod
     def build_model(self, model_config: Dict, normalizations: Dict) -> None:
         """
-        Create the requested estimator. This function must be implemented by
-        child classes.
+        Creates the requested estimator. Must be implemented by child classes.
 
         Args:
-            model_config (Dict): the model configuration: the module and their
+            model_config: Model configuration, i.e. module and its
                 hyperparameters.
-            normalizations (Dict): the definition of normalizations applied to
+            normalizations: Definition of normalizations that applies to
                 the dataset during the model pipeline.
         """
         pass
@@ -63,75 +60,68 @@ class BaseModel(ABC):
     @abstractmethod
     def fit(self, x: ct.Dataset, y: ct.Dataset, **kwargs: Dict) -> None:
         """
-        Train the estimator on the specified dataset. This function must be
-        implemented by child classes.
+        Trains the estimator on the specified dataset. Must be implemented by
+        child classes.
 
         Args:
-            x (ct.Dataset): the dataset features.
-            y (ct.Dataset): the dataset target.
-            **kwargs (Dict): extra parameters.
+            x: Dataset features.
+            y: Dataset target.
+            **kwargs: Extra parameters.
         """
         pass
 
     @abstractmethod
     def predict(self, x: ct.Dataset, **kwargs: Dict) -> List:
         """
-        Use the estimator to make predictions on the given dataset features.
-        This function must be implemented by child classes.
+        Uses the estimator to make predictions on the given dataset features.
+        Must be implemented by child classes.
 
         Args:
-            x (ct.Dataset): the dataset features.
-            **kwargs (Dict): extra parameters.
+            x: Dataset features.
+            **kwargs: Extra parameters.
 
         Returns:
-            predictions (List): the resulting predictions from the estimator.
+            Resulting predictions from the estimator.
         """
         pass
 
     @abstractmethod
     def evaluate(self, x: ct.Dataset, y: ct.Dataset, **kwargs: Dict) -> Dict:
         """
-        Evaluate the estimator on the given dataset. This function must be
-        implemented by child classes.
+        Evaluates the estimator on the given dataset. Must be implemented by
+        child classes.
 
         Args:
-            x (ct.Dataset): the dataset features.
-            y (ct.Dataset): the dataset target.
-            **kwargs (Dict): extra parameters.
+            x: Dataset features.
+            y: Dataset target.
+            **kwargs: Extra parameters.
 
         Returns:
-            metrics (Dict): the resulting metrics from the evaluation.
+            Resulting metrics from the evaluation.
         """
         pass
 
     @abstractmethod
     def save(self, settings: Dict) -> None:
         """
-        Store the estimator to disk. This function must be implemented by
-        child classes.
+        Stores the estimator to disk. Must be implemented by child classes.
 
         Args:
-            settings (Dict): the parameter settings defining the store
-                operation.
+            settings: Parameter settings defining the store operation.
         """
         pass
 
 
 class ModelType:
     """
-    This class defines the available types of models. The valid values are the
-    following:
-    - sklearn
+    Defines the available types of models.
     """
     sklearn = 'sklearn'
 
 
 class EstimatorType:
     """
-    This class defines the available types of estimators. The valid values are
-    the following:
-    - classifier
-    - regressor
+    Defines the available types of estimators.
     """
     classifier = 'classifier'
     regressor = 'regressor'
