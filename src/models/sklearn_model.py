@@ -22,8 +22,7 @@ class SklearnModel(base.BaseModel):
                 are `regressor` and `classifier`.
         """
         super().__init__(estimator_type)
-
-        self._model_pipeline = None
+        self._estimator = None
 
     @property
     def estimator(self) -> ct.SklearnModelTyping:
