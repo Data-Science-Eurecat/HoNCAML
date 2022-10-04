@@ -1,6 +1,7 @@
-from typing import Dict, List
+from typing import Dict, List, Tuple, Callable
 
 from src.tools import custom_typing as ct
+from src.tools import utils
 
 
 class Normalization:
@@ -47,16 +48,32 @@ class Normalization:
         """
         return self._features
 
-    @property
-    def features_normalizer(self) -> Dict:
+    @staticmethod
+    def _get_module_and_params(norm_dict: dict) -> Tuple[str, dict]:
         """
-        This is a getter method. This function returns a dict with the
-        normalization configuration to apply to a features.
+        Given a normalization dict of features or target, this function gets
+        the 'module' and 'module_parameters'.
+
+        Args:
+            norm_dict (dict): a dict that contains the normalization
+                configuration.
 
         Returns:
-            (Dict): normalization configurations as dict.
+            (Tuple[str, dict]): a module and parameters normalization.
         """
-        return self._features_normalizer
+        return norm_dict['module'], norm_dict['module_params']
+
+    @property
+    def features_normalizer(self) -> Callable:
+        """
+        This is a getter method. This function returns a tuple with the
+        normalization module and parameters to apply to a features.
+
+        Returns:
+            (Tuple[str, dict]): a module and parameters for features.
+        """
+        module, params = self._get_module_and_params(self._features_normalizer)
+        return utils.import_library(module, params)
 
     @property
     def target(self) -> ct.StrList:
@@ -70,15 +87,16 @@ class Normalization:
         return self._target
 
     @property
-    def target_normalizer(self) -> Dict:
+    def target_normalizer(self) -> Callable:
         """
-        This is a getter method. This function returns a dict with the
-        normalization configuration to apply to a targets.
+        This is a getter method. This function returns a tuple with the
+        normalization module and parameters to apply to a target.
 
         Returns:
-            (Dict): normalization configurations as dict.
+            (Tuple[str, dict]): a module and parameters for target.
         """
-        return self._target_normalizer
+        module, params = self._get_module_and_params(self._target_normalizer)
+        return utils.import_library(module, params)
 
     @staticmethod
     def _get_columns(settings: Dict, key: str) -> List[str]:
@@ -113,6 +131,3 @@ class Normalization:
                 empty dict.
         """
         return settings.pop(key, {})
-
-    # TODO: method to import the modules and create instance for each column
-    # to normalize

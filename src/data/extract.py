@@ -5,6 +5,7 @@ import yaml
 from typing import Dict
 
 from src.exceptions import data as data_exception
+from src.tools import custom_typing as ct
 from src.tools import utils
 from src.tools.startup import logger
 
@@ -50,7 +51,7 @@ def read_dataframe(settings: Dict) -> pd.DataFrame:
     return df
 
 
-def read_model(settings: Dict) -> object:
+def read_model(settings: Dict) -> ct.SklearnModelTyping:
     """
     Load a trained model from a given path.
     Args:

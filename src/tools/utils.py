@@ -1,9 +1,9 @@
 import datetime
 import importlib
 import uuid
-from typing import Dict, Callable
 from cerberus import Validator
 from functools import reduce
+from typing import Dict, Callable
 
 
 def import_library(module: str, params: Dict = None) -> Callable:
@@ -20,8 +20,8 @@ def import_library(module: str, params: Dict = None) -> Callable:
         callable of imported module with parameters.
     """
     library = '.'.join(module.split('.')[:-1])
-    imported_module = importlib.import_module(library)
     name = module.split('.')[-1]
+    imported_module = importlib.import_module(library)
 
     if params is None:
         params = dict()
@@ -57,8 +57,8 @@ def generate_unique_id(
     uuid4.
 
     Args:
-        estimator_name (str): name of estimator that pipeline contains
-        estimator_name (str): type of estimator that pipeline contains
+        estimator_module (str): name of estimator that pipeline contains
+        estimator_type (str): type of estimator that pipeline contains
         adding_uuid (optional, bool): adding uuid4 in generated id.
 
     Returns:
@@ -91,7 +91,6 @@ def update_dict_from_default_dict(
     Returns:
         source_dict (Dict): a dict with merged values.
     """
-
     if source_dict is None:
         source_dict = {}
     for key, value in default_dict.items():

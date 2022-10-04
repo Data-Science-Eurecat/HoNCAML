@@ -18,29 +18,29 @@ pipeline_rules:
 step_rules:
   data:
     extract:
-      filepath: 
+      filepath:
         - required: True
-      target: 
+      target:
         - required: True
     transform:
       normalize:
         features:
-          module: 
+          module:
             - required: True
         target:
-          module: 
+          module:
             - required: True
     load:
-      path: 
+      path:
         - required: True
   model:
     extract:
-      filepath: 
+      filepath:
         - required: True
     transform:
       fit:
         cross_validation:
-          strategy: 
+          strategy:
             - required: True
       predict:
         path:
@@ -49,7 +49,12 @@ step_rules:
       path:
         - required: True
   benchmark:
-    
+
+# Default estimators
+default_regressor_estimator:
+  module: sklearn.ensemble.RandomForestRegressor
+  hyperparameters:
+    n_estimators: 100
 
 # Pipeline steps settings (default settings for each pipeline steps)
 pipeline_steps:
@@ -91,14 +96,15 @@ pipeline_steps:
   # Benchmark Step settings
   benchmark:
     extract:
-      # read a previously saved learner
+    # read a previously saved learner
     transform:
-      # List the models and hyperparameters to be tuned
-      # Learner parameters
+    # List the models and hyperparameters to be tuned
+    # Learner parameters
 
     load:
-      # save the learner to disk and the results
+    # save the learner to disk and the results
 
 # Available models settings
 models:
-  # List the models with their available hyperparameters to tune with their limits.
+# List the models with their available hyperparameters to tune
+# with their limits.

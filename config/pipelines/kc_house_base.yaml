@@ -1,7 +1,7 @@
 data:
   extract:
     filepath: data/raw/kc_house_data.csv
-    target: 
+    target:
       - price
     features:
       - bedrooms
@@ -23,6 +23,22 @@ data:
       - sqft_living15
       - sqft_lot15
 
+  transform:
+    normalize:
+      features:
+        module: sklearn.preprocessing.StandardScaler
+        module_params:
+          with_std: True
+        columns:
+          - bedrooms
+          - bathrooms
+      target:
+        module: sklearn.preprocessing.StandardScaler
+        module_params:
+          with_std: True
+        columns:
+          - price
+
 model:
   estimator_type: regressor
   estimator_config:
@@ -37,3 +53,4 @@ model:
         n_splits: 2
   
   load:
+    path: data/models/

@@ -64,7 +64,7 @@ class TabularDataset(base.BaseDataset):
         return self._dataset
 
     @property
-    def x(self) -> ct.Array:
+    def x(self) -> pd.DataFrame:
         """
         This is a getter method. This function returns the x features
         from dataset.
@@ -72,7 +72,7 @@ class TabularDataset(base.BaseDataset):
         Returns:
             (pd.Dataframe): pd.DataFrame with x features.
         """
-        return self._dataset[self._features].values
+        return self._dataset[self._features]
 
     @property
     def y(self) -> ct.Array:
@@ -80,9 +80,12 @@ class TabularDataset(base.BaseDataset):
         This is a getter method. This function returns the target from dataset.
 
         Returns:
-            (pd.Dataframe): pd.DataFrame with target.
+            (ct.Array): numpy array with target.
         """
-        return self._dataset[self._target].values
+        y = self._dataset[self._target].values
+        if len(self._target) == 1:
+            y = y.reshape(-1, 1)
+        return y
 
     @property
     def values(self) -> Tuple[ct.Array, ct.Array]:

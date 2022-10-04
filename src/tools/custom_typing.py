@@ -23,3 +23,11 @@ CVGenerator = Generator[
     Tuple[int, Dataset, Dataset, Optional[Dataset], Optional[Dataset]],
     None,
     None]
+
+
+class SklearnModelTyping(Protocol):
+    def fit(self, x, y=None, **kwargs):
+        pass
+
+    def predict(self, x, y=None, **kwargs):
+        pass

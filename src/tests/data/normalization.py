@@ -1,5 +1,6 @@
 import copy
 import unittest
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
 
 from src.data import normalization
 
@@ -28,21 +29,21 @@ class NormalizationTest(unittest.TestCase):
             norm.features, self.settings['features']['columns'])
         features_normalizer = self.settings['features'].copy()
         del features_normalizer['columns']
-        self.assertDictEqual(norm.features_normalizer, features_normalizer)
+        self.assertDictEqual(norm._features_normalizer, features_normalizer)
         # Target
         self.assertListEqual(norm.target, self.settings['target']['columns'])
         target_normalizer = self.settings['target'].copy()
         del target_normalizer['columns']
-        self.assertDictEqual(norm.target_normalizer, target_normalizer)
+        self.assertDictEqual(norm._target_normalizer, target_normalizer)
 
         # No normalizations
         norm = normalization.Normalization({})
         # Features
         self.assertListEqual(norm.features, [])
-        self.assertDictEqual(norm.features_normalizer, {})
+        self.assertDictEqual(norm._features_normalizer, {})
         # Target
         self.assertListEqual(norm.target, [])
-        self.assertDictEqual(norm.target_normalizer, {})
+        self.assertDictEqual(norm._target_normalizer, {})
 
         # Only features normalization
         only_feature_settings = {
@@ -59,10 +60,10 @@ class NormalizationTest(unittest.TestCase):
             norm.features, self.settings['features']['columns'])
         features_normalizer = self.settings['features'].copy()
         del features_normalizer['columns']
-        self.assertDictEqual(norm.features_normalizer, features_normalizer)
+        self.assertDictEqual(norm._features_normalizer, features_normalizer)
         # Target
         self.assertListEqual(norm.target, [])
-        self.assertDictEqual(norm.target_normalizer, {})
+        self.assertDictEqual(norm._target_normalizer, {})
 
         # Only target normalization
         only_target_settings = {
@@ -75,13 +76,13 @@ class NormalizationTest(unittest.TestCase):
         norm = normalization.Normalization(copy.deepcopy(only_target_settings))
         # Features
         self.assertListEqual(norm.features, [])
-        self.assertDictEqual(norm.features_normalizer, {})
+        self.assertDictEqual(norm._features_normalizer, {})
         # Target
         self.assertListEqual(
             norm.target, only_target_settings['target']['columns'])
         target_normalizer = only_target_settings['target'].copy()
         del target_normalizer['columns']
-        self.assertDictEqual(norm.target_normalizer, target_normalizer)
+        self.assertDictEqual(norm._target_normalizer, target_normalizer)
 
         # Only features normalization without module params
         only_feature_without_params_settings = {
@@ -99,5 +100,26 @@ class NormalizationTest(unittest.TestCase):
         features_normalizer = \
             only_feature_without_params_settings['features'].copy()
         del features_normalizer['columns']
-        self.assertDictEqual(norm.features_normalizer, features_normalizer)
-        self.assertTrue('module_params' not in norm.features_normalizer)
+        self.assertDictEqual(norm._features_normalizer, features_normalizer)
+        self.assertTrue('module_params' not in norm._features_normalizer)
+
+        # When
+        real_scalers_settings = {
+            'features': {
+                'module': 'sklearn.preprocessing.StandardScaler',
+                'module_params': {'with_std': True},
+                'columns': ['col1', 'col2', 'col3']
+            },
+            'target': {
+                'module': 'sklearn.preprocessing.MinMaxScaler',
+                'module_params': {},
+                'columns': ['target1', 'target2']
+            }
+        }
+        norm = normalization.Normalization(real_scalers_settings)
+
+        f_scaler = norm.features_normalizer
+        self.assertIsInstance(f_scaler, StandardScaler)
+
+        t_scaler = norm.target_normalizer
+        self.assertIsInstance(t_scaler, MinMaxScaler)

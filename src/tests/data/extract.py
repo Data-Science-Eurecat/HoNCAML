@@ -47,7 +47,7 @@ class ExtractTest(unittest.TestCase):
         # Invalid extension
         settings = {'filepath': 'some_file.aaa'}
         with self.assertRaises(data_exceptions.FileExtensionException):
-            result = extract.read_dataframe(settings)
+            _ = extract.read_dataframe(settings)
 
     @patch('joblib.load')
     def test_read_model(self, read_model_mockup):

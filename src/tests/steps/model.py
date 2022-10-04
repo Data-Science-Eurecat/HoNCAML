@@ -11,7 +11,7 @@ from src.tools.startup import params
 from src.exceptions import step as step_exception
 from src.exceptions import model as model_exception
 from src.models import sklearn_model
-from src.data import tabular
+from src.data import tabular, normalization
 
 
 class ModelTest(unittest.TestCase):
@@ -202,13 +202,14 @@ class ModelTest(unittest.TestCase):
             validation.check_is_fitted(step._model.estimator))
         files_in_test_dir = os.listdir(self.test_dir)
         self.assertTrue(any(f.startswith('predictions')
-                        for f in files_in_test_dir))
+                            for f in files_in_test_dir))
 
     def test_load(self):
         # User settings
         user_settings = {
             'load': {'path': self.test_dir}
         }
+        norm = normalization.Normalization({})
         step = model.ModelStep(params['pipeline_steps']['model'],
                                user_settings,
                                params['step_rules']['model'])
@@ -216,17 +217,18 @@ class ModelTest(unittest.TestCase):
         step._model.build_model({
             'module': 'sklearn.ensemble.RandomForestRegressor',
             'hyperparameters': {}
-        }, {})
+        }, norm)
         step._load(step._load_settings)
         files_in_test_dir = os.listdir(self.test_dir)
         self.assertTrue(any(f.startswith('sklearn.regressor')
-                        for f in files_in_test_dir))
+                            for f in files_in_test_dir))
 
     def test_fit(self):
         # Only fit
         transform_user_settings = {
             'transform': {'fit': None},
         }
+        norm = normalization.Normalization({})
         step = model.ModelStep(params['pipeline_steps']['model'],
                                transform_user_settings,
                                params['step_rules']['model'])
@@ -234,7 +236,7 @@ class ModelTest(unittest.TestCase):
         step._initialize_model('sklearn', 'regressor')
         step._model.build_model(
             {'module': 'sklearn.ensemble.RandomForestRegressor',
-                'hyperparameters': {}}, {})
+             'hyperparameters': {}}, norm)
         step._fit(step._transform_settings['fit'])
         self.assertIsNone(
             validation.check_is_fitted(step._model.estimator))
@@ -243,6 +245,7 @@ class ModelTest(unittest.TestCase):
         transform_user_settings = {
             'transform': {'fit': {'cross_validation': {'n_splits': 2}}},
         }
+        norm = normalization.Normalization({})
         step = model.ModelStep(params['pipeline_steps']['model'],
                                transform_user_settings,
                                params['step_rules']['model'])
@@ -250,7 +253,7 @@ class ModelTest(unittest.TestCase):
         step._initialize_model('sklearn', 'regressor')
         step._model.build_model(
             {'module': 'sklearn.ensemble.RandomForestRegressor',
-                'hyperparameters': {}}, {})
+             'hyperparameters': {}}, norm)
         step._fit(step._transform_settings['fit'])
         self.assertIsNone(
             validation.check_is_fitted(step._model.estimator))
@@ -262,6 +265,7 @@ class ModelTest(unittest.TestCase):
         transform_user_settings = {
             'transform': {'predict': {'path': self.test_dir}},
         }
+        norm = normalization.Normalization({})
         step = model.ModelStep(params['pipeline_steps']['model'],
                                transform_user_settings,
                                params['step_rules']['model'])
@@ -269,12 +273,12 @@ class ModelTest(unittest.TestCase):
         step._initialize_model('sklearn', 'regressor')
         step._model.build_model(
             {'module': 'sklearn.ensemble.RandomForestRegressor',
-                'hyperparameters': {}}, {})
+             'hyperparameters': {}}, norm)
         step._fit({'fit': None})
         step._predict(step._transform_settings['predict'])
         files_in_test_dir = os.listdir(self.test_dir)
         self.assertTrue(any(f.startswith('predictions')
-                        for f in files_in_test_dir))
+                            for f in files_in_test_dir))
 
     def test_run(self):
         # TODO: make test
