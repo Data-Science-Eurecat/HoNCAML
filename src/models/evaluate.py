@@ -1,7 +1,8 @@
-from typing import Dict, List
-from src.tools import custom_typing as ct
-import sklearn.metrics as sk_metrics
 import pandas as pd
+import sklearn.metrics as sk_metrics
+from typing import Dict, List
+
+from src.tools import custom_typing as ct
 
 
 def aggregate_cv_results(cv_results: List[Dict]) -> Dict:

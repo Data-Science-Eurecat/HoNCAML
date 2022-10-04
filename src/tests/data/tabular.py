@@ -1,12 +1,11 @@
 import copy
-import pandas as pd
 import numpy as np
+import os
+import pandas as pd
+import shutil
+import tempfile
 import unittest
 from unittest.mock import patch
-import tempfile
-import shutil
-import os
-
 
 from src.data import tabular, extract
 from src.exceptions import data as data_exception
@@ -32,7 +31,6 @@ class TabularTest(unittest.TestCase):
         }
 
         self.tabular_obj = tabular.TabularDataset()
-
         self.test_dir = tempfile.mkdtemp()
 
     def tearDown(self):
@@ -68,14 +66,22 @@ class TabularTest(unittest.TestCase):
         read_csv_mock_up.return_value = utils.mock_up_read_dataframe()
         self.tabular_obj.read(self.settings_with_csv.copy())
         x = self.tabular_obj.x
-        self.assertIsInstance(x, np.ndarray)
-        self.assertTrue(np.array_equal(
-            x, self.tabular_obj._dataset[['col1', 'col2']].values))
+        self.assertIsInstance(x, pd.DataFrame)
+        self.assertListEqual(x.columns.to_list(), ['col1', 'col2'])
 
     @patch('pandas.read_csv')
     def test_y(self, read_csv_mock_up):
         read_csv_mock_up.return_value = utils.mock_up_read_dataframe()
-        self.tabular_obj.read(self.settings_with_csv.copy())
+        # Only one target
+        settings_one_target = copy.deepcopy(self.settings_with_csv)
+        del settings_one_target['target'][1]
+        self.tabular_obj.read(settings_one_target)
+        y = self.tabular_obj.y
+        self.assertIsInstance(y, np.ndarray)
+        self.assertEqual(y.shape[1], 1)
+
+        # Multiple target
+        self.tabular_obj.read(copy.deepcopy(self.settings_with_csv))
         y = self.tabular_obj.y
         self.assertIsInstance(y, np.ndarray)
         self.assertTrue(np.array_equal(
@@ -231,14 +237,14 @@ class TabularTest(unittest.TestCase):
         for col in total_columns:
             self.assertIn(col, result_dataset)
 
-    @patch('pandas.read_csv')
-    def test_preprocess(self, read_csv_mock_up):
-        read_csv_mock_up.return_value = utils.mock_up_read_dataframe()
-        self.tabular_obj.read(self.settings_with_csv.copy())
-        # TODO: set preprocessing transformations once implemented
-        settings = {}
-        self.tabular_obj.preprocess(settings)
-        # TODO: make the assertions
+    # @patch('pandas.read_csv')
+    # def test_preprocess(self, read_csv_mock_up):
+    #     read_csv_mock_up.return_value = utils.mock_up_read_dataframe()
+    #     self.tabular_obj.read(self.settings_with_csv.copy())
+    #     # TODO: set preprocessing transformations once implemented
+    #     settings = {}
+    #     self.tabular_obj.preprocess(settings)
+    #     # TODO: make the assertions
 
     @patch('pandas.read_csv')
     def test_preprocess(self, read_csv_mock_up):

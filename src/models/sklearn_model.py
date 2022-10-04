@@ -1,9 +1,11 @@
-from typing import Dict, List
-from src.tools import custom_typing as ct
-from src.data import extract, load
-from src.models import base, general
-from src.tools import utils
 from sklearn import compose, pipeline
+from typing import Dict, List, Callable
+
+from src.data import extract, load, normalization
+from src.models import base, evaluate
+from src.tools import custom_typing as ct
+from src.tools import utils
+from src.tools.startup import logger
 
 
 class SklearnModel(base.BaseModel):
@@ -21,8 +23,10 @@ class SklearnModel(base.BaseModel):
         """
         super().__init__(estimator_type)
 
-    @property  # TODO: set the return type
-    def estimator(self):
+        self._model_pipeline = None
+
+    @property
+    def estimator(self) -> ct.SklearnModelTyping:
         """
         This is a getter method. This function returns the '_estimator'
         attribute.
@@ -41,7 +45,23 @@ class SklearnModel(base.BaseModel):
         Returns:
             (str): the estimator_type
         """
-        return self._estimator
+        return self._estimator_type
+
+    @staticmethod
+    def _import_estimator(model_config: dict) -> Callable:
+        """
+        Given a dict with model configuration, this function import the model
+        and, it creates a new instance with the hyperparameters.
+
+        Args:
+            model_config (dict): a dict with the module and hyperparameters to
+                import.
+
+        Returns:
+            (Callable): an instance of model with specific hyperparameters.
+        """
+        return utils.import_library(
+            model_config['module'], model_config['hyperparameters'])
 
     def read(self, settings: Dict) -> None:
         """
@@ -53,7 +73,8 @@ class SklearnModel(base.BaseModel):
         """
         self._estimator = extract.read_model(settings)
 
-    def build_model(self, model_config: Dict, normalizations: Dict) -> None:
+    def build_model(self, model_config: Dict,
+                    normalizations: normalization.Normalization) -> None:
         """
         Create the sklearn estimator. It builds an sklearn pipeline to handle
         the requested normalizations.
@@ -61,33 +82,36 @@ class SklearnModel(base.BaseModel):
         Args:
             model_config (Dict): the model configuration: the module and their
                 hyperparameters.
-            normalizations (Dict): the definition of normalizations applied to
-                the dataset during the model pipeline.
+            normalizations (normalization.Normalization): the definition of
+                normalizations applied to the dataset during the
+                model pipeline.
         """
         pipeline_steps = []
-        if normalizations.get('features', None) is not None:
-            features_norm = normalizations['features']
-            ct_feature = compose.ColumnTransformer(
-                transformers=[('feature_scaler', utils.import_library(
-                    features_norm['module']), features_norm['columns'])],
-                remainder='passthrough')
-            pipeline_steps.append(('feature_scaler', ct_feature))
+        # Preprocessing
+        pre_process_transformations = []
+        if normalizations is not None and normalizations.features:
+            features_norm = ('features_normalization',
+                             normalizations.features_normalizer,
+                             normalizations.features)
+            pre_process_transformations.append(features_norm)
+        # Adding more transformations here
 
-        estimator = utils.import_library(
-            model_config['module'], model_config['hyperparameters'])
+        if pre_process_transformations:
+            pre_process = compose.ColumnTransformer(
+                transformers=pre_process_transformations,
+                remainder='passthrough')
+            pipeline_steps.append(('pre_process', pre_process))
+
+        # Model
+        estimator = self._import_estimator(model_config)
+        if normalizations is not None and normalizations.target:
+            estimator = compose.TransformedTargetRegressor(
+                regressor=estimator,
+                transformer=normalizations.target_normalizer)
+
         pipeline_steps.append(('estimator', estimator))
-
         self._estimator = pipeline.Pipeline(pipeline_steps)
-
-        if normalizations.get('target', None) is not None:
-            target_norm = normalizations['target']
-            ct_target = compose.ColumnTransformer(
-                transformers=[('target_scaler', utils.import_library(
-                    target_norm['module']), target_norm['columns'])],
-                remainder='passthrough')
-
-            self._estimator = compose.TransformedTargetRegressor(
-                regressor=self._estimator, transformer=ct_target)
+        logger.info(f'Model pipeline {self._estimator}')
 
     def fit(self, x: ct.Dataset, y: ct.Dataset, **kwargs) -> None:
         """
@@ -127,9 +151,9 @@ class SklearnModel(base.BaseModel):
         """
         y_pred = self._estimator.predict(x)
         if self._estimator_type == 'regressor':
-            metrics = general.compute_regression_metrics(y, y_pred)
+            metrics = evaluate.compute_regression_metrics(y, y_pred)
         else:
-            metrics = general.compute_classification_metrics(y, y_pred)
+            metrics = evaluate.compute_classification_metrics(y, y_pred)
         return metrics
 
     def save(self, settings: Dict) -> None:

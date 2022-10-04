@@ -1,15 +1,16 @@
-import unittest
-from unittest.mock import patch
-from sklearn.utils import validation
 import numpy as np
-import tempfile
-import shutil
 import os
-
+import shutil
+import tempfile
+import unittest
+from sklearn.compose import TransformedTargetRegressor
+from sklearn.utils import validation
+from unittest.mock import patch
+import copy
+from src.data import tabular, normalization
+from src.models import sklearn_model
 from src.tests import utils
 from src.tools.startup import params
-from src.models import sklearn_model
-from src.data import tabular
 
 
 class SklearnTest(unittest.TestCase):
@@ -37,24 +38,89 @@ class SklearnTest(unittest.TestCase):
         sk_model.read(params['pipeline_steps']['model']['extract'])
         self.assertIsNotNone(sk_model._estimator)
 
-    def test_build_model(self):
+    def test_build_model_without_normalization(self):
         estimator_type = 'regressor'
         model_config = {'module': 'sklearn.ensemble.RandomForestRegressor',
                         'hyperparameters': {}}
-        normalizations = {}
         sk_model = sklearn_model.SklearnModel(estimator_type)
-        sk_model.build_model(model_config, normalizations)
+        norm = normalization.Normalization({})
+        sk_model.build_model(model_config, norm)
         self.assertIsNotNone(sk_model._estimator)
+        self.assertEqual(estimator_type, sk_model.estimator_type)
 
-        # TODO: missing normalizations testing
+    def test_build_model_with_normalization(self):
+        estimator_type = 'regressor'
+        model_config = {'module': 'sklearn.ensemble.RandomForestRegressor',
+                        'hyperparameters': {}}
+        # Normalize only features
+        features_to_normalize = ['col1', 'col2']
+        features_norm_config = {
+            'features': {
+                'module': 'sklearn.preprocessing.StandardScaler',
+                'module_params': {},
+                'columns': features_to_normalize
+            }
+        }
+        sk_model = sklearn_model.SklearnModel(estimator_type)
+        norm = normalization.Normalization(copy.deepcopy(features_norm_config))
+        sk_model.build_model(model_config, norm)
+        self.assertIsNotNone(sk_model._estimator)
+        self.assertEqual(estimator_type, sk_model.estimator_type)
+
+        self.assertEqual(
+            len(sk_model.estimator['pre_process'].transformers), 1)
+        name, scaler, columns = \
+            sk_model.estimator['pre_process'].transformers[0]
+        self.assertEqual(name, 'features_normalization')
+        self.assertListEqual(columns, features_to_normalize)
+        self.assertFalse(
+            isinstance(sk_model.estimator['estimator'],
+                       TransformedTargetRegressor))
+
+        # Normalize only target
+        target_to_normalize = ['target1', 'target2']
+        target_norm_config = {
+            'target': {
+                'module': 'sklearn.preprocessing.StandardScaler',
+                'module_params': {},
+                'columns': target_to_normalize
+            }
+        }
+        sk_model = sklearn_model.SklearnModel(estimator_type)
+        norm = normalization.Normalization(copy.deepcopy(target_norm_config))
+        sk_model.build_model(model_config, norm)
+        self.assertIsNotNone(sk_model._estimator)
+        self.assertEqual(estimator_type, sk_model.estimator_type)
+        self.assertEqual(len(sk_model.estimator.steps), 1)
+        self.assertIsInstance(
+            sk_model.estimator['estimator'], TransformedTargetRegressor)
+
+        # Normalize both
+        both_norm_config = {
+            **features_norm_config, **target_norm_config}
+        sk_model = sklearn_model.SklearnModel(estimator_type)
+        norm = normalization.Normalization(both_norm_config)
+        sk_model.build_model(model_config, norm)
+        self.assertIsNotNone(sk_model._estimator)
+        self.assertEqual(estimator_type, sk_model.estimator_type)
+        # Features
+        self.assertEqual(
+            len(sk_model.estimator['pre_process'].transformers), 1)
+        name, scaler, columns = \
+            sk_model.estimator['pre_process'].transformers[0]
+        self.assertEqual(name, 'features_normalization')
+        self.assertListEqual(columns, features_to_normalize)
+        # Target
+        self.assertIsInstance(
+            sk_model.estimator['estimator'], TransformedTargetRegressor)
 
     def test_fit(self):
         estimator_type = 'regressor'
         model_config = {'module': 'sklearn.ensemble.RandomForestRegressor',
                         'hyperparameters': {}}
-        normalizations = {}
         sk_model = sklearn_model.SklearnModel(estimator_type)
-        sk_model.build_model(model_config, normalizations)
+        norm = normalization.Normalization({})
+        sk_model.build_model(model_config, norm)
         x, y = self.dataset.values
         sk_model.fit(x, y)
         self.assertIsNone(
@@ -64,9 +130,9 @@ class SklearnTest(unittest.TestCase):
         estimator_type = 'regressor'
         model_config = {'module': 'sklearn.ensemble.RandomForestRegressor',
                         'hyperparameters': {}}
-        normalizations = {}
         sk_model = sklearn_model.SklearnModel(estimator_type)
-        sk_model.build_model(model_config, normalizations)
+        norm = normalization.Normalization({})
+        sk_model.build_model(model_config, norm)
         x, y = self.dataset.values
         sk_model.fit(x, y)
         predictions = sk_model.predict(x)
@@ -76,9 +142,9 @@ class SklearnTest(unittest.TestCase):
         estimator_type = 'regressor'
         model_config = {'module': 'sklearn.ensemble.RandomForestRegressor',
                         'hyperparameters': {}}
-        normalizations = {}
         sk_model = sklearn_model.SklearnModel(estimator_type)
-        sk_model.build_model(model_config, normalizations)
+        norm = normalization.Normalization({})
+        sk_model.build_model(model_config, norm)
         x, y = self.dataset.values
         sk_model.fit(x, y)
         metrics = sk_model.evaluate(x, y)
@@ -88,10 +154,10 @@ class SklearnTest(unittest.TestCase):
         estimator_type = 'regressor'
         model_config = {'module': 'sklearn.ensemble.RandomForestRegressor',
                         'hyperparameters': {}}
-        normalizations = {}
         sk_model = sklearn_model.SklearnModel(estimator_type)
-        sk_model.build_model(model_config, normalizations)
+        norm = normalization.Normalization({})
+        sk_model.build_model(model_config, norm)
         sk_model.save({'path': self.test_dir})
         files_in_test_dir = os.listdir(self.test_dir)
         self.assertTrue(any(f.startswith('sklearn.regressor')
-                        for f in files_in_test_dir))
+                            for f in files_in_test_dir))

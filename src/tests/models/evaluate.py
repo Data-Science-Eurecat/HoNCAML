@@ -1,10 +1,10 @@
-import unittest
 import pandas as pd
+import unittest
 
-from src.models import general
+from src.models import evaluate
 
 
-class GeneralTest(unittest.TestCase):
+class EvaluateTest(unittest.TestCase):
     def setUp(self) -> None:
         return super().setUp()
 
@@ -14,7 +14,7 @@ class GeneralTest(unittest.TestCase):
             {'metric1': 2, 'metric2': 5},
             {'metric1': 3, 'metric2': 6},
         ]
-        agg_results = general.aggregate_cv_results(cv_results)
+        agg_results = evaluate.aggregate_cv_results(cv_results)
         self.assertIsInstance(agg_results, dict)
         self.assertTrue('metric1' in agg_results)
         self.assertTrue('metric2' in agg_results)
@@ -26,7 +26,7 @@ class GeneralTest(unittest.TestCase):
     def test_compute_regression_metrics(self):
         y_true = pd.Series([1, 2, 3, 4])
         y_pred = pd.Series([0.5, 1.5, 2.5, 3.5])
-        metrics = general.compute_regression_metrics(y_true, y_pred)
+        metrics = evaluate.compute_regression_metrics(y_true, y_pred)
         self.assertIsInstance(metrics, dict)
         self.assertTrue('mean_squared_error' in metrics)
         self.assertTrue('mean_absolute_percentage_error' in metrics)
@@ -40,5 +40,4 @@ class GeneralTest(unittest.TestCase):
         y_true = pd.Series([1, 2, 3, 4])
         y_pred = pd.Series([0.5, 1.5, 2.5, 3.5])
         with self.assertRaises(NotImplementedError):
-            agg_results = general.compute_classification_metrics(
-                y_true, y_pred)
+            _ = evaluate.compute_classification_metrics(y_true, y_pred)

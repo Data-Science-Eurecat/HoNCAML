@@ -1,7 +1,9 @@
 from abc import ABC, abstractmethod
-from typing import Dict, List
-from src.tools import custom_typing as ct
+from typing import Dict, List, Callable
+
 from src.exceptions import model as model_exceptions
+from src.tools import custom_typing as ct
+from src.tools import utils
 
 
 class BaseModel(ABC):
@@ -26,6 +28,11 @@ class BaseModel(ABC):
             raise model_exceptions.EstimatorTypeNotAllowed(estimator_type)
         self._estimator_type = estimator_type
         self._estimator = None
+
+    @staticmethod
+    def _import_model_library(model_config: dict) -> Callable:
+        return utils.import_library(
+            model_config['module'], model_config['hyperparameters'])
 
     @abstractmethod
     def read(self, settings: Dict) -> None:
