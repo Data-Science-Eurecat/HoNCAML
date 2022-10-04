@@ -237,15 +237,6 @@ class TabularTest(unittest.TestCase):
         for col in total_columns:
             self.assertIn(col, result_dataset)
 
-    # @patch('pandas.read_csv')
-    # def test_preprocess(self, read_csv_mock_up):
-    #     read_csv_mock_up.return_value = utils.mock_up_read_dataframe()
-    #     self.tabular_obj.read(self.settings_with_csv.copy())
-    #     # TODO: set preprocessing transformations once implemented
-    #     settings = {}
-    #     self.tabular_obj.preprocess(settings)
-    #     # TODO: make the assertions
-
     @patch('pandas.read_csv')
     def test_preprocess(self, read_csv_mock_up):
         read_csv_mock_up.return_value = utils.mock_up_read_dataframe()

@@ -96,14 +96,15 @@ pipeline_steps:
   # Benchmark Step settings
   benchmark:
     extract:
-      # read a previously saved learner
+    # read a previously saved learner
     transform:
-      # List the models and hyperparameters to be tuned
-      # Learner parameters
+    # List the models and hyperparameters to be tuned
+    # Learner parameters
 
     load:
-      # save the learner to disk and the results
+    # save the learner to disk and the results
 
 # Available models settings
 models:
-  # List the models with their available hyperparameters to tune with their limits.
+# List the models with their available hyperparameters to tune
+# with their limits.
