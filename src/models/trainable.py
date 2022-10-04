@@ -19,3 +19,6 @@ class Trainable(tune.Trainable):
             self._model, x, y, self._cv_split,
             self._train_settings, self._test_settings)
         return metrics
+
+    # If reuse_actors=True, implement the following function
+    # def reset_config(self, new_config):

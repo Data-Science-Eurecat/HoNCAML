@@ -33,19 +33,35 @@ data:
 
 benchmark:
   transform:
+    tuner:
+      algorithm: ray.tune.search.optuna.OptunaSearch
+        # TODO (future): paràmetres de l'algorisme de cerca
+      # TODO (future): + paràmetres del tuner
+      # TODO (future): tune_config:
+      # TODO (future): run_config:
+    
+    # TODO (future): schedulers:
+    # TODO (future): callbacks:
+    
     models:
       - module: sklearn.ensemble.RandomForestRegressor
         search_space:
-          - n_estimators:
-            method: randint
+          n_estimators:
+            method: randint # TODO: mapping search spaces
             value: [2, 10]
           
       - module: sklearn.linear_model.LinearRegression
         search_space:
-          - fit_intercept:
+          fit_intercept:
             method: choice
             value: [True, False]
-    search_algorithm: 
+    
+    cross_validation:
+      strategy: k_fold
+      n_splits: 10
+      shuffle: True
+      random_state: 90
+
 
 # Model Step settings
 model:

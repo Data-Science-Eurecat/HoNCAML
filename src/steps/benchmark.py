@@ -1,6 +1,7 @@
 from typing import Dict
 
 from src.steps import base
+from src.data import transform
 from src.tools import utils
 
 
@@ -29,8 +30,7 @@ class BenchmarkStep(base.BaseStep):
         super().__init__(default_settings, user_settings, step_rules)
 
         # TODO: instance the Tuner class with the requested parameters
-        self._tuner = None  # tune.Tuner (de ray)
-        # Caldria un tuner per model
+        self._tuners = None  # []ray.tune.Tuner, un tuner per model
 
     def _extract(self, settings: Dict) -> None:
         """
@@ -48,6 +48,15 @@ class BenchmarkStep(base.BaseStep):
         Args:
             settings (Dict): the settings defining the transform ETL process.
         """
+        self._cv_split = transform.CrossValidationSplit(
+            settings['cross_validation'].pop('strategy'),
+            **settings.pop('cross_validation'))
+        # for model in models:
+        #   creo un tuner
+        #   model_results = tuner.fit
+        #   results.append(model_results)
+        # rank results
+        # loop tuners and run each one
         pass
 
     def _load(self, settings: Dict) -> None:
@@ -73,7 +82,12 @@ class BenchmarkStep(base.BaseStep):
                 the current step: the best estimator as a model from this
                 library.
         """
+        self._dataset = metadata['dataset']
         self.execute()
-        metadata.update(
-            {'model': 'a model objecct'})
+        metadata.update({
+            'model_config': {
+                'module': 'best_module',
+                'hyperparameters': 'best_hyperparameters'
+            }
+        })
         return metadata
