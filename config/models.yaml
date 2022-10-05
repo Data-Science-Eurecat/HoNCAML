@@ -1,0 +1,16 @@
+regressors:
+  sklearn.ensemble.RandomForestRegressor:
+    search_space:
+      # Llistar hiperparàmetres més comuns / tots + valors default
+      n_estimators:
+        method: randint
+        value: [2, 100]
+        
+
+classifiers:
+  sklearn.ensemble.RandomForestClassifier:
+    search_space:
+      # Llistar hiperparàmetres més comuns / tots + valors default
+      n_estimators:
+        method: randint
+        value: [2, 100]
