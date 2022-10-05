@@ -1,8 +1,8 @@
 from typing import Dict
 
-from src.steps import base
-from src.data import transform
-from src.tools import utils
+from honcaml.steps import base
+from honcaml.data import transform
+from honcaml.tools import utils
 
 
 class BenchmarkStep(base.BaseStep):

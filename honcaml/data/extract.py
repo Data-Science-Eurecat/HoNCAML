@@ -5,7 +5,7 @@ import yaml
 from typing import Dict
 
 from honcaml.exceptions import data as data_exception
-from src.tools import custom_typing as ct
+from honcaml.tools import custom_typing as ct
 from honcaml.tools import utils
 from honcaml.tools.startup import logger
 
