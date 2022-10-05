@@ -106,27 +106,10 @@ class ModelStep(base.BaseStep):
         if settings.get('cross_validation', None) is not None:
             # Run the cross-validation
             cv_split = transform.CrossValidationSplit(
-<< << << < HEAD: src/steps/model.py
                 settings['cross_validation'].pop('strategy'),
                 **settings.pop('cross_validation'))
             self._cv_results = general.cross_validate_model(
                 self._model, x, y, cv_split, **settings, **settings)
-
-
-== == == =
-                settings['cross_validation'].pop('strategy'))
-
-            results=[]
-            for split, x_train, x_test, y_train, y_test in
-                    cv_split.split(x, y, **settings.pop('cross_validation')):
-                logger.info(f'Running split {split} ...')
-                self._model.fit(x_train, y_train, **settings)
-
-                results.append(self._model.evaluate(
-                    x_test, y_test, **settings))
-            # Group cv metrics
-            self._cv_results=evaluate.aggregate_cv_results(results)
->> >>>> > develop: honcaml/steps/model.py
             logger.info(self._cv_results)
 
         # Train the model with whole data
@@ -140,8 +123,8 @@ class ModelStep(base.BaseStep):
         Args:
             settings: Predict configuration.
         """
-        x=self._dataset.x
-        predictions=self._model.predict(x, **settings)
+        x = self._dataset.x
+        predictions = self._model.predict(x, **settings)
         load.save_predictions(predictions, settings)
 
     def run(self, metadata: Dict) -> Dict:
@@ -156,9 +139,9 @@ class ModelStep(base.BaseStep):
             metadata: Updated pipeline with the best estimator as a model.
         """
         # Feed the model with the objects
-        self._dataset=metadata['dataset']
+        self._dataset = metadata['dataset']
         if metadata.get('model', None) is not None:
-            self._model=metadata['model']
+            self._model = metadata['model']
 
         self.execute()
 
