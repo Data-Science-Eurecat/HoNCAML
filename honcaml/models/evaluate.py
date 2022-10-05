@@ -5,10 +5,14 @@ import sklearn.metrics as sk_metrics
 import pandas as pd
 
 
-def cross_validate_model(model: base_model.BaseModel,
-                         x: ct.Array, y: ct.Array,
-                         cv_split: ct.SklearnCrossValidation,
-                         train_settings: Dict, test_settings: Dict) -> Dict:
+def cross_validate_model(
+        model: base_model.BaseModel, x: ct.Array, y: ct.Array,
+        cv_split: ct.SklearnCrossValidation, train_settings: Dict = None,
+        test_settings: Dict = None) -> Dict:
+    if train_settings is None:
+        train_settings = {}
+    if test_settings is None:
+        test_settings = {}
     results = []
     for split, x_train, x_test, y_train, y_test in cv_split.split(x, y):
         model.fit(x_train, y_train, **train_settings)

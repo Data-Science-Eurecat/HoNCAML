@@ -9,7 +9,7 @@ from honcaml.steps import model, base
 from honcaml.tests import utils
 from honcaml.tools.startup import params
 from honcaml.exceptions import model as model_exception
-from honcaml.models import sklearn_model
+from honcaml.models import sklearn_model, general
 from honcaml.data import tabular, normalization
 
 
@@ -119,29 +119,6 @@ class ModelTest(unittest.TestCase):
         #                            override_user_settings,
         #                            params['step_rules']['model'])
 
-    def test_model(self):
-        step = model.ModelStep(params['pipeline_steps']['model'], {},
-                               params['step_rules']['model'])
-        # Successful init
-        step._initialize_model('sklearn', 'regressor')
-        model_ = step.model
-        self.assertIsInstance(model_, sklearn_model.SklearnModel)
-
-    def test_initialize_model(self):
-        step = model.ModelStep(params['pipeline_steps']['model'], {},
-                               params['step_rules']['model'])
-        # Successful init
-        step._initialize_model('sklearn', 'regressor')
-        self.assertIsInstance(step._model, sklearn_model.SklearnModel)
-
-        # Invalid model type
-        with self.assertRaises(model_exception.ModelDoesNotExists):
-            step._initialize_model('invalid_model', 'regressor')
-
-        # invalid estimator_type
-        with self.assertRaises(model_exception.EstimatorTypeNotAllowed):
-            step._initialize_model('sklearn', 'invalid_type')
-
     @patch('joblib.load')
     def test_extract(self, read_model_mockup):
         model_config = {'module': 'sklearn.ensemble.RandomForestRegressor',
@@ -212,7 +189,9 @@ class ModelTest(unittest.TestCase):
         step = model.ModelStep(params['pipeline_steps']['model'],
                                user_settings,
                                params['step_rules']['model'])
-        step._initialize_model('sklearn', 'regressor')
+
+        step._model = general.initialize_model('sklearn', 'regressor')
+
         step._model.build_model({
             'module': 'sklearn.ensemble.RandomForestRegressor',
             'hyperparameters': {}
@@ -232,7 +211,7 @@ class ModelTest(unittest.TestCase):
                                transform_user_settings,
                                params['step_rules']['model'])
         step._dataset = self.dataset
-        step._initialize_model('sklearn', 'regressor')
+        step._model = general.initialize_model('sklearn', 'regressor')
         step._model.build_model(
             {'module': 'sklearn.ensemble.RandomForestRegressor',
              'hyperparameters': {}}, norm)
@@ -249,7 +228,7 @@ class ModelTest(unittest.TestCase):
                                transform_user_settings,
                                params['step_rules']['model'])
         step._dataset = self.dataset
-        step._initialize_model('sklearn', 'regressor')
+        step._model = general.initialize_model('sklearn', 'regressor')
         step._model.build_model(
             {'module': 'sklearn.ensemble.RandomForestRegressor',
              'hyperparameters': {}}, norm)
@@ -269,7 +248,7 @@ class ModelTest(unittest.TestCase):
                                transform_user_settings,
                                params['step_rules']['model'])
         step._dataset = self.dataset
-        step._initialize_model('sklearn', 'regressor')
+        step._model = general.initialize_model('sklearn', 'regressor')
         step._model.build_model(
             {'module': 'sklearn.ensemble.RandomForestRegressor',
              'hyperparameters': {}}, norm)

@@ -108,8 +108,8 @@ class ModelStep(base.BaseStep):
             cv_split = transform.CrossValidationSplit(
                 settings['cross_validation'].pop('strategy'),
                 **settings.pop('cross_validation'))
-            self._cv_results = general.cross_validate_model(
-                self._model, x, y, cv_split, **settings, **settings)
+            self._cv_results = evaluate.cross_validate_model(
+                self._model, x, y, cv_split)
             logger.info(self._cv_results)
 
         # Train the model with whole data
