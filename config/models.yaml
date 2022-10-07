@@ -4,8 +4,8 @@ regressors:
       # Llistar hiperparàmetres més comuns / tots + valors default
       n_estimators:
         method: randint
-        value: [2, 100]
-        
+        value: [ 2, 100 ]
+
 
 classifiers:
   sklearn.ensemble.RandomForestClassifier:
@@ -13,4 +13,9 @@ classifiers:
       # Llistar hiperparàmetres més comuns / tots + valors default
       n_estimators:
         method: randint
-        value: [2, 100]
+        value: [ 2, 100 ]
+
+search_space_mapping:
+  randint: tune.randint
+  choice: tune.choice
+  # Adding more functions here

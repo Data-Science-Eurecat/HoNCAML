@@ -11,6 +11,9 @@ logging:
 # Path of pipelines folder
 pipeline_folder: config/pipelines
 
+# Path of model.yaml
+models_config_path: config/models.yaml
+
 # Pipeline validation rules
 pipeline_rules:
 
@@ -98,8 +101,28 @@ pipeline_steps:
     extract:
     # read a previously saved learner
     transform:
-    # List the models and hyperparameters to be tuned
-    # Learner parameters
+      tuner:
+        algorithm: ray.tune.search.optuna.OptunaSearch
+        # TODO (future): paràmetres de l'algorisme de cerca
+        # TODO (future): + paràmetres del tuner
+        # TODO (future): tune_config:
+        # TODO (future): run_config:
+
+        # TODO (future): schedulers:
+        # TODO (future): callbacks:
+
+        models:
+          - module: sklearn.ensemble.RandomForestRegressor
+            search_space:
+              n_estimators:
+                method: randint
+                value: [ 2, 10 ]
+
+        cross_validation:
+          strategy: k_fold
+          n_splits: 2
+          shuffle: True
+          random_state: 90
 
     load:
     # save the learner to disk and the results
@@ -108,3 +131,4 @@ pipeline_steps:
 models:
 # List the models with their available hyperparameters to tune
 # with their limits.
+

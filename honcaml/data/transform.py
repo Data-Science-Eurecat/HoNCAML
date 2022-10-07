@@ -101,6 +101,10 @@ class CrossValidationSplit:
         """
         return self._strategy
 
+    @property
+    def n_splits(self) -> int:
+        return self._kwargs.get('n_splits', None)
+
     def _create_cross_validation_instance(self) -> ct.SklearnCrossValidation:
         """
         Creates a new instance of one of the cross-validation strategies

@@ -3,6 +3,7 @@ from honcaml.tools import custom_typing as ct
 from honcaml.models import base as base_model, general
 import sklearn.metrics as sk_metrics
 import pandas as pd
+from honcaml.tools.startup import logger
 
 
 def cross_validate_model(
@@ -13,10 +14,13 @@ def cross_validate_model(
         train_settings = {}
     if test_settings is None:
         test_settings = {}
+
     results = []
     for split, x_train, x_test, y_train, y_test in cv_split.split(x, y):
+        logger.info(f'Running split {split}/{cv_split.n_splits} ...')
         model.fit(x_train, y_train, **train_settings)
         results.append(model.evaluate(x_test, y_test, **test_settings))
+    logger.info('Done.')
     # Group cv metrics
     cv_results = general.aggregate_cv_results(results)
     return cv_results

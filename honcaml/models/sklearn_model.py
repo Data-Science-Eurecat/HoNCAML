@@ -72,7 +72,7 @@ class SklearnModel(base.BaseModel):
     def build_model(self, model_config: Dict,
                     normalizations: normalization.Normalization) -> None:
         """
-        Creates the sklearn estimator. It builds an sklearn pipeline to handle
+        Creates the sklearn estimator. It builds a sklearn pipeline to handle
         the requested normalizations.
 
         Args:
@@ -99,6 +99,7 @@ class SklearnModel(base.BaseModel):
 
         # Model
         estimator = self._import_estimator(model_config)
+        # estimator = RandomForestRegressor()
         if normalizations is not None and normalizations.target:
             estimator = compose.TransformedTargetRegressor(
                 regressor=estimator,
