@@ -68,6 +68,7 @@ _trial_temp
 
 # Sphinx documentation
 docs/_build/
+modules.rst
 
 # PyBuilder
 target/
