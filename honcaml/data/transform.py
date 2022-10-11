@@ -73,6 +73,8 @@ class CrossValidationSplit:
 
     Attributes:
         _strategy (str): Cross-validation strategy name.
+        _kwargs (Dict): Dict with additional parameters to pass to
+            sklearn cross-validation class.
     """
 
     def __init__(self, strategy: str, **kwargs) -> None:
@@ -89,7 +91,7 @@ class CrossValidationSplit:
                 - leave_one_out
         """
         self._strategy: str = strategy
-        self._kwargs = kwargs
+        self._kwargs: Dict = kwargs
 
     @property
     def strategy(self) -> str:

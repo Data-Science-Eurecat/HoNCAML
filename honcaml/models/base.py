@@ -31,6 +31,20 @@ class BaseModel(ABC):
 
     @staticmethod
     def _import_model_library(model_config: dict) -> Callable:
+        """
+        Given a dict with a model config (module and hyperparameters), this
+        function imports the module and creates a new instance with the
+        hyperparameters.
+
+        Args:
+            model_config (dict): dict with model configurations. In addition,
+                the 'module' key refers to module to import. Also, with
+                'hyperparameters' keys refers to a hyperparameters
+                configuration.
+
+        Returns:
+            (Callable): a new instance of imported module.
+        """
         return utils.import_library(
             model_config['module'], model_config['hyperparameters'])
 

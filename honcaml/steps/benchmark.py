@@ -26,8 +26,12 @@ class BenchmarkStep(base.BaseStep):
     methods allow the steps to save and restore executions to/from checkpoints.
 
     Attributes:
-        default_settings (Dict): the default settings for the steps.
-        user_settings (Dict): the user defined settings for the steps.
+        _models_config
+        _store_results_folder
+        _results_per_model
+        _dataset
+        _metric
+        _mode
     """
 
     def __init__(self, default_settings: Dict, user_settings: Dict,
@@ -42,8 +46,6 @@ class BenchmarkStep(base.BaseStep):
         """
         super().__init__(default_settings, user_settings, step_rules)
 
-        # TODO: instance the Tuner class with the requested parameters
-        self._tuners = None
         self._models_config = extract.read_yaml(params['models_config_path'])
         self._store_results_folder = os.path.join(
             params['metrics_folder'], execution_id)
@@ -51,8 +53,11 @@ class BenchmarkStep(base.BaseStep):
 
         self._dataset = None
 
-        self.metric = None
-        self.mode = None
+        self._metric = None
+        self._mode = None
+
+        self._best_model = None
+        self._best_hyperparameters = None
 
     def _extract(self, settings: Dict) -> None:
         """
@@ -200,8 +205,8 @@ class BenchmarkStep(base.BaseStep):
             settings (Dict): a dict with Tune settings.
 
         """
-        self.metric = self._clean_tune_config(settings)['metric']
-        self.mode = self._clean_tune_config(settings)['mode']
+        self._metric = self._clean_tune_config(settings)['metric']
+        self._mode = self._clean_tune_config(settings)['mode']
 
     @staticmethod
     def _filter_results_dataframe(df: pd.DataFrame) -> pd.DataFrame:
@@ -223,25 +228,36 @@ class BenchmarkStep(base.BaseStep):
         ]
         return df.drop(columns=drop_columns)
 
+    def _sort_results(self, df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Given a results dataframe, this function sorts dataframe based in
+        metric and mode. The 'mode' could be 'min' or 'max'. If it is 'min',
+        the dataframe is sorted in ascending way. Otherwise, it stores the
+        dataframe in descending way.
+
+        Args:
+            df (pd.DataFrame): result's dataframe.
+
+        Returns:
+            df (pd.DataFrame): sorted dataframe.
+        """
+        ascending = True if self._mode == 'min' else False
+        df = df \
+            .sort_values(by=self._metric, ascending=ascending) \
+            .reset_index(drop=True)
+        return df
+
     def _store_results(self, df: pd.DataFrame) -> None:
         """
         Given a results dataframe, this function stores the dataframe to
-        disk. In addition, it sorts dataframe based in metric and mode.
-        The 'mode' could be 'min' or 'max'. If it is 'min', the dataframe
-        is sorted in ascending way. Otherwise, it stores the dataframe in
-        descending way.
+        disk.
 
         Args:
             df (pd.DataFrame): result's dataframe.
         """
         file_path = os.path.join(self._store_results_folder, 'results.csv')
         logger.info(f'Store metrics results in {file_path}')
-        # Sort score results based on if the objective is maximize or minimize
-        # metric function
-        ascending = True if self.mode == 'min' else False
-        df \
-            .sort_values(by=self.metric, ascending=ascending) \
-            .to_csv(file_path, index=False)
+        df.to_csv(file_path, index=False)
 
     def _transform(self, settings: Dict) -> None:
         """
@@ -298,7 +314,7 @@ class BenchmarkStep(base.BaseStep):
 
             # Get results
             best_results = results.get_best_result(
-                metric=self.metric, mode=self.mode).config
+                metric=self._metric, mode=self._mode).config
             logger.info(f'Best configuration for model {model_module} '
                         f'is {best_results}')
 
@@ -309,8 +325,34 @@ class BenchmarkStep(base.BaseStep):
 
             results_df = pd.concat([results_df, iter_results_df])
 
-        # Store results for all experiments
+        # Sort and store results for all experiments
+        results_df = self._sort_results(results_df)
         self._store_results(results_df)
+
+        self._get_best_result(results_df)
+
+    def _get_best_result(self, df: pd.DataFrame) -> None:
+        """
+        Given a results dataframe, this function gets the best model and the
+        best hyperparmeters configuration.
+
+        Args:
+            df (pd.DataFrame): results dataframe.
+
+        """
+        cond_param_columns = df.columns.str.contains('config')
+        selected_columns = df.columns[cond_param_columns]
+        best_params_df = df \
+            .head(1)[selected_columns] \
+            .drop(columns=['config/metric']) \
+            .dropna(axis=1)
+        # Rename columns
+        best_params_df.columns = best_params_df.columns.str.split('/').str[-1]
+        # Store to class attributes the best model and the best hyperparameters
+        self._best_model = best_params_df['model_module'].values[0]
+        self._best_hyperparameters = best_params_df \
+            .drop(columns=['model_module']) \
+            .to_dict('records')[0]
 
     def _load(self, settings: Dict) -> None:
         """
@@ -340,8 +382,8 @@ class BenchmarkStep(base.BaseStep):
 
         metadata.update({
             'model_config': {
-                'module': 'best_module',
-                'hyperparameters': 'best_hyperparameters'
+                'module': self._best_model,
+                'hyperparameters': self._best_hyperparameters,
             }
         })
         return metadata
