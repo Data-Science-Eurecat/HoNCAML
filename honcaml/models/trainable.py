@@ -72,7 +72,7 @@ class EstimatorTrainer(tune.Trainable):
         cv_results = evaluate.cross_validate_model(
             self._model, x, y, self._cv_split)
 
-        return {'score': cv_results[self._metric]}
+        return cv_results
 
     def save_checkpoint(
             self, checkpoint_dir: str) -> Optional[Union[str, Dict]]:
@@ -81,5 +81,5 @@ class EstimatorTrainer(tune.Trainable):
     def load_checkpoint(self, checkpoint: Union[Dict, str]):
         pass
 
-# If reuse_actors=True, implement the following function
-# def reset_config(self, new_config):
+    # If reuse_actors=True, implement the following function
+    # def reset_config(self, new_config):
