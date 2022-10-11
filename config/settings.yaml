@@ -14,6 +14,10 @@ pipeline_folder: config/pipelines
 # Path of model.yaml
 models_config_path: config/models.yaml
 
+# Reports folder
+reports_folder: reports/
+metrics_folder: reports/metrics/
+
 # Pipeline validation rules
 pipeline_rules:
 
