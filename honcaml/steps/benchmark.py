@@ -285,13 +285,13 @@ class BenchmarkStep(base.BaseStep):
         best_params_df.columns = best_params_df.columns.str.split('/').str[-1]
         # Store to class attributes the best model and the best hyperparameters
         self._best_model = best_params_df['model_module'].values[0]
-        self._best_hyperparameters = self._get_best_hyper_parameters(
+        self._best_hyper_parameters = self._get_best_hyper_parameters(
             best_params_df)
 
         metrics = self._get_best_metrics(best_params_df)
         logger.info(f'The best configuration is model {self._best_model} and '
                     f'the hyperparameter configuration: '
-                    f'{self._best_hyperparameters} with metrics {metrics}')
+                    f'{self._best_hyper_parameters} with metrics {metrics}')
 
     def _get_best_hyper_parameters(
             self, df: pd.DataFrame) -> Dict[str, ct.Number]:
@@ -440,7 +440,7 @@ class BenchmarkStep(base.BaseStep):
         metadata.update({
             'model_config': {
                 'module': self._best_model,
-                'hyperparameters': self._best_hyperparameters,
+                'hyper_parameters': self._best_hyper_parameters,
             }
         })
 
