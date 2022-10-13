@@ -163,5 +163,5 @@ class SklearnModel(base.BaseModel):
             settings: Parameter settings defining the store operation.
         """
         settings['filename'] = utils.generate_unique_id(
-            base.ModelType.sklearn, self._estimator_type) + '.sav'
+            base.ModelType.sklearn) + '.sav'
         load.save_model(self._estimator, settings)
