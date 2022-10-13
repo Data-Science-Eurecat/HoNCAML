@@ -1,12 +1,33 @@
 import pandas as pd
 import unittest
 
-from honcaml.models import evaluate
+from honcaml.tests import utils
+from honcaml.models import sklearn_model, evaluate
+from honcaml.data import tabular, normalization, transform
 
 
 class EvaluateTest(unittest.TestCase):
     def setUp(self) -> None:
         return super().setUp()
+
+    def test_cross_validate_model(self):
+        problem_type = 'regression'
+        model_config = {'module': 'sklearn.ensemble.RandomForestRegressor',
+                        'hyperparameters': {}}
+        model = sklearn_model.SklearnModel(problem_type)
+        norm = normalization.Normalization({})
+        model.build_model(model_config, norm)
+        dataset = tabular.TabularDataset()
+        dataset._dataset = utils.mock_up_read_dataframe()
+        dataset._features = ['col1', 'col2']
+        dataset._target = ['target1', 'target2']
+        x, y = dataset.values
+        cv_split = transform.CrossValidationSplit('k_fold', n_splits=2)
+        train_settings = None
+        test_settings = None
+        cv_results = evaluate.cross_validate_model(
+            model, x, y, cv_split, train_settings, test_settings)
+        self.assertIsInstance(cv_results, dict)
 
     def test_compute_regression_metrics(self):
         y_true = pd.Series([1, 2, 3, 4])

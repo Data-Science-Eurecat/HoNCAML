@@ -148,7 +148,7 @@ class SklearnModel(base.BaseModel):
         y_pred = self._estimator.predict(x)
         if self._estimator_type == base.EstimatorType.regressor:
             metrics = evaluate.compute_regression_metrics(y, y_pred)
-        elif self._estimator_type == base.EstimatorType.regressor:
+        elif self._estimator_type == base.EstimatorType.classifier:
             metrics = evaluate.compute_classification_metrics(y, y_pred)
         else:
             raise model_exceptions.EstimatorTypeNotAllowed(

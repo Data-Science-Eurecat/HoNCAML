@@ -40,8 +40,13 @@ class ExecutionTest(unittest.TestCase):
         pipeline_content = self.execution._read_pipeline_file()
         self.assertIsInstance(pipeline_content, dict)
         self.assertDictEqual(pipeline_content, {
-            'data': {},
-            'model': {},
+            'global': {
+                'problem_type': 'regression',
+            },
+            'steps': {
+                'data': {},
+                'model': {},
+            },
         })
 
     def test_parse_pipeline(self):
@@ -50,8 +55,13 @@ class ExecutionTest(unittest.TestCase):
             self.test_dir, f'{self.pipeline_name}.yaml'))
         self.assertIsInstance(pipeline_content, dict)
         self.assertDictEqual(pipeline_content, {
-            'data': {},
-            'model': {},
+            'global': {
+                'problem_type': 'regression',
+            },
+            'steps': {
+                'data': {},
+                'model': {},
+            },
         })
 
     def test_run(self):

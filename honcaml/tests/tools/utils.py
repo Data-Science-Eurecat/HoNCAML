@@ -46,34 +46,30 @@ class UtilsTest(unittest.TestCase):
     # Test generate_unique_id
     def test_generate_unique_id(self):
         estimator_module = None
-        estimator_type = None
         adding_uuid = False
         unique_id = utils.generate_unique_id(
-            estimator_module, estimator_type, adding_uuid)
+            estimator_module, adding_uuid)
         self.assertRegex(unique_id, r'^\d{4}\d{2}\d{2}-\d{2}\d{2}\d{2}$')
 
         estimator_module = 'module'
-        estimator_type = None
         adding_uuid = False
         unique_id = utils.generate_unique_id(
-            estimator_module, estimator_type, adding_uuid)
+            estimator_module, adding_uuid)
         self.assertRegex(
             unique_id, r'^module.\d{4}\d{2}\d{2}-\d{2}\d{2}\d{2}$')
 
         estimator_module = 'module'
-        estimator_type = 'type'
         adding_uuid = False
         unique_id = utils.generate_unique_id(
-            estimator_module, estimator_type, adding_uuid)
+            estimator_module, adding_uuid)
         self.assertRegex(
-            unique_id, r'^module.type.\d{4}\d{2}\d{2}-\d{2}\d{2}\d{2}$')
+            unique_id, r'^module.\d{4}\d{2}\d{2}-\d{2}\d{2}\d{2}$')
 
         estimator_module = 'module'
-        estimator_type = 'type'
         adding_uuid = True
         unique_id = utils.generate_unique_id(
-            estimator_module, estimator_type, adding_uuid)
-        regex_1 = r'module.type.\d{4}\d{2}\d{2}-\d{2}\d{2}\d{2}_'
+            estimator_module, adding_uuid)
+        regex_1 = r'module.\d{4}\d{2}\d{2}-\d{2}\d{2}\d{2}_'
         regex_2 = r'[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-'
         regex_3 = r'[089ab][0-9a-f]{3}-[0-9a-f]{12}'
         regex = r'^' + regex_1 + regex_2 + regex_3 + r'$'
