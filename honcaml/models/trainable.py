@@ -48,8 +48,9 @@ class EstimatorTrainer(tune.Trainable):
         self._cv_split = config['cv_split']
         self._param_space = config['param_space']
         self._metric = config['metric']
+        self._problem_type = config['problem_type']
 
-        self._model = general.initialize_model('sklearn', 'regressor')
+        self._model = general.initialize_model('sklearn', self._problem_type)
 
         model_config = {
             'module': self._model_module,

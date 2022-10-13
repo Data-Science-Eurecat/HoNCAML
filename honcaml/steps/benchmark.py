@@ -35,7 +35,8 @@ class BenchmarkStep(base.BaseStep):
     """
 
     def __init__(self, default_settings: Dict, user_settings: Dict,
-                 step_rules: Dict, execution_id: str) -> None:
+                 global_params: Dict, step_rules: Dict, execution_id: str) \
+            -> None:
         """
         This is a constructor method of class. This function initializes
         the parameters and set up the current steps.
@@ -43,8 +44,11 @@ class BenchmarkStep(base.BaseStep):
         Args:
             default_settings (Dict): the default settings for the steps.
             user_settings (Dict): the user defined settings for the steps.
+            global_params: global parameters for the current pipeline.
+            step_rules: Validation rules for this step.
         """
-        super().__init__(default_settings, user_settings, step_rules)
+        super().__init__(default_settings, user_settings, global_params,
+                         step_rules)
 
         self._models_config = extract.read_yaml(params['models_config_path'])
         self._store_results_folder = os.path.join(
@@ -274,7 +278,8 @@ class BenchmarkStep(base.BaseStep):
         config = {
             'dataset': copy.deepcopy(self._dataset),
             'cv_split': copy.deepcopy(cv_split),
-            'metric': settings['metric']
+            'metric': settings['metric'],
+            'problem_type': self._global_params['problem_type']
         }
         tuner_settings = settings['tuner']
 

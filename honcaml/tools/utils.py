@@ -151,3 +151,11 @@ class FileExtension:
     csv = '.csv'
     excel = ['.xlsx', '.xls']
     # Adding more file extensions here
+
+
+class ProblemType:
+    """
+    Defines the available problem types.
+    """
+    classification = 'classification'
+    regression = 'regression'

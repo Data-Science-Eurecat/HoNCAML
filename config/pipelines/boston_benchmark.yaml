@@ -1,86 +1,89 @@
-data:
-  extract:
-    filepath: data/raw/kc_house_data.csv
-    target:
-      - price
-    features:
-      - bedrooms
-      - bathrooms
-      - sqft_living
-      - sqft_lot
-      - floors
-      - waterfront
-      - view
-      - condition
-      - grade
-      - sqft_above
-      - sqft_basement
-      - yr_built
-      - yr_renovated
-      - zipcode
-      - lat
-      - long
-      - sqft_living15
-      - sqft_lot15
-
-  transform:
-    normalize:
-      features:
-        module: sklearn.preprocessing.StandardScaler
-        module_params:
-          with_std: True
-        columns:
-          - bedrooms
-          - bathrooms
+global:
+  problem_type: regression # | classification
+steps:
+  data:
+    extract:
+      filepath: data/raw/kc_house_data.csv
       target:
-        module: sklearn.preprocessing.StandardScaler
-        module_params:
-          with_std: True
-        columns:
-          - price
+        - price
+      features:
+        - bedrooms
+        - bathrooms
+        - sqft_living
+        - sqft_lot
+        - floors
+        - waterfront
+        - view
+        - condition
+        - grade
+        - sqft_above
+        - sqft_basement
+        - yr_built
+        - yr_renovated
+        - zipcode
+        - lat
+        - long
+        - sqft_living15
+        - sqft_lot15
 
-benchmark:
-  transform:
-    metric: root_mean_square_error
-    tuner:
-      search_algorithm:
-        module: ray.tune.search.optuna.OptunaSearch
-        params:
-      tune_config:
-        num_samples: 5
-        metric: score
-        mode: min
-      run_config:
-        stop:
-          training_iteration: 2
-      scheduler:
-        module: ray.tune.schedulers.HyperBandScheduler
-        params:
-      # callbacks:
+    transform:
+      normalize:
+        features:
+          module: sklearn.preprocessing.StandardScaler
+          module_params:
+            with_std: True
+          columns:
+            - bedrooms
+            - bathrooms
+        target:
+          module: sklearn.preprocessing.StandardScaler
+          module_params:
+            with_std: True
+          columns:
+            - price
 
-    models:
-      - module: sklearn.ensemble.RandomForestRegressor
-        search_space:
-          n_estimators:
-            method: randint
-            values: [ 2, 110 ]
-          max_features:
-            method: choice
-            values:
-              - sqrt
-              - log2
-              - 1 # It means 'auto'
+  benchmark:
+    transform:
+      metric: root_mean_square_error
+      tuner:
+        search_algorithm:
+          module: ray.tune.search.optuna.OptunaSearch
+          params:
+        tune_config:
+          num_samples: 5
+          metric: score
+          mode: min
+        run_config:
+          stop:
+            training_iteration: 2
+        scheduler:
+          module: ray.tune.schedulers.HyperBandScheduler
+          params:
+        # callbacks:
 
-      - module: sklearn.linear_model.LinearRegression
-        search_space:
-          fit_intercept:
-            method: choice
-            values:
-              - True
-              - False
+      models:
+        - module: sklearn.ensemble.RandomForestRegressor
+          search_space:
+            n_estimators:
+              method: randint
+              values: [ 2, 110 ]
+            max_features:
+              method: choice
+              values:
+                - sqrt
+                - log2
+                - 1 # It means 'auto'
 
-    cross_validation:
-      strategy: k_fold
-      n_splits: 2
-      shuffle: True
-      random_state: 90
+        - module: sklearn.linear_model.LinearRegression
+          search_space:
+            fit_intercept:
+              method: choice
+              values:
+                - True
+                - False
+
+      cross_validation:
+        strategy: k_fold
+        n_splits: 2
+        shuffle: True
+        random_state: 90

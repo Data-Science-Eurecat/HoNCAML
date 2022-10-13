@@ -1,9 +1,17 @@
 from abc import ABC, abstractmethod
 from typing import Dict, List, Callable
 
-from honcaml.exceptions import model as model_exceptions
+from honcaml.exceptions import pipeline as pipeline_exceptions
 from honcaml.tools import custom_typing as ct
 from honcaml.tools import utils
+
+
+class EstimatorType:
+    """
+    Defines the available types of estimators.
+    """
+    classifier = 'classifier'
+    regressor = 'regressor'
 
 
 class BaseModel(ABC):
@@ -16,7 +24,7 @@ class BaseModel(ABC):
         _estimator: Estimator defined by child classes.
     """
 
-    def __init__(self, estimator_type: str) -> None:
+    def __init__(self, problem_type: str) -> None:
         """
         Base class constructor. Initializes the common attributes.
 
@@ -24,9 +32,12 @@ class BaseModel(ABC):
             estimator_type: The kind of estimator to be used. Valid
                 values are `regressor` and `classifier`.
         """
-        if estimator_type not in estimator_types:
-            raise model_exceptions.EstimatorTypeNotAllowed(estimator_type)
-        self._estimator_type = estimator_type
+        if problem_type == utils.ProblemType.classification:
+            self._estimator_type = EstimatorType.classifier
+        elif problem_type == utils.ProblemType.regression:
+            self._estimator_type = EstimatorType.regressor
+        else:
+            raise pipeline_exceptions.ProblemTypeNotAllowed(problem_type)
         self._estimator = None
 
     @staticmethod
@@ -131,14 +142,6 @@ class ModelType:
     Defines the available types of models.
     """
     sklearn = 'sklearn'
-
-
-class EstimatorType:
-    """
-    Defines the available types of estimators.
-    """
-    classifier = 'classifier'
-    regressor = 'regressor'
 
 
 estimator_types = [

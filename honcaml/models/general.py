@@ -5,21 +5,21 @@ from honcaml.exceptions import model as model_exceptions
 from honcaml.models import base as base_model, sklearn_model
 
 
-def initialize_model(model_type: str, estimator_type: str) \
+def initialize_model(model_type: str, problem_type: str) \
         -> base_model.BaseModel:
     """
     Initialize the specific type of model.
 
     Args:
         model_type: the kind of model to initialize.
-        estimator_type: the kind of estimator to be used. Valid
-            values are `regressor` and `classifier`.
+        problem_type: the kind of problem to be addressed. Valid
+            values are `regression` and `classification`.
 
     Returns:
         model: the requested model instance.
     """
     if model_type == base_model.ModelType.sklearn:
-        model = sklearn_model.SklearnModel(estimator_type)
+        model = sklearn_model.SklearnModel(problem_type)
     else:
         raise model_exceptions.ModelDoesNotExists(model_type)
     return model

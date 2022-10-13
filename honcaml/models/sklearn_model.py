@@ -6,6 +6,7 @@ from honcaml.models import base, evaluate
 from honcaml.tools import custom_typing as ct
 from honcaml.tools import utils
 from honcaml.tools.startup import logger
+from honcaml.exceptions import model as model_exceptions
 
 
 class SklearnModel(base.BaseModel):
@@ -13,15 +14,15 @@ class SklearnModel(base.BaseModel):
     Scikit Learn model wrapper.
     """
 
-    def __init__(self, estimator_type: str) -> None:
+    def __init__(self, problem_type: str) -> None:
         """
         Class constructor which initializes the base class.
 
         Args:
-            estimator_type (str): The kind of estimator to be used. Valid
-                values are `regressor` and `classifier`.
+            problem_type (str): The kind of problem to be addressed. Valid
+                values are `regression` and `classification`.
         """
-        super().__init__(estimator_type)
+        super().__init__(problem_type)
         self._estimator = None
 
     @property
@@ -145,10 +146,13 @@ class SklearnModel(base.BaseModel):
             Resulting metrics from the evaluation.
         """
         y_pred = self._estimator.predict(x)
-        if self._estimator_type == 'regressor':
+        if self._estimator_type == base.EstimatorType.regressor:
             metrics = evaluate.compute_regression_metrics(y, y_pred)
-        else:
+        elif self._estimator_type == base.EstimatorType.regressor:
             metrics = evaluate.compute_classification_metrics(y, y_pred)
+        else:
+            raise model_exceptions.EstimatorTypeNotAllowed(
+                self._estimator_type)
         return metrics
 
     def save(self, settings: Dict) -> None:
