@@ -94,8 +94,11 @@ class BenchmarkStep(base.BaseStep):
             method = space['method']
             values = space['values']
 
-            tune_method = eval(
-                self._models_config['search_space_mapping'][method])
+            try:
+                tune_method = eval(
+                    self._models_config['search_space_mapping'][method])
+            except KeyError:
+                raise benchmark_exceptions.TuneMethodDoesNotExists(method)
 
             if method == TuneMethods.randint:
                 min_value, max_value = values
@@ -103,8 +106,6 @@ class BenchmarkStep(base.BaseStep):
                     min_value, max_value)
             elif method == TuneMethods.choice:
                 cleaned_search_space[hyper_parameter] = tune_method(values)
-            else:
-                raise benchmark_exceptions.TuneMethodDoesNotExists(method)
 
         return cleaned_search_space
 
@@ -332,7 +333,7 @@ class BenchmarkStep(base.BaseStep):
         Args:
             settings (Dict): the settings defining the extract ETL process.
         """
-        pass
+        raise NotImplementedError('Extract function is not implemented')
 
     def _transform(self, settings: Dict) -> None:
         """
@@ -418,7 +419,7 @@ class BenchmarkStep(base.BaseStep):
         Args:
             settings (Dict): the settings defining the load ETL process.
         """
-        pass
+        raise NotImplementedError('Load function is not implemented')
 
     def run(self, metadata: Dict) -> Dict:
         """

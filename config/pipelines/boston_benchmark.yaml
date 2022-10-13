@@ -41,7 +41,7 @@ data:
 
 benchmark:
   transform:
-    reported_metrics:
+    metrics:
       - mean_squared_error
       - mean_absolute_percentage_error
       - median_absolute_error
