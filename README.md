@@ -54,25 +54,25 @@ the documentation.
 ## Tests
 Comanda simple (correr un fitxer de tests):
 ```
-python -m pytest src/tests/data/transform.py
+python -m pytest honcaml/tests/data/transform.py
 ```
 
 Comanda per correr una carpeta de tests:
 ```
-python -m pytest src/tests/data/*
+python -m pytest honcaml/tests/data/*
 ```
 
 Comanda per correr totes les carpetes de tests:
 ```
-python -m pytest src/tests/data/* src/tests/models/* src/tests/steps/* src/tests/tools/*
+python -m pytest honcaml/tests/data/* honcaml/tests/models/* honcaml/tests/steps/* honcaml/tests/tools/*
 ```
 
 Comanda per correr totes les carpetes de tests + coverage:
 ```
-python -m pytest --cov=src src/tests/data/* src/tests/models/* src/tests/steps/* src/tests/tools/*
+python -m pytest --cov=honcaml honcaml/tests/data/* honcaml/tests/models/* honcaml/tests/steps/* honcaml/tests/tools/*
 ```
 
 Comanda per correr totes les carpetes de tests + coverage + missing lines:
 ```
-python -m pytest --cov=src --cov-report term-missing src/tests/data/* src/tests/models/* src/tests/steps/* src/tests/tools/*
+python -m pytest --cov=honcaml --cov-report term-missing honcaml/tests/data/* honcaml/tests/models/* honcaml/tests/steps/* honcaml/tests/tools/*
 ```

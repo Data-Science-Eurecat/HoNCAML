@@ -13,13 +13,14 @@ class DataTest(unittest.TestCase):
         self.extract = base.StepPhase.extract
         self.transform = base.StepPhase.transform
         self.load = base.StepPhase.load
+        self._global_params = {'problem_type': 'regression'}
 
     # Test _merge_settings method
     def test_merge_default_settings_and_user_settings(self):
         # Empty user settings
         empty_user_settings = dict()
         step = data.DataStep(params['pipeline_steps']['data'],
-                             empty_user_settings,
+                             empty_user_settings, self._global_params,
                              params['step_rules']['data'])
         self.assertDictEqual({}, step.step_settings)
 
@@ -32,7 +33,7 @@ class DataTest(unittest.TestCase):
                 },
         }
         step = data.DataStep(params['pipeline_steps']['data'],
-                             user_settings,
+                             user_settings, self._global_params,
                              params['step_rules']['data'])
         # The result dict has the same number of phases
         self.assertEqual(1, len(step.step_settings))
@@ -59,7 +60,8 @@ class DataTest(unittest.TestCase):
             }
         }
         _ = data.DataStep(params['pipeline_steps']['data'],
-                          user_settings, params['step_rules']['data'])
+                          user_settings, self._global_params,
+                          params['step_rules']['data'])
         self.assertDictEqual(
             user_settings['transform'],
             {'override_param': {'param1': 1, 'param2': 2}})
@@ -82,7 +84,7 @@ class DataTest(unittest.TestCase):
         }
         # Check the default params for transform phase
         step = data.DataStep(params['pipeline_steps']['data'],
-                             user_settings,
+                             user_settings, self._global_params,
                              params['step_rules']['data'])
         step_settings = step.step_settings
         user_transform = user_settings['transform']
@@ -121,7 +123,7 @@ class DataTest(unittest.TestCase):
         # When settings does not have features, it includes all features
         # without target.
         step = data.DataStep(params['pipeline_steps']['data'],
-                             empty_user_settings,
+                             empty_user_settings, self._global_params,
                              params['step_rules']['data'])
         step._extract(copy.deepcopy(step.extract_settings))
 
@@ -140,8 +142,8 @@ class DataTest(unittest.TestCase):
                     'param2': {'col1': 1}
                 }}}
         empty_user_settings = {}
-        step = data.DataStep(params['step_rules']['data'],
-                             default_without_normalize_settings,
-                             empty_user_settings)
+        step = data.DataStep(default_without_normalize_settings,
+                             empty_user_settings, self._global_params,
+                             params['step_rules']['data'])
         step._transform(step.step_settings)
         self.assertTrue(step.dataset.normalization is None)

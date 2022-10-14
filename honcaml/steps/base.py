@@ -22,7 +22,7 @@ class BaseStep(ABC):
     """
 
     def __init__(self, default_settings: Dict, user_settings: Dict,
-                 step_rules: Dict) -> None:
+                 global_params: Dict, step_rules: Dict) -> None:
         """
         Constructor method of class. It initializes the common steps
         parameters.
@@ -30,7 +30,10 @@ class BaseStep(ABC):
         Args:
             default_settings: Default settings for the steps.
             user_settings: User-defined settings for the steps.
+            global_params: global parameters for the current pipeline.
+            step_rules: Validation rules for this step.
         """
+        self._global_params = global_params
         self._step_rules = step_rules
         self._step_settings = self._merge_settings(
             default_settings.copy(), user_settings.copy())

@@ -49,14 +49,12 @@ def ensure_input_list(obj: object) -> list:
 
 
 def generate_unique_id(
-        estimator_module: str = None, estimator_type: str = None,
-        adding_uuid: bool = False) -> str:
+        estimator_module: str = None, adding_uuid: bool = False) -> str:
     """
     Generates a unique string id based on current timestamp and uuid4.
 
     Args:
         estimator_module: Name of estimator that pipeline contains.
-        estimator_type: Type of estimator that pipeline contains.
         adding_uuid: Whether to add uuid4 in generated id.
 
     Returns:
@@ -65,9 +63,6 @@ def generate_unique_id(
     unique_id = datetime.datetime.now().strftime('%Y%m%d-%H%M%S')
     if adding_uuid:
         unique_id = f'{unique_id}_{uuid.uuid4()}'
-
-    if estimator_type:
-        unique_id = f'{estimator_type}.{unique_id}'
 
     if estimator_module:
         unique_id = f'{estimator_module}.{unique_id}'
@@ -151,3 +146,11 @@ class FileExtension:
     csv = '.csv'
     excel = ['.xlsx', '.xls']
     # Adding more file extensions here
+
+
+class ProblemType:
+    """
+    Defines the available problem types.
+    """
+    classification = 'classification'
+    regression = 'regression'

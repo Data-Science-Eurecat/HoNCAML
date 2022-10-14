@@ -48,11 +48,11 @@ class LoadTest(unittest.TestCase):
 
     def test_save_model(self):
         settings = {'path': self.test_dir, 'filename': 'model.sav'}
-        estimator_type = 'regressor'
+        problem_type = 'regression'
         model_config = {'module': 'sklearn.ensemble.RandomForestRegressor',
                         'hyper_parameters': {}}
         model = utils.mock_up_read_model(
-            'sklearn', estimator_type, model_config)._estimator
+            'sklearn', problem_type, model_config)._estimator
         load.save_model(model, settings)
         filepath = os.path.join(settings['path'], settings['filename'])
         self.assertTrue(os.path.exists(filepath))

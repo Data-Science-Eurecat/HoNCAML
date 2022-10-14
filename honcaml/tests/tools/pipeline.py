@@ -9,9 +9,12 @@ from honcaml.exceptions import step as step_exceptions
 class PipelineTest(unittest.TestCase):
     def setUp(self) -> None:
         self.pipeline_content = {
-            'data': {},
-            'benchmark': {},
-            'model': {},
+            'global': {'problem_type': 'regression'},
+            'steps': {
+                'data': {},
+                'benchmark': {},
+                'model': {},
+            }
         }
 
     def test_setup_pipeline(self):
@@ -25,7 +28,10 @@ class PipelineTest(unittest.TestCase):
 
         # Invalid step
         self.pipeline_content = {
-            'invalid': {},
+            'global': {'problem_type': 'regression'},
+            'steps': {
+                'invalid': {},
+            }
         }
         with self.assertRaises(step_exceptions.StepDoesNotExists):
             pipeline_obj = pipeline.Pipeline(

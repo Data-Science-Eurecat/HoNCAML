@@ -1,98 +1,100 @@
-data:
-  extract:
-    filepath: data/raw/boston_housing.csv
-    # If features key does not exist, the pipeline gets all columns as features
-    features:
-      - lstat
-      - indus
-      - nox
-      - ptratio
-      - rm
-      - tax
-      - dis
-      - age
-    target:
-      - medv
-    # pandas read files additional params
-#    dtype:
-#      col1: int
-#      col2: int
-
-  transform:
-    normalize:
+global:
+  problem_type: regression # | classification
+steps:
+  data:
+    extract:
+      filepath: data/raw/boston_housing.csv
+      # If features key does not exist, the pipeline gets all columns as features
       features:
-        module: sklearn.preprocessing.StandardScaler
-        module_params:
-          with_std: True
-        columns:
-          - lstat
-          - indus
-          - nox
-          - ptratio
-          - rm
-          - tax
-          - dis
-          - age
+        - lstat
+        - indus
+        - nox
+        - ptratio
+        - rm
+        - tax
+        - dis
+        - age
       target:
-        module: sklearn.preprocessing.StandardScaler
-        columns:
-          - medv
+        - medv
+      # pandas read files additional params
+  #    dtype:
+  #      col1: int
+  #      col2: int
 
-# load:
-# filepath: data/processed/dataset.csv
+    transform:
+      normalize:
+        features:
+          module: sklearn.preprocessing.StandardScaler
+          module_params:
+            with_std: True
+          columns:
+            - lstat
+            - indus
+            - nox
+            - ptratio
+            - rm
+            - tax
+            - dis
+            - age
+        target:
+          module: sklearn.preprocessing.StandardScaler
+          columns:
+            - medv
 
-# Benchmark Step settings
-benchmark:
-  transform:
-    tuner:
-      algorithm: ray.tune.search.optuna.OptunaSearch
-        # TODO (future): paràmetres de l'algorisme de cerca
-      # TODO (future): + paràmetres del tuner
-      # TODO (future): tune_config:
-      # TODO (future): run_config:
-    
-    # TODO (future): schedulers:
-    # TODO (future): callbacks:
-    
-    models:
-      - module: sklearn.ensemble.RandomForestRegressor
-        search_space:
-          n_estimators:
-            method: randint # TODO: mapping search spaces
-            value: [2, 10]
-          
-      - module: sklearn.linear_model.LinearRegression
-        search_space:
-          fit_intercept:
-            method: choice
-            value: [True, False]
-    
-    cross_validation:
-      strategy: k_fold
-      n_splits: 10
-      shuffle: True
-      random_state: 90
+  # load:
+  # filepath: data/processed/dataset.csv
 
-
-# Model Step settings
-model:
-  estimator_type: regressor # | classifier
-  estimator_config:
-    module: sklearn.ensemble.RandomForestRegressor
-    hyperparameters:
-      n_estimators: 100
-#  extract:
-#    filepath: models/sklearn.regressor.20220819-122417.sav
-
-  transform:
-    fit: # | predict
+  # Benchmark Step settings
+  benchmark:
+    transform:
+      tuner:
+        algorithm: ray.tune.search.optuna.OptunaSearch
+          # TODO (future): paràmetres de l'algorisme de cerca
+        # TODO (future): + paràmetres del tuner
+        # TODO (future): tune_config:
+        # TODO (future): run_config:
+      
+      # TODO (future): schedulers:
+      # TODO (future): callbacks:
+      
+      models:
+        - module: sklearn.ensemble.RandomForestRegressor
+          search_space:
+            n_estimators:
+              method: randint # TODO: mapping search spaces
+              value: [2, 10]
+            
+        - module: sklearn.linear_model.LinearRegression
+          search_space:
+            fit_intercept:
+              method: choice
+              value: [True, False]
+      
       cross_validation:
         strategy: k_fold
-        # Additional arguments of sklearn cross-validation objects
-        n_splits: 5
-        # random_seed: 90
+        n_splits: 10
+        shuffle: True
         random_state: 90
 
-#  load:
-#    path: models/
+
+  # Model Step settings
+  model:
+    estimator_config:
+      module: sklearn.ensemble.RandomForestRegressor
+      hyper_parameters:
+        n_estimators: 100
+  #  extract:
+  #    filepath: models/sklearn.regressor.20220819-122417.sav
+
+    transform:
+      fit: # | predict
+        cross_validation:
+          strategy: k_fold
+          # Additional arguments of sklearn cross-validation objects
+          n_splits: 5
+          # random_seed: 90
+          random_state: 90
+
+  #  load:
+  #    path: models/
 

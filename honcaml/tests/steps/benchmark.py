@@ -43,6 +43,7 @@ class BenchmarkTest(unittest.TestCase):
         self.extract = base.StepPhase.extract
         self.transform = base.StepPhase.transform
         self.load = base.StepPhase.load
+        self._global_params = {'problem_type': 'regression'}
 
         self.settings = {
             'transform': {
@@ -127,8 +128,8 @@ class BenchmarkTest(unittest.TestCase):
         read_yaml_mock_up.return_value = fake_models_config
 
         ben = benchmark.BenchmarkStep(
-            self.settings, self.user_settings, self.step_rules,
-            self.execution_id)
+            self.settings, self.user_settings, self._global_params,
+            self.step_rules, self.execution_id)
 
         self.assertDictEqual(ben._models_config, fake_models_config)
 
@@ -141,8 +142,8 @@ class BenchmarkTest(unittest.TestCase):
         import_library_mock_up.return_value = object
 
         ben = benchmark.BenchmarkStep(
-            self.settings, self.user_settings, self.step_rules,
-            self.execution_id)
+            self.settings, self.user_settings, self._global_params,
+            self.step_rules, self.execution_id)
 
         # Test _clean_search_space
         for model_params in self.settings['transform']['models']:
@@ -278,8 +279,8 @@ class BenchmarkTest(unittest.TestCase):
         mock_up_tuner_fit.return_value = ResultGridMockUp()
 
         ben = benchmark.BenchmarkStep(
-            self.settings, self.user_settings, self.step_rules,
-            self.execution_id)
+            self.settings, self.user_settings, self._global_params,
+            self.step_rules, self.execution_id)
 
         with tempfile.TemporaryDirectory() as temp_dir:
             # Override folder to store results
@@ -300,8 +301,8 @@ class BenchmarkTest(unittest.TestCase):
 
     def test_extract_and_load_not_implemented(self):
         ben = benchmark.BenchmarkStep(
-            self.settings, self.user_settings, self.step_rules,
-            self.execution_id)
+            self.settings, self.user_settings, self._global_params,
+            self.step_rules, self.execution_id)
 
         with self.assertRaises(NotImplementedError):
             ben._extract({})
@@ -313,7 +314,8 @@ class BenchmarkTest(unittest.TestCase):
         mock_up_tuner_fit.return_value = ResultGridMockUp()
 
         ben = benchmark.BenchmarkStep(
-            {}, self.settings, self.step_rules, self.execution_id)
+            {}, self.settings, self._global_params, self.step_rules,
+            self.execution_id)
 
         with tempfile.TemporaryDirectory() as temp_dir:
             # Override folder to store results

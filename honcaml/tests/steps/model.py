@@ -17,6 +17,7 @@ class ModelTest(unittest.TestCase):
         self.extract = base.StepPhase.extract
         self.transform = base.StepPhase.transform
         self.load = base.StepPhase.load
+        self._global_params = {'problem_type': 'regression'}
 
         self.dataset = tabular.TabularDataset()
         self.dataset._dataset = utils.mock_up_read_dataframe()
@@ -34,14 +35,14 @@ class ModelTest(unittest.TestCase):
         # Empty user settings
         empty_user_settings = dict()
         step = model.ModelStep(params['pipeline_steps']['model'],
-                               empty_user_settings,
+                               empty_user_settings, self._global_params,
                                params['step_rules']['model'])
         self.assertDictEqual({}, step._step_settings)
 
         # Empty user_settings phases
         empty_phases = {'extract': None, 'transform': None, 'load': None}
         step = model.ModelStep(params['pipeline_steps']['model'],
-                               empty_phases,
+                               empty_phases, self._global_params,
                                params['step_rules']['model'])
         self.assertDictEqual(step._step_settings, {
             'extract': {
@@ -58,7 +59,7 @@ class ModelTest(unittest.TestCase):
             'transform': {'fit': {'cross_validation': {}}},
         }
         step = model.ModelStep(params['pipeline_steps']['model'],
-                               transform_user_settings,
+                               transform_user_settings, self._global_params,
                                params['step_rules']['model'])
         self.assertDictEqual(step._step_settings, {
             'transform': {
@@ -82,7 +83,7 @@ class ModelTest(unittest.TestCase):
             'load': {'path': 'models'}
         }
         step = model.ModelStep(params['pipeline_steps']['model'],
-                               override_user_settings,
+                               override_user_settings, self._global_params,
                                params['step_rules']['model'])
         self.assertDictEqual(step._step_settings, {
             'extract': {
@@ -123,13 +124,13 @@ class ModelTest(unittest.TestCase):
         model_config = {'module': 'sklearn.ensemble.RandomForestRegressor',
                         'hyper_parameters': {}}
         read_model_mockup.return_value = utils.mock_up_read_model(
-            'sklearn', 'regressor', model_config).estimator
+            'sklearn', 'regression', model_config).estimator
 
         user_settings = {
-            'extract': {'filepath': 'sklearn.regressor.1234.sav'},
+            'extract': {'filepath': 'sklearn.1234.sav'},
         }
         step = model.ModelStep(params['pipeline_steps']['model'],
-                               user_settings,
+                               user_settings, self._global_params,
                                params['step_rules']['model'])
         step._extract(step._extract_settings)
         self.assertIsInstance(step._model, sklearn_model.SklearnModel)
@@ -138,11 +139,10 @@ class ModelTest(unittest.TestCase):
     def test_transform(self):
         # Fit
         user_settings = {
-            'estimator_type': 'regressor',
             'transform': {'fit': None},
         }
         step = model.ModelStep(params['pipeline_steps']['model'],
-                               user_settings,
+                               user_settings, self._global_params,
                                params['step_rules']['model'])
         step._dataset = self.dataset
         step._transform(step._transform_settings)
@@ -151,11 +151,10 @@ class ModelTest(unittest.TestCase):
 
         # Fit and cross-validate
         user_settings = {
-            'estimator_type': 'regressor',
             'transform': {'fit': {'cross_validation': {'n_splits': 2}}},
         }
         step = model.ModelStep(params['pipeline_steps']['model'],
-                               user_settings,
+                               user_settings, self._global_params,
                                params['step_rules']['model'])
         step._dataset = self.dataset
         step._transform(step._transform_settings)
@@ -165,11 +164,10 @@ class ModelTest(unittest.TestCase):
 
         # Predict (also fit to avoid not fitted predictor error)
         user_settings = {
-            'estimator_type': 'regressor',
             'transform': {'predict': {'path': self.test_dir}, 'fit': None},
         }
         step = model.ModelStep(params['pipeline_steps']['model'],
-                               user_settings,
+                               user_settings, self._global_params,
                                params['step_rules']['model'])
         step._dataset = self.dataset
         step._transform(step._transform_settings)
@@ -186,10 +184,10 @@ class ModelTest(unittest.TestCase):
         }
         norm = normalization.Normalization({})
         step = model.ModelStep(params['pipeline_steps']['model'],
-                               user_settings,
+                               user_settings, self._global_params,
                                params['step_rules']['model'])
 
-        step._model = general.initialize_model('sklearn', 'regressor')
+        step._model = general.initialize_model('sklearn', 'regression')
 
         step._model.build_model({
             'module': 'sklearn.ensemble.RandomForestRegressor',
@@ -197,7 +195,7 @@ class ModelTest(unittest.TestCase):
         }, norm)
         step._load(step._load_settings)
         files_in_test_dir = os.listdir(self.test_dir)
-        self.assertTrue(any(f.startswith('sklearn.regressor')
+        self.assertTrue(any(f.startswith('sklearn')
                             for f in files_in_test_dir))
 
     def test_fit(self):
@@ -207,10 +205,10 @@ class ModelTest(unittest.TestCase):
         }
         norm = normalization.Normalization({})
         step = model.ModelStep(params['pipeline_steps']['model'],
-                               transform_user_settings,
+                               transform_user_settings, self._global_params,
                                params['step_rules']['model'])
         step._dataset = self.dataset
-        step._model = general.initialize_model('sklearn', 'regressor')
+        step._model = general.initialize_model('sklearn', 'regression')
         step._model.build_model(
             {'module': 'sklearn.ensemble.RandomForestRegressor',
              'hyper_parameters': {}}, norm)
@@ -224,10 +222,10 @@ class ModelTest(unittest.TestCase):
         }
         norm = normalization.Normalization({})
         step = model.ModelStep(params['pipeline_steps']['model'],
-                               transform_user_settings,
+                               transform_user_settings, self._global_params,
                                params['step_rules']['model'])
         step._dataset = self.dataset
-        step._model = general.initialize_model('sklearn', 'regressor')
+        step._model = general.initialize_model('sklearn', 'regression')
         step._model.build_model(
             {'module': 'sklearn.ensemble.RandomForestRegressor',
              'hyper_parameters': {}}, norm)
@@ -244,10 +242,10 @@ class ModelTest(unittest.TestCase):
         }
         norm = normalization.Normalization({})
         step = model.ModelStep(params['pipeline_steps']['model'],
-                               transform_user_settings,
+                               transform_user_settings, self._global_params,
                                params['step_rules']['model'])
         step._dataset = self.dataset
-        step._model = general.initialize_model('sklearn', 'regressor')
+        step._model = general.initialize_model('sklearn', 'regression')
         step._model.build_model(
             {'module': 'sklearn.ensemble.RandomForestRegressor',
              'hyper_parameters': {}}, norm)

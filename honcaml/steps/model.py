@@ -20,8 +20,6 @@ class ModelStep(base.BaseStep):
     functions allow the steps to save or restore a model.
 
     Attributes:
-        _estimator_type (str): The kind of estimator to be used. Valid values
-            are `regressor` and `classifier`.
         _estimator_config (Dict): Definition of the estimator, being the module
             and their hyperparameters.
         _model (base_model.BaseModel): Model from this library wrapping the
@@ -29,7 +27,7 @@ class ModelStep(base.BaseStep):
     """
 
     def __init__(self, default_settings: Dict, user_settings: Dict,
-                 step_rules: Dict) -> None:
+                 global_params: Dict, step_rules: Dict) -> None:
         """
         Constructor method of class. It initializes the parameters and set up
         the current steps.
@@ -37,10 +35,11 @@ class ModelStep(base.BaseStep):
         Args:
             default_settings: Default settings for the steps.
             user_settings: User-defined settings for the steps.
+            global_params: global parameters for the current pipeline.
+            step_rules: Validation rules for this step.
         """
-        super().__init__(default_settings, user_settings, step_rules)
-
-        self._estimator_type = user_settings.pop('estimator_type', None)
+        super().__init__(default_settings, user_settings, global_params,
+                         step_rules)
         self._estimator_config = user_settings.pop(
             'estimator_config', params['default_regressor_estimator'])
         self._model = None
@@ -65,7 +64,7 @@ class ModelStep(base.BaseStep):
         """
         self._model = general.initialize_model(
             settings['filepath'].split('/')[-1].split('.')[0],
-            settings['filepath'].split('/')[-1].split('.')[1], )
+            self._global_params['problem_type'])
         self._model.read(settings)
 
     def _transform(self, settings: Dict) -> None:
@@ -78,7 +77,7 @@ class ModelStep(base.BaseStep):
         if self._model is None:
             model_type = self._estimator_config['module'].split('.')[0]
             self._model = general.initialize_model(
-                model_type, self._estimator_type)
+                model_type, self._global_params['problem_type'])
             self._model.build_model(
                 self._estimator_config, self._dataset.normalization)
         if ModelActions.fit in settings:

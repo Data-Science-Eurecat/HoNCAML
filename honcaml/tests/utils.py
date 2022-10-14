@@ -14,8 +14,13 @@ def mock_up_yaml() -> Dict:
 
 def mock_up_read_pipeline() -> Dict:
     pipeline_content = {
-        'data': {},
-        'model': {},
+        'global': {
+            'problem_type': 'regression',
+        },
+        'steps': {
+            'data': {},
+            'model': {},
+        },
     }
     return pipeline_content
 
@@ -36,7 +41,7 @@ def mock_up_read_dataframe() -> pd.DataFrame:
     return pd.DataFrame(data)
 
 
-def mock_up_read_model(model_type: str, estimator_type: str,
+def mock_up_read_model(model_type: str, problem_type: str,
                        model_config: Dict, norm_config: dict = None) \
         -> base_model.BaseModel:
     """
@@ -44,7 +49,7 @@ def mock_up_read_model(model_type: str, estimator_type: str,
 
     Args:
         model_type: The kind of model to fake.
-        model_type: The kind of estimator to fake.
+        problem_type: The kind of problem to fake.
         model_config: The estimator config to fake.
 
     Returns:
@@ -53,7 +58,7 @@ def mock_up_read_model(model_type: str, estimator_type: str,
     if norm_config is None:
         norm_config = {}
     if model_type == base_model.ModelType.sklearn:
-        model = sklearn_model.SklearnModel(estimator_type)
+        model = sklearn_model.SklearnModel(problem_type)
         norm = normalization.Normalization(norm_config)
     else:
         raise NotImplementedError('The model implementation does not exist ')
