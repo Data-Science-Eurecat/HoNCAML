@@ -60,7 +60,7 @@ step_rules:
 # Default estimators
 default_regressor_estimator:
   module: sklearn.ensemble.RandomForestRegressor
-  hyperparameters:
+  hyper_parameters:
     n_estimators: 100
 
 # Pipeline steps settings (default settings for each pipeline steps)
@@ -105,6 +105,13 @@ pipeline_steps:
     extract:
     # read a previously saved learner
     transform:
+      metrics:
+        - mean_squared_error
+        - mean_absolute_percentage_error
+        - median_absolute_error
+        - r2_score
+        - mean_absolute_error
+        - root_mean_square_error
       tuner:
         algorithm: ray.tune.search.optuna.OptunaSearch
         # TODO (future): paràmetres de l'algorisme de cerca

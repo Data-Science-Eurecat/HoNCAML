@@ -41,7 +41,6 @@ class EstimatorTrainer(tune.Trainable):
 
         Args:
             config (Dict): a dict with a set of configuration parameters.
-
         """
         self._model_module = config['model_module']
         self._dataset = config['dataset']
@@ -54,7 +53,7 @@ class EstimatorTrainer(tune.Trainable):
 
         model_config = {
             'module': self._model_module,
-            'hyperparameters': self._param_space,
+            'hyper_parameters': self._param_space,
         }
         self._model.build_model(
             model_config, self._dataset.normalization)
@@ -73,7 +72,7 @@ class EstimatorTrainer(tune.Trainable):
         cv_results = evaluate.cross_validate_model(
             self._model, x, y, self._cv_split)
 
-        return {'score': cv_results[self._metric]}
+        return cv_results
 
     def save_checkpoint(
             self, checkpoint_dir: str) -> Optional[Union[str, Dict]]:
@@ -82,5 +81,5 @@ class EstimatorTrainer(tune.Trainable):
     def load_checkpoint(self, checkpoint: Union[Dict, str]):
         pass
 
-# If reuse_actors=True, implement the following function
-# def reset_config(self, new_config):
+    # If reuse_actors=True, implement the following function
+    # def reset_config(self, new_config):

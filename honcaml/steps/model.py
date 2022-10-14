@@ -140,8 +140,8 @@ class ModelStep(base.BaseStep):
         """
         # Feed the model with the objects
         self._dataset = metadata['dataset']
-        if metadata.get('model', None) is not None:
-            self._model = metadata['model']
+        if metadata.get('model_config', None) is not None:
+            self._estimator_config = metadata['model_config']
 
         self.execute()
 

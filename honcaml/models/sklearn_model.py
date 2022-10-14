@@ -59,7 +59,7 @@ class SklearnModel(base.BaseModel):
             (Callable): an instance of model with specific hyperparameters.
         """
         return utils.import_library(
-            model_config['module'], model_config['hyperparameters'])
+            model_config['module'], model_config['hyper_parameters'])
 
     def read(self, settings: Dict) -> None:
         """
@@ -100,7 +100,6 @@ class SklearnModel(base.BaseModel):
 
         # Model
         estimator = self._import_estimator(model_config)
-        # estimator = RandomForestRegressor()
         if normalizations is not None and normalizations.target:
             estimator = compose.TransformedTargetRegressor(
                 regressor=estimator,

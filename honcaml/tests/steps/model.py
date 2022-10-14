@@ -1,16 +1,15 @@
-import unittest
-from unittest.mock import patch
-import tempfile
-import shutil
 import os
-
+import shutil
+import tempfile
+import unittest
 from sklearn.utils import validation
+from unittest.mock import patch
+
+from honcaml.data import tabular, normalization
+from honcaml.models import sklearn_model, general
 from honcaml.steps import model, base
 from honcaml.tests import utils
 from honcaml.tools.startup import params
-from honcaml.exceptions import model as model_exception
-from honcaml.models import sklearn_model, general
-from honcaml.data import tabular, normalization
 
 
 class ModelTest(unittest.TestCase):
@@ -123,7 +122,7 @@ class ModelTest(unittest.TestCase):
     @patch('joblib.load')
     def test_extract(self, read_model_mockup):
         model_config = {'module': 'sklearn.ensemble.RandomForestRegressor',
-                        'hyperparameters': {}}
+                        'hyper_parameters': {}}
         read_model_mockup.return_value = utils.mock_up_read_model(
             'sklearn', 'regression', model_config).estimator
 
@@ -192,7 +191,7 @@ class ModelTest(unittest.TestCase):
 
         step._model.build_model({
             'module': 'sklearn.ensemble.RandomForestRegressor',
-            'hyperparameters': {}
+            'hyper_parameters': {}
         }, norm)
         step._load(step._load_settings)
         files_in_test_dir = os.listdir(self.test_dir)
@@ -212,7 +211,7 @@ class ModelTest(unittest.TestCase):
         step._model = general.initialize_model('sklearn', 'regression')
         step._model.build_model(
             {'module': 'sklearn.ensemble.RandomForestRegressor',
-             'hyperparameters': {}}, norm)
+             'hyper_parameters': {}}, norm)
         step._fit(step._transform_settings['fit'])
         self.assertIsNone(
             validation.check_is_fitted(step._model.estimator))
@@ -229,7 +228,7 @@ class ModelTest(unittest.TestCase):
         step._model = general.initialize_model('sklearn', 'regression')
         step._model.build_model(
             {'module': 'sklearn.ensemble.RandomForestRegressor',
-             'hyperparameters': {}}, norm)
+             'hyper_parameters': {}}, norm)
         step._fit(step._transform_settings['fit'])
         self.assertIsNone(
             validation.check_is_fitted(step._model.estimator))
@@ -249,7 +248,7 @@ class ModelTest(unittest.TestCase):
         step._model = general.initialize_model('sklearn', 'regression')
         step._model.build_model(
             {'module': 'sklearn.ensemble.RandomForestRegressor',
-             'hyperparameters': {}}, norm)
+             'hyper_parameters': {}}, norm)
         step._fit({'fit': None})
         step._predict(step._transform_settings['predict'])
         files_in_test_dir = os.listdir(self.test_dir)

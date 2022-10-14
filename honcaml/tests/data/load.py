@@ -50,7 +50,7 @@ class LoadTest(unittest.TestCase):
         settings = {'path': self.test_dir, 'filename': 'model.sav'}
         problem_type = 'regression'
         model_config = {'module': 'sklearn.ensemble.RandomForestRegressor',
-                        'hyperparameters': {}}
+                        'hyper_parameters': {}}
         model = utils.mock_up_read_model(
             'sklearn', problem_type, model_config)._estimator
         load.save_model(model, settings)

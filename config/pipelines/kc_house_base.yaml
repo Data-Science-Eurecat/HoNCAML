@@ -45,7 +45,7 @@ steps:
   model:
     estimator_config:
       module: sklearn.ensemble.RandomForestRegressor
-      hyperparameters:
+      hyper_parameters:
         n_estimators: 100
     
     transform:

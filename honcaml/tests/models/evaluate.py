@@ -13,7 +13,7 @@ class EvaluateTest(unittest.TestCase):
     def test_cross_validate_model(self):
         problem_type = 'regression'
         model_config = {'module': 'sklearn.ensemble.RandomForestRegressor',
-                        'hyperparameters': {}}
+                        'hyper_parameters': {}}
         model = sklearn_model.SklearnModel(problem_type)
         norm = normalization.Normalization({})
         model.build_model(model_config, norm)

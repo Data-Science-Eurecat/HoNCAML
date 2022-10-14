@@ -1,7 +1,7 @@
 regressors:
   sklearn.ensemble.RandomForestRegressor:
     search_space:
-      # Llistar hiperparàmetres més comuns / tots + valors default
+      # TODO: a list of hyper parameters to search as default
       n_estimators:
         method: randint
         value: [ 2, 100 ]
@@ -10,7 +10,7 @@ regressors:
 classifiers:
   sklearn.ensemble.RandomForestClassifier:
     search_space:
-      # Llistar hiperparàmetres més comuns / tots + valors default
+      # TODO: a list of hyper parameters to search as default
       n_estimators:
         method: randint
         value: [ 2, 100 ]
