@@ -49,7 +49,8 @@ class EstimatorTrainer(tune.Trainable):
         self._metric = config['metric']
         self._problem_type = config['problem_type']
 
-        self._model = general.initialize_model('sklearn', self._problem_type)
+        model_type = self._model_module.split('.')[0]
+        self._model = general.initialize_model(model_type, self._problem_type)
 
         model_config = {
             'module': self._model_module,
