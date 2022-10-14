@@ -1,11 +1,10 @@
 import datetime
 import logging
 import sys
-import yaml
+
+from honcaml.config import params
 
 # Load settings
-with open('config/settings.yaml', encoding='utf8') as par_file:
-    params = yaml.safe_load(par_file)
 params['exec_name'] = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
 
 # Set logger

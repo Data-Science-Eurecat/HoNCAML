@@ -5,7 +5,7 @@ import pandas as pd
 from ray import tune, air
 from typing import Dict, Callable, Union
 
-from honcaml.data import transform, extract
+from honcaml.data import transform
 from honcaml.exceptions import benchmark as benchmark_exceptions
 from honcaml.models import trainable
 from honcaml.steps import base
@@ -36,24 +36,27 @@ class BenchmarkStep(base.BaseStep):
     """
 
     def __init__(self, default_settings: Dict, user_settings: Dict,
-                 global_params: Dict, step_rules: Dict, execution_id: str) \
+                 global_params: Dict, step_rules: Dict, execution_id: str,
+                 models_config: Dict) \
             -> None:
         """
         This is a constructor method of class. This function initializes
         the parameters and set up the current steps.
 
         Args:
-            default_settings (Dict): the default settings for the steps.
-            user_settings (Dict): the user defined settings for the steps.
+            default_settings: the default settings for the steps.
+            user_settings: the user defined settings for the steps.
             global_params: global parameters for the current pipeline.
             step_rules: Validation rules for this step.
+            execution_id: Execution identifier.
+            models_config: Default models search space.
         """
         super().__init__(default_settings, user_settings, global_params,
                          step_rules)
 
-        self._models_config = extract.read_yaml(params['models_config_path'])
+        self._models_config = models_config
         self._store_results_folder = os.path.join(
-            params['metrics_folder'], execution_id)
+            params['paths']['metrics_folder'], execution_id)
 
         self._dataset = None
 
@@ -69,8 +72,9 @@ class BenchmarkStep(base.BaseStep):
         Given a dict with a search space for a model, this function gets the
         module of model to import and the hyperparameters search space.
         In addition, for each hyperparameter this function gets the
-        corresponding method from mapping (honcaml/config/models.yaml) to
-        generate the hyperparameter values during the search.
+        corresponding method from mapping defined in models_config object
+        (honcaml/config.py) generate the hyperparameter values during the
+        search.
 
         Args:
             search_space (Dict): a dict with

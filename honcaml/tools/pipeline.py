@@ -5,6 +5,7 @@ from honcaml.steps import base as base_step, data as data_step
 from honcaml.tools.startup import logger, params
 from honcaml.steps import model as model_step
 from honcaml.steps import benchmark as benchmark_step
+from honcaml.config import models_config
 
 
 class Pipeline:
@@ -25,7 +26,7 @@ class Pipeline:
         that define the pipeline.
 
         Args:
-            pipeline_content: Settings defining the pipeline steps and global 
+            pipeline_content: Settings defining the pipeline steps and global
                 parameters.
             execution_id: Execution identifier.
         """
@@ -60,7 +61,8 @@ class Pipeline:
                 step = benchmark_step.BenchmarkStep(
                     params['pipeline_steps'][step_name], step_content,
                     self._pipeline_content['global'],
-                    params['step_rules'][step_name], self._execution_id)
+                    params['step_rules'][step_name], self._execution_id,
+                    models_config)
             else:
                 raise step_exceptions.StepDoesNotExists(step_name)
 
