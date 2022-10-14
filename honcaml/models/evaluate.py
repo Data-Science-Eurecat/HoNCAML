@@ -1,23 +1,48 @@
-from typing import Dict, List
-from honcaml.tools import custom_typing as ct
-import sklearn.metrics as sk_metrics
 import pandas as pd
+import sklearn.metrics as sk_metrics
+from typing import Dict
+
+from honcaml.models import base as base_model, general
+from honcaml.tools import custom_typing as ct
+from honcaml.tools.startup import logger
 
 
-def aggregate_cv_results(cv_results: List[Dict]) -> Dict:
+def cross_validate_model(
+        model: base_model.BaseModel, x: ct.Array, y: ct.Array,
+        cv_split: ct.SklearnCrossValidation, train_settings: Dict = None,
+        test_settings: Dict = None) -> Dict:
     """
-    Computes cross validation results given a list of results containing
-    the evaluated metrics for each partition of the data.
+    This function trains a model with a cross-validation strategy. for each
+    split, it trains a model and computes metrics. Finally, it computes the
+    mean metrics.
 
     Args:
-        cv_results: Results containing each evaluated metric.
+        model (base_model.BaseModel): a model to train with cross-validation.
+        x (ct.Array): dataset features.
+        y (ct.Array): dataset target.
+        cv_split (ct.SklearnCrossValidation): cross-validation instance to
+            apply during training step.
+        train_settings (Dict): additional parameters for train step.
+        test_settings (Dict): additional parameters for test step.
 
     Returns:
-        Averaged metrics from data partitions.
+        (Dict): a dict with mean metrics.
     """
-    df_results = pd.DataFrame(cv_results)
-    mean_results = df_results.mean(axis=0).to_dict()
-    return mean_results
+    if train_settings is None:
+        train_settings = {}
+    if test_settings is None:
+        test_settings = {}
+
+    results = []
+    for split, x_train, x_test, y_train, y_test in cv_split.split(x, y):
+        logger.info(f'Running split {split}/{cv_split.n_splits} ...')
+        model.fit(x_train, y_train, **train_settings)
+        results.append(model.evaluate(x_test, y_test, **test_settings))
+    logger.info('Done.')
+    # Group cv metrics
+    cv_results = general.aggregate_cv_results(results)
+
+    return cv_results
 
 
 def compute_regression_metrics(

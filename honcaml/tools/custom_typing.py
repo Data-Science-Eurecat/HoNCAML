@@ -14,6 +14,9 @@ StrList = List[str]
 # Cross validation typing
 
 class SklearnCrossValidation(Protocol):
+    def n_splits(self):
+        pass
+
     def split(
             self, x, y=None, **kwargs) -> Tuple[Dataset, Dataset]:
         pass

@@ -58,7 +58,7 @@ class SklearnModel(base.BaseModel):
             (Callable): an instance of model with specific hyperparameters.
         """
         return utils.import_library(
-            model_config['module'], model_config['hyperparameters'])
+            model_config['module'], model_config['hyper_parameters'])
 
     def read(self, settings: Dict) -> None:
         """
@@ -72,7 +72,7 @@ class SklearnModel(base.BaseModel):
     def build_model(self, model_config: Dict,
                     normalizations: normalization.Normalization) -> None:
         """
-        Creates the sklearn estimator. It builds an sklearn pipeline to handle
+        Creates the sklearn estimator. It builds a sklearn pipeline to handle
         the requested normalizations.
 
         Args:

@@ -53,9 +53,10 @@ class ExtractTest(unittest.TestCase):
     def test_read_model(self, read_model_mockup):
         estimator_type = 'regressor'
         model_config = {'module': 'sklearn.ensemble.RandomForestRegressor',
-                        'hyperparameters': {}}
+                        'hyper_parameters': {}}
         read_model_mockup.return_value = utils.mock_up_read_model(
             'sklearn', estimator_type, model_config)._estimator
         settings = {'filepath': 'some_file.sav'}
         result = extract.read_model(settings)
         self.assertIsNotNone(result)
+
