@@ -60,7 +60,7 @@ step_rules:
 # Default estimators
 default_regressor_estimator:
   module: sklearn.ensemble.RandomForestRegressor
-  hyperparameters:
+  hyper_parameters:
     n_estimators: 100
 
 # Pipeline steps settings (default settings for each pipeline steps)

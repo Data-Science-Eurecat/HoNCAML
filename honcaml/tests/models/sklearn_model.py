@@ -30,7 +30,7 @@ class SklearnTest(unittest.TestCase):
     def test_read(self, read_model_mockup):
         estimator_type = 'regressor'
         model_config = {'module': 'sklearn.ensemble.RandomForestRegressor',
-                        'hyperparameters': {}}
+                        'hyper_parameters': {}}
         read_model_mockup.return_value = utils.mock_up_read_model(
             'sklearn', estimator_type, model_config)._estimator
 
@@ -41,7 +41,7 @@ class SklearnTest(unittest.TestCase):
     def test_build_model_without_normalization(self):
         estimator_type = 'regressor'
         model_config = {'module': 'sklearn.ensemble.RandomForestRegressor',
-                        'hyperparameters': {}}
+                        'hyper_parameters': {}}
         sk_model = sklearn_model.SklearnModel(estimator_type)
         norm = normalization.Normalization({})
         sk_model.build_model(model_config, norm)
@@ -51,7 +51,7 @@ class SklearnTest(unittest.TestCase):
     def test_build_model_with_normalization(self):
         estimator_type = 'regressor'
         model_config = {'module': 'sklearn.ensemble.RandomForestRegressor',
-                        'hyperparameters': {}}
+                        'hyper_parameters': {}}
         # Normalize only features
         features_to_normalize = ['col1', 'col2']
         features_norm_config = {
@@ -117,7 +117,7 @@ class SklearnTest(unittest.TestCase):
     def test_fit(self):
         estimator_type = 'regressor'
         model_config = {'module': 'sklearn.ensemble.RandomForestRegressor',
-                        'hyperparameters': {}}
+                        'hyper_parameters': {}}
         sk_model = sklearn_model.SklearnModel(estimator_type)
         norm = normalization.Normalization({})
         sk_model.build_model(model_config, norm)
@@ -129,7 +129,7 @@ class SklearnTest(unittest.TestCase):
     def test_predict(self):
         estimator_type = 'regressor'
         model_config = {'module': 'sklearn.ensemble.RandomForestRegressor',
-                        'hyperparameters': {}}
+                        'hyper_parameters': {}}
         sk_model = sklearn_model.SklearnModel(estimator_type)
         norm = normalization.Normalization({})
         sk_model.build_model(model_config, norm)
@@ -141,7 +141,7 @@ class SklearnTest(unittest.TestCase):
     def test_evaluate(self):
         estimator_type = 'regressor'
         model_config = {'module': 'sklearn.ensemble.RandomForestRegressor',
-                        'hyperparameters': {}}
+                        'hyper_parameters': {}}
         sk_model = sklearn_model.SklearnModel(estimator_type)
         norm = normalization.Normalization({})
         sk_model.build_model(model_config, norm)
@@ -153,7 +153,7 @@ class SklearnTest(unittest.TestCase):
     def test_save(self):
         estimator_type = 'regressor'
         model_config = {'module': 'sklearn.ensemble.RandomForestRegressor',
-                        'hyperparameters': {}}
+                        'hyper_parameters': {}}
         sk_model = sklearn_model.SklearnModel(estimator_type)
         norm = normalization.Normalization({})
         sk_model.build_model(model_config, norm)

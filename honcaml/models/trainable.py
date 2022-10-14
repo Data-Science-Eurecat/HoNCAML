@@ -41,7 +41,6 @@ class EstimatorTrainer(tune.Trainable):
 
         Args:
             config (Dict): a dict with a set of configuration parameters.
-
         """
         self._model_module = config['model_module']
         self._dataset = config['dataset']
@@ -53,7 +52,7 @@ class EstimatorTrainer(tune.Trainable):
 
         model_config = {
             'module': self._model_module,
-            'hyperparameters': self._param_space,
+            'hyper_parameters': self._param_space,
         }
         self._model.build_model(
             model_config, self._dataset.normalization)

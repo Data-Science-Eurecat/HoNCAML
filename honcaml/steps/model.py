@@ -39,6 +39,7 @@ class ModelStep(base.BaseStep):
             user_settings: User-defined settings for the steps.
         """
         super().__init__(default_settings, user_settings, step_rules)
+
         self._estimator_type = user_settings.pop('estimator_type', None)
         self._estimator_config = user_settings.pop(
             'estimator_config', params['default_regressor_estimator'])

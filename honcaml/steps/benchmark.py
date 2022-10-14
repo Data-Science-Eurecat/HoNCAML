@@ -26,12 +26,13 @@ class BenchmarkStep(base.BaseStep):
     methods allow the steps to save and restore executions to/from checkpoints.
 
     Attributes:
-        _models_config
-        _store_results_folder
-        _dataset
-        _reported_metrics (List[str])
-        _metric
-        _mode
+        _models_config (Dict): models configuration dict.
+        _store_results_folder (str): folder path to store results.
+        _dataset: dataset class intance.
+        _reported_metrics (List[str]): metrics to compute during hyper
+            parameter search.
+        _metric (str): metric function to optimize.
+        _mode (str): maximize or minimize metric.
     """
 
     def __init__(self, default_settings: Dict, user_settings: Dict,
@@ -338,8 +339,16 @@ class BenchmarkStep(base.BaseStep):
     def _transform(self, settings: Dict) -> None:
         """
         The transform process from the benchmark step ETL. In this step, a set
-        of models is trained in order to find the best hyperparameter
+        of models are trained in order to find the best hyperparameter
         configuration.
+        For each model, it creates a Trainable instance with the model
+        configurations. Furthermore, it fits different models with different
+        configurations based on settings definitions. Finally, it gets the best
+        model and best hyperparameters configurations.
+
+        Notes:
+            In results folder, this function saves a file (results.csv) with a
+            results for each experiment.
 
         Args:
             settings (Dict): the settings defining the transform ETL process.
@@ -349,17 +358,21 @@ class BenchmarkStep(base.BaseStep):
             settings['cross_validation'].pop('strategy'),
             **settings.pop('cross_validation'))
 
+        # Prepare Tuner configs
         tuner_settings = settings['tuner']
         self._get_metric_and_mode(tuner_settings)
         self._clean_reported_metrics(settings)
+        # Prepare Run configs
         run_config_params = self._clean_run_config(tuner_settings)
 
+        # Dict with configurations to use during search
         config = {
             'dataset': copy.deepcopy(self._dataset),
             'cv_split': copy.deepcopy(cv_split),
             'metric': self._metric
         }
 
+        # Create a Trainable for each model and run the hyper parameter seach.
         results_df = pd.DataFrame()
         models = settings['models']
         for i, model_params in enumerate(models, start=1):
@@ -405,11 +418,13 @@ class BenchmarkStep(base.BaseStep):
                         f'metrics {best_metrics_iter}')
 
             # Concat with all results dataframe.
-            results_df = pd.concat([results_df, iter_results_df], ignore_index=True)
+            results_df = pd.concat(
+                [results_df, iter_results_df], ignore_index=True)
 
         # Sort and store results for all experiments
         results_df = self._sort_results(results_df)
         self._store_results(results_df)
+        # Get best model and hyperparameters configuration.
         self._get_best_result(results_df)
 
     def _load(self, settings: Dict) -> None:

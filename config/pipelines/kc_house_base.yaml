@@ -43,7 +43,7 @@ model:
   estimator_type: regressor
   estimator_config:
     module: sklearn.ensemble.RandomForestRegressor
-    hyperparameters:
+    hyper_parameters:
       n_estimators: 100
   
   transform:

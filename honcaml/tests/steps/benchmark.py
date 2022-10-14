@@ -121,7 +121,7 @@ class BenchmarkTest(unittest.TestCase):
         self.result_df = pd.DataFrame(data)
 
     @patch('honcaml.data.extract.read_yaml')
-    def foo_test_when_create_new_instance_load_model_config_yaml_and_fodler_path(
+    def test_when_create_new_instance_load_model_config_yaml_and_fodler_path(
             self, read_yaml_mock_up):
         fake_models_config = {'models_config': 'fake model'}
         read_yaml_mock_up.return_value = fake_models_config
@@ -137,7 +137,7 @@ class BenchmarkTest(unittest.TestCase):
         self.assertEqual(ben._store_results_folder, store_results_folder)
 
     @patch('honcaml.tools.utils.import_library')
-    def foo_test_test_class_methods(self, import_library_mock_up):
+    def test_test_class_methods(self, import_library_mock_up):
         import_library_mock_up.return_value = object
 
         ben = benchmark.BenchmarkStep(
@@ -274,7 +274,7 @@ class BenchmarkTest(unittest.TestCase):
         self.assertDictEqual({'root_mean_square_error': 4}, best_metric)
 
     @patch('ray.tune.Tuner.fit')
-    def foo_test_transform(self, mock_up_tuner_fit):
+    def test_transform(self, mock_up_tuner_fit):
         mock_up_tuner_fit.return_value = ResultGridMockUp()
 
         ben = benchmark.BenchmarkStep(
@@ -298,7 +298,7 @@ class BenchmarkTest(unittest.TestCase):
             self.assertIn(
                 'sklearn.linear_model.LinearRegression', results_folder)
 
-    def foo_test_extract_and_load_not_implemented(self):
+    def test_extract_and_load_not_implemented(self):
         ben = benchmark.BenchmarkStep(
             self.settings, self.user_settings, self.step_rules,
             self.execution_id)
@@ -313,8 +313,7 @@ class BenchmarkTest(unittest.TestCase):
         mock_up_tuner_fit.return_value = ResultGridMockUp()
 
         ben = benchmark.BenchmarkStep(
-            self.settings, self.user_settings, self.step_rules,
-            self.execution_id)
+            {}, self.settings, self.step_rules, self.execution_id)
 
         with tempfile.TemporaryDirectory() as temp_dir:
             # Override folder to store results
@@ -322,16 +321,35 @@ class BenchmarkTest(unittest.TestCase):
             fake_metadata = {
                 'dataset': object
             }
-            ben.run(fake_metadata)
+            metadata = ben.run(fake_metadata)
+            expected_metadata = {
+                'module': 'fake.module.Class1',
+                'hyper_parameters': {
+                    'max_features': 'sqrt', 'n_estimators': 10}
+            }
 
-            # # Check if exists a folder for module and results.csv
-            # dir_content = os.listdir(temp_dir)
-            # self.assertEqual(len(dir_content), 1)
-            # self.assertEqual(dir_content[0], 'fake_results')
-            #
-            # results_folder = os.listdir(os.path.join(temp_dir, 'fake_results'))
-            # self.assertIn('results.csv', results_folder)
-            # self.assertIn(
-            #     'sklearn.ensemble.RandomForestRegressor', results_folder)
-            # self.assertIn(
-            #     'sklearn.linear_model.LinearRegression', results_folder)
+            # Check metadata dict
+            self.assertDictEqual(metadata['model_config'], expected_metadata)
+
+            # Check best model and best hyper parameters
+            best_fake_model = 'fake.module.Class1'
+            self.assertEqual(ben._best_model, best_fake_model)
+
+            best_fake_hyper_parameters = {
+                'max_features': 'sqrt',
+                'n_estimators': 10,
+            }
+            self.assertDictEqual(
+                ben._best_hyper_parameters, best_fake_hyper_parameters)
+
+            # Check if exists a folder for module and results.csv
+            dir_content = os.listdir(temp_dir)
+            self.assertEqual(len(dir_content), 1)
+            self.assertEqual(dir_content[0], 'fake_results')
+
+            results_folder = os.listdir(os.path.join(temp_dir, 'fake_results'))
+            self.assertIn('results.csv', results_folder)
+            self.assertIn(
+                'sklearn.ensemble.RandomForestRegressor', results_folder)
+            self.assertIn(
+                'sklearn.linear_model.LinearRegression', results_folder)
