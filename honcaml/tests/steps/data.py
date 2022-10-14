@@ -44,8 +44,6 @@ class DataTest(unittest.TestCase):
             step.step_settings[self.extract]['filepath'])
         self.assertTrue(
             'new_param' in step.step_settings[self.extract])
-        # Check that result dict contains the other default params
-        self.assertTrue('target' in step.step_settings[self.extract])
 
         # Transform
         # Test: When user_settings does not have 'normalize' key it returns

@@ -80,6 +80,7 @@ class TabularDataset(base.BaseDataset):
         """
         if len(self._target) == 0:
             raise data_exception.TargetNotSet()
+
         y = self._dataset[self._target].values
         if len(self._target) == 1:
             y = y.reshape(-1, 1)
