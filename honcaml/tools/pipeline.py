@@ -56,7 +56,7 @@ class Pipeline:
             elif step_name == base_step.StepType.benchmark:
                 step = benchmark_step.BenchmarkStep(
                     params['pipeline_steps'][step_name], step_content,
-                    params['step_rules'][step_name])
+                    params['step_rules'][step_name], self._execution_id)
             else:
                 raise step_exceptions.StepDoesNotExists(step_name)
 

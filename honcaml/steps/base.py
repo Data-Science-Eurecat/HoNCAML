@@ -1,9 +1,10 @@
+import copy
 from abc import ABC, abstractmethod
 from typing import Dict
-import copy
+
+from honcaml.exceptions import step as step_exception
 from honcaml.tools import utils
 from honcaml.tools.startup import logger
-from honcaml.exceptions import step as step_exception
 
 
 class BaseStep(ABC):
@@ -90,8 +91,9 @@ class BaseStep(ABC):
     def __repr__(self):
         return str(self._step_settings)
 
+    @staticmethod
     def _merge_settings(
-            self, default_settings: Dict, user_settings: Dict) -> Dict:
+            default_settings: Dict, user_settings: Dict) -> Dict:
         """
         Merge two defined settings; the first one considered the default,
         whereas the second is considered the user ones. In case of conflict in

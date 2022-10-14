@@ -41,21 +41,38 @@ data:
 # load:
 # filepath: data/processed/dataset.csv
 
-#benchmark:
-#  transform:
-#    models:
-#      - module: sklearn.ensemble.RandomForestRegressor
-#        search_space:
-#          - n_estimators:
-#            method: randint
-#            value: [2, 10]
-#
-#      - module: sklearn.linear_model.LinearRegression
-#        search_space:
-#          - fit_intercept:
-#            method: choice
-#            value: [True, False]
-#    search_algorithm:
+# Benchmark Step settings
+benchmark:
+  transform:
+    tuner:
+      algorithm: ray.tune.search.optuna.OptunaSearch
+        # TODO (future): paràmetres de l'algorisme de cerca
+      # TODO (future): + paràmetres del tuner
+      # TODO (future): tune_config:
+      # TODO (future): run_config:
+    
+    # TODO (future): schedulers:
+    # TODO (future): callbacks:
+    
+    models:
+      - module: sklearn.ensemble.RandomForestRegressor
+        search_space:
+          n_estimators:
+            method: randint # TODO: mapping search spaces
+            value: [2, 10]
+          
+      - module: sklearn.linear_model.LinearRegression
+        search_space:
+          fit_intercept:
+            method: choice
+            value: [True, False]
+    
+    cross_validation:
+      strategy: k_fold
+      n_splits: 10
+      shuffle: True
+      random_state: 90
+
 
 # Model Step settings
 model:
@@ -79,4 +96,3 @@ model:
 #  load:
 #    path: models/
 
-  # Benchmark Step settings

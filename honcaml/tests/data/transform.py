@@ -292,13 +292,13 @@ class TransformTest(unittest.TestCase):
 
         data = list(range(0, 100))
         array = np.array(data)
-        cv = transform.CrossValidationSplit(strategy)
         for n_splits in n_splits_list:
             params = {
                 'n_splits': n_splits,
             }
+            cv = transform.CrossValidationSplit(strategy, **params)
             iter_splits = []
-            for i, _, _, _, _ in cv.split(array, **params):
+            for i, _, _, _, _ in cv.split(array):
                 self.assertTrue(isinstance(i, int))
                 iter_splits.append(i)
             self.assertListEqual(iter_splits, list(range(1, n_splits + 1)))

@@ -58,9 +58,8 @@ class DataTest(unittest.TestCase):
                 }
             }
         }
-        step = data.DataStep(params['pipeline_steps']['data'],
-                             user_settings,
-                             params['step_rules']['data'])
+        _ = data.DataStep(params['pipeline_steps']['data'],
+                          user_settings, params['step_rules']['data'])
         self.assertDictEqual(
             user_settings['transform'],
             {'override_param': {'param1': 1, 'param2': 2}})
