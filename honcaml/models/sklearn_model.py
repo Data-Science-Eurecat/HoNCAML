@@ -99,7 +99,6 @@ class SklearnModel(base.BaseModel):
 
         # Model
         estimator = self._import_estimator(model_config)
-        # estimator = RandomForestRegressor()
         if normalizations is not None and normalizations.target:
             estimator = compose.TransformedTargetRegressor(
                 regressor=estimator,
