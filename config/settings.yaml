@@ -69,8 +69,6 @@ pipeline_steps:
   data:
     extract:
       filepath: data/raw/dataset.csv
-      target:
-        - target
 
     transform:
       normalize:

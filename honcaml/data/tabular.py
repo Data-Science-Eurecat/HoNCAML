@@ -78,6 +78,9 @@ class TabularDataset(base.BaseDataset):
         Returns:
             Array of target.
         """
+        if len(self._target) == 0:
+            raise data_exception.TargetNotSet()
+
         y = self._dataset[self._target].values
         if len(self._target) == 1:
             y = y.reshape(-1, 1)
@@ -92,6 +95,9 @@ class TabularDataset(base.BaseDataset):
             - Array with features.
             - Array with targets.
         """
+        if len(self._target) == 0:
+            raise data_exception.TargetNotSet()
+
         x = self._dataset[self._features].values
         y = self._dataset[self._target].values
 

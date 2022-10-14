@@ -14,3 +14,9 @@ class ColumnDoesNotExists(Exception):
     def __init__(self, column: str):
         self.message = f'Column {column} does not exists.'
         super().__init__(self.message)
+
+
+class TargetNotSet(Exception):
+    def __init__(self):
+        self.message = f'Target column has not been specified.'
+        super().__init__(self.message)
