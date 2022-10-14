@@ -130,10 +130,6 @@ class TabularDataset(base.BaseDataset):
                 logger.warning(f'Dataset column features does not exists {e}')
                 raise data_exception.ColumnDoesNotExists(f'{self._target}')
 
-        if not self._features:
-            self._features = dataset \
-                .drop(columns=self._target).columns.to_list()
-
         return dataset
 
     def read(self, settings: Dict) -> None:
