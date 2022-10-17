@@ -123,14 +123,14 @@ class BenchmarkTest(unittest.TestCase):
         self.result_df = pd.DataFrame(data)
 
     @patch('honcaml.data.extract.read_yaml')
-    def test_when_create_new_instance_load_model_config_yaml_and_fodler_path(
+    def test_when_create_new_instance_load_model_config_yaml_and_folder_path(
             self, read_yaml_mock_up):
         fake_models_config = {'models_config': 'fake model'}
         read_yaml_mock_up.return_value = fake_models_config
 
         ben = benchmark.BenchmarkStep(
             self.settings, self.user_settings, self._global_params,
-            self.step_rules, self.execution_id, models_config)
+            self.step_rules, self.execution_id, fake_models_config)
 
         self.assertDictEqual(ben._models_config, fake_models_config)
 
