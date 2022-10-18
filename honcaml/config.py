@@ -15,7 +15,6 @@ params = {
             "time_format": "%Y-%m-%d %H:%M:%S"
         },
         "level": "DEBUG",
-        "file": "data/logs/{exec_name}.log"
     },
 
     # Pipeline validation rules

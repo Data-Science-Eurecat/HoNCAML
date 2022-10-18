@@ -30,9 +30,8 @@ setup(
     # TODO: Exclude docs and tests when official, e.g.
     # find_packages(exclude=["contrib", "docs", "tests"])
     packages=find_packages(),
-    data_files=[('config', ['config/test.ini'])],
     # TODO: Set python and dependencies requirements
-    # python_requires=">=3.8",
-    # install_requires=requirements,
+    python_requires=">=3.8",
+    install_requires=requirements,
     entry_points={"console_scripts": ["honcaml=honcaml.__main__:cli"]},
 )
