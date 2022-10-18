@@ -11,14 +11,14 @@ from honcaml.tests import utils as test_utils
 
 class ExecutionTest(unittest.TestCase):
     def setUp(self) -> None:
-        self.pipeline_name = 'test_pipeline'
+        self.pipeline_name = 'test_pipeline.yaml'
         self.test_dir = tempfile.mkdtemp()
         file_data = test_utils.mock_up_read_pipeline()
-        with open(os.path.join(
-                self.test_dir, f'{self.pipeline_name}.yaml'), 'w') as f:
+        self.pipeline_path = os.path.join(
+            self.test_dir, f'{self.pipeline_name}')
+        with open(self.pipeline_path, 'w') as f:
             yaml.dump(file_data, f)
-        params['pipeline_folder'] = self.test_dir
-        self.execution = execution.Execution(self.pipeline_name)
+        self.execution = execution.Execution(self.pipeline_path)
 
     def tearDown(self):
         # Remove the directory after the test

@@ -13,7 +13,7 @@ params = {
         "formatter": {
             "format": "%(asctime)s - %(message)s",
             "time_format": "%Y-%m-%d %H:%M:%S"
-            },
+        },
         "level": "DEBUG",
         "file": "data/logs/{exec_name}.log"
     },
@@ -84,7 +84,7 @@ params = {
     "default_regressor_estimator": {
         "module": "sklearn.ensemble.RandomForestRegressor",
         "hyper_parameters": {
-            "n_estimators: 100"
+            "n_estimators": 100
         }
     },
 
@@ -121,11 +121,11 @@ params = {
                     }
                 },
                 "predict":  {
-                  "path": "data/processed"
+                    "path": "data/processed"
                 }
             },
             "load": {
-                  "path": "data/models/"
+                "path": "data/models/"
             }
         },
 
