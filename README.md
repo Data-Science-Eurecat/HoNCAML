@@ -33,21 +33,25 @@ Project Organization
 
 ## Generate documentation
 
-From project root and inside the virtual environment, execute the following commands:
+From project root and inside the virtual environment, execute the following
+commands*:
 
 1. Install python package
 
    ```commandline
-   python setup.py install
+   make install
    ```
+
 2. Generate static documentation
 
-    ```
-    sphinx-build -b html docs/source/ docs/build/html
+    ```commandline
+    make doc
     ```
 
+*For details, see `Makefile` file in project root directory.
+
 Afterwards, opening in any browser the local file:
-file:///{project-dir}/honcaml/docs/build/html/index.html,
+`file:///{project-dir}/honcaml/docs/build/html/index.html`,
 replacing `project-dir` by current project directory, should be enough to see
 the documentation.
 

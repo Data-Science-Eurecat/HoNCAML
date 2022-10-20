@@ -30,6 +30,7 @@ class EstimatorTrainer(tune.Trainable):
         """
         Given a dict with configuration parameters to run a hyperparameter
         search for a model. The dict has to contain the following parameters:
+
         - model_module: module of model
         - dataset: dataset class instance
         - cv_split: cross-validation object with train configurations

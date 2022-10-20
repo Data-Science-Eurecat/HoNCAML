@@ -6,7 +6,7 @@
 
 HONCAML follows mainly an
 `OOP <https://en.wikipedia.org/wiki/Object-oriented_programming>`_ coding
-approach through Python classes.
+approach through Python classes. The main ones are detailed in this section.
 
 Execution
 =========
@@ -77,9 +77,10 @@ The model step is the one related to model management.
   .. autoclass:: honcaml.models.base.BaseModel
      :members:
                
-- Trainable: Computes optimised hyperparameters for a specific model.
+- EstimatorTrainer: Computes optimised hyperparameters for a specific model,
+  based on `tune.Trainable` class.
 
-  .. autoclass:: honcaml.models.trainable.Trainable
+  .. autoclass:: honcaml.models.trainable.EstimatorTrainer
      :members:
 
                
