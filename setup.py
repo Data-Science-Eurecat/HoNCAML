@@ -33,5 +33,5 @@ setup(
     # TODO: Set python and dependencies requirements
     python_requires=">=3.8",
     install_requires=requirements,
-    entry_points={"console_scripts": ["honcaml=honcaml.__main__:cli"]},
+    entry_points={"console_scripts": ["honcaml=honcaml.__main__:main"]},
 )

@@ -4,7 +4,6 @@ import shutil
 import os
 import yaml
 
-from honcaml.tools.startup import params
 from honcaml.tools import execution
 from honcaml.tests import utils as test_utils
 
