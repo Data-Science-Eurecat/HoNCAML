@@ -1,11 +1,10 @@
 import datetime
 import logging
 import sys
-import yaml
+
+from honcaml.config import params
 
 # Load settings
-with open('config/settings.yaml', encoding='utf8') as par_file:
-    params = yaml.safe_load(par_file)
 params['exec_name'] = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
 
 # Set logger
@@ -16,13 +15,17 @@ formatter = logging.Formatter(log_params['formatter']['format'],
                               log_params['formatter']['time_format'])
 hdlr_out.setFormatter(formatter)
 logger.addHandler(hdlr_out)
-if params['logging']['file']:
-    log_filename = params['logging']['file'].replace('{exec_name}',
-                                                     params['exec_name'])
-    hdlr_file = logging.FileHandler(log_filename)
-    hdlr_file.setFormatter(formatter)
-    logger.addHandler(hdlr_file)
 logger.setLevel(getattr(logging, log_params['level']))
 logger.propagate = False
 
-logger.info('Logger initialized')
+
+def setup_file_logging(filepath: str) -> None:
+    """
+    Adds a file handler to the logger given an specific filepath.
+
+    Args:
+        filepath: the file where the logs will be stored.
+    """
+    hdlr_file = logging.FileHandler(filepath)
+    hdlr_file.setFormatter(formatter)
+    logger.addHandler(hdlr_file)

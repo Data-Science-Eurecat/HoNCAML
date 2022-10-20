@@ -59,4 +59,3 @@ class ExtractTest(unittest.TestCase):
         settings = {'filepath': 'some_file.sav'}
         result = extract.read_model(settings)
         self.assertIsNotNone(result)
-

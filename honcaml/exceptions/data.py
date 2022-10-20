@@ -18,5 +18,5 @@ class ColumnDoesNotExists(Exception):
 
 class TargetNotSet(Exception):
     def __init__(self):
-        self.message = f'Target column has not been specified.'
+        self.message = 'Target column has not been specified.'
         super().__init__(self.message)

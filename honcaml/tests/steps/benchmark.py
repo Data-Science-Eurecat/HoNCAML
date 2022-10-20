@@ -8,6 +8,7 @@ from honcaml.exceptions import benchmark as benchmark_exceptions
 from honcaml.steps import base
 from honcaml.steps import benchmark
 from honcaml.tools.startup import params
+from honcaml.config import models_config
 
 
 class ResultGridMockUp:
@@ -122,19 +123,19 @@ class BenchmarkTest(unittest.TestCase):
         self.result_df = pd.DataFrame(data)
 
     @patch('honcaml.data.extract.read_yaml')
-    def test_when_create_new_instance_load_model_config_yaml_and_fodler_path(
+    def test_when_create_new_instance_load_model_config_yaml_and_folder_path(
             self, read_yaml_mock_up):
         fake_models_config = {'models_config': 'fake model'}
         read_yaml_mock_up.return_value = fake_models_config
 
         ben = benchmark.BenchmarkStep(
             self.settings, self.user_settings, self._global_params,
-            self.step_rules, self.execution_id)
+            self.step_rules, self.execution_id, fake_models_config)
 
         self.assertDictEqual(ben._models_config, fake_models_config)
 
         store_results_folder = os.path.join(
-            params['metrics_folder'], self.execution_id)
+            params['paths']['metrics_folder'], self.execution_id)
         self.assertEqual(ben._store_results_folder, store_results_folder)
 
     @patch('honcaml.tools.utils.import_library')
@@ -143,7 +144,7 @@ class BenchmarkTest(unittest.TestCase):
 
         ben = benchmark.BenchmarkStep(
             self.settings, self.user_settings, self._global_params,
-            self.step_rules, self.execution_id)
+            self.step_rules, self.execution_id, models_config)
 
         # Test _clean_search_space
         for model_params in self.settings['transform']['models']:
@@ -280,7 +281,7 @@ class BenchmarkTest(unittest.TestCase):
 
         ben = benchmark.BenchmarkStep(
             self.settings, self.user_settings, self._global_params,
-            self.step_rules, self.execution_id)
+            self.step_rules, self.execution_id, models_config)
 
         with tempfile.TemporaryDirectory() as temp_dir:
             # Override folder to store results
@@ -302,7 +303,7 @@ class BenchmarkTest(unittest.TestCase):
     def test_extract_and_load_not_implemented(self):
         ben = benchmark.BenchmarkStep(
             self.settings, self.user_settings, self._global_params,
-            self.step_rules, self.execution_id)
+            self.step_rules, self.execution_id, models_config)
 
         with self.assertRaises(NotImplementedError):
             ben._extract({})
@@ -315,7 +316,7 @@ class BenchmarkTest(unittest.TestCase):
 
         ben = benchmark.BenchmarkStep(
             {}, self.settings, self._global_params, self.step_rules,
-            self.execution_id)
+            self.execution_id, models_config)
 
         with tempfile.TemporaryDirectory() as temp_dir:
             # Override folder to store results

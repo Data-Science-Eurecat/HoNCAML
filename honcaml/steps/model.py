@@ -113,7 +113,7 @@ class ModelStep(base.BaseStep):
             logger.info(self._cv_results)
 
         # Train the model with whole data
-        logger.info(f'Training model with all data ...')
+        logger.info('Training model with all data ...')
         self._model.fit(x, y, **settings)
 
     def _predict(self, settings: Dict) -> None:

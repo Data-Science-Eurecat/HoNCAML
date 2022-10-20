@@ -87,6 +87,12 @@ class TabularTest(unittest.TestCase):
         self.assertTrue(np.array_equal(
             y, self.tabular_obj._dataset[['target1', 'target2']].values))
 
+        # No target
+        self.settings_with_csv.pop('target')
+        self.tabular_obj.read(copy.deepcopy(self.settings_with_csv))
+        with self.assertRaises(data_exception.TargetNotSet):
+            self.tabular_obj.y
+
     @patch('pandas.read_csv')
     def test_values(self, read_csv_mock_up):
         read_csv_mock_up.return_value = utils.mock_up_read_dataframe()
@@ -98,6 +104,12 @@ class TabularTest(unittest.TestCase):
             x, self.tabular_obj._dataset[['col1', 'col2']].values))
         self.assertTrue(np.array_equal(
             y, self.tabular_obj._dataset[['target1', 'target2']].values))
+
+        # No target
+        self.settings_with_csv.pop('target')
+        self.tabular_obj.read(self.settings_with_csv.copy())
+        with self.assertRaises(data_exception.TargetNotSet):
+            self.tabular_obj.values
 
     @patch('pandas.read_csv')
     def test_clean_dataset(self, read_csv_mock_up):
