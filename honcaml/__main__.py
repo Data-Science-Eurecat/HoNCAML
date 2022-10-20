@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import argparse
 import pkg_resources
+from honcaml.tools import startup
 
 __version__ = pkg_resources.get_distribution('honcaml').version
 
@@ -35,6 +36,8 @@ args = parser.parse_args()
 
 def main():
     """Main execution function."""
+    if args.log:
+        startup.setup_file_logging(args.log)
     from honcaml.tools import execution
     execution.Execution(args.config).run()
 
