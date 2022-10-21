@@ -1,9 +1,9 @@
 import pandas as pd
 import unittest
 
-from honcaml.tests import utils
-from honcaml.models import sklearn_model, evaluate
 from honcaml.data import tabular, normalization, transform
+from honcaml.models import sklearn_model, evaluate
+from honcaml.tests import utils
 
 
 class EvaluateTest(unittest.TestCase):
@@ -42,8 +42,12 @@ class EvaluateTest(unittest.TestCase):
         self.assertTrue('root_mean_square_error' in metrics)
 
     def test_compute_classification_metrics(self):
-        # TODO: rewrite once implemented
-        y_true = pd.Series([1, 2, 3, 4])
-        y_pred = pd.Series([0.5, 1.5, 2.5, 3.5])
-        with self.assertRaises(NotImplementedError):
-            _ = evaluate.compute_classification_metrics(y_true, y_pred)
+        y_true = pd.Series([0, 0, 1, 1])
+        y_pred = pd.Series([0, 1, 0, 1])
+        metrics = evaluate.compute_classifier_metrics(y_true, y_pred)
+        self.assertIsInstance(metrics, dict)
+        self.assertTrue('accuracy' in metrics)
+        self.assertTrue('precision' in metrics)
+        self.assertTrue('sensitivity' in metrics)
+        self.assertTrue('specificity' in metrics)
+        self.assertTrue('f1' in metrics)

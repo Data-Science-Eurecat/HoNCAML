@@ -41,6 +41,21 @@ def mock_up_read_dataframe() -> pd.DataFrame:
     return pd.DataFrame(data)
 
 
+def mock_up_read_classifier_dataframe() -> pd.DataFrame:
+    """
+    Generates a dataframe for testing purposes.
+
+    Returns:
+        Fake dataframe.
+    """
+    data = {
+        'col1': [1, 2, 3],
+        'col2': [4, 5, 6],
+        'target': [0, 0, 1],
+    }
+    return pd.DataFrame(data)
+
+
 def mock_up_read_model(model_type: str, problem_type: str,
                        model_config: Dict, norm_config: dict = None) \
         -> base_model.BaseModel:
