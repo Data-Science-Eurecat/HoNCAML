@@ -44,7 +44,7 @@ class EvaluateTest(unittest.TestCase):
     def test_compute_classification_metrics(self):
         y_true = pd.Series([0, 0, 1, 1])
         y_pred = pd.Series([0, 1, 0, 1])
-        metrics = evaluate.compute_classifier_metrics(y_true, y_pred)
+        metrics = evaluate.compute_classification_metrics(y_true, y_pred)
         self.assertIsInstance(metrics, dict)
         self.assertTrue('accuracy' in metrics)
         self.assertTrue('precision' in metrics)

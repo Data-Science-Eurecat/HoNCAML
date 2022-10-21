@@ -76,7 +76,7 @@ def compute_regression_metrics(
     return metrics
 
 
-def compute_classifier_metrics(
+def compute_classification_metrics(
         y_true: pd.Series, y_predicted: pd.Series) -> Dict[str, ct.Number]:
     """
     This function computes a classifier report dictionary containing most
