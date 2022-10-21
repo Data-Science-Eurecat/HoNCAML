@@ -1,3 +1,4 @@
+import copy
 import numpy as np
 import os
 import shutil
@@ -6,12 +7,12 @@ import unittest
 from sklearn.compose import TransformedTargetRegressor
 from sklearn.utils import validation
 from unittest.mock import patch
-import copy
+
 from honcaml.data import tabular, normalization
+from honcaml.exceptions import model as model_exceptions
 from honcaml.models import sklearn_model
 from honcaml.tests import utils
 from honcaml.tools.startup import params
-from honcaml.exceptions import model as model_exceptions
 
 
 class SklearnTest(unittest.TestCase):
@@ -20,6 +21,13 @@ class SklearnTest(unittest.TestCase):
         self.dataset._dataset = utils.mock_up_read_dataframe()
         self.dataset._features = ['col1', 'col2']
         self.dataset._target = ['target1', 'target2']
+
+        # Classifier dataset
+        self.classifier_dataset = tabular.TabularDataset()
+        self.classifier_dataset._dataset = \
+            utils.mock_up_read_classifier_dataframe()
+        self.classifier_dataset._features = ['col1', 'col2']
+        self.classifier_dataset._target = ['target']
 
         self.test_dir = tempfile.mkdtemp()
 
@@ -48,6 +56,15 @@ class SklearnTest(unittest.TestCase):
         sk_model.build_model(model_config, norm)
         self.assertIsNotNone(sk_model._estimator)
         self.assertEqual('regressor', sk_model.estimator_type)
+
+        problem_type = 'classification'
+        model_config = {'module': 'sklearn.ensemble.RandomForestClassifier',
+                        'hyper_parameters': {}}
+        sk_model = sklearn_model.SklearnModel(problem_type)
+        norm = normalization.Normalization({})
+        sk_model.build_model(model_config, norm)
+        self.assertIsNotNone(sk_model._estimator)
+        self.assertEqual('classifier', sk_model.estimator_type)
 
     def test_build_model_with_normalization(self):
         problem_type = 'regression'
@@ -115,6 +132,34 @@ class SklearnTest(unittest.TestCase):
         self.assertIsInstance(
             sk_model.estimator['estimator'], TransformedTargetRegressor)
 
+        problem_type = 'classification'
+        model_config = {'module': 'sklearn.ensemble.RandomForestClassifier',
+                        'hyper_parameters': {}}
+        # Normalize only features
+        features_to_normalize = ['col1', 'col2']
+        features_norm_config = {
+            'features': {
+                'module': 'sklearn.preprocessing.StandardScaler',
+                'module_params': {},
+                'columns': features_to_normalize
+            }
+        }
+        sk_model = sklearn_model.SklearnModel(problem_type)
+        norm = normalization.Normalization(copy.deepcopy(features_norm_config))
+        sk_model.build_model(model_config, norm)
+        self.assertIsNotNone(sk_model._estimator)
+        self.assertEqual('classifier', sk_model.estimator_type)
+
+        self.assertEqual(
+            len(sk_model.estimator['pre_process'].transformers), 1)
+        name, scaler, columns = \
+            sk_model.estimator['pre_process'].transformers[0]
+        self.assertEqual(name, 'features_normalization')
+        self.assertListEqual(columns, features_to_normalize)
+        self.assertFalse(
+            isinstance(sk_model.estimator['estimator'],
+                       TransformedTargetRegressor))
+
     def test_fit(self):
         problem_type = 'regression'
         model_config = {'module': 'sklearn.ensemble.RandomForestRegressor',
@@ -127,6 +172,17 @@ class SklearnTest(unittest.TestCase):
         self.assertIsNone(
             validation.check_is_fitted(sk_model.estimator))
 
+        problem_type = 'classification'
+        model_config = {'module': 'sklearn.ensemble.RandomForestClassifier',
+                        'hyper_parameters': {}}
+        sk_model = sklearn_model.SklearnModel(problem_type)
+        norm = normalization.Normalization({})
+        sk_model.build_model(model_config, norm)
+        x, y = self.classifier_dataset.values
+        sk_model.fit(x, y)
+        self.assertIsNone(
+            validation.check_is_fitted(sk_model.estimator))
+
     def test_predict(self):
         problem_type = 'regression'
         model_config = {'module': 'sklearn.ensemble.RandomForestRegressor',
@@ -135,6 +191,17 @@ class SklearnTest(unittest.TestCase):
         norm = normalization.Normalization({})
         sk_model.build_model(model_config, norm)
         x, y = self.dataset.values
+        sk_model.fit(x, y)
+        predictions = sk_model.predict(x)
+        self.assertIsInstance(predictions, np.ndarray)
+
+        problem_type = 'classification'
+        model_config = {'module': 'sklearn.ensemble.RandomForestClassifier',
+                        'hyper_parameters': {}}
+        sk_model = sklearn_model.SklearnModel(problem_type)
+        norm = normalization.Normalization({})
+        sk_model.build_model(model_config, norm)
+        x, y = self.classifier_dataset.values
         sk_model.fit(x, y)
         predictions = sk_model.predict(x)
         self.assertIsInstance(predictions, np.ndarray)
@@ -159,11 +226,10 @@ class SklearnTest(unittest.TestCase):
         sk_model = sklearn_model.SklearnModel(problem_type)
         norm = normalization.Normalization({})
         sk_model.build_model(model_config, norm)
-        x, y = self.dataset.values
+        x, y = self.classifier_dataset.values
         sk_model.fit(x, y)
-        with self.assertRaises(NotImplementedError):
-            metrics = sk_model.evaluate(x, y)
-        # self.assertIsInstance(metrics, dict)
+        metrics = sk_model.evaluate(x, y)
+        self.assertIsInstance(metrics, dict)
 
         # Evaluate unknown problem
         problem_type = 'regression'
@@ -187,5 +253,5 @@ class SklearnTest(unittest.TestCase):
         sk_model.build_model(model_config, norm)
         sk_model.save({'path': self.test_dir})
         files_in_test_dir = os.listdir(self.test_dir)
-        self.assertTrue(any(f.startswith('sklearn')
-                            for f in files_in_test_dir))
+        self.assertTrue(
+            any(f.startswith('sklearn') for f in files_in_test_dir))

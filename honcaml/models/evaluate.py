@@ -79,14 +79,24 @@ def compute_regression_metrics(
 def compute_classification_metrics(
         y_true: pd.Series, y_predicted: pd.Series) -> Dict[str, ct.Number]:
     """
-    Computes classification metrics from true values and predictions; available
-    options are specified within.
+    This function computes a classifier report dictionary containing most
+    used classification metrics such as accuracy, precision, recall, etc.
 
     Args:
-        y_true: Series of ground truth outputs.
-        y_predicted: Series of predicted outputs.
+        y_true (pd.Series): series of ground truth classes
+        y_predicted (pd.Series): series of predicted classes
 
     Returns:
-        Resulting metrics.
+        Dict containing computed metrics
     """
-    raise NotImplementedError('Not implemented yet')
+    tn, fp, fn, tp = sk_metrics.confusion_matrix(y_true, y_predicted).ravel()
+    metrics = {
+        'accuracy': sk_metrics.accuracy_score(y_true, y_predicted),
+        'precision': sk_metrics.precision_score(y_true, y_predicted),
+        'sensitivity': sk_metrics.recall_score(y_true, y_predicted),
+        'specificity': tn / (tn + fp),
+        'f1': sk_metrics.f1_score(y_true, y_predicted),
+        'roc_auc': sk_metrics.roc_auc_score(y_true, y_predicted),
+    }
+
+    return metrics
