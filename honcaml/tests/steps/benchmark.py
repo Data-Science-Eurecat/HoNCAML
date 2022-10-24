@@ -254,7 +254,7 @@ class BenchmarkTest(unittest.TestCase):
             df['root_mean_square_error'].values.tolist(), [4, 3, 2, 1])
 
         # Test get_best_result with 'max' mode
-        ben._get_best_result(self.result_df)
+        ben._get_best_result(self.result_df, results_df.dtypes.to_dict())
         best_fake_model = 'fake.module.Class1'
         self.assertEqual(ben._best_model, best_fake_model)
 
