@@ -1,0 +1,20 @@
+global:
+  problem_type: classification
+steps:
+  data:
+    extract:
+      filepath: data/processed/Iris_test.csv
+      features:
+        - SepalLengthCm
+        - SepalWidthCm
+        - PetalLengthCm
+        - PetalWidthCm
+      target:
+        - Species
+
+  model:
+    extract:
+      filepath: data/models/sklearn. # set the name
+    transform:
+      predict:
+        path: data/predictions
