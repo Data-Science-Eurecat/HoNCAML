@@ -1,3 +1,4 @@
+import argparse
 from honcaml.tools import utils
 import unittest
 from sklearn.ensemble import RandomForestRegressor
@@ -204,3 +205,10 @@ class UtilsTest(unittest.TestCase):
                 },
             }
         })
+
+    # Test build_validator_schema
+    def test_get_config_generation_argname_value(self):
+        args = argparse.Namespace(generate_advanced_config='path/file.yaml')
+        expected = 'advanced', 'path/file.yaml'
+        result = utils.get_config_generation_argname_value(args)
+        self.assertTupleEqual(result, expected)

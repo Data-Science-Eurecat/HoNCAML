@@ -35,3 +35,4 @@ Pipelines
 At this moment, the following types of problems are supported:
 
 * Regression
+* Classification

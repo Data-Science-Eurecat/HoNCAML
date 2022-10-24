@@ -2,6 +2,7 @@ import joblib
 import os
 import pandas as pd
 import numpy as np
+import yaml
 from typing import Dict, List
 
 from honcaml.exceptions import data as data_exception
@@ -52,3 +53,15 @@ def save_predictions(predictions: List, settings: Dict) -> None:
     filename = utils.generate_unique_id('predictions')
     filepath = os.path.join(settings['path'], filename)
     np.save(filepath, predictions)
+
+
+def save_yaml(dictionary: Dict, filepath: str) -> None:
+    """
+    Save the dictionary configuration to a YAML file on disk.
+
+    Args:
+        dictionary: Python object from which to create the output file.
+        filepath: Path in which to store the file.
+    """
+    with open(filepath, 'w', encoding='utf8') as file:
+        yaml.dump(dictionary, file)

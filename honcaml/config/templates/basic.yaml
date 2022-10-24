@@ -1,0 +1,21 @@
+# This configuration file is an example of a basic configuration
+# Fill all keys before using it in a HONCAML pipeline
+# Keys which need values are the ones with a commend above
+
+global:
+  # Specify one of the following: [regression, classification]
+  problem_type:
+
+steps:
+  data:
+    extract:
+      # Specify path of file containing input data
+      filepath:
+      # Specify target column name
+      target:
+
+  model:
+    transform:
+    load:
+      # Specify folder in which to store model object
+      path:

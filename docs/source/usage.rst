@@ -7,29 +7,52 @@ Right now, HONCAML covers the following
 Installation
 ============
 
-To use HONCAML, first install it using pip:
+To use HONCAML, first install it from source:
 
 .. code-block:: console
 
-   (.venv) $ pip install honcaml
+   (.venv) $ make install
 
-Main execution
+Quick execution
 ===============
 
 Train
 -----
 
-For a quick execution, given that a configuration file has been filled and the
-dataset is available with the target value informed, it is just necessary to
-execute honcaml directly:
+For a quick execution, given that a dataset is available with the target value
+informed, it is necessary to first create a basic configuration file:
+
+.. code-block:: console
+             
+   (.venv) $ honcaml -b {config_file}
+
+Being ``{config_file}`` the path to the file containing the configuration.
+
+The specified keys of the file should be filled in, and afterwards it is
+possible to run the intended pipeline with the following command:
 
 .. code-block:: console
              
    (.venv) $ honcaml -c {config_file}
 
-Being ``{config_file}`` the path to the file containing the configuration.
+This will run the pipeline and export the trained model.
 
-This will run the pipeline and export the results as specified.
+Detailed configuration
+======================
+
+In the case of advanced configuration, there is the option of generating a more
+complete one, instead of the basic mentioned above:
+
+.. code-block:: console
+             
+   (.venv) $ honcaml -a {config_file}
+
+In this case, there are default values speficied which should be replaced. In
+general, all the details of the configuration file are explained in
+:ref:`configuration`.
+
+Command-line reference
+======================
 
 The command-line reference usage is the following:
 
@@ -42,12 +65,10 @@ The command-line reference usage is the following:
     -c CONFIG, --config CONFIG
     YAML configuration file specifying pipeline options
     -l LOG, --log LOG     File path in which to store execution log
-
-Detailed configuration
-======================
-
-It is expected to configure the pipeline prior to its execution. All the
-details are explained in :ref:`configuration`.
+    -b GENERATE_BASIC_CONFIG, --generate-basic-config GENERATE_BASIC_CONFIG
+                        Generate most basic YAML configuration file
+    -a GENERATE_ADVANCED_CONFIG, --generate-advanced-config GENERATE_ADVANCED_CONFIG
+                        Generate advanced YAML configuration file
 
 Extending HONCAML
 =================

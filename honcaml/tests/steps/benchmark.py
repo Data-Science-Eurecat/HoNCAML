@@ -8,7 +8,7 @@ from honcaml.exceptions import benchmark as benchmark_exceptions
 from honcaml.steps import base
 from honcaml.steps import benchmark
 from honcaml.tools.startup import params
-from honcaml.config import models_config
+from honcaml.config.defaults import models_config
 
 
 class ResultGridMockUp:

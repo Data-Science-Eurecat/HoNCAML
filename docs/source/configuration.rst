@@ -16,7 +16,19 @@ ones available are the following:
 The configuration should be done through a `YAML <https://yaml.org/spec/>`_
 file, which contains all the pipeline and steps options that are considered.
 
-The steps configuration are detailed below.
+Global
+======
+
+First of all, it is necessary to specify the kind of problem and allows
+to select the kind of model to use. Valid values are: ``classifier``,
+``regressor``.
+
+.. code:: yaml
+
+   global:
+       problem_type: regression
+
+Afterwards, the steps configuration is provided, which is detailed below.
 
 .. _data-step:
 
@@ -70,18 +82,6 @@ Examples:
 ^^^^^^^^^
 
 The simplest configuration is the following:
-
-.. code:: yaml
-
-   extract:
-
-When **extract** phase is empty, the framework reads the file
-``data/raw/dataset.csv``. Furthermore, it gets ``target`` column name as a
-model target. In addition, it uses all columns as features.
-
-In the example below, the framework reads dataset from
-``data/raw/boston_dataset.csv``. Also, it gets ``price`` column as a target.
-Finally, it uses all columns as features.
 
 .. code:: yaml
 
@@ -252,13 +252,6 @@ file:
 
        load:
          path: data/models/
-
-Estimator Type
---------------
-
-This is a mandatory key that identifies the kind of problem and allows
-to select the kind of model to use. Valid values are: ``classifier``,
-``regressor``.
 
 Estimator config
 ----------------

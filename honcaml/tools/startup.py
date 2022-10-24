@@ -2,7 +2,7 @@ import datetime
 import logging
 import sys
 
-from honcaml.config import params
+from honcaml.config.defaults import params
 
 # Load settings
 params['exec_name'] = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')

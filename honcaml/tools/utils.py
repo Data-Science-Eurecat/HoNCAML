@@ -1,5 +1,7 @@
+import argparse
 import datetime
 import importlib
+import re
 import uuid
 from cerberus import Validator
 from functools import reduce
@@ -137,6 +139,27 @@ def build_validator_schema(rules: Dict) -> Dict:
                 schema['schema'][key] = reduce(lambda a, b: {**a, **b}, value)
 
     return schema
+
+
+def get_config_generation_argname_value(
+        args: argparse.Namespace) -> tuple[str, str]:
+    """
+    Get configuration type and value in the case of generating configurations,
+    which should have been specified while parsing arguments.
+
+    Args:
+        args: Arguments parsed.
+
+    Returns:
+        Configuration type.
+        Value of configuration type argument.
+    """
+    regex = r"generate_[a-z]+_config"
+    arg_specified = [
+        x for x in dir(args) if re.match(regex, x) and getattr(args, x)][0]
+    config_type = arg_specified.split("_")[1]
+    arg_value = getattr(args, arg_specified)
+    return config_type, arg_value
 
 
 class FileExtension:

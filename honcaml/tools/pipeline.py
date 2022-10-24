@@ -5,7 +5,7 @@ from honcaml.steps import base as base_step, data as data_step
 from honcaml.tools.startup import logger, params
 from honcaml.steps import model as model_step
 from honcaml.steps import benchmark as benchmark_step
-from honcaml.config import models_config
+from honcaml.config.defaults import models_config
 
 
 class Pipeline:
