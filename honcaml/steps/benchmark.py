@@ -274,7 +274,7 @@ class BenchmarkStep(base.BaseStep):
         logger.info(f'Store metrics results in {file_path}')
         df.to_csv(file_path, index=False)
 
-    def _get_best_result(self, df: pd.DataFrame) -> None:
+    def _get_best_result(self, df: pd.DataFrame, df_dtypes: Dict) -> None:
         """
         Given a results dataframe, this function gets the best model and the
         best hyperparmeters configuration. In addition, it shows a log with
@@ -282,6 +282,7 @@ class BenchmarkStep(base.BaseStep):
 
         Args:
             df (pd.DataFrame): results dataframe.
+            df_dtypes: the dtypes of the columns in the df.
         """
         cond_param_columns = df.columns.str.contains('config')
         selected_columns = \
@@ -291,6 +292,10 @@ class BenchmarkStep(base.BaseStep):
             .drop(columns=['config/metric']) \
             .dropna(axis=1)
 
+        # Convert dtypes
+        params_dtypes = {key: value for key, value in df_dtypes.items()
+                         if key in best_params_df.columns}
+        best_params_df = best_params_df.astype(params_dtypes)
         # Rename columns
         best_params_df.columns = best_params_df.columns.str.split('/').str[-1]
         # Store to class attributes the best model and the best hyperparameters
@@ -315,7 +320,8 @@ class BenchmarkStep(base.BaseStep):
         Returns:
             (Dict[str, ct.Number])
         """
-        columns_to_drop = ['model_module'] + self._reported_metrics
+        columns_to_drop = \
+            ['model_module', 'problem_type'] + self._reported_metrics
         best_hyper_params = df \
             .drop(columns=columns_to_drop, errors='ignore') \
             .to_dict('records')[0]
@@ -383,6 +389,7 @@ class BenchmarkStep(base.BaseStep):
 
         # Create a Trainable for each model and run the hyper parameter seach.
         results_df = pd.DataFrame()
+        results_dtypes = {}
         models = settings['models']
         for i, model_params in enumerate(models, start=1):
             logger.info(f'Starting search space for model {i}/{len(models)}')
@@ -429,12 +436,16 @@ class BenchmarkStep(base.BaseStep):
             # Concat with all results dataframe.
             results_df = pd.concat(
                 [results_df, iter_results_df], ignore_index=True)
+            # Retrieve column dtypes
+            iter_dtypes = iter_results_df.filter(
+                regex='config/param_space', axis=1).dtypes.to_dict()
+            results_dtypes = iter_dtypes | results_dtypes
 
         # Sort and store results for all experiments
         results_df = self._sort_results(results_df)
         self._store_results(results_df)
         # Get best model and hyperparameters configuration.
-        self._get_best_result(results_df)
+        self._get_best_result(results_df, results_dtypes)
 
     def _load(self, settings: Dict) -> None:
         """
