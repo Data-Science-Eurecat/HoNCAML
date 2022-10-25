@@ -1,0 +1,52 @@
+global:
+  problem_type: regression
+steps:
+  data:
+    extract:
+      filepath: data/processed/kc_house_data_test.csv
+      features:
+        - bedrooms
+        - bathrooms
+        - sqft_living
+        - sqft_lot
+        - floors
+        - waterfront
+        - view
+        - condition
+        - grade
+        - sqft_above
+        - sqft_basement
+        - yr_built
+        - yr_renovated
+        - zipcode
+        - lat
+        - long
+        - sqft_living15
+        - sqft_lot15
+
+    transform:
+      normalize:
+        features:
+          module: sklearn.preprocessing.StandardScaler
+          module_params:
+            with_std: True
+          columns:
+            - sqft_living
+            - sqft_lot
+            - sqft_above
+            - sqft_basement
+            - sqft_living15
+            - sqft_lot15
+        target:
+          module: sklearn.preprocessing.StandardScaler
+          module_params:
+            with_std: True
+          columns:
+            - price
+
+  model:
+    extract:
+      filepath: data/models/sklearn.20221024-171507.sav
+    transform:
+      predict:
+        path: data/predictions

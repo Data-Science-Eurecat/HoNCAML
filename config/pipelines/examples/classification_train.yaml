@@ -1,0 +1,25 @@
+global:
+  problem_type: classification
+steps:
+  data:
+    extract:
+      filepath: data/processed/bank_train.csv
+      target:
+        - 'class'
+
+  model:
+    estimator_config:
+      module: sklearn.ensemble.RandomForestClassifier
+      hyper_parameters:
+        n_estimators: 100
+
+    transform:
+      fit:
+        cross_validation:
+          strategy: k_fold
+          n_splits: 2
+          shuffle: True
+          random_state: 90
+
+    load:
+      path: data/models/

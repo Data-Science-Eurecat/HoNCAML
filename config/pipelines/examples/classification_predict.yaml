@@ -1,0 +1,13 @@
+global:
+  problem_type: classification
+steps:
+  data:
+    extract:
+      filepath: data/processed/bank_test.csv
+
+  model:
+    extract:
+      filepath: data/models/sklearn.20221025-132223.sav
+    transform:
+      predict:
+        path: data/predictions
