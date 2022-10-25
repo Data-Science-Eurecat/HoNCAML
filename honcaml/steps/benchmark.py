@@ -240,7 +240,7 @@ class BenchmarkStep(base.BaseStep):
             'config/cv_split',
             'config/dataset',
         ]
-        return df.drop(columns=drop_columns)
+        return df.drop(columns=drop_columns, errors='ignore')
 
     def _sort_results(self, df: pd.DataFrame) -> pd.DataFrame:
         """
