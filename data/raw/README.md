@@ -14,7 +14,13 @@ URL: https://www.kaggle.com/datasets/harlfoxem/housesalesprediction
 Collected on: 03/08/2022 by Xavier de Juan
 
 Title: Iris.csv
-keywords: biology, classification
+keywords: biology, classification, multi-class
 Description: The Iris dataset was used in R.A. Fisher's classic 1936 paper, The Use of Multiple Measurements in Taxonomic Problems, and can also be found on the UCI Machine Learning Repository. It includes three iris species with 50 samples each as well as some properties about each flower. One flower species is linearly separable from the other two, but the other two are not linearly separable from each other.
 URL: https://www.kaggle.com/datasets/uciml/iris?resource=download
 Collected on: 24/10/2022 by Xavier de Juan
+
+Title: sonar.all-data.csv
+keywords: Earth and Nature, classification, binary
+Description:
+URL: https://www.kaggle.com/datasets/ypzhangsam/sonaralldata
+Collected on: 25/10/2022 by Xavier de Juan

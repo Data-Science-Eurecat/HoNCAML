@@ -23,12 +23,10 @@ steps:
         - long
         - sqft_living15
         - sqft_lot15
-      target:
-        - price
 
   model:
     extract:
-      filepath: data/models/sklearn. # set the name
+      filepath: data/models/sklearn.20221024-171507.sav
     transform:
       predict:
         path: data/predictions

@@ -3,14 +3,9 @@ global:
 steps:
   data:
     extract:
-      filepath: data/processed/Iris_train.csv
-      features:
-        - SepalLengthCm
-        - SepalWidthCm
-        - PetalLengthCm
-        - PetalWidthCm
+      filepath: data/processed/sonar_train.csv
       target:
-        - Species
+        - '60'
 
   model:
     estimator_config:

@@ -3,14 +3,9 @@ global:
 steps:
   data:
     extract:
-      filepath: data/processed/Iris_train.csv
-      features:
-        - SepalLengthCm
-        - SepalWidthCm
-        - PetalLengthCm
-        - PetalWidthCm
+      filepath: data/processed/sonar_train.csv
       target:
-        - Species
+        - '60'
   
   benchmark:
     transform:
@@ -34,13 +29,16 @@ steps:
                 - sqrt
                 - log2
                 - 1 # It means 'auto'
-        - module: sklearn.linear_model.LinearRegression
+        - module: sklearn.neighbors.KNeighborsClassifier
           search_space:
-            fit_intercept:
+            n_neighbors:
+              method: randint
+              values: [1, 100]
+            weights:
               method: choice
               values:
-                - True
-                - False
+                - uniform
+                - distance
 
       cross_validation:
         strategy: k_fold
@@ -55,7 +53,7 @@ steps:
         tune_config:
           num_samples: 5
           metric: accuracy
-          mode: min
+          mode: max
         run_config:
           stop:
             training_iteration: 2
