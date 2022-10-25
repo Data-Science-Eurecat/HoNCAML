@@ -24,6 +24,26 @@ steps:
         - sqft_living15
         - sqft_lot15
 
+    transform:
+      normalize:
+        features:
+          module: sklearn.preprocessing.StandardScaler
+          module_params:
+            with_std: True
+          columns:
+            - sqft_living
+            - sqft_lot
+            - sqft_above
+            - sqft_basement
+            - sqft_living15
+            - sqft_lot15
+        target:
+          module: sklearn.preprocessing.StandardScaler
+          module_params:
+            with_std: True
+          columns:
+            - price
+
   model:
     extract:
       filepath: data/models/sklearn.20221024-171507.sav

@@ -3,9 +3,19 @@ global:
 steps:
   data:
     extract:
-      filepath: data/processed/sonar_train.csv
+      filepath: data/processed/bank_train.csv
       target:
-        - '60'
+        - class
+    
+    transform:
+      normalize:
+        features:
+          module: sklearn.preprocessing.StandardScaler
+          module_params:
+            with_std: True
+          columns:
+            - variance
+            - skewness
   
   benchmark:
     transform:

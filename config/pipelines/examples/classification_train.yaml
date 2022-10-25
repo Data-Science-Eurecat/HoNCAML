@@ -3,9 +3,9 @@ global:
 steps:
   data:
     extract:
-      filepath: data/processed/sonar_train.csv
+      filepath: data/processed/bank_train.csv
       target:
-        - '60'
+        - 'class'
 
   model:
     estimator_config:

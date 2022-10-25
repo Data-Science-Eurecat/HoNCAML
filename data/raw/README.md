@@ -19,8 +19,8 @@ Description: The Iris dataset was used in R.A. Fisher's classic 1936 paper, The 
 URL: https://www.kaggle.com/datasets/uciml/iris?resource=download
 Collected on: 24/10/2022 by Xavier de Juan
 
-Title: sonar.all-data.csv
-keywords: Earth and Nature, classification, binary
-Description:
-URL: https://www.kaggle.com/datasets/ypzhangsam/sonaralldata
+Title: BankNote_Authentication.csv
+keywords: Banking, classification, binary
+Description: Data were extracted from images that were taken from genuine and forged banknote-like specimens. For digitization, an industrial camera usually used for print inspection was used. The final images have 400x 400 pixels. Due to the object lens and distance to the investigated object gray-scale pictures with a resolution of about 660 dpi were gained. Wavelet Transform tool were used to extract features from images.
+URL: https://www.kaggle.com/datasets/ritesaluja/bank-note-authentication-uci-data
 Collected on: 25/10/2022 by Xavier de Juan
