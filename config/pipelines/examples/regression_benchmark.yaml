@@ -97,6 +97,9 @@ steps:
           module: ray.tune.schedulers.HyperBandScheduler
           params:
 
+    load:
+      save_best_config_params: True
+
   model:
     transform:
       fit:
