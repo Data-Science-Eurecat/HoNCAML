@@ -4,8 +4,7 @@ params = {
 
     # Global paths
     "paths": {
-        "reports_folder": "reports/",
-        "metrics_folder": "reports/metrics"
+        "metrics_folder": "honcaml_reports"
     },
 
     # Logging options

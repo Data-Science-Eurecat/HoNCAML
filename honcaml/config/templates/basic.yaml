@@ -5,6 +5,8 @@
 global:
   # Specify one of the following: [regression, classification]
   problem_type:
+  # Specify folder in which to store execution results
+  metrics_folder:
 
 steps:
   data:

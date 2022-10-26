@@ -19,14 +19,19 @@ file, which contains all the pipeline and steps options that are considered.
 Global
 ======
 
-First of all, it is necessary to specify the kind of problem and allows
-to select the kind of model to use. Valid values are: ``classifier``,
-``regressor``.
+First of all, it is necessary to specify global options, which are the
+following:
+
+* problem_type: The kind of problem that determines the model/s to use. Valid
+  values are: ``classification``, ``regression``.
+* metrics_folder: Folder in which all execution results will be stored,
+  which will contain the id of their execution in order to differentiate them.
 
 .. code:: yaml
 
    global:
-       problem_type: regression
+       problem_type:
+       metrics_folder:
 
 Afterwards, the steps configuration is provided, which is detailed below.
 

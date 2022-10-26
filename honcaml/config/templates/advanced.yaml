@@ -5,6 +5,7 @@
 
 global:
   problem_type: regression
+  metrics_folder: honcaml_reports
 steps:
   data:
     extract:
