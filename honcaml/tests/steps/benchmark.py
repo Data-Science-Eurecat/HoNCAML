@@ -4,11 +4,12 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
+from honcaml.config.defaults import models_config
+from honcaml.data import extract
 from honcaml.exceptions import benchmark as benchmark_exceptions
 from honcaml.steps import base
 from honcaml.steps import benchmark
 from honcaml.tools.startup import params
-from honcaml.config.defaults import models_config
 
 
 class ResultGridMockUp:
@@ -139,7 +140,7 @@ class BenchmarkTest(unittest.TestCase):
         self.assertEqual(ben._store_results_folder, store_results_folder)
 
     @patch('honcaml.tools.utils.import_library')
-    def test_test_class_methods(self, import_library_mock_up):
+    def test_class_methods(self, import_library_mock_up):
         import_library_mock_up.return_value = object
 
         ben = benchmark.BenchmarkStep(
@@ -150,12 +151,7 @@ class BenchmarkTest(unittest.TestCase):
         for model_params in self.settings['transform']['models']:
             search_space = model_params['search_space']
 
-            try:
-                param_space = ben._clean_search_space(search_space)
-            except benchmark_exceptions.TuneMethodDoesNotExists:
-                self.fail(f'Test generates '
-                          f'{benchmark_exceptions.TuneMethodDoesNotExists} '
-                          f'exception.')
+            param_space = ben._clean_search_space(search_space)
 
             for _, tune_method in param_space.items():
                 self.assertNotIsInstance(tune_method, str)
@@ -275,6 +271,14 @@ class BenchmarkTest(unittest.TestCase):
         best_metric = ben._get_best_metrics(metrics_df)
         self.assertDictEqual({'root_mean_square_error': 4}, best_metric)
 
+        # Test get_best_model_and_params_dict
+        best_config_dict = ben.get_best_model_and_hyperparams_dict()
+        self.assertIn('module', best_config_dict)
+        self.assertIn('hyper_parameters', best_config_dict)
+        self.assertEqual(best_fake_model, best_config_dict['module'])
+        self.assertDictEqual(
+            best_fake_hyper_parameters, best_config_dict['hyper_parameters'])
+
     @patch('ray.tune.Tuner.fit')
     def test_transform(self, mock_up_tuner_fit):
         mock_up_tuner_fit.return_value = ResultGridMockUp()
@@ -300,15 +304,13 @@ class BenchmarkTest(unittest.TestCase):
             self.assertIn(
                 'sklearn.linear_model.LinearRegression', results_folder)
 
-    def test_extract_and_load_not_implemented(self):
+    def test_extract_not_implemented(self):
         ben = benchmark.BenchmarkStep(
             self.settings, self.user_settings, self._global_params,
             self.step_rules, self.execution_id, models_config)
 
         with self.assertRaises(NotImplementedError):
             ben._extract({})
-        with self.assertRaises(NotImplementedError):
-            ben._load({})
 
     @patch('ray.tune.Tuner.fit')
     def test_run(self, mock_up_tuner_fit):
@@ -356,3 +358,68 @@ class BenchmarkTest(unittest.TestCase):
                 'sklearn.ensemble.RandomForestRegressor', results_folder)
             self.assertIn(
                 'sklearn.linear_model.LinearRegression', results_folder)
+
+    def test_load(self):
+        fake_best_model = 'fake.model'
+        fake_best_hyperparams = {
+            'fake_param_1': 20,
+            'fake_param_2': [1, 2, 3]
+        }
+
+        # Test with save_best_config_params True
+        settings = {
+            'save_best_config_params': True
+        }
+        user_settings = {}
+        ben = benchmark.BenchmarkStep(
+            settings, user_settings, self._global_params,
+            self.step_rules, self.execution_id, models_config)
+
+        ben._best_model = fake_best_model
+        ben._best_hyper_parameters = fake_best_hyperparams
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            ben._store_results_folder = temp_dir
+            ben._load(settings)
+            expected_file_path = os.path.join(
+                temp_dir, 'best_config_params.yaml')
+
+            self.assertTrue(os.path.exists(expected_file_path))
+
+            result_dict = extract.read_yaml(expected_file_path)
+            expected_dict = {
+                'module': fake_best_model,
+                'hyper_parameters': fake_best_hyperparams,
+
+            }
+            self.assertDictEqual(result_dict, expected_dict)
+
+        # Test with save_best_config_params False
+        settings = {
+            'save_best_config_params': False
+        }
+        ben = benchmark.BenchmarkStep(
+            settings, user_settings, self._global_params,
+            self.step_rules, self.execution_id, models_config)
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            ben._store_results_folder = temp_dir
+            ben._load(settings)
+            expected_file_path = os.path.join(
+                temp_dir, 'best_config_params.yaml')
+
+            self.assertFalse(os.path.exists(expected_file_path))
+
+        # Test without save_best_config_params param
+        settings = {}
+        ben = benchmark.BenchmarkStep(
+            settings, user_settings, self._global_params,
+            self.step_rules, self.execution_id, models_config)
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            ben._store_results_folder = temp_dir
+            ben._load(settings)
+            expected_file_path = os.path.join(
+                temp_dir, 'best_config_params.yaml')
+
+            self.assertFalse(os.path.exists(expected_file_path))

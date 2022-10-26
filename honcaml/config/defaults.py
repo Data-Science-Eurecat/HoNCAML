@@ -119,7 +119,7 @@ params = {
                         "random_state": 90
                     }
                 },
-                "predict":  {
+                "predict": {
                     "path": "data/processed"
                 }
             },
@@ -161,7 +161,9 @@ params = {
                 }
             },
             # Save the learner to disk and the results
-            "load": None
+            "load": {
+                'save_best_config_params': True
+            }
         }
     },
 

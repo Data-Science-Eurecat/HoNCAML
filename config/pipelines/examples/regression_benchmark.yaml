@@ -57,17 +57,17 @@ steps:
         - root_mean_square_error
 
       models:
-        - module: sklearn.ensemble.RandomForestRegressor
-          search_space:
-            n_estimators:
-              method: randint
-              values: [ 2, 110 ]
-            max_features:
-              method: choice
-              values:
-                - sqrt
-                - log2
-                - 1 # It means 'auto'
+#        - module: sklearn.ensemble.RandomForestRegressor
+#          search_space:
+#            n_estimators:
+#              method: randint
+#              values: [ 2, 110 ]
+#            max_features:
+#              method: choice
+#              values:
+#                - sqrt
+#                - log2
+#                - 1 # It means 'auto'
         - module: sklearn.linear_model.LinearRegression
           search_space:
             fit_intercept:
@@ -96,6 +96,9 @@ steps:
         scheduler:
           module: ray.tune.schedulers.HyperBandScheduler
           params:
+
+    load:
+      save_best_config_params: True
 
   model:
     transform:

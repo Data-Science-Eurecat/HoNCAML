@@ -5,7 +5,7 @@ import pandas as pd
 from ray import tune, air
 from typing import Dict, Callable, Union
 
-from honcaml.data import transform
+from honcaml.data import transform, load
 from honcaml.exceptions import benchmark as benchmark_exceptions
 from honcaml.models import trainable
 from honcaml.steps import base
@@ -37,8 +37,7 @@ class BenchmarkStep(base.BaseStep):
 
     def __init__(self, default_settings: Dict, user_settings: Dict,
                  global_params: Dict, step_rules: Dict, execution_id: str,
-                 models_config: Dict) \
-            -> None:
+                 models_config: Dict) -> None:
         """
         This is a constructor method of class. This function initializes
         the parameters and set up the current steps.
@@ -337,9 +336,25 @@ class BenchmarkStep(base.BaseStep):
             df (pd.DataFrame): a dataframe with results of search.
 
         Returns:
-            (Dict[str, ct.Number])
+            (Dict[str, ct.Number]): a dict with metric name as keys and
+            metric value as value.
         """
         return df[self._reported_metrics].to_dict('records')[0]
+
+    def get_best_model_and_hyperparams_dict(self) -> Dict:
+        """
+        This function returns a dict with the best model module and the best
+        hyperparameters of benchmark transform step.
+
+        Returns:
+
+        """
+        best_config_dict = {
+            'module': self._best_model,
+            'hyper_parameters': self._best_hyper_parameters
+        }
+
+        return best_config_dict
 
     def _extract(self, settings: Dict) -> None:
         """
@@ -449,12 +464,18 @@ class BenchmarkStep(base.BaseStep):
 
     def _load(self, settings: Dict) -> None:
         """
-        The load process from the benchmark step ETL.
+        The load process from the benchmark step ETL. This step checks if
+        exists the key 'save_best_config_params'. If it exists, it stores a
+        yaml file with the best model and hyperparmeters of transform step.
 
         Args:
             settings (Dict): the settings defining the load ETL process.
         """
-        raise NotImplementedError('Load function is not implemented')
+        if settings.get('save_best_config_params', False):
+            best_config_params = self.get_best_model_and_hyperparams_dict()
+            file_path = os.path.join(
+                self._store_results_folder, 'best_config_params.yaml')
+            load.save_yaml(best_config_params, file_path)
 
     def run(self, metadata: Dict) -> Dict:
         """
@@ -474,10 +495,7 @@ class BenchmarkStep(base.BaseStep):
         self.execute()
 
         metadata.update({
-            'model_config': {
-                'module': self._best_model,
-                'hyper_parameters': self._best_hyper_parameters,
-            }
+            'model_config': self.get_best_model_and_hyperparams_dict()
         })
 
         return metadata

@@ -17,9 +17,9 @@ steps:
       target:
         - medv
       # pandas read files additional params
-  #    dtype:
-  #      col1: int
-  #      col2: int
+    #    dtype:
+    #      col1: int
+    #      col2: int
 
     transform:
       normalize:
@@ -49,7 +49,7 @@ steps:
     transform:
       tuner:
         algorithm: ray.tune.search.optuna.OptunaSearch
-          # TODO (future): paràmetres de l'algorisme de cerca
+        # TODO (future): paràmetres de l'algorisme de cerca
         # TODO (future): + paràmetres del tuner
         # TODO (future): tune_config:
         # TODO (future): run_config:
@@ -62,19 +62,22 @@ steps:
           search_space:
             n_estimators:
               method: randint # TODO: mapping search spaces
-              value: [2, 10]
-            
+              value: [ 2, 10 ]
+
         - module: sklearn.linear_model.LinearRegression
           search_space:
             fit_intercept:
               method: choice
-              value: [True, False]
+              value: [ True, False ]
       
       cross_validation:
         strategy: k_fold
         n_splits: 10
         shuffle: True
         random_state: 90
+
+    load:
+      save_best_config_file: True
 
 
   # Model Step settings
@@ -83,8 +86,8 @@ steps:
       module: sklearn.ensemble.RandomForestRegressor
       hyper_parameters:
         n_estimators: 100
-  #  extract:
-  #    filepath: models/sklearn.regressor.20220819-122417.sav
+    #  extract:
+    #    filepath: models/sklearn.regressor.20220819-122417.sav
 
     transform:
       fit: # | predict
