@@ -11,6 +11,7 @@ Conceptually, a pipeline is composed from a modular composition of steps. The
 ones available are the following:
 
 * :ref:`data-step`: Responsible for raw data management
+* :ref:`benchmark-step`: Responsible for searching the best model configuration
 * :ref:`model-step`: Responsible for model management
 
 The configuration should be done through a `YAML <https://yaml.org/spec/>`_
@@ -210,6 +211,130 @@ The following example, the framework stores the processed data in
 
    load:
      filepath: data/processed/dataset.csv
+
+.. _benchmark-step:
+
+Benchmark
+====
+
+This step is responsible for searching the best model configuration.
+
+It is made up for the following ETL phases:
+
+- **transform**: this phase runs an hyperparamater search algorithm for each
+  specified model. Furthermore, it gets the best model configuration.
+- **load**: it saves the best configuration into a yaml file.
+
+The following example shows all keys that can be specified in a pipeline
+file:
+
+.. code:: yaml
+
+    benchmark:
+        transform:
+          metrics:
+            - mean_squared_error
+            - mean_absolute_percentage_error
+            - median_absolute_error
+            - r2_score
+            - mean_absolute_error
+            - root_mean_square_error
+
+          models:
+            - module: sklearn.ensemble.RandomForestRegressor
+              search_space:
+                n_estimators:
+                  method: randint
+                  values: [ 2, 110 ]
+                max_features:
+                  method: choice
+                  values:
+                    - sqrt
+                    - log2
+                    - 1
+            - module: sklearn.linear_model.LinearRegression
+              search_space:
+                fit_intercept:
+                  method: choice
+                  values:
+                    - True
+                    - False
+
+          cross_validation:
+            strategy: k_fold
+            n_splits: 2
+            shuffle: True
+            random_state: 90
+
+          tuner:
+            search_algorithm:
+              module: ray.tune.search.optuna.OptunaSearch
+              params:
+            tune_config:
+              num_samples: 5
+              metric: root_mean_square_error
+              mode: min
+            run_config:
+              stop:
+                training_iteration: 2
+            scheduler:
+              module: ray.tune.schedulers.HyperBandScheduler
+              params:
+
+        load:
+          save_best_config_params: True
+
+Transform
+---------
+
+This phase runs an hyperparameter search algorithm for each model defined in
+pipeline file. Furthermore, the user can define a set of metrics to evaluate
+the experiments, the model's hyperparamaters to tune, the strategy to split
+train and test data and parameters of search algorithm.
+
+The available configurations are the following:
+
+- **metrics** (list, optional): a list of metrics to evaluate the models. Any
+  metric that it exists in ``sklearn.metrics`` is allowed. Default values are
+  ``mean_squared_error``, ``mean_absolute_percentage_error``,
+  ``median_absolute_error``, ``r2_score``, ``mean_absolute_error``,
+  ``root_mean_square_error``.
+- **models** (list[dicts]): a list of models to search best configuration.
+  For each model, it specifies the ``module``
+  e.g. ``sklearn.ensemble.RandomForestRegressor`` and the ``search_space``.
+  The **search space** is a dictionary with the model's hyperparamater.
+  For each hyperparamater to tune, it defines the ``method`` e.g. ``randint``
+  to apply and ``values`` e.g. ``2, 110``.
+- **cross_validation** (dict, optional): defines which cross-validation
+  strategy to use for training each model. Valid values: ``k_fold``,
+  ``repeated_k_fold``, ``shuffle_split``, ``leave_one_out``.
+  Default: ``k_fold``.
+- **tuner** (dict): defines the configuration of tune process.
+  The search algorithm is defined in ``search_algorithm`` key e.g.
+  ``ray.tune.search.optuna.OptunaSearch``. Also, it is possible to specify
+  parameters of algorithms in ``params`` key. The ``tune_config`` defines the
+  **metric** to optimize. Furthermore, the ``mode`` allows to define the way
+  to optimize the metric. The valid values are ``max`` or ``min``.
+  The ``run_config`` defines different parameters during the search.
+  For example with ``stop`` it is possible to specify the iterations of
+  training step. Finally, the ``scheduler`` allows to define different
+  strategies during the search process.
+
+**Note**: As default, the **metrics** list contains only a regression metrics. It
+should be pointed out that the metrics depends on **problem_type**.
+
+**Note**: For instance, in **tuner** parameters if **problem type** is
+classification and metric is ``accuracy`` the ``mode`` could be ``max``. On
+the other hand, if **problem type** is regression and metric is
+``root_mean_square_error`` the ``mode`` could be ``min``.
+
+Load
+----
+
+In load phase the possible configurations are the following:
+
+- **save_best_config_params** (bool, optional): store a yaml file with best
+  model configuration or not. The filename is ``best_config_params.yaml``.
 
 .. _model-step:
 
