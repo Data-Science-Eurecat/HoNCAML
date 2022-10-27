@@ -1,7 +1,6 @@
 import joblib
 import os
 import pandas as pd
-import numpy as np
 import yaml
 from typing import Dict, List
 
@@ -52,7 +51,8 @@ def save_predictions(predictions: List, settings: Dict) -> None:
     """
     filename = utils.generate_unique_id('predictions')
     filepath = os.path.join(settings['path'], filename)
-    np.save(filepath, predictions)
+    predictions = pd.DataFrame({'predictions': predictions})
+    predictions.to_csv(filepath, index=None)
 
 
 def save_yaml(dictionary: Dict, filepath: str) -> None:
