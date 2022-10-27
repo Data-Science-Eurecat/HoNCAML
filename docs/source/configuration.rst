@@ -215,7 +215,7 @@ The following example, the framework stores the processed data in
 .. _benchmark-step:
 
 Benchmark
-====
+=========
 
 This step is responsible for searching the best model configuration.
 
