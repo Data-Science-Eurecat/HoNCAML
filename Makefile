@@ -4,7 +4,6 @@ develop:
 	python -m pip install -e .
 
 doc:
-	rm -r docs/build
 	sphinx-build -b html docs/source/ docs/build/html
 
 install:
