@@ -44,7 +44,7 @@ steps:
           search_space:
             n_neighbors:
               method: randint
-              values: [1, 100]
+              values: [ 1, 100 ]
             weights:
               method: choice
               values:

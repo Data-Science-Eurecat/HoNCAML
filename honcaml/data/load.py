@@ -2,10 +2,10 @@ import joblib
 import os
 import pandas as pd
 import yaml
-from typing import Dict, List
+from typing import Dict
 
 from honcaml.exceptions import data as data_exception
-from honcaml.tools import utils
+from honcaml.tools import utils, custom_typing as ct
 from honcaml.tools.startup import logger
 
 
@@ -41,7 +41,7 @@ def save_model(model: object, settings: Dict) -> None:
     joblib.dump(model, filepath)
 
 
-def save_predictions(predictions: List, settings: Dict) -> None:
+def save_predictions(predictions: ct.Array, settings: Dict) -> None:
     """
     Save the list of predictions to disk.
 
@@ -51,7 +51,7 @@ def save_predictions(predictions: List, settings: Dict) -> None:
     """
     filename = utils.generate_unique_id('predictions')
     filepath = os.path.join(settings['path'], filename)
-    predictions = pd.DataFrame({'predictions': predictions})
+    predictions = pd.DataFrame({'predictions': predictions.ravel()})
     predictions.to_csv(filepath, index=None)
 
 
