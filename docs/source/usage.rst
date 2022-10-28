@@ -2,12 +2,12 @@
  Usage
 =======
 
-Right now, HONCAML covers the following
+Right now, HoNCAML covers the following
 
 Installation
 ============
 
-To use HONCAML, first install it from source:
+To use HoNCAML, first install it from source:
 
 .. code-block:: console
 
@@ -61,7 +61,7 @@ The command-line reference usage is the following:
    usage: honcaml [<args>]
     options:
     -h, --help            show this help message and exit
-    -v, --version         HONCAML current version
+    -v, --version         HoNCAML current version
     -c CONFIG, --config CONFIG
     YAML configuration file specifying pipeline options
     -l LOG, --log LOG     File path in which to store execution log
@@ -70,8 +70,8 @@ The command-line reference usage is the following:
     -a GENERATE_ADVANCED_CONFIG, --generate-advanced-config GENERATE_ADVANCED_CONFIG
                         Generate advanced YAML configuration file
 
-Extending HONCAML
+Extending HoNCAML
 =================
 
-It is even possible to further extend or optimize HONCAML tweaking its
+It is even possible to further extend or optimize HoNCAML tweaking its
 internals. Details on how to do this are explained in :ref:`reference`.

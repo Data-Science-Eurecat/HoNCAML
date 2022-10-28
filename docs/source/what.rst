@@ -1,8 +1,8 @@
 =================
- What is HONCAML
+ What is HoNCAML
 =================
 
-HONCAML (HOlistic No Code Automated Machine Learning) is a tool aimed to run
+HoNCAML (HOlistic No Code Automated Machine Learning) is a tool aimed to run
 automated machine learning pipelines for problems of diferent nature; main
 types of pipeline would be:
 
@@ -12,7 +12,7 @@ types of pipeline would be:
 Focus
 =====
 
-HONCAML has been designed having the following aspects in mind:
+HoNCAML has been designed having the following aspects in mind:
 
 * Ease of use
 * Modularity

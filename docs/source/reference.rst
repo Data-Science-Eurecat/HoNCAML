@@ -4,14 +4,14 @@
  Reference
 ===========
 
-HONCAML follows mainly an
+HoNCAML follows mainly an
 `OOP <https://en.wikipedia.org/wiki/Object-oriented_programming>`_ coding
 approach through Python classes. The main ones are detailed in this section.
 
 Execution
 =========
 
-The main class used by HONCAML is execution, which is a wrapper on top of
+The main class used by HoNCAML is execution, which is a wrapper on top of
 the :ref:`pipeline` class.
 
 .. autoclass:: honcaml.tools.execution.Execution

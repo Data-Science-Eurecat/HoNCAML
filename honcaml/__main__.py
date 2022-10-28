@@ -8,7 +8,7 @@ __version__ = pkg_resources.get_distribution('honcaml').version
 
 parser = argparse.ArgumentParser(
     prog="honcaml",
-    description="HONCAML pipeline command-line interface.",
+    description="HoNCAML pipeline command-line interface.",
     usage="""
     honcaml [<args>]
     """)
@@ -18,7 +18,7 @@ parser.add_argument(
     "--version",
     action="version",
     version="%(prog)s " + __version__,
-    help='HONCAML current version')
+    help='HoNCAML current version')
 
 parser.add_argument(
     "-c",
