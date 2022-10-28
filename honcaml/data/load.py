@@ -52,7 +52,7 @@ def save_predictions(predictions: ct.Array, settings: Dict) -> None:
     filename = utils.generate_unique_id('predictions')
     filepath = os.path.join(settings['path'], filename)
     predictions = pd.DataFrame({'predictions': predictions.ravel()})
-    predictions.to_csv(filepath, index=None)
+    predictions.to_csv(f'{filepath}.csv', index=None)
 
 
 def save_yaml(dictionary: Dict, filepath: str) -> None:

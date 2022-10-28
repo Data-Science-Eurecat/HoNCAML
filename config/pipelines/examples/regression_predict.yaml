@@ -47,7 +47,7 @@ steps:
 
   model:
     extract:
-      filepath: data/models/sklearn.20221028-095253.sav
+      filepath: data/models/sklearn.20221028-100414.sav
     transform:
       predict:
         path: data/predictions
