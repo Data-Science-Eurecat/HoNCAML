@@ -1,5 +1,5 @@
 =====================================
- Welcome to HONCAML's documentation!
+ Welcome to HoNCAML's documentation!
 =====================================
 
 .. toctree::

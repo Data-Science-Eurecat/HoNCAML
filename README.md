@@ -3,7 +3,7 @@
 Description
 -----------
 
-HONCAML (HOlistic No Code Automated Machine Learning) is a tool aimed to run
+HoNCAML (Holistic No Code Automated Machine Learning) is a tool aimed to run
 automated machine learning pipelines for problems of diferent nature; main
 types of pipeline would be:
 
@@ -18,7 +18,7 @@ At this moment, the following types of problems are supported:
 Quick usage
 -----------
 
-To use HONCAML, first install it from source, together with its documentation:
+To use HoNCAML, first install it from source, together with its documentation:
 
    ```commandline
    make install doc
