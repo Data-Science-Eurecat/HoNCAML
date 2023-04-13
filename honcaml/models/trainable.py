@@ -3,6 +3,7 @@ from typing import Dict, Union, Optional
 
 from honcaml.models import general, evaluate
 from honcaml.tools import custom_typing as ct
+from honcaml.tools.startup import logger
 
 
 class EstimatorTrainer(tune.Trainable):
@@ -57,6 +58,7 @@ class EstimatorTrainer(tune.Trainable):
             'module': self._model_module,
             'hyper_parameters': self._param_space,
         }
+
         self._model.build_model(
             model_config, self._dataset.normalization)
 
@@ -70,9 +72,11 @@ class EstimatorTrainer(tune.Trainable):
         Returns:
             Dict[str, ct.Number]: a dict with score of the iteration.
         """
+        logger.info(f'Model iteration number {self._iteration}')
         x, y = self._dataset.x, self._dataset.y
         cv_results = evaluate.cross_validate_model(
             self._model, x, y, self._cv_split)
+        self._iteration += self._iteration
 
         return cv_results
 

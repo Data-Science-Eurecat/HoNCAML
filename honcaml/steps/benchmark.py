@@ -1,6 +1,7 @@
 import os.path
 
 import copy
+import logging
 import pandas as pd
 from ray import tune, air
 from typing import Dict, Callable, Union
@@ -420,7 +421,7 @@ class BenchmarkStep(base.BaseStep):
             # Prepare Tuner configurations
             run_config = air.RunConfig(
                 name=model_module, local_dir=self._store_results_folder,
-                **run_config_params)
+                verbose=0, **run_config_params)
 
             tune_config_params = self._clean_tune_config(tuner_settings)
             tune_config_params['scheduler'] = self._clean_scheduler(
@@ -434,6 +435,12 @@ class BenchmarkStep(base.BaseStep):
                 run_config=run_config,
                 tune_config=tune.TuneConfig(**tune_config_params),
                 param_space=config)
+
+            logs_to_silence = ['ray._private', 'ray.tune.search.optuna']
+            for log_silence in logs_to_silence:
+                log = logging.getLogger(log_silence)
+                log.propagate = False
+
             results = tuner.fit()
 
             # Get best results for model iteration
@@ -444,9 +451,9 @@ class BenchmarkStep(base.BaseStep):
             best_hyper_params_iter = self._get_best_hyper_parameters(
                 iter_results_df)
             best_metrics_iter = self._get_best_metrics(iter_results_df)
-            logger.info(f'Best configuration for model {model_module} '
-                        f'is {best_hyper_params_iter} with '
-                        f'metrics {best_metrics_iter}')
+            logger.debug(f'Best configuration for model {model_module} '
+                         f'is {best_hyper_params_iter} with '
+                         f'metrics {best_metrics_iter}')
 
             # Concat with all results dataframe.
             results_df = pd.concat(

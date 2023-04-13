@@ -13,7 +13,7 @@ params = {
             "format": "%(asctime)s - %(message)s",
             "time_format": "%Y-%m-%d %H:%M:%S"
         },
-        "level": "DEBUG",
+        "level": "INFO",
     },
 
     # Pipeline validation rules
@@ -153,7 +153,7 @@ params = {
                     },
                     "cross_validation": {
                         "strategy": "k_fold",
-                        "n_splits": 2,
+                        "n_splits": 4,
                         "shuffle": True,
                         "random_state": 90
                     }

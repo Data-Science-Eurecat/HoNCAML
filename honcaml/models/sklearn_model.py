@@ -107,7 +107,7 @@ class SklearnModel(base.BaseModel):
 
         pipeline_steps.append(('estimator', estimator))
         self._estimator = pipeline.Pipeline(pipeline_steps)
-        logger.info(f'Model pipeline {self._estimator}')
+        logger.debug(f'Model pipeline {self._estimator}')
 
     def fit(self, x: ct.Dataset, y: ct.Dataset, **kwargs) -> None:
         """
