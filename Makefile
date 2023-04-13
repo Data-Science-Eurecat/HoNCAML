@@ -17,13 +17,12 @@ TEST_EXAMPLE_TARGETS := $(foreach target, $(EXAMPLE_TARGETS), test_$(target))
 
 ## Targets
 
-.PHONY: build doc install debug_$(EXAMPLE_TARGETS) \
-		test_$(EXAMPLE_TARGETS) run_tests
+.PHONY: build install $(DEBUG_EXAMPLE_TARGETS) $(TEST_EXAMPLE_TARGETS) run_tests
 
 develop: honcaml config/requirements.txt
 	$(ENV_BIN)/python -m pip install -e .
 
-doc: docs/source
+docs/build: docs/source
 	sphinx-build -b html docs/source/ docs/build/html
 
 install: honcaml config/requirements.txt
