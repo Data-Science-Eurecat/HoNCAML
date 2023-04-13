@@ -110,6 +110,7 @@ bin/
 # exclude reports
 /reports/figures
 /reports/metrics
+/honcaml_reports
 
 # Exclude tags
 TAGS
