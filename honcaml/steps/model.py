@@ -1,3 +1,4 @@
+import copy
 from typing import Dict
 
 from honcaml.data import load
@@ -41,7 +42,9 @@ class ModelStep(base.BaseStep):
         super().__init__(default_settings, user_settings, global_params,
                          step_rules)
         self._estimator_config = user_settings.pop(
-            'estimator_config', params['default_regressor_estimator'])
+            'estimator_config',
+            params['pipeline_steps']['model']['transform'][
+                'default_estimator'][global_params['problem_type']])
         self._model = None
         self._dataset = None
 
@@ -105,9 +108,9 @@ class ModelStep(base.BaseStep):
         x, y = self._dataset.x, self._dataset.y
         if settings.get('cross_validation', None) is not None:
             # Run the cross-validation
+            cv_settings = copy.deepcopy(settings['cross_validation'])
             cv_split = transform.CrossValidationSplit(
-                settings['cross_validation'].pop('strategy'),
-                **settings.pop('cross_validation'))
+                cv_settings.pop('strategy'), **cv_settings)
             self._cv_results = evaluate.cross_validate_model(
                 self._model, x, y, cv_split)
             logger.info(self._cv_results)

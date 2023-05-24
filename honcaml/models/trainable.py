@@ -72,7 +72,7 @@ class EstimatorTrainer(tune.Trainable):
         Returns:
             Dict[str, ct.Number]: a dict with score of the iteration.
         """
-        logger.info(f'Model iteration number {self._iteration}')
+        logger.debug(f'Model iteration number {self._iteration}')
         x, y = self._dataset.x, self._dataset.y
         cv_results = evaluate.cross_validate_model(
             self._model, x, y, self._cv_split)

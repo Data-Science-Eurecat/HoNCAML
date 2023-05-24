@@ -62,7 +62,12 @@ class DataTest(unittest.TestCase):
                           params['step_rules']['data'])
         self.assertDictEqual(
             user_settings['transform'],
-            {'override_param': {'param1': 1, 'param2': 2}})
+            {'override_param': {'param1': 1, 'param2': 2},
+             'normalize': {
+                 'features': {'module':
+                              'sklearn.preprocessing.StandardScaler'},
+                 'target': {
+                     'module': 'sklearn.preprocessing.StandardScaler'}}})
 
         user_settings = {
             'transform': {

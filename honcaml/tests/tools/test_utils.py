@@ -91,48 +91,6 @@ class UtilsTest(unittest.TestCase):
         output_dict = utils.update_dict_from_default_dict(
             default_dict, source_dict)
         self.assertEqual(output_dict, {
-            'nested_key3': 2,
-            'nested_key4': 3,
-        })
-
-        source_dict = {}
-        output_dict = utils.update_dict_from_default_dict(
-            default_dict, source_dict)
-        self.assertEqual(output_dict, {
-            'nested_key3': 2,
-            'nested_key4': 3,
-        })
-
-        source_dict = {
-            'nested_key3': 20,
-            'nested_key4': 30,
-        }
-        output_dict = utils.update_dict_from_default_dict(
-            default_dict, source_dict)
-        self.assertEqual(output_dict, {
-            'nested_key3': 20,
-            'nested_key4': 30,
-        })
-
-        source_dict = {
-            'key1': {}
-        }
-        output_dict = utils.update_dict_from_default_dict(
-            default_dict, source_dict)
-        self.assertEqual(output_dict, {
-            'key1': {},
-            'nested_key3': 2,
-            'nested_key4': 3,
-        })
-
-        source_dict = {
-            'key1': {
-                'nested_key1': {}
-            }
-        }
-        output_dict = utils.update_dict_from_default_dict(
-            default_dict, source_dict)
-        self.assertEqual(output_dict, {
             'key1': {
                 'nested_key1': {
                     'nested_key2': 1
@@ -142,23 +100,89 @@ class UtilsTest(unittest.TestCase):
             'nested_key4': 3,
         })
 
+        default_dict = {
+            'test_steps': {
+                'predict': {
+                    'nested_key1.2': 1
+                },
+                'fit': True
+            },
+            'nested_key3': 2,
+            'nested_key4': 3,
+        }
         source_dict = {
-            'key1': {
-                'nested_key1': {
-                    'nested_key2': 10
-                }
-            }
+            'test_steps': {
+                'fit': True
+            },
+            'nested_key3': 2,
+            'nested_key4': 3,
         }
         output_dict = utils.update_dict_from_default_dict(
             default_dict, source_dict)
         self.assertEqual(output_dict, {
-            'key1': {
-                'nested_key1': {
-                    'nested_key2': 10
-                }
+            'test_steps': {
+                'fit': True
             },
             'nested_key3': 2,
             'nested_key4': 3,
+        })
+
+        default_dict = {
+            'pipeline_steps': {
+                'nested_key1': {
+                    'nested_key1.2': 1
+                },
+                'nested_key2': True
+            },
+            'nested_key3': 2,
+            'nested_key4': 3,
+        }
+        source_dict = {
+            'pipeline_steps': {
+                'nested_key2': True
+            },
+            'nested_key3': 2,
+            'nested_key4': 3,
+        }
+        output_dict = utils.update_dict_from_default_dict(
+            default_dict, source_dict)
+        self.assertEqual(output_dict, {
+            'pipeline_steps': {
+                'nested_key2': True
+            },
+            'nested_key3': 2,
+            'nested_key4': 3,
+        })
+
+        source_dict = {}
+        output_dict = utils.update_dict_from_default_dict(
+            default_dict, source_dict)
+        self.assertEqual(output_dict, {
+            'pipeline_steps': {
+                'nested_key1': {
+                    'nested_key1.2': 1
+                },
+                'nested_key2': True
+            },
+            'nested_key3': 2,
+            'nested_key4': 3,
+        })
+
+        source_dict = {
+            'nested_key3': 20,
+            'nested_key4': 30,
+        }
+        output_dict = utils.update_dict_from_default_dict(
+            default_dict, source_dict)
+        self.assertEqual(output_dict, {
+            'pipeline_steps': {
+                'nested_key1': {
+                    'nested_key1.2': 1
+                },
+                'nested_key2': True
+            },
+            'nested_key3': 20,
+            'nested_key4': 30,
         })
 
     # Test build_validator

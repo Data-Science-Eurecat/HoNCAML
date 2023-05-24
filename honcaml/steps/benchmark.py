@@ -14,11 +14,6 @@ from honcaml.tools import utils, custom_typing as ct
 from honcaml.tools.startup import params, logger
 
 
-class TuneMethods:
-    randint = 'randint'
-    choice = 'choice'
-
-
 class BenchmarkStep(base.BaseStep):
     """
     The Benchmark step class is a steps of the main pipeline. The step
@@ -27,7 +22,6 @@ class BenchmarkStep(base.BaseStep):
     methods allow the steps to save and restore executions to/from checkpoints.
 
     Attributes:
-        _models_config (Dict): models configuration dict.
         _store_results_folder (str): folder path to store results.
         _dataset: dataset class intance.
         _reported_metrics (List[str]): metrics to compute during hyper
@@ -37,8 +31,8 @@ class BenchmarkStep(base.BaseStep):
     """
 
     def __init__(self, default_settings: Dict, user_settings: Dict,
-                 global_params: Dict, step_rules: Dict, execution_id: str,
-                 models_config: Dict) -> None:
+                 global_params: Dict, step_rules: Dict,
+                 execution_id: str) -> None:
         """
         This is a constructor method of class. This function initializes
         the parameters and set up the current steps.
@@ -49,12 +43,10 @@ class BenchmarkStep(base.BaseStep):
             global_params: global parameters for the current pipeline.
             step_rules: Validation rules for this step.
             execution_id: Execution identifier.
-            models_config: Default models search space.
         """
         super().__init__(default_settings, user_settings, global_params,
                          step_rules)
 
-        self._models_config = models_config
         self._store_results_folder = os.path.join(
             params['paths']['metrics_folder'], execution_id)
 
@@ -70,19 +62,11 @@ class BenchmarkStep(base.BaseStep):
     def _clean_search_space(self, search_space: Dict) -> Dict:
         """
         Given a dict with a search space for a model, this function gets the
-        module of model to import and the hyperparameters search space.
-        In addition, for each hyperparameter this function gets the
-        corresponding method from mapping defined in models_config object
-        (honcaml/config.py) generate the hyperparameter values during the
-        search.
+        module of model to import and the hyperparameters search space and
+        ensures that method exists.
 
         Args:
-            search_space (Dict): a dict with
-
-        Notes:
-            The method to apply at each hyperparameter to generate the
-            possible values is defined in the following link:
-            https://docs.ray.io/en/latest/tune/api_docs/search_space.html#tune-sample-docs.
+            search_space (Dict): a dict with the search space to explore
 
             Example of 'search_space' input parameter:
             {
@@ -100,21 +84,18 @@ class BenchmarkStep(base.BaseStep):
         """
         cleaned_search_space = {}
         for hyper_parameter, space in search_space.items():
-            method = space['method']
-            values = space['values']
 
             try:
-                tune_method = eval(
-                    self._models_config['search_space_mapping'][method])
-            except KeyError:
-                raise benchmark_exceptions.TuneMethodDoesNotExists(method)
+                tune_method = getattr(tune, space['method'])
+            except AttributeError:
+                raise benchmark_exceptions.TuneMethodDoesNotExists(
+                    space['method'])
 
-            if method == TuneMethods.randint:
-                min_value, max_value = values
-                cleaned_search_space[hyper_parameter] = tune_method(
-                    min_value, max_value)
-            elif method == TuneMethods.choice:
-                cleaned_search_space[hyper_parameter] = tune_method(values)
+            if space['method'] in ['choice', 'grid_search']:
+                space['values'] = [space['values']]
+
+            cleaned_search_space[hyper_parameter] = tune_method(
+                *space['values'])
 
         return cleaned_search_space
 
@@ -406,21 +387,22 @@ class BenchmarkStep(base.BaseStep):
         # Create a Trainable for each model and run the hyper parameter seach.
         results_df = pd.DataFrame()
         results_dtypes = {}
-        models = settings['models']
-        for i, model_params in enumerate(models, start=1):
-            logger.info(f'Starting search space for model {i}/{len(models)}')
+        print(settings['models'])
+        models = settings['models'][config['problem_type']]
+        for i, name in enumerate(models, start=1):
+            logger.info(
+                f'Starting search space for model {name} ({i}/{len(models)})')
             # Clean model params
-            model_module = model_params['module']
-            search_space = model_params['search_space']
+            search_space = models[name]
             param_space = self._clean_search_space(search_space)
 
             # Adding model and model's hyper parameters
-            config['model_module'] = model_module
+            config['model_module'] = name
             config['param_space'] = param_space
 
             # Prepare Tuner configurations
             run_config = air.RunConfig(
-                name=model_module, local_dir=self._store_results_folder,
+                name=name, local_dir=self._store_results_folder,
                 verbose=0, **run_config_params)
 
             tune_config_params = self._clean_tune_config(tuner_settings)
@@ -451,7 +433,7 @@ class BenchmarkStep(base.BaseStep):
             best_hyper_params_iter = self._get_best_hyper_parameters(
                 iter_results_df)
             best_metrics_iter = self._get_best_metrics(iter_results_df)
-            logger.debug(f'Best configuration for model {model_module} '
+            logger.debug(f'Best configuration for model {name} '
                          f'is {best_hyper_params_iter} with '
                          f'metrics {best_metrics_iter}')
 
