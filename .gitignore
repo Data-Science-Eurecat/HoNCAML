@@ -115,3 +115,7 @@ bin/
 # Exclude tags
 TAGS
 
+# Non-source docs
+*.pdf
+*.gif
+*.webm
