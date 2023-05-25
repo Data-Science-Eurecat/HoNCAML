@@ -5,7 +5,7 @@ import re
 import uuid
 from cerberus import Validator
 from functools import reduce
-from typing import Dict, Callable
+from typing import Dict, Callable, List
 
 
 def import_library(module: str, params: Dict = None) -> Callable:
@@ -73,14 +73,23 @@ def generate_unique_id(
 
 
 def update_dict_from_default_dict(
-        default_dict: Dict, source_dict: Dict) -> Dict:
+        default_dict: Dict, source_dict: Dict, parent=None,
+        forbidden_parents: List = ['pipeline_steps', 'models'],
+        forbidden_keys: List = ['fit', 'predict', 'benchmark']) -> Dict:
     """
     Combines two configurations prevailing the second over the default one.
     In addition, it throws a recursion over the dictionary values.
+    In general, all keys not found are added to the dictionary, with the
+    following exceptions:
+    - Keys with parent any of forbidden_parents
+    - Keys with name any of forbidden_keys
 
     Args:
         default_dict: Default configuration.
         source_dict: New configuration.
+        parent: Parent key if there is any.
+        forbidden_parents: If parent is any of forbidden, do not include key.
+        forbidden_keys: If key is any of forbidden, do not include key.
 
     Returns:
         A configuration with merged values.
@@ -89,12 +98,13 @@ def update_dict_from_default_dict(
         source_dict = {}
     for key, value in default_dict.items():
         if key not in source_dict:
-            if not isinstance(value, dict) and value is not None:
+            if value and parent not in forbidden_parents and \
+               key not in forbidden_keys:
                 source_dict[key] = value
         else:
             if isinstance(value, dict):
                 source_dict[key] = update_dict_from_default_dict(
-                    value, source_dict[key])
+                    value, source_dict[key], key)
     return source_dict
 
 

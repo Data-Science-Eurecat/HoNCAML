@@ -39,21 +39,6 @@ class ModelTest(unittest.TestCase):
                                params['step_rules']['model'])
         self.assertDictEqual({}, step._step_settings)
 
-        # Empty user_settings phases
-        empty_phases = {'extract': None, 'transform': None, 'load': None}
-        step = model.ModelStep(params['pipeline_steps']['model'],
-                               empty_phases, self._global_params,
-                               params['step_rules']['model'])
-        self.assertDictEqual(step._step_settings, {
-            'extract': {
-                'filepath': 'models/sklearn.regressor.20220819-122417.sav'
-            },
-            'transform': {},
-            'load': {
-                'path': 'data/models/'
-            }
-        })
-
         # Fill transform cross-validation settings
         transform_user_settings = {
             'transform': {'fit': {'cross_validation': {}}},
@@ -61,18 +46,13 @@ class ModelTest(unittest.TestCase):
         step = model.ModelStep(params['pipeline_steps']['model'],
                                transform_user_settings, self._global_params,
                                params['step_rules']['model'])
-        self.assertDictEqual(step._step_settings, {
-            'transform': {
-                'fit': {
-                    'cross_validation': {
-                        'strategy': 'k_fold',
-                        'n_splits': 10,
-                        'shuffle': True,
-                        'random_state': 90,
-                    }
-                }
-            }
-        })
+
+        self.assertDictEqual(
+            step._step_settings,
+            {'transform': {
+                'fit': params['pipeline_steps']['model']['transform']['fit'],
+                'default_estimator': params['pipeline_steps']['model'][
+                    'transform']['default_estimator']}})
 
         # Override settings
         override_user_settings = {
@@ -90,6 +70,9 @@ class ModelTest(unittest.TestCase):
                 'filepath': 'sklearn.regressor.1234.sav'
             },
             'transform': {
+                'default_estimator': params[
+                    'pipeline_steps']['model'][
+                        'transform']['default_estimator'],
                 'fit': {
                     'cross_validation': {
                         'strategy': 'repeated_k_fold',

@@ -4,7 +4,6 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from honcaml.config.defaults import models_config
 from honcaml.data import extract
 from honcaml.exceptions import benchmark as benchmark_exceptions
 from honcaml.steps import base
@@ -46,6 +45,8 @@ class BenchmarkTest(unittest.TestCase):
         self.transform = base.StepPhase.transform
         self.load = base.StepPhase.load
         self._global_params = {'problem_type': 'regression'}
+        self.default_config = params[
+            'pipeline_steps']['benchmark']['transform']
 
         self.settings = {
             'transform': {
@@ -57,23 +58,20 @@ class BenchmarkTest(unittest.TestCase):
                     'mean_absolute_error',
                     'root_mean_square_error',
                 ],
-                'models': [
-                    {'module': 'sklearn.ensemble.RandomForestRegressor',
-                     'search_space': {
-                         'n_estimators': {
-                             'method': 'randint', 'values': [2, 110]},
-                         'max_features': {
-                             'method': 'choice', 'values': ['sqrt', 'log']}
-                     }
-                     },
-                    {'module': 'sklearn.linear_model.LinearRegression',
-                     'search_space': {
-                         'fit_intercept': {
-                             'method': 'choice', 'values': [True, False]}
-                     }
-                     }
-
-                ],
+                'models': {
+                    'regression': {
+                        'sklearn.ensemble.RandomForestRegressor': {
+                            'n_estimators': {
+                                'method': 'randint', 'values': [2, 110]},
+                            'max_features': {
+                                'method': 'choice', 'values': ['sqrt', 'log']}
+                        },
+                        'sklearn.linear_model.LinearRegression': {
+                            'fit_intercept': {
+                                'method': 'choice', 'values': [True, False]}
+                        }
+                    }
+                },
                 'cross_validation': {
                     'strategy': 'k_fold',
                     'n_splits': 2,
@@ -123,33 +121,19 @@ class BenchmarkTest(unittest.TestCase):
         }
         self.result_df = pd.DataFrame(data)
 
-    @patch('honcaml.data.extract.read_yaml')
-    def test_when_create_new_instance_load_model_config_yaml_and_folder_path(
-            self, read_yaml_mock_up):
-        fake_models_config = {'models_config': 'fake model'}
-        read_yaml_mock_up.return_value = fake_models_config
-
-        ben = benchmark.BenchmarkStep(
-            self.settings, self.user_settings, self._global_params,
-            self.step_rules, self.execution_id, fake_models_config)
-
-        self.assertDictEqual(ben._models_config, fake_models_config)
-
-        store_results_folder = os.path.join(
-            params['paths']['metrics_folder'], self.execution_id)
-        self.assertEqual(ben._store_results_folder, store_results_folder)
-
     @patch('honcaml.tools.utils.import_library')
     def test_class_methods(self, import_library_mock_up):
         import_library_mock_up.return_value = object
 
         ben = benchmark.BenchmarkStep(
             self.settings, self.user_settings, self._global_params,
-            self.step_rules, self.execution_id, models_config)
+            self.step_rules, self.execution_id)
 
         # Test _clean_search_space
-        for model_params in self.settings['transform']['models']:
-            search_space = model_params['search_space']
+        models = self.settings[
+            'transform']['models'][self._global_params['problem_type']]
+        for model_name in models:
+            search_space = models[model_name]
 
             param_space = ben._clean_search_space(search_space)
 
@@ -164,7 +148,8 @@ class BenchmarkTest(unittest.TestCase):
                 'method': 'fake_choice', 'values': ['sqrt', 'log']}
         }
         with self.assertRaises(benchmark_exceptions.TuneMethodDoesNotExists):
-            _ = ben._clean_search_space(search_space_with_nonexistent_methods)
+            _ = ben._clean_search_space(
+                search_space_with_nonexistent_methods)
 
         # _clean_scheduler
         scheduler = ben._clean_scheduler(self.tuner_settings)
@@ -285,11 +270,13 @@ class BenchmarkTest(unittest.TestCase):
 
         ben = benchmark.BenchmarkStep(
             self.settings, self.user_settings, self._global_params,
-            self.step_rules, self.execution_id, models_config)
+            self.step_rules, self.execution_id)
 
         with tempfile.TemporaryDirectory() as temp_dir:
             # Override folder to store results
             ben._store_results_folder = os.path.join(temp_dir, 'fake_results')
+            ben._transform_settings = params[
+                'pipeline_steps']['benchmark']['transform']
             ben._transform(self.settings['transform'])
 
             # Check if exists a folder for module and results.csv
@@ -307,7 +294,7 @@ class BenchmarkTest(unittest.TestCase):
     def test_extract_not_implemented(self):
         ben = benchmark.BenchmarkStep(
             self.settings, self.user_settings, self._global_params,
-            self.step_rules, self.execution_id, models_config)
+            self.step_rules, self.execution_id)
 
         with self.assertRaises(NotImplementedError):
             ben._extract({})
@@ -318,7 +305,7 @@ class BenchmarkTest(unittest.TestCase):
 
         ben = benchmark.BenchmarkStep(
             {}, self.settings, self._global_params, self.step_rules,
-            self.execution_id, models_config)
+            self.execution_id)
 
         with tempfile.TemporaryDirectory() as temp_dir:
             # Override folder to store results
@@ -373,7 +360,7 @@ class BenchmarkTest(unittest.TestCase):
         user_settings = {}
         ben = benchmark.BenchmarkStep(
             settings, user_settings, self._global_params,
-            self.step_rules, self.execution_id, models_config)
+            self.step_rules, self.execution_id)
 
         ben._best_model = fake_best_model
         ben._best_hyper_parameters = fake_best_hyperparams
@@ -400,7 +387,7 @@ class BenchmarkTest(unittest.TestCase):
         }
         ben = benchmark.BenchmarkStep(
             settings, user_settings, self._global_params,
-            self.step_rules, self.execution_id, models_config)
+            self.step_rules, self.execution_id)
 
         with tempfile.TemporaryDirectory() as temp_dir:
             ben._store_results_folder = temp_dir
@@ -414,7 +401,7 @@ class BenchmarkTest(unittest.TestCase):
         settings = {}
         ben = benchmark.BenchmarkStep(
             settings, user_settings, self._global_params,
-            self.step_rules, self.execution_id, models_config)
+            self.step_rules, self.execution_id)
 
         with tempfile.TemporaryDirectory() as temp_dir:
             ben._store_results_folder = temp_dir

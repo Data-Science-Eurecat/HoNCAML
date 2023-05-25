@@ -35,10 +35,10 @@ def cross_validate_model(
 
     results = []
     for split, x_train, x_test, y_train, y_test in cv_split.split(x, y):
-        logger.info(f'Running split {split}/{cv_split.n_splits} ...')
+        logger.debug(f'Running split {split}/{cv_split.n_splits} ...')
         model.fit(x_train, y_train, **train_settings)
         results.append(model.evaluate(x_test, y_test, **test_settings))
-    logger.info('Done.')
+    logger.debug('Done.')
     # Group cv metrics
     cv_results = general.aggregate_cv_results(results)
 

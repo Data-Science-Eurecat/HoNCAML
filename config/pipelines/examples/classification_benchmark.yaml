@@ -29,27 +29,25 @@ steps:
         - roc_auc
 
       models:
-        - module: sklearn.ensemble.RandomForestClassifier
-          search_space:
-            n_estimators:
-              method: randint
-              values: [ 2, 110 ]
-            max_features:
-              method: choice
-              values:
-                - sqrt
-                - log2
-                - 1 # It means 'auto'
-        - module: sklearn.neighbors.KNeighborsClassifier
-          search_space:
-            n_neighbors:
-              method: randint
-              values: [ 1, 100 ]
-            weights:
-              method: choice
-              values:
-                - uniform
-                - distance
+        sklearn.ensemble.RandomForestClassifier:
+          n_estimators:
+            method: randint
+            values: [ 2, 110 ]
+          max_features:
+            method: choice
+            values:
+              - sqrt
+              - log2
+              - 1 # It means 'auto'
+        sklearn.neighbors.KNeighborsClassifier:
+          n_neighbors:
+            method: randint
+            values: [ 1, 100 ]
+          weights:
+            method: choice
+            values:
+              - uniform
+              - distance
 
       cross_validation:
         strategy: k_fold
