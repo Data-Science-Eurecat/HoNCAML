@@ -79,6 +79,11 @@ class Pipeline:
         # TODO: Loop the steps and check the rules defined by the settings.yaml
         #    file: params['pipeline_rules']
         #    Raise an exception when the rule validation fail
+
+        if 'steps' not in pipeline_content:
+            raise ValueError("Incorrect configuration file structure. "
+                             "Missing field: steps")
+
         pass
 
     def run(self):
