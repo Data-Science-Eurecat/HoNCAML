@@ -4,6 +4,9 @@ import copy
 import os
 import yaml
 
+data_file_path = "../../data/processed/data_file.csv"
+config_file_path = "../../config_file.yaml"
+
 
 def change_configs_mode():
     """
@@ -40,7 +43,7 @@ def initialize_session_state():
             "steps": {
                 "data": {
                     "extract": {
-                        "filepath": "data/processed/train_data.csv",
+                        "filepath": "data/processed/data_file.csv",
                         "target": ""
                     }
                 },
@@ -80,7 +83,7 @@ def sidebar():
         )
 
 
-def upload_data_file(data_upload_col, data_preview_container):
+def upload_data_file(data_upload_col, data_preview_container, configs_mode):
     uploaded_train_data_file = data_upload_col.file_uploader(
         "Upload your data file .csv",
         type=[".csv"],
@@ -94,18 +97,19 @@ def upload_data_file(data_upload_col, data_preview_container):
     if uploaded_train_data_file is not None:
 
         train_data = pd.read_csv(uploaded_train_data_file)
-        data_file_path = '../../data/processed/train_data.csv'
         if os.path.exists(data_file_path):
             train_data_saved = pd.read_csv(data_file_path)
             if not train_data.equals(train_data_saved):
                 train_data.to_csv(data_file_path, index=False)
         else:
             train_data.to_csv(data_file_path, index=False)
-
+        target = ""
         columns = train_data.columns.tolist()
-        target = ''
-        if st.session_state["functionality"] != "Predict":
+        if (st.session_state["functionality"] != "Predict") and \
+                (configs_mode == "Manually"):
             target = data_upload_col.selectbox("Target variable:", columns)
+            st.session_state["config_file"]["steps"]["data"]["extract"] \
+                ["target"] = target
         features = copy.deepcopy(columns)
         if target in features:
             features.remove(str(target))
@@ -117,6 +121,10 @@ def upload_data_file(data_upload_col, data_preview_container):
             # .style.set_properties(**{'background-color': 'yellow'}
             # ,subset=[target]))
             st.write(train_data.head())
+        return True
+
+    else:
+        return False
 
 
 def download_logs_button(col):
@@ -144,7 +152,8 @@ def define_metrics():
     """
     Define possible metrics depending on the problem type
     """
-    if st.session_state["config_file"]["problem_type"] == "regression":
+    if st.session_state["config_file"]["global"]["problem_type"] == \
+            "regression":
         st.session_state["metrics"] = \
             st.session_state["regression_metrics"]
     else:
@@ -156,8 +165,15 @@ def write_uploaded_file(uploaded_file):
     """
     Write uploaded file
     """
-    with open("../../config_file.yaml", "w") as f:
-        f.write(uploaded_file.getvalue().decode("utf-8"))
+    config_file = yaml.safe_load(uploaded_file)
+    st.session_state["config_file"]["global"]["problem_type"] = \
+        config_file["global"]["problem_type"]
+    config_file["steps"]["data"]["extract"]["filepath"] = \
+        st.session_state["config_file"]["steps"]["data"]["extract"]["filepath"]
+    print("file read successfully")
+    with open(config_file_path, "w") as f:
+        yaml.safe_dump(config_file, f,
+                       default_flow_style=False, sort_keys=False)
         f.close()
 
 
@@ -165,7 +181,6 @@ def read_config_file():
     """
     Read config file and define the problem type in the session state
     """
-    with open("../../config_file.yaml", 'r') as f:
+    with open(config_file_path, 'r') as f:
         config_file = yaml.safe_load(f)
-    st.session_state["config_file"]["problem_type"] = \
-        config_file["global"]["problem_type"]
+        f.close()

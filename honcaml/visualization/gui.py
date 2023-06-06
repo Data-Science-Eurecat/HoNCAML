@@ -41,13 +41,16 @@ elif configs_mode == "Config file .yaml":
         type=[".yaml"],
     )
 
-else:
+elif configs_mode == "Paste your configs":
     text_area = yaml.safe_load(st.text_area("Paste here your config file in "
                                             "json or yaml format"))
     print("text_area:\n", text_area, "\n")
 
 # upload data file
-utils.upload_data_file(data_upload_col, data_preview_container)
+st.session_state['data_uploaded'] = \
+    utils.upload_data_file(data_upload_col,
+                           data_preview_container,
+                           configs_mode)
 
 if configs_mode == "Manually":
     manual_configs_elements()
@@ -56,35 +59,39 @@ col1, col2 = st.columns([1, 8])
 button = col1.button("Run")
 
 if button:
-    st.session_state["submit"] = True
-    if configs_mode == "Manually":
-        with col2:
-            with st.spinner("Reading configs and generating configuration file"
-                            " .yaml... ⏳"):
-                yaml_file = st.session_state["config_file"]
-                with open('../../config_file.yaml', 'w') as file:
-                    yaml.dump(yaml_file, file, default_flow_style=False)
+    if not st.session_state["data_uploaded"]:
+        st.session_state["submit"] = False
+        st.warning('You must upload data file', icon="⚠️")
+    else:
+        st.session_state["submit"] = True
+        if configs_mode == "Manually":
+            with col2:
+                with st.spinner("Reading configs and generating configuration "
+                                "file .yaml... ⏳"):
+                    yaml_file = st.session_state["config_file"]
+                    with open(utils.config_file_path, 'w') as file:
+                        yaml.dump(yaml_file, file, default_flow_style=False)
                 app_execution.run()
 
-    elif configs_mode == "Config file .yaml":
-        if uploaded_file is not None:
-            if uploaded_file.name.endswith(".yaml"):
-                utils.write_uploaded_file(uploaded_file)
-                utils.read_config_file()
-                utils.define_metrics()
-                with col2:
-                    app_execution.run()
+        elif configs_mode == "Config file .yaml":
+            if uploaded_file is not None:
+                if uploaded_file.name.endswith(".yaml"):
+                    utils.write_uploaded_file(uploaded_file)
+                    utils.read_config_file()
+                    utils.define_metrics()
+                    with col2:
+                        app_execution.run()
+                else:
+                    raise ValueError("File type not supported!")
             else:
-                raise ValueError("File type not supported!")
-        else:
-            st.warning('You must provide a configuration file', icon="⚠️")
-    else:
-        with open("../../config_file.yaml", "w") as f:
-            yaml.safe_dump(text_area, f,
-                           default_flow_style=False, sort_keys=False)
-            f.close()
-        with col2:
-            app_execution.run()
+                st.warning('You must provide a configuration file', icon="⚠️")
+
+        elif configs_mode == "Paste your configs":
+            with open(utils.config_file_path, "w") as f:
+                yaml.safe_dump(text_area, f,
+                               default_flow_style=False, sort_keys=False)
+            with col2:
+                app_execution.run()
 
 
 if st.session_state.get("submit"):

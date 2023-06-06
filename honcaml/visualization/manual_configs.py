@@ -19,7 +19,7 @@ def basic_configs() -> None:
     """
     col1, col2 = st.columns([1, 6])
 
-    st.session_state["config_file"]["problem_type"] = \
+    st.session_state["config_file"]["global"]["problem_type"] = \
         col1.radio("Problem type", ('Regression', 'Classification')).lower()
     st.session_state["features"] = \
         col2.multiselect("Features",
@@ -211,7 +211,8 @@ def benchmark_model_configs() -> None:
     specific configurations
     """
     st.write("Models")
-    if st.session_state["config_file"]["problem_type"] == "regression":
+    if st.session_state["config_file"]["global"]["problem_type"] == \
+            "regression":
         models_dict = regression_models_dict
         defaults = ("Linear Regression", "Random Forest Regressor")
     else:
@@ -237,7 +238,8 @@ def fit_model_configs() -> None:
     """
     # st.write("Models")
     col1, col2 = st.columns(2)
-    if st.session_state["config_file"]["problem_type"] == "regression":
+    if st.session_state["config_file"]["global"]["problem_type"] == \
+            "regression":
         models_list = list(regression_models_dict.keys())
     else:
         models_list = list(classification_models_dict.keys())
