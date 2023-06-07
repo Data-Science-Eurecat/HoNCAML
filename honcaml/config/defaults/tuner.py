@@ -4,13 +4,17 @@ default_tuner = {
         "params": None
     },
     "tune_config": {
-        "num_samples": 5,
-        "metric": "root_mean_square_error",
+        "time_budget_s": 10,
+        "num_samples": 2,
+        "metric": {
+            "regression": "root_mean_square_error",
+            "classification": "accuracy"
+        },
         "mode": "min"
     },
     "run_config": {
         "stop": {
-            "training_iteration": 2
+            "training_iteration": 1
         }
     },
     "scheduler": {

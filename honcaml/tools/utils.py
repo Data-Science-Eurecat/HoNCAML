@@ -74,7 +74,7 @@ def generate_unique_id(
 
 def update_dict_from_default_dict(
         default_dict: Dict, source_dict: Dict, parent=None,
-        forbidden_parents: List = ['pipeline_steps', 'models'],
+        forbidden_parents: List = ['steps', 'models'],
         forbidden_keys: List = ['fit', 'predict', 'benchmark']) -> Dict:
     """
     Combines two configurations prevailing the second over the default one.
@@ -151,25 +151,58 @@ def build_validator_schema(rules: Dict) -> Dict:
     return schema
 
 
-def get_config_generation_argname_value(
-        args: argparse.Namespace) -> tuple[str, str]:
+def get_configuration_arguments(
+        args: argparse.Namespace) -> tuple[str, str, str]:
     """
-    Get configuration type and value in the case of generating configurations,
+    Get configuration options in the case of generating configurations,
     which should have been specified while parsing arguments.
 
     Args:
         args: Arguments parsed.
 
     Returns:
-        Configuration type.
-        Value of configuration type argument.
+        - User level
+        - File path
+        - Type of pipeline
     """
     regex = r"generate_[a-z]+_config"
     arg_specified = [
         x for x in dir(args) if re.match(regex, x) and getattr(args, x)][0]
-    config_type = arg_specified.split("_")[1]
-    arg_value = getattr(args, arg_specified)
-    return config_type, arg_value
+    config_level = arg_specified.split("_")[1]
+    filepath = getattr(args, arg_specified)
+    pipeline_type = args.pipeline_type
+    return config_level, filepath, pipeline_type
+
+
+def select_scope_params(params: Dict, scope_list: List) -> Dict:
+    """
+    Select params that apply to the scope of the problem. For example, if
+    there are default options for both regression and classification
+    problem types, select the key corresponding to the pipeline problem
+    type. Assuming scope (problem type) is regression, an example would be:
+
+    Before: {'key': {'regression': 1, 'classification': 0}}
+    After: {'key': 1}
+
+    Args:
+        params: Input parameters.
+        scope_list: List of scopes to be selected.
+
+    Returns:
+        New parameters with scope applied.
+    """
+    if isinstance(params, dict):
+        for key in params:
+            if isinstance(params[key], dict):
+                val_intersection = set(
+                    list(params[key])).intersection(scope_list)
+                if val_intersection:
+                    val_to_assign = list(val_intersection)[0]
+                    scope_params = params[key][val_to_assign]
+                    params[key] = scope_params
+                else:
+                    scope_params = params[key]
+                    select_scope_params(scope_params, scope_list)
 
 
 class FileExtension:

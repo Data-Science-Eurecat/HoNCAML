@@ -11,8 +11,8 @@ Conceptually, a pipeline is composed from a modular composition of steps. The
 ones available are the following:
 
 * :ref:`data-step`: Responsible for raw data management
-* :ref:`benchmark-step`: Responsible for searching the best model configuration
 * :ref:`model-step`: Responsible for model management
+* :ref:`benchmark-step`: Responsible for searching the best model configuration
 
 The configuration should be done through a `YAML <https://yaml.org/spec/>`_
 file, which contains all the pipeline and steps options that are considered.
@@ -25,14 +25,11 @@ following:
 
 * problem_type: The kind of problem that determines the model/s to use. Valid
   values are: ``classification``, ``regression``.
-* metrics_folder: Folder in which all execution results will be stored,
-  which will contain the id of their execution in order to differentiate them.
 
 .. code:: yaml
 
    global:
        problem_type:
-       metrics_folder:
 
 Afterwards, the steps configuration is provided, which is detailed below.
 
@@ -60,7 +57,7 @@ Example of data step in a pipeline file:
          features:
            - bedrooms
            - bathrooms
-           - sqft_living 
+           - sqft_living
 
        transform:
          normalize:
@@ -77,24 +74,19 @@ Extract
 
 In the extract phase the possible configurations are the following:
 
-- **filepath** (str, optional): file path of dataset to use. It is an
+- **filepath** (str, optional): File path of dataset to use. It is an
   optional param. The default value is ``data/raw/dataset.csv``.
-- **target** (list, optional): column name as a target. It is an optional
-  param. The default value is ``target``.
-- **features** (list, optional): a set of columns to process. It is an optional
+- **target** (str [#comp1]_): Column name as a target.
+- **features** (list, optional): Set of columns to process. It is an optional
   param. When *features* is not indicated, the process uses all columns.
+
+.. [#comp1]
+
+   Compulsory for train and benchmark pipelines, and excluded if pipeline is
+   only to predict.
 
 Examples:
 ^^^^^^^^^
-
-The simplest configuration is the following:
-
-.. code:: yaml
-
-   extract:
-     filepath: data/raw/boston_dataset.csv
-     target:
-       - price
 
 In the following example, the framework reads dataset from
 ``data/raw/boston_dataset.csv``. Also, it gets ``price`` column as a target.
@@ -122,59 +114,60 @@ Normalize
 The parameter **normalize** (dict, optional) defines the dataset
 normalization. It is possible to normalize nothing, features, target or
 both. With **features** parameter, it defines which normalization apply to
-a features. Furthermore, with **target** parameter, it defines the target
-normalization. If the transform step contains an empty **normalize** key,
-it uses a ``sklearn.preprocessing.StandardScaler`` for features and target
-as default. On the other hand, if **normalize** key does not exist, no
-normalization is applied.
+features. Furthermore, with **target** parameter, it defines the target
+normalization. If the transform step contains an empty **normalize** key, it
+uses a ``sklearn.preprocessing.StandardScaler`` for features and target as
+default. On the other hand, if **normalize** key does not exist, no
+normalization is applied. If only features or target (but not both) are to be
+normalized, empty settings should be provided for the part that does not
+require normalization.
 
--  **target** (list, optional): column name as a target. It is an
+-  **target** (list, optional): Column name as a target. It is an
    optional param. The default value is ``target``.
--  **features** (list, optional): a set of columns to process. It is an
+-  **features** (list, optional): Set of columns to process. It is an
    optional param. When empty, the process uses all columns.
+
+For any of the previous mentioned, there are three children keys:
+
+- **module** (str, optional): Normalization module to apply. Right now,
+  ``sklean.preprocessing.StandardScaler`` is the only one supported.
+- **params** (dict, optional): Specific parameters of the previous
+  module. Should be specified as key-value pairs.
+- **columns** (list, optional): Columns to be considered for normalization. By
+  default, all of features/target if empty, depending on the context.
+
 
 Examples
 ^^^^^^^^
 
-The simplest configuration is the following:
+The simplest configuration is the following, which means no normalization:
 
 .. code:: yaml
 
    transform:
 
-When **transform** phase is empty, it does not apply any transformation.
-
-In the example below, the framework applies a default normalization
-parameters.
+In the example below, the framework applies a default normalization parameters
+(``sklearn.preprocessing.StandardScaler`` for both target and features).
 
 .. code:: yaml
 
    transform:
      normalize:
 
-In the example below, the framework uses a
-``sklearn.preprocessing.StandardScaler`` for normalize only target.
+If only features or target are to be normalized, just an empty module should be
+provided for target.
 
 .. code:: yaml
 
    transform:
      normalize:
        target:
-         module: sklearn.preprocessing.StandardScaler
-
-The following example, the framework uses a
-``sklearn.preprocessing.StandardScaler`` for normalize only features.
-
-.. code:: yaml
-
-   transform:
-     normalize:
-       features:
-         module: sklearn.preprocessing.StandardScaler
+         module:
 
 In the example below, the framework uses a
 ``sklearn.preprocessing.StandardScaler`` for normalize target and
-features.
+features. In the case of features, normalization is applied considering std,
+and only for columns named *column_a* and *column_b*.
 
 .. code:: yaml
 
@@ -182,8 +175,11 @@ features.
      normalize:
        features:
          module: sklearn.preprocessing.StandardScaler
-       target:
-         module: sklearn.preprocessing.StandardScaler
+         params:
+           with_std: True
+           columns:
+             - column_a
+             - column_b
 
 Load
 ----
@@ -212,6 +208,113 @@ The following example, the framework stores the processed data in
    load:
      filepath: data/processed/dataset.csv
 
+.. _model-step:
+
+Model
+=====
+
+This step is responsible for model management.
+
+It is made up for the following ETL phases:
+
+- **extract**: The purpose of this phase is to read a previously saved model.
+- **transform**: This phase applies the common model functions:
+  training, testing and cross-validation.
+- **load**: Saves the initialized model.
+
+Extract
+-------
+
+In extract phase the possible configurations are the following:
+
+- **filepath** (str [#comp2]_): File path of model to read. It is an
+  optional parameter with default value:
+  ``models/sklearn.20220819-122417.sav``.
+
+.. [#comp2]
+
+   Compulsory for predict pipelines, and excluded in the rest of pipeline types.
+
+The framework only allows to extract models generated by the framework which
+follow the filename convention ``{model_type}.{execution_id}.sav``
+
+Transform
+---------
+
+This phase applies the common model functions: fit, predict and
+cross-validation. The available configurations are the following:
+
+- **fit** (dict [#comp3]_): Requests a model training on the current dataset. It
+  may have the following additional information:
+
+  - **estimator_config** (dict, optional): Sppecifies the estimator and its
+    hyperparameters. Consists of the following:
+    - **module** (str, optional): Learner module to use.
+    - **params** (dict, optional): Additional parameters to pass to module
+    class.
+
+    Available models are the ones `available from sklearn
+    <https://scikit-learn.org/stable/supervised_learning.html>`_, and of
+    course just the ones related to the problem type specified.
+    Default models are ``sklearn.ensemble.RandomForestRegressor`` for
+    regression and ``sklearn.ensemble.RandomForestClassifier`` for
+    classification problems, both with ``n_estimator`` equal to 100.
+
+    - **cross_validation** (dict, optional): Defines which cross-validation
+      strategy to use for training the model. Dictionary may have the following keys:
+      - **module** (str, optional): Cross validation module to use.
+      - **params** (dict, optional): Additional parameters to pass to module
+      class.
+
+      Any cross validation method in `sklearn cross-validation
+      <https://scikit-learn.org/stable/modules/cross_validation.html#cross-validation-iterators>`_
+      should work, provided that it follows their consistent structure.
+      Default: ``sklearn.model_selection.KFold`` with 3 splits.
+
+- **predict** (dict [#comp4]_): Requests to run predictions over the dataset.
+  - **path** (str, optional): Directory where the predictions will be
+  stored. Default value: ``data/processed``.
+
+.. [#comp3]
+
+   Compulsory for fit pipelines, and excluded for predict pipelines. Related to
+   benchmark pipelines, see the details in :ref:`benchmark-step`.
+
+.. [#comp4]
+
+   Compulsory for predict pipelines, and excluded for the rest of pipeline
+   types.
+
+Examples
+^^^^^^^^
+
+The following snippet shows an example of an advanced model transform
+definition:
+
+.. code:: yaml
+
+
+    transform:
+      fit:
+        estimator:
+          module: sklearn.ensemble.RandomForestRegressor
+          params:
+            n_estimators: 100
+        cross_validation:
+          module: sklearn.model_selection.KFold
+          params:
+            n_splits: 2
+
+Load
+----
+
+In load phase the possible configurations are the following:
+
+- **path** (str, optional): Directory where the model will be saved.
+
+The filename is generated by the framework following the
+following convention: ``{model_type}.{execution_id}.sav``
+
 .. _benchmark-step:
 
 Benchmark
@@ -225,64 +328,31 @@ It is made up for the following ETL phases:
   specified model. Furthermore, it gets the best model configuration.
 - **load**: it saves the best configuration into a yaml file.
 
-The following example shows all keys that can be specified in a pipeline
-file:
+Apart from obtaining the best model configuration, it is possible to train the
+best model through appending a model key after the benchmark step, taking
+advantage of the modular definition of the solution:
 
 .. code:: yaml
 
-    benchmark:
-        transform:
-          metrics:
-            - mean_squared_error
-            - mean_absolute_percentage_error
-            - median_absolute_error
-            - r2_score
-            - mean_absolute_error
-            - root_mean_square_error
+   global:
+     problem_type: regression
 
-          models:
-            - module: sklearn.ensemble.RandomForestRegressor
-              search_space:
-                n_estimators:
-                  method: randint
-                  values: [ 2, 110 ]
-                max_features:
-                  method: choice
-                  values:
-                    - sqrt
-                    - log2
-                    - 1
-            - module: sklearn.linear_model.LinearRegression
-              search_space:
-                fit_intercept:
-                  method: choice
-                  values:
-                    - True
-                    - False
+   steps:
+     data:
+       extract:
+         filepath: {Input data}
+         target: {Target}
 
-          cross_validation:
-            strategy: k_fold
-            n_splits: 2
-            shuffle: True
-            random_state: 90
+  benchmark:
+    transform:
+    load:
+      path: {Reports path}
 
-          tuner:
-            search_algorithm:
-              module: ray.tune.search.optuna.OptunaSearch
-              params:
-            tune_config:
-              num_samples: 5
-              metric: root_mean_square_error
-              mode: min
-            run_config:
-              stop:
-                training_iteration: 2
-            scheduler:
-              module: ray.tune.schedulers.HyperBandScheduler
-              params:
-
-        load:
-          save_best_config_params: True
+  model:
+    transform:
+      fit:
+    load:
+      path: {Path to store best model}
 
 Transform
 ---------
@@ -295,150 +365,120 @@ train and test data and parameters of search algorithm.
 The available configurations are the following:
 
 - **metrics** (list, optional): a list of metrics to evaluate the models. Any
-  metric that it exists in ``sklearn.metrics`` is allowed. Default values are
+  metric that it exists in `sklearn.metrics
+  <https://scikit-learn.org/stable/modules/classes.html#module-sklearn.metrics>`_
+  is allowed, of course that apply to the problem type.
+  Default values are
   ``mean_squared_error``, ``mean_absolute_percentage_error``,
   ``median_absolute_error``, ``r2_score``, ``mean_absolute_error``,
-  ``root_mean_square_error``.
-- **models** (list[dicts]): a list of models to search best configuration.
-  For each model, it specifies the ``module``
-  e.g. ``sklearn.ensemble.RandomForestRegressor`` and the ``search_space``.
-  The **search space** is a dictionary with the model's hyperparamater.
-  For each hyperparamater to tune, it defines the ``method`` e.g. ``randint``
-  to apply and ``values`` e.g. ``2, 110``.
+  ``root_mean_square_error`` for regression problems and ``accuracy``,
+  ``precision``, ``sensitivity``, ``specificity``, ``f1`` and ``roc_auc`` for
+  classification problems.
+
+- **models** (dict, optional): Dictionary of models and hyperparameters to
+  search for best configuration. Each entry of the list refers to a model to
+  benchmark. Keys should be the following:
+  - **{model_name}** (dict, optional): Name of model module,
+  e.g. ``sklearn.ensemble.RandomForestRegressor``.
+
+  Within each module, there should be as many keys as model parameters to search:
+  - **{hyperparameter}** (dict, optional): Name of hyperparameter,
+  e.g. ``n_estimators``.
+  Within each hyperparameter, the following needs to be specified:
+  - **method** (str, optional): Method to consider for searching hyperparameter values.
+  - **values** (tuple/list, optional): Values to consider for hyperparameter
+  search, passed to specified method.
+
+  Available methods and value parameters are defined in the `search space
+  <https://docs.ray.io/en/latest/tune/api/search_space.html>`_.  The default
+  models and hyperparameters for each type of problem are defined at
+  *honcaml/config/defaults/search_spaces.py*.
+
 - **cross_validation** (dict, optional): defines which cross-validation
-  strategy to use for training each model. Valid values: ``k_fold``,
-  ``repeated_k_fold``, ``shuffle_split``, ``leave_one_out``.
-  Default: ``k_fold``.
-- **tuner** (dict): defines the configuration of tune process.
-  The search algorithm is defined in ``search_algorithm`` key e.g.
-  ``ray.tune.search.optuna.OptunaSearch``. Also, it is possible to specify
-  parameters of algorithms in ``params`` key. The ``tune_config`` defines the
-  **metric** to optimize. Furthermore, the ``mode`` allows to define the way
-  to optimize the metric. The valid values are ``max`` or ``min``.
-  The ``run_config`` defines different parameters during the search.
-  For example with ``stop`` it is possible to specify the iterations of
-  training step. Finally, the ``scheduler`` allows to define different
-  strategies during the search process.
+  strategy to use for training each model. Dictionary may have the following keys:
+  - **module** (str, optional): Cross validation module to use.
+  - **params** (dict, optional): Additional parameters to pass to module class.
+  Any cross validation method in `sklearn cross-validation
+  <https://scikit-learn.org/stable/modules/cross_validation.html#cross-validation-iterators>`_
+  should work, provided that it follows their consistent structure.
+  Default: ``sklearn.model_selection.KFold`` with 3 splits.
 
-**Note**: As default, the **metrics** list contains only a regression metrics. It
-should be pointed out that the metrics depends on **problem_type**.
+- **tuner** (dict): defines the configuration of tune process. Their options
+  are the following:
+  - **search_algorithm** (dict, optional): Specifies the algorithm to perform
+  the search. Consists of the following:
 
-**Note**: For instance, in **tuner** parameters if **problem type** is
-classification and metric is ``accuracy`` the ``mode`` could be ``max``. On
-the other hand, if **problem type** is regression and metric is
-``root_mean_square_error`` the ``mode`` could be ``min``.
+    - **module** (str, optional): Algorithm module to use.
+    - **params** (dict, optional): Additional parameters to pass to module
+      class.
 
-Load
-----
+  For all available options, see `the search algorithms documentation
+  <https://docs.ray.io/en/latest/tune/api/suggestion.html>`_.
+  Default is ``ray.tune.search.optuna.OptunaSearch``.
+  - **tune_config** (dict, optional): Parameters to pass to tuner config
+  object, specified as key-value pairs. For available options, see `TuneConfig
+  documentation
+  <https://docs.ray.io/en/latest/tune/api/doc/ray.tune.TuneConfig.html>`_.
+  - **run_config** (dict, optional): Parameters to be used during run,
+  specified as key-value pairs. For available options, see `RunConfig
+  documentation
+  <https://docs.ray.io/en/latest/ray-air/api/doc/ray.air.RunConfig.html>`_.
+  - **scheduler** (dict, optional): Allows to define different strategies
+  during the search process. Consists of the following:
+  
+    - **module** (str, optional): Algorithm module to use.
+    - **params** (dict, optional): Additional parameters to pass to module
+      class.
 
-In load phase the possible configurations are the following:
+  For all available options, see `schedulers documentation
+  <https://docs.ray.io/en/latest/tune/api/schedulers.html>`_.
 
-- **save_best_config_params** (bool, optional): store a yaml file with best
-  model configuration or not. The filename is ``best_config_params.yaml``.
+Examples
+^^^^^^^^
 
-.. _model-step:
-
-Model
-=====
-
-This step is responsible for model management.
-
-It is made up for the following ETL phases:
-
-- **extract**: the purpose of this phase is to read a previously saved model.
-- **transform**: this phase applies the common model functions:
-  training, testing and cross-validation
-- **load**: it saves the initialized model.
-
-In addition, there is an extra key, which is the most important one:
-
-- **estimator_config**: an specific estimator configuration to use.
-
-The following example shows all keys that can be specified in a pipeline
-file:
+The following snippet shows an example of an advanced benchmark transform
+definition:
 
 .. code:: yaml
 
-   model:
-       estimator_config:
-           module: sklearn.ensemble.RandomForestRegressor
-           hyperparameters:
-               n_estimators: 100
-
-       extract:
-         filepath: models/sklearn.regressor.20220819-122417.sav
-
-       transform:
-         fit:
-           cross_validation:
-             strategy: k_fold
-             n_splits: 10
-             shuffle: True
-             random_state: 90
-         predict:
-           path: data/processed
-
-       load:
-         path: data/models/
-
-Estimator config
-----------------
-
-The **estimator_config** is an optional key that allows to specify the
-estimator and its hyperparameters.
-
-**Note**: if a **Benchmark Step** runs before the model step, the best
-estimator will be selected and the **estimator_config** will be ignored.
-
-**Note**: if there is not a **Benchmark Step** and the **estimator_config**
-is not specified, a default model will be used.
-
-Extract
--------
-
-In extract phase the possible configurations are the following:
-
-- **filepath** (str, optional): file path of model to read. It is an
-  optional parameter with default value:
-  ``models/sklearn.20220819-122417.sav``.
-
-**Note**: the framework only allows to extract models generated by the
-framework which follow the filename convention
-``{model_type}.{execution_id}.sav``
-
-Transform
----------
-
-This phase applies the common model functions: fit, predict and
-cross-validation. The available configurations are the following:
-
-- **fit** (dict): requests a model training on the current dataset.
-- **cross_validation** (dict, optional): requests to cross-validate the
-  model. At the end, the model will be trained on the whole dataset.
-- **strategy** (str, optional): the strategy to use to make the partition
-  of the data. Valid values: ``k_fold``, ``repeated_k_fold``,
-  ``shuffle_split``, ``leave_one_out``. Default: ``k_fold``.
-- **kwargs**: available parameters for the sklearn cross-validation strategy
-  selected.
-- **predict** (dict): requests to run predictions over the dataset.
-- **path** (str, optional): the directory where the predictions will be
-  stored. Default value: ``data/processed``.
-
-**Note**: When specifying **transform** in this step, at least **fit**
-or **predict** should be set. Otherwise, the **transform** phase will be
-ignored.
-
-**Note**: Specifying **fit** and **predict** in the same pipeline,
-assuming only one data step has run, the predictions will be generated
-over the same dataset where the model has been trained.
+   metrics:
+     - mean_squared_error
+     - mean_absolute_error
+     - root_mean_square_error
+   models:
+     sklearn.ensemble.RandomForestRegressor:
+       n_estimators:
+         method: randint
+         values: [2, 110]
+       max_features:
+         method: choice
+         values: [sqrt, log2, 1]
+     sklearn.linear_model.LinearRegression:
+       fit_intercept:
+         method: choice
+         values: [True, False]
+   cross_validation:
+     module: sklearn.model_selection.KFold
+     params:
+       n_splits: 2
+   tuner:
+     search_algorithm:
+       module: ray.tune.search.optuna.OptunaSearch
+     tune_config:
+       num_samples: 5
+       metric: root_mean_square_error
+       mode: min
+     run_config:
+       stop:
+         training_iteration: 2
+     scheduler:
+       module: ray.tune.schedulers.HyperBandScheduler
 
 Load
 ----
 
 In load phase the possible configurations are the following:
 
-- **path** (str, optional): the directory where the model will be saved.
-
-**Note**: the filename is generated by the framework following the
-following convention: ``{model_type}.{execution_id}.sav``
-
+- **path** (str): Folder in which to store benchmark results.
+- **save_best_config_params** (bool, optional): Whether to store a yaml file
+  with best model configuration or not, within specified **path**.

@@ -3,7 +3,7 @@ from typing import Dict, Tuple
 
 from honcaml.data import base, extract, transform, load
 from honcaml.exceptions import data as data_exception
-from honcaml.tools import custom_typing as ct
+from honcaml.tools import utils, custom_typing as ct
 from honcaml.tools.startup import logger
 
 
@@ -116,18 +116,21 @@ class TabularDataset(base.BaseDataset):
         Returns:
             Cleaned dataset.
         """
+        self._target = utils.ensure_input_list(self._target)
         if self._features:
             try:
+                logger.debug(f'Features considered are {self._features}')
+                logger.debug(f'Target considered are {self._target}')
                 dataset = dataset[self._features + self._target]
             except KeyError as e:
-                logger.warning(f'Dataset column features does not exist {e}')
+                logger.warning(f'Dataset columns do not exist: {e}')
                 raise data_exception.ColumnDoesNotExists(f'{self._features}')
         else:
             try:
                 self._features = dataset \
                     .drop(columns=self._target).columns.to_list()
             except KeyError as e:
-                logger.warning(f'Dataset column features does not exists {e}')
+                logger.warning(f'Dataset columns do not exist: {e}')
                 raise data_exception.ColumnDoesNotExists(f'{self._target}')
 
         return dataset

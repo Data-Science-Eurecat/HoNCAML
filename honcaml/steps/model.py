@@ -1,4 +1,3 @@
-import copy
 from typing import Dict
 
 from honcaml.data import load
@@ -6,7 +5,7 @@ from honcaml.data import transform
 from honcaml.models import base as base_model
 from honcaml.models import general, evaluate
 from honcaml.steps import base
-from honcaml.tools.startup import logger, params
+from honcaml.tools.startup import logger
 
 
 class ModelActions:
@@ -41,10 +40,7 @@ class ModelStep(base.BaseStep):
         """
         super().__init__(default_settings, user_settings, global_params,
                          step_rules)
-        self._estimator_config = user_settings.pop(
-            'estimator_config',
-            params['pipeline_steps']['model']['transform'][
-                'default_estimator'][global_params['problem_type']])
+        self._estimator_config = None
         self._model = None
         self._dataset = None
 
@@ -78,6 +74,7 @@ class ModelStep(base.BaseStep):
             settings: Settings defining the transform ETL process.
         """
         if self._model is None:
+            self._estimator_config = settings['fit']['estimator']
             model_type = self._estimator_config['module'].split('.')[0]
             self._model = general.initialize_model(
                 model_type, self._global_params['problem_type'])
@@ -108,9 +105,8 @@ class ModelStep(base.BaseStep):
         x, y = self._dataset.x, self._dataset.y
         if settings.get('cross_validation', None) is not None:
             # Run the cross-validation
-            cv_settings = copy.deepcopy(settings['cross_validation'])
             cv_split = transform.CrossValidationSplit(
-                cv_settings.pop('strategy'), **cv_settings)
+                **settings['cross_validation'])
             self._cv_results = evaluate.cross_validate_model(
                 self._model, x, y, cv_split)
             logger.info(self._cv_results)

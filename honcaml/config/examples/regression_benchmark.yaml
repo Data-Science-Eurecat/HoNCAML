@@ -1,6 +1,6 @@
 global:
   problem_type: regression
-  metrics_folder: honcaml_reports
+  
 steps:
   data:
     extract:
@@ -31,7 +31,7 @@ steps:
       normalize:
         features:
           module: sklearn.preprocessing.StandardScaler
-          module_params:
+          params:
             with_std: True
           columns:
             - sqft_living
@@ -42,10 +42,32 @@ steps:
             - sqft_lot15
         target:
           module: sklearn.preprocessing.StandardScaler
-          module_params:
+          params:
             with_std: True
           columns:
             - price
   
   benchmark:
     transform:
+      models:
+        sklearn.ensemble.RandomForestRegressor:
+          n_estimators:
+            method: randint
+            values: [ 2, 110 ]
+          max_features:
+            method: choice
+            values:
+              - sqrt
+              - log2
+              - 1 # It means 'auto'
+        sklearn.neighbors.KNeighborsRegressor:
+          n_neighbors:
+            method: randint
+            values: [ 1, 100 ]
+          weights:
+            method: choice
+            values:
+              - uniform
+              - distance      
+    load:
+      path: reports      

@@ -11,7 +11,7 @@ from honcaml.exceptions import benchmark as benchmark_exceptions
 from honcaml.models import trainable
 from honcaml.steps import base
 from honcaml.tools import utils, custom_typing as ct
-from honcaml.tools.startup import params, logger
+from honcaml.tools.startup import logger
 
 
 class BenchmarkStep(base.BaseStep):
@@ -46,16 +46,12 @@ class BenchmarkStep(base.BaseStep):
         """
         super().__init__(default_settings, user_settings, global_params,
                          step_rules)
-
-        self._store_results_folder = os.path.join(
-            params['paths']['metrics_folder'], execution_id)
-
+        self._execution_id = execution_id
+        self._store_results_folder = None
         self._dataset = None
-
         self._reported_metrics = None
         self._metric = None
         self._mode = None
-
         self._best_model = None
         self._best_hyper_parameters = None
 
@@ -243,6 +239,10 @@ class BenchmarkStep(base.BaseStep):
 
         return df
 
+    def _set_store_results_folder(self):
+        self._store_results_folder = os.path.join(
+            self._step_settings['load']['path'], self._execution_id)
+
     def _store_results(self, df: pd.DataFrame) -> None:
         """
         Given a results dataframe, this function stores the dataframe to
@@ -333,7 +333,7 @@ class BenchmarkStep(base.BaseStep):
         """
         best_config_dict = {
             'module': self._best_model,
-            'hyper_parameters': self._best_hyper_parameters
+            'params': self._best_hyper_parameters
         }
 
         return best_config_dict
@@ -364,10 +364,12 @@ class BenchmarkStep(base.BaseStep):
         Args:
             settings (Dict): the settings defining the transform ETL process.
         """
+        # Set store folder
+        self._set_store_results_folder()
+
         # Getting cross-validation params
         cv_split = transform.CrossValidationSplit(
-            settings['cross_validation'].pop('strategy'),
-            **settings.pop('cross_validation'))
+            **settings['cross_validation'])
 
         # Prepare Tuner configs
         tuner_settings = settings['tuner']
@@ -387,8 +389,7 @@ class BenchmarkStep(base.BaseStep):
         # Create a Trainable for each model and run the hyper parameter seach.
         results_df = pd.DataFrame()
         results_dtypes = {}
-        print(settings['models'])
-        models = settings['models'][config['problem_type']]
+        models = settings['models']
         for i, name in enumerate(models, start=1):
             logger.info(
                 f'Starting search space for model {name} ({i}/{len(models)})')

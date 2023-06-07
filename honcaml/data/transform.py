@@ -1,10 +1,9 @@
 import numpy as np
 import pandas as pd
-from sklearn import model_selection
 from typing import Dict, Tuple
 
 from honcaml.exceptions import data as data_exceptions
-from honcaml.tools import custom_typing as ct
+from honcaml.tools import utils, custom_typing as ct
 
 
 def process_data(dataset: pd.DataFrame, settings: Dict) -> pd.DataFrame:
@@ -55,93 +54,56 @@ def get_train_test_dataset(
     return x_train, x_test
 
 
-class _CVStrategy:
-    """
-    Class with the available cross-validation strategies.
-
-    """
-    k_fold = 'k_fold'
-    repeated_k_fold = 'repeated_k_fold'
-    shuffle_split = 'shuffle_split'
-    leave_one_out = 'leave_one_out'
-
-
 class CrossValidationSplit:
     """
-    The aim of this class is to wrap different cross-validation strategies
-    from sklearn framework.
+    The aim of this class is to wrap possible cross-validation classes from
+    sklearn framework.
 
     Attributes:
-        _strategy (str): Cross-validation strategy name.
-        _kwargs (Dict): Dict with additional parameters to pass to
-            sklearn cross-validation class.
+        _module (str): Cross-validation module.
+        _data (Dict): Dict with additional parameters to pass to
+            cross validation module.
     """
 
-    def __init__(self, strategy: str, **kwargs) -> None:
+    def __init__(self, module: str, params: Dict = None) -> None:
         """
-        Constructor method. It receives a cross-validation strategy to apply to
-        a dataset.
+        Constructor method. It receives a cross-validation module and
+        parameters to apply to the dataset.
 
         Args:
-            strategy: Cross-validation strategy to apply. The available
-                options are the following:
-                - k_fold
-                - repeated_k_fold
-                - shuffle_split
-                - leave_one_out
+            module: Cross-validation module to apply.
+            params: Additional parametes to pass to module.
         """
-        self._strategy: str = strategy
-        self._kwargs: Dict = kwargs
-
-    @property
-    def strategy(self) -> str:
-        """
-        Getter method for the '_strategy' attribute.
-
-        Returns:
-            '_strategy' current value.
-        """
-        return self._strategy
-
-    @property
-    def n_splits(self) -> int:
-        return self._kwargs.get('n_splits', None)
+        self._module: str = module
+        self._params: Dict = params
 
     def _create_cross_validation_instance(self) -> ct.SklearnCrossValidation:
         """
-        Creates a new instance of one of the cross-validation strategies
-        implemented in sklearn.model_selection. In addition, with *kwargs
+        Creates a new instance of cross validation. In addition, with *kwargs
         argument, it is possible to pass all the possible parameters
-        of the chosen strategy.
+        of the chosen module.
 
         Notes:
-            If the cross-validation strategy does not exist, it returns an
+            If the cross-validation module does not exist, it returns an
             exception.
 
         Returns:
-            A new instance of cross-validation sklearn module.
+            A new instance of cross-validation module.
         """
-        if self._strategy == _CVStrategy.k_fold:
-            cv_object = model_selection.KFold(**self._kwargs)
-        elif self._strategy == _CVStrategy.repeated_k_fold:
-            cv_object = model_selection.RepeatedKFold(**self._kwargs)
-        elif self._strategy == _CVStrategy.shuffle_split:
-            cv_object = model_selection.ShuffleSplit(**self._kwargs)
-        elif self._strategy == _CVStrategy.leave_one_out:
-            cv_object = model_selection.LeaveOneOut()
-        # Adding more strategies here
-        else:
-            raise data_exceptions.CVStrategyDoesNotExist(self._strategy)
+        try:
+            cv_object = utils.import_library(self._module, self._params)
+        except AttributeError:
+            raise data_exceptions.CVModuleDoesNotExist(self._module)
 
         return cv_object
 
     def split(
             self, x: ct.Dataset, y: ct.Dataset = None) -> ct.CVGenerator:
         """
-        Execute a split method from sklearn cross-validation strategies. In
-        addition, the 'kwargs' parameter allows passing additional arguments
-        when it creates the object instance. The valid x and y datasets types
-        are: pd.DataFrame, pd.Series and np.ndarray.
+        Execute a split method from cross-validation module. In addition, the
+        'kwargs'  parameter allows passing additional arguments when it creates
+        the object instance. The valid x and y datasets types are:
+        pd.DataFrame, pd.Series and np.ndarray.
 
         Args:
             x: Dataset with features to split.

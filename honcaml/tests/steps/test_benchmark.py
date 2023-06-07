@@ -45,8 +45,6 @@ class BenchmarkTest(unittest.TestCase):
         self.transform = base.StepPhase.transform
         self.load = base.StepPhase.load
         self._global_params = {'problem_type': 'regression'}
-        self.default_config = params[
-            'pipeline_steps']['benchmark']['transform']
 
         self.settings = {
             'transform': {
@@ -59,24 +57,24 @@ class BenchmarkTest(unittest.TestCase):
                     'root_mean_square_error',
                 ],
                 'models': {
-                    'regression': {
-                        'sklearn.ensemble.RandomForestRegressor': {
-                            'n_estimators': {
-                                'method': 'randint', 'values': [2, 110]},
-                            'max_features': {
-                                'method': 'choice', 'values': ['sqrt', 'log']}
-                        },
-                        'sklearn.linear_model.LinearRegression': {
-                            'fit_intercept': {
-                                'method': 'choice', 'values': [True, False]}
-                        }
+                    'sklearn.ensemble.RandomForestRegressor': {
+                        'n_estimators': {
+                            'method': 'randint', 'values': [2, 110]},
+                        'max_features': {
+                            'method': 'choice', 'values': ['sqrt', 'log']}
+                    },
+                    'sklearn.linear_model.LinearRegression': {
+                        'fit_intercept': {
+                            'method': 'choice', 'values': [True, False]}
                     }
                 },
                 'cross_validation': {
-                    'strategy': 'k_fold',
-                    'n_splits': 2,
-                    'shuffle': True,
-                    'random_state': 90,
+                    'module': 'sklearn.model_selection.KFold',
+                    'params': {
+                        'n_splits': 2,
+                        'shuffle': True,
+                        'random_state': 90
+                    }
                 },
                 'tuner': {
                     'search_algorithm': {
@@ -100,7 +98,8 @@ class BenchmarkTest(unittest.TestCase):
 
                 }
 
-            }
+            },
+            'load': {'path': 'honcaml_reports'}
         }
 
         self.user_settings = {}
@@ -130,8 +129,7 @@ class BenchmarkTest(unittest.TestCase):
             self.step_rules, self.execution_id)
 
         # Test _clean_search_space
-        models = self.settings[
-            'transform']['models'][self._global_params['problem_type']]
+        models = self.settings['transform']['models']
         for model_name in models:
             search_space = models[model_name]
 
@@ -259,10 +257,10 @@ class BenchmarkTest(unittest.TestCase):
         # Test get_best_model_and_params_dict
         best_config_dict = ben.get_best_model_and_hyperparams_dict()
         self.assertIn('module', best_config_dict)
-        self.assertIn('hyper_parameters', best_config_dict)
+        self.assertIn('params', best_config_dict)
         self.assertEqual(best_fake_model, best_config_dict['module'])
         self.assertDictEqual(
-            best_fake_hyper_parameters, best_config_dict['hyper_parameters'])
+            best_fake_hyper_parameters, best_config_dict['params'])
 
     @patch('ray.tune.Tuner.fit')
     def test_transform(self, mock_up_tuner_fit):
@@ -273,10 +271,12 @@ class BenchmarkTest(unittest.TestCase):
             self.step_rules, self.execution_id)
 
         with tempfile.TemporaryDirectory() as temp_dir:
+
             # Override folder to store results
-            ben._store_results_folder = os.path.join(temp_dir, 'fake_results')
+            ben._step_settings = {'load': {'path': os.path.join(
+                temp_dir, 'fake_results')}}
             ben._transform_settings = params[
-                'pipeline_steps']['benchmark']['transform']
+                'steps']['benchmark']['transform']
             ben._transform(self.settings['transform'])
 
             # Check if exists a folder for module and results.csv
@@ -284,7 +284,8 @@ class BenchmarkTest(unittest.TestCase):
             self.assertEqual(len(dir_content), 1)
             self.assertEqual(dir_content[0], 'fake_results')
 
-            results_folder = os.listdir(os.path.join(temp_dir, 'fake_results'))
+            results_folder = os.listdir(
+                os.path.join(temp_dir, 'fake_results', self.execution_id))
             self.assertIn('results.csv', results_folder)
             self.assertIn(
                 'sklearn.ensemble.RandomForestRegressor', results_folder)
@@ -309,14 +310,15 @@ class BenchmarkTest(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as temp_dir:
             # Override folder to store results
-            ben._store_results_folder = os.path.join(temp_dir, 'fake_results')
+            ben._step_settings['load']['path'] = os.path.join(
+                temp_dir, 'fake_results')
             fake_metadata = {
                 'dataset': object
             }
             metadata = ben.run(fake_metadata)
             expected_metadata = {
                 'module': 'fake.module.Class1',
-                'hyper_parameters': {
+                'params': {
                     'max_features': 'sqrt', 'n_estimators': 10}
             }
 
@@ -339,7 +341,8 @@ class BenchmarkTest(unittest.TestCase):
             self.assertEqual(len(dir_content), 1)
             self.assertEqual(dir_content[0], 'fake_results')
 
-            results_folder = os.listdir(os.path.join(temp_dir, 'fake_results'))
+            results_folder = os.listdir(
+                os.path.join(temp_dir, 'fake_results', self.execution_id))
             self.assertIn('results.csv', results_folder)
             self.assertIn(
                 'sklearn.ensemble.RandomForestRegressor', results_folder)
@@ -376,7 +379,7 @@ class BenchmarkTest(unittest.TestCase):
             result_dict = extract.read_yaml(expected_file_path)
             expected_dict = {
                 'module': fake_best_model,
-                'hyper_parameters': fake_best_hyperparams,
+                'params': fake_best_hyperparams,
 
             }
             self.assertDictEqual(result_dict, expected_dict)

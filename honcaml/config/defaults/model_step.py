@@ -3,26 +3,24 @@ default_model_step = {
         "filepath": "models/sklearn.regressor.20220819-122417.sav"
     },
     "transform": {
-        "default_estimator": {
-            "regression": {
-                "module": "sklearn.ensemble.RandomForestRegressor",
-                "hyper_parameters": {
-                    "n_estimators": 100
+        "fit": {
+            "estimator": {
+                "regression": {
+                    "module": "sklearn.ensemble.RandomForestRegressor",
+                    "params": {
+                        "n_estimators": 100
+                    }
+                },
+                "classification": {
+                    "module": "sklearn.ensemble.RandomForestClassifier",
+                    "params": {
+                        "n_estimators": 100
+                    }
                 }
             },
-            "classification": {
-                "module": "sklearn.ensemble.RandomForestClassifier",
-                "hyper_parameters": {
-                    "n_estimators": 100
-                }
-            }
-        },
-        "fit": {
             "cross_validation": {
-                "strategy": "k_fold",
-                "n_splits": 3,
-                "shuffle": True,
-                "random_state": 90
+                "module": "sklearn.model_selection.KFold",
+                "params": {"n_splits": 3}
             }
         },
         "predict": {
@@ -30,6 +28,6 @@ default_model_step = {
         }
     },
     "load": {
-        "path": "data/models/"
+        "path": "honcaml_reports"
     }
 }

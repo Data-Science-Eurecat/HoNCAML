@@ -10,12 +10,12 @@ class NormalizationTest(unittest.TestCase):
         self.settings = {
             'features': {
                 'module': 'sklearn.preprocessing.StandardScaler',
-                'module_params': {'param1': 1, 'param2': 2},
+                'params': {'param1': 1, 'param2': 2},
                 'columns': ['col1', 'col2', 'col3']
             },
             'target': {
                 'module': 'sklearn.preprocessing.MinMaxScaler',
-                'module_params': {'param1': 10, 'param2': 20},
+                'params': {'param1': 10, 'param2': 20},
                 'columns': ['target1', 'target2']
             }
         }
@@ -49,7 +49,7 @@ class NormalizationTest(unittest.TestCase):
         only_feature_settings = {
             'features': {
                 'module': 'sklearn.preprocessing.StandardScaler',
-                'module_params': {'param1': 1, 'param2': 2},
+                'params': {'param1': 1, 'param2': 2},
                 'columns': ['col1', 'col2', 'col3']
             },
         }
@@ -69,7 +69,7 @@ class NormalizationTest(unittest.TestCase):
         only_target_settings = {
             'target': {
                 'module': 'sklearn.preprocessing.MinMaxScaler',
-                'module_params': {'param1': 10, 'param2': 20},
+                'params': {'param1': 10, 'param2': 20},
                 'columns': ['target1', 'target2']
             }
         }
@@ -101,18 +101,18 @@ class NormalizationTest(unittest.TestCase):
             only_feature_without_params_settings['features'].copy()
         del features_normalizer['columns']
         self.assertDictEqual(norm._features_normalizer, features_normalizer)
-        self.assertTrue('module_params' not in norm._features_normalizer)
+        self.assertTrue('params' not in norm._features_normalizer)
 
         # When
         real_scalers_settings = {
             'features': {
                 'module': 'sklearn.preprocessing.StandardScaler',
-                'module_params': {'with_std': True},
+                'params': {'with_std': True},
                 'columns': ['col1', 'col2', 'col3']
             },
             'target': {
                 'module': 'sklearn.preprocessing.MinMaxScaler',
-                'module_params': {},
+                'params': {},
                 'columns': ['target1', 'target2']
             }
         }

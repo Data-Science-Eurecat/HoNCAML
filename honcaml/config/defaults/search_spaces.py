@@ -55,7 +55,7 @@ regression = {
         },
         "min_samples_split": {
             "method": "randint",
-            "values": [5, 10]
+            "values": [5, 15]
         },
         "max_depth": {
             "method": "qrandint",
@@ -121,10 +121,6 @@ classification = {
         }
     },
     "sklearn.svm.LinearSVC": {
-        "penalty": {
-            "method": "choice",
-            "values": ["l1", "l2"]
-        },
         "loss": {
             "method": "choice",
             "values": ["hinge", "squared_hinge"]

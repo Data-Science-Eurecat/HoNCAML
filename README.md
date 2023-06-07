@@ -28,10 +28,12 @@ For a quick train execution, given that a dataset is available with the target
 value informed, it is necessary to first create a basic configuration file:
 
    ```commandline
-   honcaml -b {config_file}
+   honcaml -b {config_file} -t {pipeline_type}
    ```
 
-Being ``{config_file}`` the path to the file containing the configuration.
+Being ``{config_file}`` the path to the file containing the configuration in
+yaml extension, and being ``{pipeline_type}`` one of the supported: train, predict
+or benchmark.
 
 The specified keys of the file should be filled in, and afterwards it is
 possible to run the intended pipeline with the following command:

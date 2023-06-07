@@ -108,8 +108,7 @@ bin/
 /src/external/
 
 # exclude reports
-/reports/figures
-/reports/metrics
+/reports
 /honcaml_reports
 
 # Exclude tags

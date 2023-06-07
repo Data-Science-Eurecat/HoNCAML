@@ -128,7 +128,7 @@ class UtilsTest(unittest.TestCase):
         })
 
         default_dict = {
-            'pipeline_steps': {
+            'steps': {
                 'nested_key1': {
                     'nested_key1.2': 1
                 },
@@ -138,7 +138,7 @@ class UtilsTest(unittest.TestCase):
             'nested_key4': 3,
         }
         source_dict = {
-            'pipeline_steps': {
+            'steps': {
                 'nested_key2': True
             },
             'nested_key3': 2,
@@ -147,7 +147,7 @@ class UtilsTest(unittest.TestCase):
         output_dict = utils.update_dict_from_default_dict(
             default_dict, source_dict)
         self.assertEqual(output_dict, {
-            'pipeline_steps': {
+            'steps': {
                 'nested_key2': True
             },
             'nested_key3': 2,
@@ -158,7 +158,7 @@ class UtilsTest(unittest.TestCase):
         output_dict = utils.update_dict_from_default_dict(
             default_dict, source_dict)
         self.assertEqual(output_dict, {
-            'pipeline_steps': {
+            'steps': {
                 'nested_key1': {
                     'nested_key1.2': 1
                 },
@@ -175,7 +175,7 @@ class UtilsTest(unittest.TestCase):
         output_dict = utils.update_dict_from_default_dict(
             default_dict, source_dict)
         self.assertEqual(output_dict, {
-            'pipeline_steps': {
+            'steps': {
                 'nested_key1': {
                     'nested_key1.2': 1
                 },
@@ -230,9 +230,42 @@ class UtilsTest(unittest.TestCase):
             }
         })
 
-    # Test build_validator_schema
-    def test_get_config_generation_argname_value(self):
-        args = argparse.Namespace(generate_advanced_config='path/file.yaml')
-        expected = 'advanced', 'path/file.yaml'
-        result = utils.get_config_generation_argname_value(args)
+    # Test get_configuration_arguments
+    def test_get_configuration_arguments(self):
+        # Advanced train config
+        args = argparse.Namespace(
+            generate_advanced_config='path/file.yaml', pipeline_type='train')
+        expected = 'advanced', 'path/file.yaml', 'train'
+        result = utils.get_configuration_arguments(args)
         self.assertTupleEqual(result, expected)
+        # Basic benchmark config
+        args = argparse.Namespace(
+            generate_basic_config='path/file.yaml', pipeline_type='benchmark')
+        expected = 'basic', 'path/file.yaml', 'benchmark'
+        result = utils.get_configuration_arguments(args)
+        self.assertTupleEqual(result, expected)
+
+    def test_select_scope_params(self):
+        params = {
+            'global': {'problem_type': 'regression'},
+            'steps': {
+                'data': {
+                    'classification': 'A',
+                    'regression': 'B'
+                },
+                'model': {
+                    'benchmark': 1,
+                    'train': 0
+                }
+            }
+        }
+        expected = {
+            'global': {'problem_type': 'regression'},
+            'steps': {
+                'data': 'B',
+                'model': 1,
+            }
+        }
+        utils.select_scope_params(
+            params, ['regression', 'benchmark'])
+        self.assertDictEqual(expected, params)

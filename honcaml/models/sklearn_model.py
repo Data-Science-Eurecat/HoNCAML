@@ -59,7 +59,7 @@ class SklearnModel(base.BaseModel):
             (Callable): an instance of model with specific hyperparameters.
         """
         return utils.import_library(
-            model_config['module'], model_config['hyper_parameters'])
+            model_config['module'], model_config['params'])
 
     def read(self, settings: Dict) -> None:
         """

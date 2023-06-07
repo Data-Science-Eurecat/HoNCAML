@@ -1,6 +1,6 @@
 global:
   problem_type: classification
-  metrics_folder: honcaml_reports
+
 steps:
   data:
     extract:
@@ -8,7 +8,7 @@ steps:
 
   model:
     extract:
-      filepath: data/models/sklearn.20230524-145140.sav
+      filepath:
     transform:
       predict:
-        path: data/predictions
+        path: honcaml_reports

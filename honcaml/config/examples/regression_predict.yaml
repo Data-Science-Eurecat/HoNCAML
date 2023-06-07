@@ -1,10 +1,10 @@
 global:
   problem_type: regression
-  metrics_folder: honcaml_reports
+
 steps:
   data:
     extract:
-      filepath: data/processed/kc_house_data_train.csv
+      filepath: data/processed/kc_house_data_test.csv
       features:
         - bedrooms
         - bathrooms
@@ -24,14 +24,12 @@ steps:
         - long
         - sqft_living15
         - sqft_lot15
-      target:
-        - price
-      
+
     transform:
       normalize:
         features:
           module: sklearn.preprocessing.StandardScaler
-          module_params:
+          params:
             with_std: True
           columns:
             - sqft_living
@@ -42,24 +40,14 @@ steps:
             - sqft_lot15
         target:
           module: sklearn.preprocessing.StandardScaler
-          module_params:
+          params:
             with_std: True
           columns:
             - price
 
   model:
-    estimator_config:
-      module: sklearn.ensemble.RandomForestRegressor
-      hyper_parameters:
-        n_estimators: 100
-
+    extract:
+      filepath:
     transform:
-      fit:
-        cross_validation:
-          strategy: k_fold
-          n_splits: 2
-          shuffle: True
-          random_state: 90
-
-    load:
-      path: data/models/
+      predict:
+        path: honcaml_reports

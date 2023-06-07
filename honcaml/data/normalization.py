@@ -59,7 +59,7 @@ class Normalization:
         Returns:
             (Tuple[str, dict]): a module and parameters normalization.
         """
-        return norm_dict['module'], norm_dict['module_params']
+        return norm_dict['module'], norm_dict['params']
 
     @property
     def features_normalizer(self) -> Callable:
