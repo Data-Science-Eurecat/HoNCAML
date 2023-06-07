@@ -4,7 +4,7 @@ import streamlit as st
 import yaml
 
 
-def get_results_table(most_recent_execution):
+def get_results_table(most_recent_execution) -> pd.DataFrame:
     """
     Load and process the results.csv file generated during the benchmark
     execution and process it in order to be posteriorly used to create the
@@ -84,7 +84,7 @@ def create_fig_visualization(results):
     return fig
 
 
-def display_best_hyperparameters():
+def display_best_hyperparameters() -> None:
     """
     Display best model and hyperparameters after the benchmark
     """
@@ -106,7 +106,7 @@ def display_best_hyperparameters():
     )
 
 
-def display_results(results_display):
+def display_results(results_display) -> None:
     """
     Display results in the form of table or barchart
     """

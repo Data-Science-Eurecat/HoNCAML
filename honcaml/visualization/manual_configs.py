@@ -1,5 +1,7 @@
 import streamlit as st
 import utils
+from honcaml.config.defaults.search_spaces import default_search_spaces
+from typing import Dict
 
 max_features_help = """
     If “sqrt”, then max_features=sqrt(n_features).\n
@@ -21,59 +23,15 @@ def basic_configs() -> None:
 
     st.session_state["config_file"]["global"]["problem_type"] = \
         col1.radio("Problem type", ('Regression', 'Classification')).lower()
-    st.session_state["features"] = \
+    st.session_state["config_file"]["steps"]["data"]["extract"]["features"] = \
         col2.multiselect("Features",
                          options=st.session_state["features_all"],
                          default=st.session_state["features_all"])
     st.divider()
 
 
-def linear_svr_regressor() -> None:
-    """
-    Add input elements to set configurations to benchmark the Linear SVR
-    regressor model
-    """
-    with st.expander("Linear SVR Regression configs:"):
-        st.write("Fit Intercept")
-
-
-def k_neighbors_regressor_configs() -> None:
-    """
-    Add input elements to set configurations to benchmark the K-Neighbors
-    regressor model
-    """
-    with st.expander("K Neighbors Regression configs:"):
-        st.write("Fit Intercept")
-
-
-def elastic_net_configs() -> None:
-    """
-    Add input elements to set configurations to benchmark the Elastic Net
-    model
-    """
-    with st.expander("Elastic Net configs:"):
-        st.write("Fit Intercept")
-
-
-def sgd_regressor_configs() -> None:
-    """
-    Add input elements to set configurations to benchmark the SDG regressor
-    model
-    """
-    with st.expander("SGD Regressor configs:"):
-        st.write("Fit Intercept")
-
-
-def gradient_boosting_regressor() -> None:
-    """
-    Add input elements to set configurations to benchmark the Gradient Boosting
-    Regressor model
-    """
-    with st.expander("Gradient Boosting Regressor configs:"):
-        st.write("Fit Intercept")
-
-
-def random_forest_configs() -> None:
+def random_forest_configs(
+        model_configs: Dict, default_params: Dict) -> None:
     """
     Add input elements to set configurations to benchmark the Random Forest
     model
@@ -115,93 +73,170 @@ def random_forest_configs() -> None:
         # st.session_state["max_features"] = set(configs["max_features_raw"])
 
 
-def linear_regression_configs() -> None:
-    """
-    Add input elements to set configurations to benchmark the Linear Regression
-    model
-    """
-    with st.expander("Linear Regression configs:"):
-        st.write("Fit Intercept")
-        st.session_state["check_true"] = st.checkbox("True", value=True)
-        st.session_state["check_false"] = st.checkbox("False", value=True)
+helper = {
+    "uniform": "Sample a float uniformly between min and max values selected "
+               "on the slider",
+    "quniform": "Sample a float uniformly between min and max values selected "
+                "on the slider, rounding to increments of the value selected "
+                "on the number input field",
+    "randint": "Sample a integer uniformly between min (inclusive) and max "
+               "(exclusive) values selected on the slider",
+    "qrandint": "Sample a random uniformly between min (inclusive) and max "
+                "(inclusive (!)) values selected on the slider, rounding to "
+                "increments of the value selected on the number input field",
+    "choice": "Sample an option uniformly from the specified choices"
+}
 
 
-def k_neighbors_classifier_configs() -> None:
+# TODO add possibility to add custom elements to multiselects
+def baseline_model_configs(
+        model_name: str, model_configs: Dict, default_params: Dict) -> None:
     """
-    Add input elements to set configurations to benchmark the K-Neighbors
-    classifier model
+    Add input elements to set configurations to benchmark the models
     """
-    with st.expander("K Neighbors Classifier configs:"):
-        col1, _, col2 = st.columns([5, .5, 1.5])
-        col1.slider("Number of neighbors:", 1, 200, (1, 100))
-        col2.write("Weights:")
-        _ = col2.checkbox("Uniform", value=True)
-        _ = col2.checkbox("Distance", value=True)
+    for parameter, configs in default_params.items():
+        method = configs["method"]
+        values = configs["values"]
 
+        output_values = ""
+        if method == "choice":
+            output_values = \
+                st.multiselect(parameter, values, values,
+                               help=helper[method],
+                               key=model_name + '_' + parameter)
+            if len(output_values) == 0:
+                st.warning("There must be at least one value selected")
 
-def logistic_regression_configs() -> None:
-    """
-    Add input elements to set configurations to benchmark the Logistic
-    Regression model
-    """
-    with st.expander("Logistic Regression configs:"):
-        st.write("Fit Intercept")
+        elif method == "randint":
+            min_slider = 2
+            max_slider = values[1] * 3
+            output_values = \
+                st.slider(parameter, min_slider, max_slider, values,
+                          help=helper[method],
+                          key=model_name + '_' + parameter)
 
+        elif method == "qrandint":
+            min_slider = 2
+            max_slider = values[1] * 3
+            *values_slider, round_increment = values
+            col1, col2 = st.columns([4, 1])
+            output_values = \
+                col1.slider(parameter, min_slider, max_slider, values_slider,
+                            help=helper[method],
+                            key=model_name + '_' + parameter + '_slider')
+            round_increment = \
+                col2.number_input("Round increment of", min_value=1,
+                                  value=round_increment,
+                                  key=model_name + '_' + parameter
+                                      + '_increment')
+            [*output_values].append(round_increment)
 
-def sgd_classifier_configs() -> None:
-    """
-    Add input elements to set configurations to benchmark the SGD Classifier
-    model
-    """
-    with st.expander("SDG Classifier configs:"):
-        st.write("Fit Intercept")
+        elif method == "uniform":
+            min_slider = 0.0
+            max_slider = 1.0
+            output_values = \
+                st.slider(parameter, min_slider, max_slider,
+                          [float(val) for val in values], step=0.01,
+                          help=helper[method],
+                          key=model_name + '_' + parameter)
 
+        elif method == "quniform":
+            min_slider = 0.0
+            max_slider = 1.0
+            *values_slider, round_increment = values
+            col1, col2 = st.columns([4, 1])
+            output_values = \
+                col1.slider(parameter, min_slider, max_slider,
+                            [float(val) for val in values_slider], step=0.01,
+                            help=helper[method],
+                            key=model_name + '_' + parameter)
+            round_increment = \
+                col2.number_input("Round increment of", min_value=0.01,
+                                  value=round_increment,
+                                  key=model_name + '_' + parameter
+                                      + '_increment')
+            [*output_values].append(round_increment)
 
-def linear_svc_configs() -> None:
-    """
-    Add input elements to set configurations to benchmark the Linear SVC model
-    """
-
-    with st.expander("Linear SVC configs:"):
-        st.write("Fit Intercept")
-
-
-def gradient_boosting_classifier_configs() -> None:
-    """
-    Add input elements to set configurations to benchmark the Gradient Boosting
-    Classifier model
-    """
-    with st.expander("Gradient Boosting Classifier configs:"):
-        st.write("Fit Intercept")
+        if [*output_values] != [*values]:
+            print("updated parameters of", parameter)
+            model_configs[parameter]["values"] = [*output_values]
 
 
 def data_preprocess_configs() -> None:
+    """
+    Add input elements to set data preprocess configurations as normalization
+    of the features and of the target variables
+    """
     st.write("Data Preprocess")
 
-    col1, _, col2 = st.columns([7, .5, 1])
-    features_to_normalize = col1.multiselect("Features to normalize",
-                                             st.session_state["features"])
-    col2.radio("With std", ("Yes", "No"))
+    # normalize features
+    col1, _, col2 = st.columns([6, .5, 1])
+    features_to_normalize = \
+        col1.multiselect("Features to normalize",
+                         st.session_state["config_file"]["steps"]["data"]
+                         ["extract"]["features"])
+    if len(features_to_normalize) > 0:
+        with_std = col2.radio("With std (features)", (True, False))
+        st.session_state["config_file"]["steps"]["data"]["transform"] = \
+            {"normalize": {
+                "features": {
+                    "module": "sklearn.preprocessing.StandardScaler",
+                    "module_params": {
+                        "with_std": with_std
+                    },
+                    "columns": features_to_normalize
+                }
+            }}
+
+    # normalize target variable
+    col1, _, col2 = st.columns([6, .5, 1])
+    target = \
+        st.session_state["config_file"]["steps"]["data"]["extract"]["target"]
+    if col1.radio(f"Normalize target: {target}", (True, False), index=1):
+        target_with_std = col2.radio("With std (target)", (True, False))
+        target_normalization_dict = {
+            "module": "sklearn.preprocessing.StandardScaler",
+            "module_params": {
+                "with_std": target_with_std
+            },
+            "columns": [target]
+        }
+        if "transform" in st.session_state["config_file"]["steps"]["data"]:
+            st.session_state["config_file"]["steps"]["data"]["transform"] \
+                ["normalize"]["target"] = target_normalization_dict
+        else:
+            st.session_state["config_file"]["steps"]["data"] = \
+                {"transform": {
+                    "normalize": {
+                        "target": target_normalization_dict
+                    }
+                }}
+
     st.divider()
 
 
-regression_models_dict = {
-    "Linear Regression": linear_regression_configs,
-    "Random Forest Regressor": random_forest_configs,
-    "Linear SVR": linear_svr_regressor,
-    "K-Neighbors Regressor": k_neighbors_regressor_configs,
-    "SGD Regressor": sgd_regressor_configs,
-    "Gradient Boosting Regressor": gradient_boosting_regressor,
-    "Elastic Net": elastic_net_configs
-}
-
-classification_models_dict = {
-    "Logistic Regression": logistic_regression_configs,
-    "Random Forest Classifier": random_forest_configs,
-    "Linear SVC": linear_svc_configs,
-    "K-Neighbors Classifier": k_neighbors_classifier_configs,
-    "SGD Classifier": sgd_classifier_configs,
-    "Gradient Boosting Classifier": gradient_boosting_classifier_configs
+# dictionary containing the display name of the model and the name of the model
+# to use in the configs file
+names_of_models = {
+    "regression": {
+        "Linear Regression": "sklearn.linear_model.LinearRegression",
+        "Random Forest Regressor": "sklearn.ensemble.RandomForestRegressor",
+        "Linear SVR": "sklearn.svm.LinearSVR",
+        "K-Neighbors Regressor": "sklearn.neighbors.KNeighborsRegressor",
+        "SGD Regressor": "sklearn.linear_model.SGDRegressor",
+        "Gradient Boosting Regressor":
+            "sklearn.ensemble.GradientBoostingRegressor",
+        "Elastic Net": "sklearn.linear_model.ElasticNet",
+    },
+    "classification": {
+        "Logistic Regression": "sklearn.linear_model.LogisticRegression",
+        "Random Forest Classifier": "sklearn.ensemble.RandomForestClassifier",
+        "Linear SVC": "sklearn.svm.LinearSVC",
+        "K-Neighbors Classifier": "sklearn.neighbors.KNeighborsClassifier",
+        "SGD Classifier": "sklearn.linear_model.SGDClassifier",
+        "Gradient Boosting Classifier":
+            "sklearn.ensemble.GradientBoostingClassifier"
+    }
 }
 
 
@@ -211,22 +246,37 @@ def benchmark_model_configs() -> None:
     specific configurations
     """
     st.write("Models")
-    if st.session_state["config_file"]["global"]["problem_type"] == \
-            "regression":
-        models_dict = regression_models_dict
+    problem_type = st.session_state["config_file"]["global"]["problem_type"]
+    if problem_type == 'regression':
         defaults = ("Linear Regression", "Random Forest Regressor")
     else:
-        models_dict = classification_models_dict
         defaults = ("Logistic Regression", "Random Forest Classifier")
 
+    # initialize the config file benchmark dictionary
+    st.session_state["config_file"]["steps"]["benchmark"] = {
+        "transform": {
+            "models": {}
+        }
+    }
     cols_dist = [1, 4]
-    for model_name, model_function in models_dict.items():
+    for model_name in names_of_models[problem_type].keys():
         col1, col2 = st.container().columns(cols_dist)
         if col1.checkbox(model_name,
                          True if model_name in defaults
                          else False):
+            config_model_name = names_of_models[problem_type][model_name]
+            default_params = default_search_spaces[problem_type] \
+                [config_model_name]
+            st.session_state["config_file"]["steps"]["benchmark"]["transform"] \
+                ["models"][config_model_name] = default_params
+            model_configs = \
+                st.session_state["config_file"]["steps"]["benchmark"] \
+                    ["transform"]["models"][config_model_name]
             with col2:
-                model_function()
+                # model_function(model_name, model_configs, default_params)
+                with st.expander(f"{model_name} configs:"):
+                    baseline_model_configs(model_name, model_configs,
+                                           default_params)
 
     st.divider()
 
@@ -238,13 +288,10 @@ def fit_model_configs() -> None:
     """
     # st.write("Models")
     col1, col2 = st.columns(2)
-    if st.session_state["config_file"]["global"]["problem_type"] == \
-            "regression":
-        models_list = list(regression_models_dict.keys())
-    else:
-        models_list = list(classification_models_dict.keys())
+    problem_type = st.session_state["config_file"]["global"]["problem_type"]
+    models_list = list(names_of_models[problem_type].keys())
 
-    model = col1.radio("Model", (models_list))
+    model = col1.radio("Model", models_list)
 
     col2.radio("Configs", ("model", "configs", "to", "be", "defined"))
     st.divider()
