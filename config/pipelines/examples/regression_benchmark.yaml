@@ -49,3 +49,65 @@ steps:
   
   benchmark:
     transform:
+      metrics:
+        - mean_squared_error
+        - mean_absolute_percentage_error
+        - median_absolute_error
+        - r2_score
+        - mean_absolute_error
+        - root_mean_square_error
+
+      models:
+        sklearn.ensemble.RandomForestRegressor:
+          n_estimators:
+            method: randint
+            values: [ 2, 110 ]
+          max_features:
+            method: choice
+            values:
+              - sqrt
+              - log2
+              - 1 # It means 'auto'
+        sklearn.linear_model.LinearRegression:
+          fit_intercept:
+            method: choice
+            values:
+              - True
+              - False
+
+      cross_validation:
+        strategy: k_fold
+        n_splits: 2
+        shuffle: True
+        random_state: 90
+
+      tuner:
+        search_algorithm:
+          module: ray.tune.search.optuna.OptunaSearch
+          params:
+        tune_config:
+          num_samples: 5
+          metric: root_mean_square_error
+          mode: min
+        run_config:
+          stop:
+            training_iteration: 2
+        scheduler:
+          module: ray.tune.schedulers.HyperBandScheduler
+          params:
+
+    load:
+      save_best_config_params: True
+
+  model:
+    transform:
+      fit:
+        cross_validation:
+          strategy: k_fold
+          n_splits: 2
+          shuffle: True
+          random_state: 90
+
+    load:
+      path: data/models/
+

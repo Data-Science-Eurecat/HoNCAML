@@ -1,5 +1,6 @@
 import streamlit as st
 import utils
+import copy
 from honcaml.config.defaults.search_spaces import default_search_spaces
 from typing import Dict
 
@@ -93,17 +94,24 @@ def baseline_model_configs(
         model_name: str, model_configs: Dict, default_params: Dict) -> None:
     """
     Add input elements to set configurations to benchmark the models
+
+    Args:
+        model_name (str): a string containing the name of the model
+        model_configs (Dict): configurations of the model that will be
+        applied when running the app, changes by the user on the input elements
+        will be updated in this dictionary
+        default_params (Dict): dictionary containing the default parameters,
+        values in this dictionary will not variate
     """
     for parameter, configs in default_params.items():
         method = configs["method"]
         values = configs["values"]
-
         output_values = ""
         if method == "choice":
             output_values = \
-                st.multiselect(parameter, values, values,
-                               help=helper[method],
-                               key=model_name + '_' + parameter)
+                [*st.multiselect(parameter, values, values,
+                                 help=helper[method],
+                                 key=model_name + '_' + parameter)]
             if len(output_values) == 0:
                 st.warning("There must be at least one value selected")
 
@@ -111,9 +119,9 @@ def baseline_model_configs(
             min_slider = 2
             max_slider = values[1] * 3
             output_values = \
-                st.slider(parameter, min_slider, max_slider, values,
-                          help=helper[method],
-                          key=model_name + '_' + parameter)
+                [*st.slider(parameter, min_slider, max_slider, values,
+                            help=helper[method],
+                            key=model_name + '_' + parameter)]
 
         elif method == "qrandint":
             min_slider = 2
@@ -121,24 +129,23 @@ def baseline_model_configs(
             *values_slider, round_increment = values
             col1, col2 = st.columns([4, 1])
             output_values = \
-                col1.slider(parameter, min_slider, max_slider, values_slider,
-                            help=helper[method],
-                            key=model_name + '_' + parameter + '_slider')
+                [*col1.slider(parameter, min_slider, max_slider, values_slider,
+                              help=helper[method],
+                              key=model_name + '_' + parameter + '_slider')]
             round_increment = \
                 col2.number_input("Round increment of", min_value=1,
                                   value=round_increment,
-                                  key=model_name + '_' + parameter
-                                      + '_increment')
-            [*output_values].append(round_increment)
+                                  key=model_name + '_' + parameter + '_increm')
+            output_values.append(round_increment)
 
         elif method == "uniform":
             min_slider = 0.0
             max_slider = 1.0
             output_values = \
-                st.slider(parameter, min_slider, max_slider,
-                          [float(val) for val in values], step=0.01,
-                          help=helper[method],
-                          key=model_name + '_' + parameter)
+                [*st.slider(parameter, min_slider, max_slider,
+                            [float(val) for val in values], step=0.01,
+                            help=helper[method],
+                            key=model_name + '_' + parameter)]
 
         elif method == "quniform":
             min_slider = 0.0
@@ -146,20 +153,18 @@ def baseline_model_configs(
             *values_slider, round_increment = values
             col1, col2 = st.columns([4, 1])
             output_values = \
-                col1.slider(parameter, min_slider, max_slider,
-                            [float(val) for val in values_slider], step=0.01,
-                            help=helper[method],
-                            key=model_name + '_' + parameter)
+                [*col1.slider(parameter, min_slider, max_slider,
+                              [float(val) for val in values_slider], step=0.01,
+                              help=helper[method],
+                              key=model_name + '_' + parameter)]
             round_increment = \
                 col2.number_input("Round increment of", min_value=0.01,
                                   value=round_increment,
-                                  key=model_name + '_' + parameter
-                                      + '_increment')
-            [*output_values].append(round_increment)
+                                  key=model_name + '_' + parameter + '_increm')
+            output_values.append(round_increment)
 
-        if [*output_values] != [*values]:
-            print("updated parameters of", parameter)
-            model_configs[parameter]["values"] = [*output_values]
+        if output_values != [*values]:
+            model_configs[parameter]["values"] = output_values
 
 
 def data_preprocess_configs() -> None:
@@ -191,7 +196,7 @@ def data_preprocess_configs() -> None:
     # normalize target variable
     col1, _, col2 = st.columns([6, .5, 1])
     target = \
-        st.session_state["config_file"]["steps"]["data"]["extract"]["target"]
+        st.session_state["config_file"]["steps"]["data"]["extract"]["target"][0]
     if col1.radio(f"Normalize target: {target}", (True, False), index=1):
         target_with_std = col2.radio("With std (target)", (True, False))
         target_normalization_dict = {
@@ -204,12 +209,10 @@ def data_preprocess_configs() -> None:
         if "transform" in st.session_state["config_file"]["steps"]["data"]:
             st.session_state["config_file"]["steps"]["data"]["transform"] \
                 ["normalize"]["target"] = target_normalization_dict
-        else:
-            st.session_state["config_file"]["steps"]["data"] = \
-                {"transform": {
-                    "normalize": {
+        else:  # when no other features are normalized
+            st.session_state["config_file"]["steps"]["data"]["transform"] = \
+                {"normalize": {
                         "target": target_normalization_dict
-                    }
                 }}
 
     st.divider()
@@ -268,7 +271,7 @@ def benchmark_model_configs() -> None:
             default_params = default_search_spaces[problem_type] \
                 [config_model_name]
             st.session_state["config_file"]["steps"]["benchmark"]["transform"] \
-                ["models"][config_model_name] = default_params
+                ["models"][config_model_name] = copy.deepcopy(default_params)
             model_configs = \
                 st.session_state["config_file"]["steps"]["benchmark"] \
                     ["transform"]["models"][config_model_name]
@@ -350,6 +353,9 @@ def metrics_configs() -> None:
                                        default=st.session_state["metrics"])
     if benchmark_metrics != st.session_state["benchmark_metrics"]:
         st.session_state["benchmark_metrics"] = benchmark_metrics
+    if "benchmark" in st.session_state["config_file"]["steps"]:
+        st.session_state["config_file"]["steps"]["benchmark"]["transform"]\
+            ["metrics"] = benchmark_metrics
     st.divider()
 
 
@@ -365,9 +371,9 @@ def manual_configs_elements() -> None:
         st.markdown("**Advanced Configurations**")
         data_preprocess_configs()
         benchmark_model_configs()
+        metrics_configs()
         cross_validation_configs()
         tuner_configs()
-        metrics_configs()
 
     elif st.session_state["functionality"] == "Fit":
         fit_model_configs()

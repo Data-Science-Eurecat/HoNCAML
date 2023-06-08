@@ -21,7 +21,7 @@ class Normalization:
     def __init__(self, settings: Dict) -> None:
         """
         Constructor method of class. Given a settings dict, this function
-        process the values of settings ans stores it to a class attributes.
+        process the values of settings and stores it to a class attributes.
 
         Args:
             settings: Normalization configuration.

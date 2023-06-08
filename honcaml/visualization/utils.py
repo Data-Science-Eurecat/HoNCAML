@@ -109,7 +109,7 @@ def upload_data_file(data_upload_col, data_preview_container, configs_mode):
                 (configs_mode == "Manually"):
             target = data_upload_col.selectbox("Target variable:", columns)
             st.session_state["config_file"]["steps"]["data"]["extract"] \
-                ["target"] = target
+                ["target"] = [target]
         features = copy.deepcopy(columns)
         if target in features:
             features.remove(str(target))

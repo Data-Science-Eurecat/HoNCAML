@@ -1,4 +1,10 @@
 regression = {
+    "sklearn.linear_model.LinearRegression": {
+        "fit_intercept": {
+            "method": "choice",
+            "values": [True, False]
+        }
+    },
     "sklearn.linear_model.ElasticNet": {
         "l1_ratio": {
             "method": "uniform",
@@ -63,7 +69,7 @@ regression = {
         },
         "max_features": {
             "method": "choice",
-            "values": ["auto", "sqrt"]
+            "values": [1, "sqrt", "log2"]
         }
     },
     "sklearn.ensemble.GradientBoostingRegressor": {

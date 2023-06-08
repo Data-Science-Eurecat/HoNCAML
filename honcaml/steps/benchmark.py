@@ -384,11 +384,11 @@ class BenchmarkStep(base.BaseStep):
             'problem_type': self._global_params['problem_type']
         }
 
-        # Create a Trainable for each model and run the hyper parameter seach.
+        # Create a Trainable for each model and run the hyper parameter search.
         results_df = pd.DataFrame()
         results_dtypes = {}
-        print(settings['models'])
-        models = settings['models'][config['problem_type']]
+        # TODO remove problem type as a key
+        models = settings['models']  # [config['problem_type']]
         for i, name in enumerate(models, start=1):
             logger.info(
                 f'Starting search space for model {name} ({i}/{len(models)})')

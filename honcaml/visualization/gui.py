@@ -44,7 +44,6 @@ elif configs_mode == "Config file .yaml":
 elif configs_mode == "Paste your configs":
     text_area = yaml.safe_load(st.text_area("Paste here your config file in "
                                             "json or yaml format"))
-    print("text_area:\n", text_area, "\n")
 
 # upload data file
 st.session_state['data_uploaded'] = \
@@ -69,8 +68,16 @@ if button:
                 with st.spinner("Reading configs and generating configuration "
                                 "file .yaml... ⏳"):
                     yaml_file = st.session_state["config_file"]
+                    print(yaml_file)
+                    yaml_file["steps"] = {
+                        "data": yaml_file["steps"]["data"],
+                        "benchmark": yaml_file["steps"]["benchmark"],
+                        "model": yaml_file["steps"]["model"]
+                    }
                     with open(utils.config_file_path, 'w') as file:
-                        yaml.dump(yaml_file, file, default_flow_style=False)
+                        yaml.safe_dump(yaml_file, file,
+                                       default_flow_style=False,
+                                       sort_keys=False)
                 app_execution.run()
 
         elif configs_mode == "Config file .yaml":
