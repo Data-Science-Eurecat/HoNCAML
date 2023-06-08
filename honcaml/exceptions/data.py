@@ -1,6 +1,6 @@
-class CVStrategyDoesNotExist(Exception):
-    def __init__(self, strategy: str):
-        self.message = f'Cross-validation {strategy} does not exist.'
+class CVModuleDoesNotExist(Exception):
+    def __init__(self, module: str):
+        self.message = f'Cross-validation {module} does not exist.'
         super().__init__(self.message)
 
 
@@ -12,7 +12,7 @@ class FileExtensionException(Exception):
 
 class ColumnDoesNotExists(Exception):
     def __init__(self, column: str):
-        self.message = f'Column {column} does not exists.'
+        self.message = f'Column {column} does not exist.'
         super().__init__(self.message)
 
 

@@ -1,0 +1,45 @@
+# This configuration file is an example of an advanced configuration
+# Review all keys before using it in a HoNCAML pipeline
+# Keys with appended comment *REQ* means that specify a value is compulsory
+# For all details on configuration parameters, please see the documentation
+
+global:
+  # *REQ* Specify one of the following: [regression, classification]
+  problem_type:
+
+steps:
+  data:
+    extract:
+      # *REQ* Specify path of file containing input data
+      filepath:
+      # Specify list of columns needed for the model; depending on how the
+      # model was trained and the columns in the test dataset, it may be
+      # necessary to specify them
+      features:
+
+    transform:
+      # If specified, data normalization will be done
+      normalize:
+        features:
+          # Normalization module to use
+          # The only one supported is sklearn.preprocessing.StandardScaler      
+          module:
+          # Module params used, specified as key-value
+          params:
+          # Specific list of columns of features that normalization will apply to
+          columns:
+        target:
+          module:
+          params:
+          columns:
+
+  model:
+    extract:
+      # *REQ* Specify path in which model object is stored; it should have been
+      # trained with same data structure as the one provided
+      filepath:
+
+    transform:
+      predict:
+        # *REQ* Specify folder in which to store predictions
+        path:

@@ -1,6 +1,6 @@
 global:
   problem_type: regression
-  metrics_folder: honcaml_reports
+
 steps:
   data:
     extract:
@@ -31,7 +31,7 @@ steps:
       normalize:
         features:
           module: sklearn.preprocessing.StandardScaler
-          module_params:
+          params:
             with_std: True
           columns:
             - sqft_living
@@ -42,24 +42,22 @@ steps:
             - sqft_lot15
         target:
           module: sklearn.preprocessing.StandardScaler
-          module_params:
+          params:
             with_std: True
           columns:
             - price
 
   model:
-    estimator_config:
-      module: sklearn.ensemble.RandomForestRegressor
-      hyper_parameters:
-        n_estimators: 100
-
     transform:
       fit:
+        estimator:
+          module: sklearn.ensemble.RandomForestRegressor
+          params:
+            n_estimators: 100
         cross_validation:
-          strategy: k_fold
-          n_splits: 2
-          shuffle: True
-          random_state: 90
+          module: sklearn.model_selection.KFold
+          params:
+            n_splits: 3
 
     load:
       path: data/models/

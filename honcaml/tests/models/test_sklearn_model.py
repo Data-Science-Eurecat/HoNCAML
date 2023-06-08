@@ -39,18 +39,18 @@ class SklearnTest(unittest.TestCase):
     def test_read(self, read_model_mockup):
         problem_type = 'regression'
         model_config = {'module': 'sklearn.ensemble.RandomForestRegressor',
-                        'hyper_parameters': {}}
+                        'params': {}}
         read_model_mockup.return_value = utils.mock_up_read_model(
             'sklearn', problem_type, model_config)._estimator
 
         sk_model = sklearn_model.SklearnModel(problem_type)
-        sk_model.read(params['pipeline_steps']['model']['extract'])
+        sk_model.read(params['steps']['model']['extract'])
         self.assertIsNotNone(sk_model._estimator)
 
     def test_build_model_without_normalization(self):
         problem_type = 'regression'
         model_config = {'module': 'sklearn.ensemble.RandomForestRegressor',
-                        'hyper_parameters': {}}
+                        'params': {}}
         sk_model = sklearn_model.SklearnModel(problem_type)
         norm = normalization.Normalization({})
         sk_model.build_model(model_config, norm)
@@ -59,7 +59,7 @@ class SklearnTest(unittest.TestCase):
 
         problem_type = 'classification'
         model_config = {'module': 'sklearn.ensemble.RandomForestClassifier',
-                        'hyper_parameters': {}}
+                        'params': {}}
         sk_model = sklearn_model.SklearnModel(problem_type)
         norm = normalization.Normalization({})
         sk_model.build_model(model_config, norm)
@@ -69,13 +69,13 @@ class SklearnTest(unittest.TestCase):
     def test_build_model_with_normalization(self):
         problem_type = 'regression'
         model_config = {'module': 'sklearn.ensemble.RandomForestRegressor',
-                        'hyper_parameters': {}}
+                        'params': {}}
         # Normalize only features
         features_to_normalize = ['col1', 'col2']
         features_norm_config = {
             'features': {
                 'module': 'sklearn.preprocessing.StandardScaler',
-                'module_params': {},
+                'params': {},
                 'columns': features_to_normalize
             }
         }
@@ -100,7 +100,7 @@ class SklearnTest(unittest.TestCase):
         target_norm_config = {
             'target': {
                 'module': 'sklearn.preprocessing.StandardScaler',
-                'module_params': {},
+                'params': {},
                 'columns': target_to_normalize
             }
         }
@@ -134,13 +134,13 @@ class SklearnTest(unittest.TestCase):
 
         problem_type = 'classification'
         model_config = {'module': 'sklearn.ensemble.RandomForestClassifier',
-                        'hyper_parameters': {}}
+                        'params': {}}
         # Normalize only features
         features_to_normalize = ['col1', 'col2']
         features_norm_config = {
             'features': {
                 'module': 'sklearn.preprocessing.StandardScaler',
-                'module_params': {},
+                'params': {},
                 'columns': features_to_normalize
             }
         }
@@ -163,7 +163,7 @@ class SklearnTest(unittest.TestCase):
     def test_fit(self):
         problem_type = 'regression'
         model_config = {'module': 'sklearn.ensemble.RandomForestRegressor',
-                        'hyper_parameters': {}}
+                        'params': {}}
         sk_model = sklearn_model.SklearnModel(problem_type)
         norm = normalization.Normalization({})
         sk_model.build_model(model_config, norm)
@@ -174,7 +174,7 @@ class SklearnTest(unittest.TestCase):
 
         problem_type = 'classification'
         model_config = {'module': 'sklearn.ensemble.RandomForestClassifier',
-                        'hyper_parameters': {}}
+                        'params': {}}
         sk_model = sklearn_model.SklearnModel(problem_type)
         norm = normalization.Normalization({})
         sk_model.build_model(model_config, norm)
@@ -186,7 +186,7 @@ class SklearnTest(unittest.TestCase):
     def test_predict(self):
         problem_type = 'regression'
         model_config = {'module': 'sklearn.ensemble.RandomForestRegressor',
-                        'hyper_parameters': {}}
+                        'params': {}}
         sk_model = sklearn_model.SklearnModel(problem_type)
         norm = normalization.Normalization({})
         sk_model.build_model(model_config, norm)
@@ -197,7 +197,7 @@ class SklearnTest(unittest.TestCase):
 
         problem_type = 'classification'
         model_config = {'module': 'sklearn.ensemble.RandomForestClassifier',
-                        'hyper_parameters': {}}
+                        'params': {}}
         sk_model = sklearn_model.SklearnModel(problem_type)
         norm = normalization.Normalization({})
         sk_model.build_model(model_config, norm)
@@ -210,7 +210,7 @@ class SklearnTest(unittest.TestCase):
         # Evaluate regression problem
         problem_type = 'regression'
         model_config = {'module': 'sklearn.ensemble.RandomForestRegressor',
-                        'hyper_parameters': {}}
+                        'params': {}}
         sk_model = sklearn_model.SklearnModel(problem_type)
         norm = normalization.Normalization({})
         sk_model.build_model(model_config, norm)
@@ -222,7 +222,7 @@ class SklearnTest(unittest.TestCase):
         # Evaluate classification problem
         problem_type = 'classification'
         model_config = {'module': 'sklearn.ensemble.RandomForestClassifier',
-                        'hyper_parameters': {}}
+                        'params': {}}
         sk_model = sklearn_model.SklearnModel(problem_type)
         norm = normalization.Normalization({})
         sk_model.build_model(model_config, norm)
@@ -234,7 +234,7 @@ class SklearnTest(unittest.TestCase):
         # Evaluate unknown problem
         problem_type = 'regression'
         model_config = {'module': 'sklearn.ensemble.RandomForestRegressor',
-                        'hyper_parameters': {}}
+                        'params': {}}
         sk_model = sklearn_model.SklearnModel(problem_type)
         sk_model._estimator_type = 'unknown'
         norm = normalization.Normalization({})
@@ -247,7 +247,7 @@ class SklearnTest(unittest.TestCase):
     def test_save(self):
         problem_type = 'regression'
         model_config = {'module': 'sklearn.ensemble.RandomForestRegressor',
-                        'hyper_parameters': {}}
+                        'params': {}}
         sk_model = sklearn_model.SklearnModel(problem_type)
         norm = normalization.Normalization({})
         sk_model.build_model(model_config, norm)

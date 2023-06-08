@@ -56,7 +56,7 @@ class EstimatorTrainer(tune.Trainable):
 
         model_config = {
             'module': self._model_module,
-            'hyper_parameters': self._param_space,
+            'params': self._param_space,
         }
 
         self._model.build_model(

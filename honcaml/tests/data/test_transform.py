@@ -1,7 +1,8 @@
+import copy
 import numpy as np
 import pandas as pd
+import sklearn
 import unittest
-from sklearn import model_selection
 
 from honcaml.tests import utils
 from honcaml.data import transform
@@ -10,10 +11,9 @@ from honcaml.exceptions import data as data_exceptions
 
 class TransformTest(unittest.TestCase):
     def setUp(self):
-        self.k_fold = 'k_fold'
-        self.repeated_k_fold = 'repeated_k_fold'
-        self.shuffle_split = 'shuffle_split'
-        self.leave_one_out = 'leave_one_out'
+        self.cv_params = {
+            'module': 'sklearn.model_selection.KFold',
+            'params': {'n_splits': 3}}
 
     def test_process_data(self):
         # TODO: make test once logic implemented
@@ -51,37 +51,27 @@ class TransformTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             transform.get_train_test_dataset(dataset, train_idx, test_idx)
 
-    def test_cross_validation_split_strategy(self):
-        cv = transform.CrossValidationSplit(self.k_fold)
-        strategy = cv.strategy
-        self.assertEqual(strategy, cv._strategy)
-        self.assertEqual(strategy, self.k_fold)
+    def test_cross_validation_split_module_params(self):
+        cv = transform.CrossValidationSplit(**self.cv_params)
+        self.assertEqual(self.cv_params['module'], cv._module)
+        self.assertEqual(self.cv_params['params'], cv._params)
 
     # Test class CrossValidationSplit
     def test_cross_validation_creates_instance_based_on_strategy(self):
-        strategies = [
-            (self.k_fold, model_selection.KFold),
-            (self.repeated_k_fold, model_selection.RepeatedKFold),
-            (self.shuffle_split, model_selection.ShuffleSplit),
-            (self.leave_one_out, model_selection.LeaveOneOut),
-        ]
-        for strategy, instance in strategies:
-            cv = transform.CrossValidationSplit(strategy)
-            cv_object = cv._create_cross_validation_instance()
-            self.assertTrue(isinstance(cv_object, instance))
+        cv = transform.CrossValidationSplit(**self.cv_params)
+        cv_object = cv._create_cross_validation_instance()
+        self.assertIsInstance(cv_object, sklearn.model_selection._split.KFold)
 
         # Test with fake strategy
-        fake_strategy = 'fake'
-        cv = transform.CrossValidationSplit(fake_strategy)
-        with self.assertRaises(data_exceptions.CVStrategyDoesNotExist):
+        fake_module = {'module': 'sklearn.model_selection.ModuleNotExist'}
+        cv = transform.CrossValidationSplit(**fake_module)
+        with self.assertRaises(data_exceptions.CVModuleDoesNotExist):
             cv._create_cross_validation_instance()
 
     def test_cross_validation_returns_the_same_type_as_input_without_y(self):
-        strategy = self.k_fold
-
         data = list(range(0, 100))
         array = np.array(data)
-        cv = transform.CrossValidationSplit(strategy)
+        cv = transform.CrossValidationSplit(**self.cv_params)
         for i, x_train, x_test, y_train, y_test in cv.split(array):
             self.assertTrue(isinstance(i, int))
 
@@ -136,8 +126,6 @@ class TransformTest(unittest.TestCase):
                 pass
 
     def test_cross_validation_returns_the_same_type_as_input_with_y(self):
-        strategy = self.k_fold
-
         data = list(range(0, 100))
         array = np.array(data)
 
@@ -153,7 +141,7 @@ class TransformTest(unittest.TestCase):
 
         # Numpy array
         # x: ndarray target: ndarray
-        cv = transform.CrossValidationSplit(strategy)
+        cv = transform.CrossValidationSplit(**self.cv_params)
         for i, x_train, x_test, y_train, y_test in cv.split(array, array):
             self.assertTrue(isinstance(i, int))
 
@@ -287,16 +275,14 @@ class TransformTest(unittest.TestCase):
                 pass
 
     def test_split_method_gets_split_number_from_1_to_n(self):
-        strategy = self.k_fold
+        split_cv_params = copy.deepcopy(self.cv_params)
         n_splits_list = [2, 5, 10]
 
         data = list(range(0, 100))
         array = np.array(data)
         for n_splits in n_splits_list:
-            params = {
-                'n_splits': n_splits,
-            }
-            cv = transform.CrossValidationSplit(strategy, **params)
+            split_cv_params['params']['n_splits'] = n_splits
+            cv = transform.CrossValidationSplit(**split_cv_params)
             iter_splits = []
             for i, _, _, _, _ in cv.split(array):
                 self.assertTrue(isinstance(i, int))

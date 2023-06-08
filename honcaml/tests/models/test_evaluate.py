@@ -13,7 +13,7 @@ class EvaluateTest(unittest.TestCase):
     def test_cross_validate_model(self):
         problem_type = 'regression'
         model_config = {'module': 'sklearn.ensemble.RandomForestRegressor',
-                        'hyper_parameters': {}}
+                        'params': {}}
         model = sklearn_model.SklearnModel(problem_type)
         norm = normalization.Normalization({})
         model.build_model(model_config, norm)
@@ -22,7 +22,9 @@ class EvaluateTest(unittest.TestCase):
         dataset._features = ['col1', 'col2']
         dataset._target = ['target1', 'target2']
         x, y = dataset.values
-        cv_split = transform.CrossValidationSplit('k_fold', n_splits=2)
+        cv_split = transform.CrossValidationSplit(
+            **{'module': 'sklearn.model_selection.KFold',
+               'params': {'n_splits': 2}})
         train_settings = None
         test_settings = None
         cv_results = evaluate.cross_validate_model(

@@ -4,7 +4,6 @@ from typing import Dict
 
 from honcaml.models import base as base_model, general
 from honcaml.tools import custom_typing as ct
-from honcaml.tools.startup import logger
 
 
 def cross_validate_model(
@@ -35,10 +34,8 @@ def cross_validate_model(
 
     results = []
     for split, x_train, x_test, y_train, y_test in cv_split.split(x, y):
-        logger.debug(f'Running split {split}/{cv_split.n_splits} ...')
         model.fit(x_train, y_train, **train_settings)
         results.append(model.evaluate(x_test, y_test, **test_settings))
-    logger.debug('Done.')
     # Group cv metrics
     cv_results = general.aggregate_cv_results(results)
 
