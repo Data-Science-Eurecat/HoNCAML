@@ -30,9 +30,11 @@ uploaded_file = None
 if configs_mode == "Manually":
     col1_1, col1_2 = col1.columns(2)
     st.session_state["configs_level"] = \
-        col1_1.radio("Configurations", ("Basic", "Advanced"))
+        col1_1.radio("Configurations", ("Basic", "Advanced"),
+                     on_change=utils.reset_config_file)
     st.session_state["functionality"] = \
-        col1_2.radio("Functionality", ("Benchmark", "Fit", "Predict"))
+        col1_2.radio("Functionality", ("Benchmark", "Train", "Predict"),
+                     on_change=utils.reset_config_file)
     st.write("")
 
 elif configs_mode == "Config file .yaml":
@@ -52,6 +54,7 @@ st.session_state['data_uploaded'] = \
                            configs_mode)
 
 if configs_mode == "Manually":
+    utils.initialize_config_file()
     manual_configs_elements()
 
 col1, col2 = st.columns([1, 8])
@@ -71,8 +74,7 @@ if button:
                     print(yaml_file)
                     yaml_file["steps"] = {
                         "data": yaml_file["steps"]["data"],
-                        "benchmark": yaml_file["steps"]["benchmark"],
-                        "model": yaml_file["steps"]["model"]
+                        "benchmark": yaml_file["steps"]["benchmark"]
                     }
                     with open(utils.config_file_path, 'w') as file:
                         yaml.safe_dump(yaml_file, file,

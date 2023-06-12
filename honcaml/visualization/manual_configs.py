@@ -107,64 +107,94 @@ def baseline_model_configs(
         method = configs["method"]
         values = configs["values"]
         output_values = ""
-        if method == "choice":
-            output_values = \
-                [*st.multiselect(parameter, values, values,
-                                 help=helper[method],
-                                 key=model_name + '_' + parameter)]
-            if len(output_values) == 0:
-                st.warning("There must be at least one value selected")
 
-        elif method == "randint":
-            min_slider = 2
-            max_slider = values[1] * 3
-            output_values = \
-                [*st.slider(parameter, min_slider, max_slider, values,
-                            help=helper[method],
-                            key=model_name + '_' + parameter)]
+        if method in ["choice", "randint", "uniform"]:
+            col1, col3 = st.columns([7, 1])
+        elif method in ["qrandint", "quniform"]:
+            col1, col2, col3 = st.columns([5.5, 1.5, 1])
 
-        elif method == "qrandint":
-            min_slider = 2
-            max_slider = values[1] * 3
-            *values_slider, round_increment = values
-            col1, col2 = st.columns([4, 1])
-            output_values = \
-                [*col1.slider(parameter, min_slider, max_slider, values_slider,
-                              help=helper[method],
-                              key=model_name + '_' + parameter + '_slider')]
-            round_increment = \
-                col2.number_input("Round increment of", min_value=1,
-                                  value=round_increment,
-                                  key=model_name + '_' + parameter + '_increm')
-            output_values.append(round_increment)
+        print(model_configs)
 
-        elif method == "uniform":
-            min_slider = 0.0
-            max_slider = 1.0
-            output_values = \
-                [*st.slider(parameter, min_slider, max_slider,
-                            [float(val) for val in values], step=0.01,
-                            help=helper[method],
-                            key=model_name + '_' + parameter)]
+        use_config = \
+            col3.radio("Use config", ("custom", "default"),
+                       key=model_name+"_"+parameter+"_use_config")
 
-        elif method == "quniform":
-            min_slider = 0.0
-            max_slider = 1.0
-            *values_slider, round_increment = values
-            col1, col2 = st.columns([4, 1])
-            output_values = \
-                [*col1.slider(parameter, min_slider, max_slider,
-                              [float(val) for val in values_slider], step=0.01,
-                              help=helper[method],
-                              key=model_name + '_' + parameter)]
-            round_increment = \
-                col2.number_input("Round increment of", min_value=0.01,
-                                  value=round_increment,
-                                  key=model_name + '_' + parameter + '_increm')
-            output_values.append(round_increment)
+        if use_config == "custom":
+            st.session_state["default_configs"][model_name][parameter] = False
+        else:
+            st.session_state["default_configs"][model_name][parameter] = True
 
-        if output_values != [*values]:
-            model_configs[parameter]["values"] = output_values
+        if st.session_state["default_configs"][model_name][parameter]:
+            col1.write(parameter)
+            model_configs.pop(parameter)
+
+        else:
+            # add a multiselect to select input options when method is choice
+            if method == "choice":
+                output_values = \
+                    [*col1.multiselect(parameter, values, values,
+                                       help=helper[method],
+                                       key=model_name + '_' + parameter)]
+                if len(output_values) == 0:
+                    st.warning("There must be at least one value selected")
+
+            # add a slider to select input values when method is randint
+            elif method == "randint":
+                min_slider = 2
+                max_slider = values[1] * 3
+                output_values = \
+                    [*col1.slider(parameter, min_slider, max_slider, values,
+                                  help=helper[method],
+                                  key=model_name + '_' + parameter)]
+
+            # add a slider to select input values and a number input field to
+            # select the round increment when method is qrandint
+            elif method == "qrandint":
+                min_slider = 2
+                max_slider = values[1] * 3
+                *values_slider, round_increment = values
+                output_values = \
+                    [*col1.slider(parameter, min_slider, max_slider,
+                                  values_slider,
+                                  help=helper[method],
+                                  key=model_name + '_' + parameter + '_slider')]
+                round_increment = \
+                    col2.number_input("Round increment of", min_value=1,
+                                      value=round_increment,
+                                      key=model_name + '_' + parameter + '_increm')
+                output_values.append(round_increment)
+
+            # add a slider to select input values when method is uniform
+            elif method == "uniform":
+                min_slider = 0.0
+                max_slider = 1.0
+                output_values = \
+                    [*col1.slider(parameter, min_slider, max_slider,
+                                  [float(val) for val in values], step=0.01,
+                                  help=helper[method],
+                                  key=model_name + '_' + parameter)]
+
+            # add a slider to select input values and a number input field to
+            # select the round increment when method is quniform
+            elif method == "quniform":
+                min_slider = 0.0
+                max_slider = 1.0
+                *values_slider, round_increment = values
+                output_values = \
+                    [*col1.slider(parameter, min_slider, max_slider,
+                                  [float(val) for val in values_slider],
+                                  step=0.01,
+                                  help=helper[method],
+                                  key=model_name + '_' + parameter)]
+                round_increment = \
+                    col2.number_input("Round increment of", min_value=0.01,
+                                      value=round_increment,
+                                      key=model_name + '_' + parameter + '_increm')
+                output_values.append(round_increment)
+
+            # update the dictionary with the config file parameters
+            if output_values != [*values]:
+                model_configs[parameter]["values"] = output_values
 
 
 def data_preprocess_configs() -> None:
@@ -261,8 +291,19 @@ def benchmark_model_configs() -> None:
             "models": {}
         }
     }
+    # initialize default_configs dict if it doesn't exist
+    if "default_configs" not in st.session_state:
+        st.session_state["default_configs"] = {}
+
     cols_dist = [1, 4]
     for model_name in names_of_models[problem_type].keys():
+        # add a key for the model name in the default configs dict if it
+        # doesn't exist
+        if model_name not in st.session_state["default_configs"]:
+            st.session_state["default_configs"][model_name] = {}
+        # print(st.session_state["default_configs"])
+
+        # display configs input parameters
         col1, col2 = st.container().columns(cols_dist)
         if col1.checkbox(model_name,
                          True if model_name in defaults
@@ -276,7 +317,6 @@ def benchmark_model_configs() -> None:
                 st.session_state["config_file"]["steps"]["benchmark"] \
                     ["transform"]["models"][config_model_name]
             with col2:
-                # model_function(model_name, model_configs, default_params)
                 with st.expander(f"{model_name} configs:"):
                     baseline_model_configs(model_name, model_configs,
                                            default_params)
