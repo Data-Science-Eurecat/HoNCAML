@@ -58,6 +58,8 @@ def create_fig_visualization(results):
     Returns:
         fig: plotly figure
     """
+    height = int(len(results.index) / 3 + 3)
+
     results_melted = results[['model_configs'] + st.session_state["metrics"]] \
         .melt(
         id_vars=['model_configs'],
@@ -65,7 +67,6 @@ def create_fig_visualization(results):
         var_name='metric'
     )
 
-    height = int(sum(results_melted['metric'] == 'mean_squared_error') / 3 + 3)
     fig = px.bar(
         results_melted,
         x="value",
@@ -94,7 +95,7 @@ def display_best_hyperparameters() -> None:
     with open(yaml_file_path, 'r') as stream:
         config_file = yaml.safe_load(stream)
     hyperparams = ""
-    for elem, value in config_file['hyper_parameters'].items():
+    for elem, value in config_file['params'].items():
         hyperparams = hyperparams + '**' + elem + '**: **' + str(value) + \
                       '**, '
     hyperparams = hyperparams[:len(hyperparams) - 2]
@@ -121,3 +122,5 @@ def display_results(results_display) -> None:
         _, col2, _ = st.columns([1, 5, 1])
         col2.plotly_chart(st.session_state["fig"],
                           use_container_width=False)
+
+    st.write(f'Execution ID: {st.session_state["most_recent_execution"]}')

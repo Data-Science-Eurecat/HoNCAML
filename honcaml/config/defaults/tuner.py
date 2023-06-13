@@ -10,7 +10,10 @@ default_tuner = {
             "regression": "root_mean_square_error",
             "classification": "accuracy"
         },
-        "mode": "min"
+        "mode": {
+            "regression": "min",
+            "classification": "max"
+        }
     },
     "run_config": {
         "stop": {

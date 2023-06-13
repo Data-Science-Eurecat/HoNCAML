@@ -8,7 +8,6 @@ import visualization as viz
 # from streamlit_ttyd import terminal
 # from streamlit.components.v1 import iframe
 # from port_for import get_port
-utils.initialize_session_state()
 
 st.set_page_config(page_title="HoNCAML", layout="wide")
 

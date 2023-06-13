@@ -16,7 +16,8 @@ def run():
         # port = get_port((5000, 7000))
         # process = Popen(f'ttyd --port {port} --once honcaml -c config_file.yaml', shell=True)
         if st.session_state["configs_level"] == "Basic":
-            process = Popen(f'cd ../.. && honcaml -b config_file.yaml', shell=True)
+            process = Popen(f'cd ../.. && honcaml -b config_file.yaml',
+                            shell=True)
                             # , stdout=log, stderr=err)
         else:
             process = Popen(f'cd ../.. && honcaml -c config_file.yaml',

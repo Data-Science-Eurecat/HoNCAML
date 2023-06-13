@@ -3,11 +3,11 @@ import pandas as pd
 import copy
 import os
 import yaml
-
-data_file_path = "../../data/processed/data_file.csv"
-data_file_path_config_file = "data/processed/data_file.csv"
-config_file_path = "../../config_file.yaml"
-templates_path = "../config/templates/"
+from constants import (metrics_mode,
+                       data_file_path,
+                       data_file_path_config_file,
+                       config_file_path,
+                       templates_path)
 
 
 def change_configs_mode():
@@ -17,25 +17,6 @@ def change_configs_mode():
     """
     st.session_state["submit"] = False
     st.session_state["configs_level"] = "Advanced"
-
-
-def initialize_session_state():
-    st.session_state["regression_metrics"] = \
-        ["mean_squared_error", "mean_absolute_percentage_error",
-         "median_absolute_error", "r2_score", "mean_absolute_error",
-         "root_mean_square_error"]
-    st.session_state["classification_metrics"] = \
-        ["accuracy", "precision", "sensitivity", "specificity", "f1",
-         "roc_auc"]
-
-    # if "functionality" not in st.session_state:
-    #     st.session_state["functionality"] = "Benchmark"
-    if "features" not in st.session_state:
-        st.session_state["features"] = []
-    if "features_all" not in st.session_state:
-        st.session_state["features_all"] = []
-    if "benchmark_metrics" not in st.session_state:
-        st.session_state["benchmark_metrics"] = []
 
 
 def reset_config_file():
@@ -63,9 +44,13 @@ def initialize_config_file():
         st.session_state["config_file"]["steps"]["data"]["extract"][
             "filepath"] = data_file_path_config_file
 
-        if "benchmark" in st.session_state["config_file"]:
-            st.session_state["steps"]["benchmark"]["load"]["path"] = \
+        if "benchmark" in st.session_state["config_file"]["steps"]:
+            st.session_state["config_file"]["steps"]["benchmark"]["load"][
+                "path"] = \
                 "honcaml_reports"
+            st.session_state["config_file"]["steps"]["benchmark"]["load"][
+                "save_best_config_params"] = True
+
         if "target" in st.session_state:
             st.session_state["config_file"]["steps"]["data"]["extract"][
                 "target"] = [st.session_state["target"]]
@@ -82,7 +67,7 @@ def sidebar():
             "configuration parameters manually\n"
             "2. Press the `Run` button and wait until the execution finishes\n"
         )
-        st.markdown("---")
+        st.divider()
         st.markdown(
             "## About\n"
             "HoNCAML(Holistic No Code Automated Machine Learning) is a tool "
@@ -124,6 +109,10 @@ def upload_data_file(data_upload_col, data_preview_container, configs_mode):
                 (configs_mode == "Manually"):
             target = data_upload_col.selectbox("Target variable:", columns,
                                                key="target")
+            if "config_file" in st.session_state:
+                st.session_state["config_file"]["steps"]["data"]["extract"][
+                    "target"] = [st.session_state["target"]]
+
 
         features = copy.deepcopy(columns)
         if target in features:
@@ -167,13 +156,8 @@ def define_metrics():
     """
     Define possible metrics depending on the problem type
     """
-    if st.session_state["config_file"]["global"]["problem_type"] == \
-            "regression":
-        st.session_state["metrics"] = \
-            st.session_state["regression_metrics"]
-    else:
-        st.session_state["metrics"] = \
-            st.session_state["classification_metrics"]
+    problem_type = st.session_state["config_file"]["global"]["problem_type"]
+    st.session_state["metrics"] = list(metrics_mode[problem_type].keys())
 
 
 def write_uploaded_file(uploaded_file):

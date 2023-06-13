@@ -2,17 +2,9 @@ import streamlit as st
 import utils
 import copy
 from honcaml.config.defaults.search_spaces import default_search_spaces
+from honcaml.config.defaults.tuner import default_tuner
 from typing import Dict
-
-max_features_help = """
-    If “sqrt”, then max_features=sqrt(n_features).\n
-    If “log2”, then max_features=log2(n_features).\n
-    If None or 1.0, then max_features=n_features.\n
-    If int, then consider max_features features at each split.\n
-    If float, then max_features is a fraction and 
-    max(1, int(max_features * n_features_in_)) features are considered 
-    at each split.
-"""
+from constants import names_of_models, model_configs_helper, metrics_mode
 
 
 def basic_configs() -> None:
@@ -21,6 +13,9 @@ def basic_configs() -> None:
     session_state dictionary
     """
     col1, col2 = st.columns([1, 6])
+
+    if "features_all" not in st.session_state:
+        st.session_state["features_all"] = []
 
     st.session_state["config_file"]["global"]["problem_type"] = \
         col1.radio("Problem type", ('Regression', 'Classification')).lower()
@@ -31,65 +26,59 @@ def basic_configs() -> None:
     st.divider()
 
 
-def random_forest_configs(
-        model_configs: Dict, default_params: Dict) -> None:
+def data_preprocess_configs() -> None:
     """
-    Add input elements to set configurations to benchmark the Random Forest
-    model
+    Add input elements to set data preprocess configurations as normalization
+    of the features and of the target variables
     """
-    with st.expander("Random Forest configs:"):
-        col1, col2, col3, col4 = st.columns([4, 1.8, .7, 1.3])
-        configs = {}
-        max_features_default = {"sqrt", "log2", "1 (n_features)"}
-        if "max_features" not in st.session_state:
-            st.session_state["max_features"] = max_features_default
-        if "max_features_total" not in st.session_state:
-            st.session_state["max_features_total"] = max_features_default
+    st.write("Data Preprocess")
+    transform_data_session_state = st.session_state["config_file"]["steps"][
+        "data"]["transform"]["normalize"]
 
-        new_num = \
-            col2.number_input("Add another int or float", 2.0, 20.0, step=1.0)
+    # normalize features
+    col1, _, col2 = st.columns([6, .5, 1])
+    features_to_normalize = \
+        col1.multiselect("Features to normalize",
+                         st.session_state["config_file"]["steps"]["data"]
+                         ["extract"]["features"])
+    if len(features_to_normalize) > 0:
+        with_std = col2.radio("With std (features)", (True, False))
+        transform_data_session_state["features"] = {
+            "module": "sklearn.preprocessing.StandardScaler",
+            "params": {
+                "with_std": with_std,
+            },
+            "columns": features_to_normalize
+        }
+    else:
+        if "features" in transform_data_session_state:
+            transform_data_session_state.pop("features")
 
-        utils.align_button(col3)
-        button_add_new_num = col3.button("Add")
+    # normalize target variable
+    if "target" in st.session_state["config_file"]["steps"]["data"]["extract"]:
+        col1, _, col2 = st.columns([6, .5, 1])
+        target = st.session_state["config_file"]["steps"]["data"]["extract"][
+            "target"][0]
+        if col1.radio(f"Normalize target: {target}", (True, False), index=1):
+            target_with_std = col2.radio("With std (target)", (True, False))
+            transform_data_session_state["target"] = {
+                "module": "sklearn.preprocessing.StandardScaler",
+                "params": {
+                    "with_std": target_with_std
+                },
+                "columns": [target]
+            }
+        else:
+            if "target" in transform_data_session_state:
+                transform_data_session_state.pop("target")
+    else:
+        st.warning("Add datafile and select target variable firss to configure"
+                   " the preprocess step")
 
-        if button_add_new_num:
-            st.session_state["max_features"].add(new_num)
-            st.session_state["max_features_total"].add(new_num)
-
-        utils.align_button(col4)
-        reset_to_default_button = col4.button("Reset default")
-        if reset_to_default_button:
-            st.session_state["max_features_total"] = max_features_default
-            st.session_state["max_features"] = max_features_default
-
-        configs["max_features_raw"] = \
-            col1.multiselect("Max features:",
-                             st.session_state["max_features_total"],
-                             st.session_state["max_features"],
-                             help=max_features_help)
-
-        configs["n_estimators"] = \
-            st.slider("Number of estimators:", 0, 200, (50, 150))
-
-        # st.session_state["max_features"] = set(configs["max_features_raw"])
-
-
-helper = {
-    "uniform": "Sample a float uniformly between min and max values selected "
-               "on the slider",
-    "quniform": "Sample a float uniformly between min and max values selected "
-                "on the slider, rounding to increments of the value selected "
-                "on the number input field",
-    "randint": "Sample a integer uniformly between min (inclusive) and max "
-               "(exclusive) values selected on the slider",
-    "qrandint": "Sample a random uniformly between min (inclusive) and max "
-                "(inclusive (!)) values selected on the slider, rounding to "
-                "increments of the value selected on the number input field",
-    "choice": "Sample an option uniformly from the specified choices"
-}
+    st.divider()
 
 
-# TODO add possibility to add custom elements to multiselects
+# TODO add possibility to add custom elements to multi-selects
 def baseline_model_configs(
         model_name: str, model_configs: Dict, default_params: Dict) -> None:
     """
@@ -113,28 +102,29 @@ def baseline_model_configs(
         elif method in ["qrandint", "quniform"]:
             col1, col2, col3 = st.columns([5.5, 1.5, 1])
 
-        print(model_configs)
-
         use_config = \
             col3.radio("Use config", ("custom", "default"),
-                       key=model_name+"_"+parameter+"_use_config")
+                       key=model_name + "_" + parameter + "_use_config")
 
         if use_config == "custom":
             st.session_state["default_configs"][model_name][parameter] = False
         else:
             st.session_state["default_configs"][model_name][parameter] = True
 
+        # remove parameter from the config file, default value by sklearn will
+        # be used
         if st.session_state["default_configs"][model_name][parameter]:
             col1.write(parameter)
             model_configs.pop(parameter)
 
+        # add input options to set custom values to config the parameter
         else:
             # add a multiselect to select input options when method is choice
             if method == "choice":
                 output_values = \
                     [*col1.multiselect(parameter, values, values,
-                                       help=helper[method],
-                                       key=model_name + '_' + parameter)]
+                                       help=model_configs_helper[method],
+                                       key=f"{model_name}_{parameter}")]
                 if len(output_values) == 0:
                     st.warning("There must be at least one value selected")
 
@@ -144,8 +134,8 @@ def baseline_model_configs(
                 max_slider = values[1] * 3
                 output_values = \
                     [*col1.slider(parameter, min_slider, max_slider, values,
-                                  help=helper[method],
-                                  key=model_name + '_' + parameter)]
+                                  help=model_configs_helper[method],
+                                  key=f"{model_name}_{parameter}")]
 
             # add a slider to select input values and a number input field to
             # select the round increment when method is qrandint
@@ -156,12 +146,12 @@ def baseline_model_configs(
                 output_values = \
                     [*col1.slider(parameter, min_slider, max_slider,
                                   values_slider,
-                                  help=helper[method],
-                                  key=model_name + '_' + parameter + '_slider')]
+                                  help=model_configs_helper[method],
+                                  key=f"{model_name}_{parameter}_slider")]
                 round_increment = \
                     col2.number_input("Round increment of", min_value=1,
                                       value=round_increment,
-                                      key=model_name + '_' + parameter + '_increm')
+                                      key=f"{model_name}_{parameter}_increm")
                 output_values.append(round_increment)
 
             # add a slider to select input values when method is uniform
@@ -171,8 +161,8 @@ def baseline_model_configs(
                 output_values = \
                     [*col1.slider(parameter, min_slider, max_slider,
                                   [float(val) for val in values], step=0.01,
-                                  help=helper[method],
-                                  key=model_name + '_' + parameter)]
+                                  help=model_configs_helper[method],
+                                  key=f"{model_name}_{parameter}")]
 
             # add a slider to select input values and a number input field to
             # select the round increment when method is quniform
@@ -184,93 +174,17 @@ def baseline_model_configs(
                     [*col1.slider(parameter, min_slider, max_slider,
                                   [float(val) for val in values_slider],
                                   step=0.01,
-                                  help=helper[method],
-                                  key=model_name + '_' + parameter)]
+                                  help=model_configs_helper[method],
+                                  key=f"{model_name}_{parameter}")]
                 round_increment = \
                     col2.number_input("Round increment of", min_value=0.01,
                                       value=round_increment,
-                                      key=model_name + '_' + parameter + '_increm')
+                                      key=f"{model_name}_{parameter}_increm")
                 output_values.append(round_increment)
 
             # update the dictionary with the config file parameters
             if output_values != [*values]:
                 model_configs[parameter]["values"] = output_values
-
-
-def data_preprocess_configs() -> None:
-    """
-    Add input elements to set data preprocess configurations as normalization
-    of the features and of the target variables
-    """
-    st.write("Data Preprocess")
-
-    # normalize features
-    col1, _, col2 = st.columns([6, .5, 1])
-    features_to_normalize = \
-        col1.multiselect("Features to normalize",
-                         st.session_state["config_file"]["steps"]["data"]
-                         ["extract"]["features"])
-    if len(features_to_normalize) > 0:
-        with_std = col2.radio("With std (features)", (True, False))
-        st.session_state["config_file"]["steps"]["data"]["transform"] = \
-            {"normalize": {
-                "features": {
-                    "module": "sklearn.preprocessing.StandardScaler",
-                    "module_params": {
-                        "with_std": with_std
-                    },
-                    "columns": features_to_normalize
-                }
-            }}
-
-    # normalize target variable
-    col1, _, col2 = st.columns([6, .5, 1])
-    target = \
-        st.session_state["config_file"]["steps"]["data"]["extract"]["target"][0]
-    if col1.radio(f"Normalize target: {target}", (True, False), index=1):
-        target_with_std = col2.radio("With std (target)", (True, False))
-        target_normalization_dict = {
-            "module": "sklearn.preprocessing.StandardScaler",
-            "module_params": {
-                "with_std": target_with_std
-            },
-            "columns": [target]
-        }
-        if "transform" in st.session_state["config_file"]["steps"]["data"]:
-            st.session_state["config_file"]["steps"]["data"]["transform"] \
-                ["normalize"]["target"] = target_normalization_dict
-        else:  # when no other features are normalized
-            st.session_state["config_file"]["steps"]["data"]["transform"] = \
-                {"normalize": {
-                        "target": target_normalization_dict
-                }}
-
-    st.divider()
-
-
-# dictionary containing the display name of the model and the name of the model
-# to use in the configs file
-names_of_models = {
-    "regression": {
-        "Linear Regression": "sklearn.linear_model.LinearRegression",
-        "Random Forest Regressor": "sklearn.ensemble.RandomForestRegressor",
-        "Linear SVR": "sklearn.svm.LinearSVR",
-        "K-Neighbors Regressor": "sklearn.neighbors.KNeighborsRegressor",
-        "SGD Regressor": "sklearn.linear_model.SGDRegressor",
-        "Gradient Boosting Regressor":
-            "sklearn.ensemble.GradientBoostingRegressor",
-        "Elastic Net": "sklearn.linear_model.ElasticNet",
-    },
-    "classification": {
-        "Logistic Regression": "sklearn.linear_model.LogisticRegression",
-        "Random Forest Classifier": "sklearn.ensemble.RandomForestClassifier",
-        "Linear SVC": "sklearn.svm.LinearSVC",
-        "K-Neighbors Classifier": "sklearn.neighbors.KNeighborsClassifier",
-        "SGD Classifier": "sklearn.linear_model.SGDClassifier",
-        "Gradient Boosting Classifier":
-            "sklearn.ensemble.GradientBoostingClassifier"
-    }
-}
 
 
 def benchmark_model_configs() -> None:
@@ -280,18 +194,21 @@ def benchmark_model_configs() -> None:
     """
     st.write("Models")
     problem_type = st.session_state["config_file"]["global"]["problem_type"]
-    if problem_type == 'regression':
-        defaults = ("Linear Regression", "Random Forest Regressor")
-    else:
-        defaults = ("Logistic Regression", "Random Forest Classifier")
+    if problem_type == "regression":
+        default_models = ("Linear Regression", "Random Forest Regressor")
+    elif problem_type == "classification":
+        default_models = ("Logistic Regression", "Random Forest Classifier")
 
-    # initialize the config file benchmark dictionary
-    st.session_state["config_file"]["steps"]["benchmark"] = {
-        "transform": {
-            "models": {}
-        }
-    }
-    # initialize default_configs dict if it doesn't exist
+    # initially models is set as None, we need to set it as a dict to be able
+    # to add keys and values for each model
+    if not st.session_state["config_file"]["steps"]["benchmark"]["transform"][
+                "models"]:
+        st.session_state["config_file"]["steps"]["benchmark"]["transform"][
+            "models"] = {}
+
+    # initialize default_configs dict if it doesn't exist, this dictionary will
+    # be used to determine if we will add the configs of a feature, or we will
+    # delete it to use the default values set by sklearn
     if "default_configs" not in st.session_state:
         st.session_state["default_configs"] = {}
 
@@ -301,21 +218,25 @@ def benchmark_model_configs() -> None:
         # doesn't exist
         if model_name not in st.session_state["default_configs"]:
             st.session_state["default_configs"][model_name] = {}
-        # print(st.session_state["default_configs"])
 
-        # display configs input parameters
+        # display list of possible models as a checkbox
+        # by default only 2 models will be selected
         col1, col2 = st.container().columns(cols_dist)
         if col1.checkbox(model_name,
-                         True if model_name in defaults
+                         True if model_name in default_models
                          else False):
+
+            # initially, we set the default values
             config_model_name = names_of_models[problem_type][model_name]
-            default_params = default_search_spaces[problem_type] \
-                [config_model_name]
-            st.session_state["config_file"]["steps"]["benchmark"]["transform"] \
-                ["models"][config_model_name] = copy.deepcopy(default_params)
+            default_params = default_search_spaces[problem_type][
+                config_model_name]
+            st.session_state["config_file"]["steps"]["benchmark"]["transform"][
+                "models"][config_model_name] = copy.deepcopy(default_params)
             model_configs = \
-                st.session_state["config_file"]["steps"]["benchmark"] \
-                    ["transform"]["models"][config_model_name]
+                st.session_state["config_file"]["steps"]["benchmark"][
+                    "transform"]["models"][config_model_name]
+
+            # display configs input parameters
             with col2:
                 with st.expander(f"{model_name} configs:"):
                     baseline_model_configs(model_name, model_configs,
@@ -357,11 +278,15 @@ def cross_validation_configs() -> None:
     configuration arguments
     """
     st.write("Cross Validation")
-    col1, col2, _, col4, col5 = st.columns([2, 2, 1.3, 2, 2])
-    col1.radio("Strategy", ("k_fold", "none"))
-    col2.number_input("Number of splits", 2, 10, 2)
-    col4.radio("Shuffle", ("True", "False"))
-    col5.number_input("Random state:", 1, 100, 90)
+    # TODO: configure other strategies than kfold
+    n_splits = st.number_input("Number of splits", 2, 20, 3)
+
+    st.session_state["config_file"]["steps"]["benchmark"]["transform"][
+        "cross_validation"] = {
+            "module": "sklearn.model_selection.KFold",
+            "params": {"n_splits": n_splits}
+        }
+
     st.divider()
 
 
@@ -370,15 +295,29 @@ def tuner_configs() -> None:
     Display different input elements corresponding to the tuner configuration
     arguments
     """
+    # initialize the config file with the default values
+    problem_type = st.session_state["config_file"]["global"]["problem_type"]
+    st.session_state["config_file"]["steps"]["benchmark"]["transform"][
+        "tuner"] = copy.deepcopy(default_tuner)
+    config_tuner = st.session_state["config_file"]["steps"]["benchmark"][
+        "transform"]["tuner"]
+    default_metric = default_tuner["tune_config"]["metric"][problem_type]
+
+    # add input fields to change default values
     st.write("Tuner")
-    col1, col2, col3, col4, col5, col6 = st.columns([1, 1, 1.3, .5, 1, 1])
-    col1.radio("Search algorithm", ("OptunaSearch", "None"))
-    col2.number_input("Number of samples", 2, 100, 5)
-    col3.radio("Metric", st.session_state["metrics"])
-    col4.radio("Mode", ("min", "max"))
-    # auto select min or max depend on the selected metric
-    col5.number_input("Training iterations", 2, 10, 2)
-    col6.radio("Scheduler", ("HyperBandScheduler", "None"))
+    col1, col2, col3 = st.columns(3)
+    config_tuner["tune_config"]["num_samples"] = \
+        col1.number_input("Number of samples", 2, 100, 5)
+    config_tuner["tune_config"]["metric"] = \
+        col2.radio("Metric", st.session_state["metrics"],
+                   st.session_state["metrics"].index(default_metric))
+    config_tuner["tune_config"]["time_budget_s"] = \
+        col3.number_input("Time budget s", 10, 300, 120)
+    # automatically set the mode to min or max depending on the metric to
+    # optimize
+    config_tuner["tune_config"]["mode"] = \
+        metrics_mode[problem_type][config_tuner["tune_config"]["metric"]]
+
     st.divider()
 
 
@@ -391,11 +330,9 @@ def metrics_configs() -> None:
     benchmark_metrics = st.multiselect("Benchmark Metrics",
                                        st.session_state["metrics"],
                                        default=st.session_state["metrics"])
-    if benchmark_metrics != st.session_state["benchmark_metrics"]:
-        st.session_state["benchmark_metrics"] = benchmark_metrics
     if "benchmark" in st.session_state["config_file"]["steps"]:
-        st.session_state["config_file"]["steps"]["benchmark"]["transform"]\
-            ["metrics"] = benchmark_metrics
+        st.session_state["config_file"]["steps"]["benchmark"]["transform"][
+            "metrics"] = benchmark_metrics
     st.divider()
 
 
@@ -412,8 +349,11 @@ def manual_configs_elements() -> None:
         data_preprocess_configs()
         benchmark_model_configs()
         metrics_configs()
-        cross_validation_configs()
-        tuner_configs()
+        col1, col2 = st.columns([1, 3])
+        with col1:
+            cross_validation_configs()
+        with col2:
+            tuner_configs()
 
     elif st.session_state["functionality"] == "Fit":
         fit_model_configs()
