@@ -1,7 +1,9 @@
 import os
+import yaml
 import streamlit as st
 from subprocess import Popen
 from visualization import get_results_table, create_fig_visualization
+import utils
 
 
 def run():
@@ -15,14 +17,9 @@ def run():
         err = open('errors.txt', 'w')
         # port = get_port((5000, 7000))
         # process = Popen(f'ttyd --port {port} --once honcaml -c config_file.yaml', shell=True)
-        if st.session_state["configs_level"] == "Basic":
-            process = Popen(f'cd ../.. && honcaml -b config_file.yaml',
-                            shell=True)
-                            # , stdout=log, stderr=err)
-        else:
-            process = Popen(f'cd ../.. && honcaml -c config_file.yaml',
-                            shell=True)
-                            #, stdout=log, stderr=err)
+        process = Popen(f'cd ../.. && honcaml -c config_file.yaml',
+                        shell=True)
+                        #, stdout=log, stderr=err)
         # process = Popen(f'ls', shell=True, stdout=log, stderr=err)
         # host = "http://localhost"
         # iframe(f"{host}:{port}", height=400)
@@ -45,4 +42,15 @@ def generate_configs_file_yaml():
     Parse the input data introduced by the user and generate the config file in
     yaml format
     """
-    pass
+    with st.spinner("Reading configs and generating configuration "
+                    "file .yaml... ⏳"):
+        yaml_file = st.session_state["config_file"]
+        # make sure that the order of the steps is correct
+        yaml_file["steps"] = {
+            "data": yaml_file["steps"]["data"],
+            "benchmark": yaml_file["steps"]["benchmark"]
+        }
+        with open(utils.config_file_path, 'w') as file:
+            yaml.safe_dump(yaml_file, file,
+                           default_flow_style=False,
+                           sort_keys=False)

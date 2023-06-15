@@ -21,10 +21,13 @@ def change_configs_mode():
 
 def reset_config_file():
     """
-
+    Remove config file dictionary from session state and set as false "submit"
+    to remove results of previous executions
     """
     if "config_file" in st.session_state:
         st.session_state.pop("config_file")
+
+    st.session_state["submit"] = False
 
 
 def initialize_config_file():
@@ -91,7 +94,8 @@ def upload_data_file(data_upload_col, data_preview_container, configs_mode):
         **Train** dataset if the selected functionality is **Benchmark** or 
         **Fit**\n
         **Test** dataset if the selected functionality is **Predict**
-        """
+        """,
+        on_change=reset_config_file
     )
 
     if uploaded_train_data_file is not None:
@@ -113,17 +117,12 @@ def upload_data_file(data_upload_col, data_preview_container, configs_mode):
                 st.session_state["config_file"]["steps"]["data"]["extract"][
                     "target"] = [st.session_state["target"]]
 
-
         features = copy.deepcopy(columns)
         if target in features:
             features.remove(str(target))
         if features != st.session_state["features_all"]:
             st.session_state["features_all"] = features
         with data_preview_container.expander("Data preview"):
-            # st.write("Data preview")
-            # st.write(train_data.astype(str).head()
-            # .style.set_properties(**{'background-color': 'yellow'}
-            # ,subset=[target]))
             st.write(train_data.head())
         return True
 
@@ -146,7 +145,7 @@ def error_message():
 
 def align_button(col):
     """
-    Print two break lines to align text
+    Print two break lines to align buttons
     """
     col.write("\n")
     col.write("\n")
@@ -162,24 +161,15 @@ def define_metrics():
 
 def write_uploaded_file(uploaded_file):
     """
-    Write uploaded file
+    Read uploaded file, set the problem type, set the data filepath, and write
+    the config file in the config_file_path
     """
     config_file = yaml.safe_load(uploaded_file)
     st.session_state["config_file"]["global"]["problem_type"] = \
         config_file["global"]["problem_type"]
     config_file["steps"]["data"]["extract"]["filepath"] = \
         st.session_state["config_file"]["steps"]["data"]["extract"]["filepath"]
-    print("file read successfully")
-    with open(config_file_path, "w") as f:
-        yaml.safe_dump(config_file, f,
-                       default_flow_style=False, sort_keys=False)
-        f.close()
-
-
-def read_config_file():
-    """
-    Read config file and define the problem type in the session state
-    """
-    with open(config_file_path, 'r') as f:
-        config_file = yaml.safe_load(f)
-        f.close()
+    with open(config_file_path, "w") as file:
+        yaml.safe_dump(config_file, file,
+                       default_flow_style=False,
+                       sort_keys=False)

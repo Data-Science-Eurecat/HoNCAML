@@ -28,6 +28,12 @@ names_of_models = {
 }
 
 
+default_models = {
+    "regression": ("Linear Regression", "Random Forest Regressor"),
+    "classification": ("Logistic Regression", "Random Forest Classifier")
+}
+
+
 model_configs_helper = {
     "uniform": "Sample a float uniformly between min and max values selected "
                "on the slider",

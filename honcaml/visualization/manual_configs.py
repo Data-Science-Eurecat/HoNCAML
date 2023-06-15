@@ -4,7 +4,10 @@ import copy
 from honcaml.config.defaults.search_spaces import default_search_spaces
 from honcaml.config.defaults.tuner import default_tuner
 from typing import Dict
-from constants import names_of_models, model_configs_helper, metrics_mode
+from constants import (names_of_models,
+                       default_models,
+                       model_configs_helper,
+                       metrics_mode)
 
 
 def basic_configs() -> None:
@@ -194,17 +197,11 @@ def benchmark_model_configs() -> None:
     """
     st.write("Models")
     problem_type = st.session_state["config_file"]["global"]["problem_type"]
-    if problem_type == "regression":
-        default_models = ("Linear Regression", "Random Forest Regressor")
-    elif problem_type == "classification":
-        default_models = ("Logistic Regression", "Random Forest Classifier")
 
     # initially models is set as None, we need to set it as a dict to be able
     # to add keys and values for each model
-    if not st.session_state["config_file"]["steps"]["benchmark"]["transform"][
-                "models"]:
-        st.session_state["config_file"]["steps"]["benchmark"]["transform"][
-            "models"] = {}
+    st.session_state["config_file"]["steps"]["benchmark"]["transform"][
+        "models"] = {}
 
     # initialize default_configs dict if it doesn't exist, this dictionary will
     # be used to determine if we will add the configs of a feature, or we will
@@ -220,10 +217,10 @@ def benchmark_model_configs() -> None:
             st.session_state["default_configs"][model_name] = {}
 
         # display list of possible models as a checkbox
-        # by default only 2 models will be selected
+        # by default only 2 models will be selected (defined in default_models)
         col1, col2 = st.container().columns(cols_dist)
         if col1.checkbox(model_name,
-                         True if model_name in default_models
+                         True if model_name in default_models[problem_type]
                          else False):
 
             # initially, we set the default values
@@ -305,14 +302,13 @@ def tuner_configs() -> None:
 
     # add input fields to change default values
     st.write("Tuner")
-    col1, col2, col3 = st.columns(3)
+    col1, col2 = st.columns(2)
     config_tuner["tune_config"]["num_samples"] = \
         col1.number_input("Number of samples", 2, 100, 5)
     config_tuner["tune_config"]["metric"] = \
         col2.radio("Metric", st.session_state["metrics"],
                    st.session_state["metrics"].index(default_metric))
-    config_tuner["tune_config"]["time_budget_s"] = \
-        col3.number_input("Time budget s", 10, 300, 120)
+
     # automatically set the mode to min or max depending on the metric to
     # optimize
     config_tuner["tune_config"]["mode"] = \
@@ -323,7 +319,7 @@ def tuner_configs() -> None:
 
 def metrics_configs() -> None:
     """
-    Display a multiselect element of the possible benchmark metrics and writes
+    Display a multiselect element of the possible benchmark metrics and write
     them in the session_state dict
     """
     st.write("Metrics")
@@ -338,7 +334,7 @@ def metrics_configs() -> None:
 
 def manual_configs_elements() -> None:
     """
-    Add the manual configuration elements when selected the manual option
+    Add the manual configuration elements when the manual option is selected
     """
     st.markdown("**Basic Configurations**")
     basic_configs()
