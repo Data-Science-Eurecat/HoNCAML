@@ -73,9 +73,10 @@ def generate_unique_id(
 
 
 def update_dict_from_default_dict(
-        default_dict: Dict, source_dict: Dict, parent=None,
+        default_dict: Dict, source_dict: Dict, parent=None, grandparent=None,
         forbidden_parents: List = ['steps', 'models'],
-        forbidden_keys: List = ['fit', 'predict', 'benchmark']) -> Dict:
+        forbidden_keys: List = ['fit', 'predict', 'benchmark'],
+        forbidden_grandparents: List = ['models']) -> Dict:
     """
     Combines two configurations prevailing the second over the default one.
     In addition, it throws a recursion over the dictionary values.
@@ -88,8 +89,11 @@ def update_dict_from_default_dict(
         default_dict: Default configuration.
         source_dict: New configuration.
         parent: Parent key if there is any.
+        grandparent: Grandparent key if there is any.
         forbidden_parents: If parent is any of forbidden, do not include key.
         forbidden_keys: If key is any of forbidden, do not include key.
+        forbidden_grandparents: If grandparent is any of forbidden, do not
+        include key.
 
     Returns:
         A configuration with merged values.
@@ -99,12 +103,13 @@ def update_dict_from_default_dict(
     for key, value in default_dict.items():
         if key not in source_dict:
             if value and parent not in forbidden_parents and \
-               key not in forbidden_keys:
+               key not in forbidden_keys and \
+                    grandparent not in forbidden_grandparents:
                 source_dict[key] = value
         else:
             if isinstance(value, dict):
                 source_dict[key] = update_dict_from_default_dict(
-                    value, source_dict[key], key)
+                    value, source_dict[key], key, parent)
     return source_dict
 
 

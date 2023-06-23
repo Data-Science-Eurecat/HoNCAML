@@ -1,7 +1,9 @@
 import streamlit as st
+import numpy as np
 import utils
 import copy
 from honcaml.config.defaults.search_spaces import default_search_spaces
+from honcaml.config.defaults.model_step import default_model_step
 from honcaml.config.defaults.tuner import default_tuner
 from typing import Dict
 from constants import (names_of_models,
@@ -35,18 +37,16 @@ def data_preprocess_configs() -> None:
     of the features and of the target variables
     """
     st.write("Data Preprocess")
-    transform_data_session_state = st.session_state["config_file"]["steps"][
-        "data"]["transform"]["normalize"]
+    data_step = st.session_state["config_file"]["steps"]["data"]
 
     # normalize features
     col1, _, col2 = st.columns([6, .5, 1])
     features_to_normalize = \
         col1.multiselect("Features to normalize",
-                         st.session_state["config_file"]["steps"]["data"]
-                         ["extract"]["features"])
+                         data_step["extract"]["features"])
     if len(features_to_normalize) > 0:
         with_std = col2.radio("With std (features)", (True, False))
-        transform_data_session_state["features"] = {
+        data_step["transform"]["normalize"]["features"] = {
             "module": "sklearn.preprocessing.StandardScaler",
             "params": {
                 "with_std": with_std,
@@ -54,17 +54,17 @@ def data_preprocess_configs() -> None:
             "columns": features_to_normalize
         }
     else:
-        if "features" in transform_data_session_state:
-            transform_data_session_state.pop("features")
+        if "features" in data_step["transform"]["normalize"]:
+            data_step["transform"]["normalize"].pop("features")
 
     # normalize target variable
-    if "target" in st.session_state["config_file"]["steps"]["data"]["extract"]:
+    if data_step["extract"].get("target"):
         col1, _, col2 = st.columns([6, .5, 1])
-        target = st.session_state["config_file"]["steps"]["data"]["extract"][
+        target = data_step["extract"][
             "target"][0]
         if col1.radio(f"Normalize target: {target}", (True, False), index=1):
             target_with_std = col2.radio("With std (target)", (True, False))
-            transform_data_session_state["target"] = {
+            data_step["transform"]["normalize"]["target"] = {
                 "module": "sklearn.preprocessing.StandardScaler",
                 "params": {
                     "with_std": target_with_std
@@ -72,17 +72,135 @@ def data_preprocess_configs() -> None:
                 "columns": [target]
             }
         else:
-            if "target" in transform_data_session_state:
-                transform_data_session_state.pop("target")
+            if "target" in data_step["transform"]["normalize"]:
+                data_step["transform"]["normalize"].pop("target")
     else:
-        st.warning("Add datafile and select target variable firss to configure"
+        st.warning("Add datafile and select target variable first to configure"
                    " the preprocess step")
 
     st.divider()
 
 
+def train_model_params_configs(
+        model_configs: Dict, default_params: Dict) -> None:
+    """
+    Add input elements to set configurations to train the models
+
+    Args:
+        model_configs (Dict): configurations of the model that will be
+        applied when running the app, changes by the user on the input elements
+        will be updated in this dictionary
+        default_params (Dict): dictionary containing the default parameters,
+        values in this dictionary will not variate
+    """
+    for parameter, configs in default_params.items():
+        method = configs["method"]
+        values = configs["values"]
+        output_value = ""
+
+        col1, col2 = st.columns([7, 1])
+
+        use_config = \
+            col2.radio("Use config", ("custom", "default"),
+                       key=parameter + "_use_config")
+
+        if use_config == "custom":
+            st.session_state["default_configs"][parameter] = False
+        else:
+            st.session_state["default_configs"][parameter] = True
+
+        # remove parameter from the config file, default value by sklearn will
+        # be used
+        if st.session_state["default_configs"][parameter]:
+            col1.write(parameter)
+            model_configs.pop(parameter)
+
+        # add input options to set custom values to configure the parameter
+        else:
+            current_value = model_configs[parameter]
+            # add a multiselect to select input options when method is choice
+            if method == "choice":
+                output_value = \
+                    col1.multiselect(parameter, values, current_value,
+                                     key=parameter,
+                                     max_selections=1)
+                if len(output_value) == 0:
+                    st.warning("You must select one value")
+                else:
+                    output_value = output_value[0]
+
+            # add a slider to select input values when method is randint or
+            # qrandint
+            elif method in ["randint", "qrandint"]:
+                min_slider = 2
+                max_slider = values[1] * 3
+                output_value = \
+                    col1.slider(parameter, min_slider, max_slider,
+                                int(current_value),
+                                key=parameter)
+
+            # add a slider to select input values when method is uniform or
+            # quniform
+            elif method in ["uniform", "quniform"]:
+                min_slider = 0.0
+                max_slider = 1.0
+                output_value = \
+                    col1.slider(parameter, min_slider, max_slider,
+                                float(current_value), step=0.01,
+                                key=parameter)
+
+            # update the dictionary with the config file parameters
+            if output_value != model_configs[parameter]:
+                model_configs[parameter] = output_value
+
+
+def train_model_configs() -> None:
+    """
+    Display the input selector to select the model to train and its specific
+    configurations
+    """
+    st.write("Model")
+    problem_type = st.session_state["config_file"]["global"]["problem_type"]
+
+    # initialize default_configs dict, this dictionary will be used to
+    # determine if we will add the configs of a feature, or we will delete it
+    # to use the default values set by sklearn
+    st.session_state["default_configs"] = {}
+
+    col1, col2 = st.columns([1, 4])
+    model_name = col1.radio("Model", names_of_models[problem_type].keys(),
+                            index=1,  # Random Forest Regressor / Classifier
+                            label_visibility="hidden")
+
+    # initially, we set the default values
+
+    config_model_name = names_of_models[problem_type][model_name]
+    st.session_state["config_file"]["steps"]["model"]["transform"]["fit"][
+        "estimator"]["module"] = config_model_name
+
+    st.session_state["config_file"]["steps"]["model"]["transform"]["fit"][
+        "estimator"]["params"] = {}
+    model_configs = st.session_state["config_file"]["steps"]["model"][
+        "transform"]["fit"]["estimator"]["params"]
+    for param, config in default_search_spaces[problem_type][
+            config_model_name].items():
+        if config["method"] == "choice":
+            model_configs[param] = config["values"][0]
+        elif config["method"] in ["randint", "qrandint"]:
+            model_configs[param] = int(np.mean(config["values"][:2]))
+        elif config["method"] in ["uniform", "quniform"]:
+            model_configs[param] = float(np.mean(config["values"][:2]))
+
+    default_params = default_search_spaces[problem_type][config_model_name]
+
+    with col2:
+        train_model_params_configs(model_configs, default_params)
+
+    st.divider()
+
+
 # TODO add possibility to add custom elements to multi-selects
-def baseline_model_configs(
+def benchmark_model_params_configs(
         model_name: str, model_configs: Dict, default_params: Dict) -> None:
     """
     Add input elements to set configurations to benchmark the models
@@ -104,6 +222,8 @@ def baseline_model_configs(
             col1, col3 = st.columns([7, 1])
         elif method in ["qrandint", "quniform"]:
             col1, col2, col3 = st.columns([5.5, 1.5, 1])
+        else:
+            raise Exception("method not found in the known options")
 
         use_config = \
             col3.radio("Use config", ("custom", "default"),
@@ -216,7 +336,7 @@ def benchmark_model_configs() -> None:
         if model_name not in st.session_state["default_configs"]:
             st.session_state["default_configs"][model_name] = {}
 
-        # display list of possible models as a checkbox
+        # display list of possible models as a checkbox (multiple choice)
         # by default only 2 models will be selected (defined in default_models)
         col1, col2 = st.container().columns(cols_dist)
         if col1.checkbox(model_name,
@@ -236,25 +356,9 @@ def benchmark_model_configs() -> None:
             # display configs input parameters
             with col2:
                 with st.expander(f"{model_name} configs:"):
-                    baseline_model_configs(model_name, model_configs,
-                                           default_params)
+                    benchmark_model_params_configs(model_name, model_configs,
+                                                   default_params)
 
-    st.divider()
-
-
-def fit_model_configs() -> None:
-    """
-    Add input selector element to allow the user choose the model desired to
-    use to train
-    """
-    # st.write("Models")
-    col1, col2 = st.columns(2)
-    problem_type = st.session_state["config_file"]["global"]["problem_type"]
-    models_list = list(names_of_models[problem_type].keys())
-
-    model = col1.radio("Model", models_list)
-
-    col2.radio("Configs", ("model", "configs", "to", "be", "defined"))
     st.divider()
 
 
@@ -278,11 +382,18 @@ def cross_validation_configs() -> None:
     # TODO: configure other strategies than kfold
     n_splits = st.number_input("Number of splits", 2, 20, 3)
 
-    st.session_state["config_file"]["steps"]["benchmark"]["transform"][
-        "cross_validation"] = {
-            "module": "sklearn.model_selection.KFold",
-            "params": {"n_splits": n_splits}
-        }
+    if "benchmark" in st.session_state["config_file"]["steps"]:
+        st.session_state["config_file"]["steps"]["benchmark"]["transform"][
+            "cross_validation"] = {
+                "module": "sklearn.model_selection.KFold",
+                "params": {"n_splits": n_splits}
+            }
+    elif "model" in st.session_state["config_file"]["steps"]:
+        st.session_state["config_file"]["steps"]["model"]["transform"]["fit"][
+            "cross_validation"] = {
+                "module": "sklearn.model_selection.KFold",
+                "params": {"n_splits": n_splits}
+            }
 
     st.divider()
 
@@ -307,7 +418,7 @@ def tuner_configs() -> None:
         col1.number_input("Number of samples", 2, 100, 5)
     config_tuner["tune_config"]["metric"] = \
         col2.radio("Metric", st.session_state["metrics"],
-                   st.session_state["metrics"].index(default_metric))
+                   index=st.session_state["metrics"].index(default_metric))
 
     # automatically set the mode to min or max depending on the metric to
     # optimize
@@ -351,9 +462,15 @@ def manual_configs_elements() -> None:
         with col2:
             tuner_configs()
 
-    elif st.session_state["functionality"] == "Fit":
-        fit_model_configs()
+    elif st.session_state["functionality"] == "Train":
+        if st.session_state['configs_level'] == 'Advanced':
+            st.markdown("**Advanced Configurations**")
+            data_preprocess_configs()
+            train_model_configs()
+            cross_validation_configs()
+
     elif st.session_state["functionality"] == "Predict":
         if st.session_state['configs_level'] == 'Advanced':
+            st.markdown("**Advanced Configurations**")
             data_preprocess_configs()
         predict_model_configs()

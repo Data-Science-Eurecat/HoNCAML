@@ -2,9 +2,11 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 import yaml
+import os
+from constants import benchmark_results_path
 
 
-def get_results_table(most_recent_execution) -> pd.DataFrame:
+def get_results_table() -> pd.DataFrame:
     """
     Load and process the results.csv file generated during the benchmark
     execution and process it in order to be posteriorly used to create the
@@ -17,7 +19,10 @@ def get_results_table(most_recent_execution) -> pd.DataFrame:
         results: pandas dataframe with the processed data
     """
     # find the most recent execution folder
-    file_path = f'../../honcaml_reports/{most_recent_execution}/results.csv'
+    file_path = os.path.join('../../', benchmark_results_path,
+                             st.session_state["current_session"],
+                             st.session_state["most_recent_execution"],
+                             'results.csv')
     results = pd.read_csv(file_path)
 
     results['model'] = \
@@ -90,8 +95,10 @@ def display_best_hyperparameters() -> None:
     Display best model and hyperparameters after the benchmark
     """
     yaml_file_path = \
-        f'../../honcaml_reports/{st.session_state["most_recent_execution"]}' \
-        f'/best_config_params.yaml'
+        os.path.join('../../', benchmark_results_path,
+                     st.session_state["current_session"],
+                     st.session_state["most_recent_execution"],
+                     'best_config_params.yaml')
     with open(yaml_file_path, 'r') as stream:
         config_file = yaml.safe_load(stream)
     hyperparams = ""

@@ -3,7 +3,7 @@ import yaml
 import streamlit as st
 from subprocess import Popen
 from visualization import get_results_table, create_fig_visualization
-import utils
+from constants import benchmark_results_path, config_file_path
 
 
 def run():
@@ -16,10 +16,10 @@ def run():
         log = open('logs.txt', 'w')
         err = open('errors.txt', 'w')
         # port = get_port((5000, 7000))
-        # process = Popen(f'ttyd --port {port} --once honcaml -c config_file.yaml', shell=True)
+        # process = Popen(f'ttyd --port {port} --once honcaml -c
+        # config_file.yaml', shell=True)
         process = Popen(f'cd ../.. && honcaml -c config_file.yaml',
-                        shell=True)
-                        #, stdout=log, stderr=err)
+                        shell=True)  # , stdout=log, stderr=err)
         # process = Popen(f'ls', shell=True, stdout=log, stderr=err)
         # host = "http://localhost"
         # iframe(f"{host}:{port}", height=400)
@@ -29,10 +29,12 @@ def run():
 
 
 def process_results():
-    most_recent_execution = max(os.listdir('../../honcaml_reports'))
+    most_recent_execution = \
+        max(os.listdir(os.path.join('../../', benchmark_results_path,
+                                    st.session_state["current_session"])))
     st.session_state["most_recent_execution"] = most_recent_execution
 
-    st.session_state["results"] = get_results_table(most_recent_execution)
+    st.session_state["results"] = get_results_table()
     st.session_state["fig"] = create_fig_visualization(
         st.session_state["results"])
 
@@ -44,13 +46,22 @@ def generate_configs_file_yaml():
     """
     with st.spinner("Reading configs and generating configuration "
                     "file .yaml... ⏳"):
+
         yaml_file = st.session_state["config_file"]
         # make sure that the order of the steps is correct
-        yaml_file["steps"] = {
-            "data": yaml_file["steps"]["data"],
-            "benchmark": yaml_file["steps"]["benchmark"]
-        }
-        with open(utils.config_file_path, 'w') as file:
+        if "benchmark" in yaml_file["steps"]:
+            yaml_file["steps"] = {
+                "data": yaml_file["steps"]["data"],
+                "benchmark": yaml_file["steps"]["benchmark"]
+            }
+        elif "model" in yaml_file["steps"]:
+            yaml_file["steps"] = {
+                "data": yaml_file["steps"]["data"],
+                "model": yaml_file["steps"]["model"]
+            }
+
+        print(yaml_file)
+        with open(config_file_path, 'w') as file:
             yaml.safe_dump(yaml_file, file,
                            default_flow_style=False,
                            sort_keys=False)

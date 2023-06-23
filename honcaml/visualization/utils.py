@@ -3,11 +3,20 @@ import pandas as pd
 import copy
 import os
 import yaml
+import datetime
+import joblib
 from constants import (metrics_mode,
                        data_file_path,
                        data_file_path_config_file,
                        config_file_path,
-                       templates_path)
+                       templates_path,
+                       benchmark_results_path,
+                       model_results_path)
+
+
+def set_current_session():
+    """ """
+    return datetime.datetime.now().strftime('%Y%m%d-%H%M%S')
 
 
 def change_configs_mode():
@@ -19,15 +28,47 @@ def change_configs_mode():
     st.session_state["configs_level"] = "Advanced"
 
 
+def remove_previous_results():
+    """
+    Set session_state["submit"] as False to remove results from previous
+    executions
+    """
+    st.session_state["submit"] = False
+
+
 def reset_config_file():
     """
-    Remove config file dictionary from session state and set as false "submit"
-    to remove results of previous executions
+    When config file is removed or updated:
+     - Remove config file dictionary from session state
+     - Remove results from previous executions
     """
     if "config_file" in st.session_state:
         st.session_state.pop("config_file")
 
-    st.session_state["submit"] = False
+    remove_previous_results()
+
+
+def reset_data_file():
+    """
+    When data file is removed or updated:
+     - Remove target, features and transform keys from session state
+     - Remove results from previous executions
+    """
+    data_step = st.session_state["config_file"]["steps"]["data"]
+    if "target" in data_step["extract"]:
+        data_step["extract"].pop("target")
+    if "features" in data_step["extract"]:
+        data_step["extract"].pop("features")
+    st.session_state["features_all"] = []
+    if "transform" in data_step:
+        data_step["transform"]["normalize"]["features"]["params"]["with_std"] \
+            = None
+        data_step["transform"]["normalize"]["features"]["columns"] = []
+        data_step["transform"]["normalize"]["target"]["params"]["with_std"] \
+            = None
+        data_step["transform"]["normalize"]["target"]["columns"] = []
+
+    remove_previous_results()
 
 
 def initialize_config_file():
@@ -49,10 +90,16 @@ def initialize_config_file():
 
         if "benchmark" in st.session_state["config_file"]["steps"]:
             st.session_state["config_file"]["steps"]["benchmark"]["load"][
-                "path"] = \
-                "honcaml_reports"
+                "path"] = os.path.join(benchmark_results_path,
+                                       st.session_state["current_session"])
+
             st.session_state["config_file"]["steps"]["benchmark"]["load"][
                 "save_best_config_params"] = True
+
+        elif "model" in st.session_state["config_file"]["steps"]:
+            st.session_state["config_file"]["steps"]["model"]["load"]["path"] \
+                = os.path.join(model_results_path,
+                               st.session_state["current_session"])
 
         if "target" in st.session_state:
             st.session_state["config_file"]["steps"]["data"]["extract"][
@@ -95,7 +142,7 @@ def upload_data_file(data_upload_col, data_preview_container, configs_mode):
         **Fit**\n
         **Test** dataset if the selected functionality is **Predict**
         """,
-        on_change=reset_config_file
+        on_change=reset_data_file
     )
 
     if uploaded_train_data_file is not None:
@@ -130,11 +177,28 @@ def upload_data_file(data_upload_col, data_preview_container, configs_mode):
         return False
 
 
-def download_logs_button(col):
+def download_logs_button(col=st):
     with open('logs.txt', 'r') as logs_reader:
         col.download_button(label="Download logs as .txt",
                             data=logs_reader.read(),
                             file_name='logs.txt')
+
+
+def download_trained_model_button(col):
+    # define path to save the trained model
+    most_recent_execution = \
+        max(os.listdir(os.path.join('../../', model_results_path,
+                                    st.session_state["current_session"])))
+    filepath = os.path.join('../../', model_results_path,
+                            st.session_state["current_session"],
+                            most_recent_execution)
+    #model = joblib.load(filepath)
+    model = open(filepath, "r")
+    col.download_button(
+        label="Download trained model .sav",
+        data=model.read(),
+        file_name="trained_model.sav"
+    )
 
 
 def error_message():
@@ -173,3 +237,12 @@ def write_uploaded_file(uploaded_file):
         yaml.safe_dump(config_file, file,
                        default_flow_style=False,
                        sort_keys=False)
+
+
+def create_output_folder():
+    if "model" in st.session_state["config_file"]["steps"]:
+        path_name = \
+            st.session_state["config_file"]["steps"]["model"]["load"]["path"]
+        output_folder = os.path.join("../../", path_name)
+        if not os.path.exists(output_folder):
+            os.mkdir(output_folder)

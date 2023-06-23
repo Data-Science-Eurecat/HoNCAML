@@ -3,7 +3,8 @@ import streamlit as st
 from manual_configs import manual_configs_elements
 import app_execution
 import visualization as viz
-from utils import (sidebar,
+from utils import (set_current_session,
+                   sidebar,
                    change_configs_mode,
                    reset_config_file,
                    upload_data_file,
@@ -13,7 +14,9 @@ from utils import (sidebar,
                    config_file_path,
                    error_message,
                    download_logs_button,
-                   align_button)
+                   align_button,
+                   download_trained_model_button,
+                   create_output_folder)
 
 # from streamlit_ttyd import terminal
 # from streamlit.components.v1 import iframe
@@ -21,9 +24,13 @@ from utils import (sidebar,
 
 
 def main():
+    """Main execution function."""
     st.set_page_config(page_title="HoNCAML", layout="wide")
     st.header("HoNCAML")
     sidebar()
+
+    if "current_session" not in st.session_state:
+        st.session_state["current_session"] = set_current_session()
 
     col1, data_upload_col = st.columns(2)
     configs_mode = col1.radio("Introduce configurations via:",
@@ -90,6 +97,7 @@ def main():
             if configs_mode == "Manually":
                 with col2:
                     app_execution.generate_configs_file_yaml()
+                    create_output_folder()
                     app_execution.run()
 
             elif configs_mode == "Config file .yaml":
@@ -118,32 +126,48 @@ def main():
 
     if st.session_state.get("submit"):
 
-        col2_1, col2_2 = col2.columns([1, 4])
-        if st.session_state["process_poll"] == 0:
-            col2_2.success('Execution successful!', icon="✅")
-            st.session_state['execution_successful'] = True
-            app_execution.process_results()
-        else:
-            st.session_state['execution_successful'] = False
-            error_message()
+        if st.session_state["functionality"] == "Benchmark":
+            col2_1, col2_2 = col2.columns([1, 4])
+            if st.session_state["process_poll"] == 0:
+                col2_2.success('Execution successful!', icon="✅")
+                app_execution.process_results()
 
-        download_logs_button(col2_1)
+                viz.display_best_hyperparameters()
 
-        if st.session_state.get("execution_successful"):
+                col1, col2 = st.columns([1, 8])
+                results_display = col1.radio(
+                    "Display results as:", ("Table", "BarChart")
+                )
+                align_button(col2)
+                col2.download_button(
+                    label="Download results as .csv",
+                    data=st.session_state["results"].to_csv().encode('utf-8'),
+                    file_name='results.csv')
 
-            viz.display_best_hyperparameters()
+                viz.display_results(results_display)
 
-            col1, col2 = st.columns([1, 8])
-            results_display = col1.radio(
-                "Display results as:", ("Table", "BarChart")
-            )
-            align_button(col2)
-            col2.download_button(
-                label="Download results as .csv",
-                data=st.session_state["results"].to_csv().encode('utf-8'),
-                file_name='results.csv')
+            else:
+                error_message()
 
-            viz.display_results(results_display)
+            download_logs_button(col2_1)
+
+        elif st.session_state["functionality"] == "Train":
+            if st.session_state["process_poll"] == 0:
+                col2.success('Execution successful!', icon="✅")
+            else:
+                error_message()
+            pass
+            col1, col2 = st.columns(2)
+            download_logs_button(col1)
+            download_trained_model_button(col2)
+
+        elif st.session_state["functionality"] == "Test":
+            if st.session_state["process_poll"] == 0:
+                col2.success('Execution successful!', icon="✅")
+            else:
+                error_message()
+            pass
+            download_logs_button()
 
 
 if __name__ == '__main__':

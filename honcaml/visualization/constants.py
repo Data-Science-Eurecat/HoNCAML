@@ -2,6 +2,8 @@ data_file_path = "../../data/processed/data_file.csv"
 data_file_path_config_file = "data/processed/data_file.csv"
 config_file_path = "../../config_file.yaml"
 templates_path = "../config/templates/"
+benchmark_results_path = "honcaml_reports/"
+model_results_path = "data/models/"
 
 # dictionary containing the display name of the model and the name of the model
 # to use in the configs file
