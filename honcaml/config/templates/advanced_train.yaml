@@ -53,6 +53,13 @@ steps:
         cross_validation:
           module:
           params:
+        # If set, metrics computed in training process will be the one/s
+        # specified here. It is possible to use already existing metrics from
+        # sklearn, or even define custom metrics. See the documentation for
+        # more details.
+        # See: https://scikit-learn.org/stable/modules/classes.html#module-sklearn.metrics
+        # Both a list and a string (for a single metric) are accepted
+        metrics:
             
     load:
       # *REQ* Specify folder in which to store model object

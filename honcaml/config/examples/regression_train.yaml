@@ -54,10 +54,14 @@ steps:
           module: sklearn.ensemble.RandomForestRegressor
           params:
             n_estimators: 100
+            random_state: 4
         cross_validation:
           module: sklearn.model_selection.KFold
           params:
             n_splits: 3
+            random_state: 4
+            shuffle: True
+        metrics: mean_absolute_percentage_error
 
     load:
       path: data/models/

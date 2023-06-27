@@ -22,34 +22,33 @@ class EvaluateTest(unittest.TestCase):
         dataset._features = ['col1', 'col2']
         dataset._target = ['target1', 'target2']
         x, y = dataset.values
+        metrics = ['mean_absolute_error', 'root_mean_squared_error']
         cv_split = transform.CrossValidationSplit(
             **{'module': 'sklearn.model_selection.KFold',
                'params': {'n_splits': 2}})
-        train_settings = None
-        test_settings = None
         cv_results = evaluate.cross_validate_model(
-            model, x, y, cv_split, train_settings, test_settings)
+            model, x, y, cv_split, metrics)
         self.assertIsInstance(cv_results, dict)
 
-    def test_compute_regression_metrics(self):
+    def test_compute_metrics(self):
         y_true = pd.Series([1, 2, 3, 4])
-        y_pred = pd.Series([0.5, 1.5, 2.5, 3.5])
-        metrics = evaluate.compute_regression_metrics(y_true, y_pred)
-        self.assertIsInstance(metrics, dict)
-        self.assertTrue('mean_squared_error' in metrics)
-        self.assertTrue('mean_absolute_percentage_error' in metrics)
-        self.assertTrue('median_absolute_error' in metrics)
-        self.assertTrue('r2_score' in metrics)
-        self.assertTrue('mean_absolute_error' in metrics)
-        self.assertTrue('root_mean_square_error' in metrics)
+        y_pred = pd.Series([1.5, 1.5, 2.5, 3.5])
+        metrics = ['mean_absolute_error', 'root_mean_squared_error']
+        expected = {'mean_absolute_error': 0.5, 'root_mean_squared_error': 0.5}
+        result = evaluate.compute_metrics(y_true, y_pred, metrics)
+        self.assertDictEqual(expected, result)
 
-    def test_compute_classification_metrics(self):
+    def test_compute_root_mean_squared_error_metric(self):
+        y_true = pd.Series([1, 2, 3, 4])
+        y_pred = pd.Series([0.5, 2.5, 2.5, 3.5])
+        expected = 0.5
+        result = evaluate.compute_root_mean_squared_error_metric(
+            y_true, y_pred)
+        self.assertEqual(expected, result)
+
+    def test_compute_specificity_score_metric(self):
         y_true = pd.Series([0, 0, 1, 1])
-        y_pred = pd.Series([0, 1, 0, 1])
-        metrics = evaluate.compute_classification_metrics(y_true, y_pred)
-        self.assertIsInstance(metrics, dict)
-        self.assertTrue('accuracy' in metrics)
-        self.assertTrue('precision' in metrics)
-        self.assertTrue('sensitivity' in metrics)
-        self.assertTrue('specificity' in metrics)
-        self.assertTrue('f1' in metrics)
+        y_pred = pd.Series([0, 1, 1, 1])
+        expected = 0.5
+        result = evaluate.compute_specificity_score_metric(y_true, y_pred)
+        self.assertEqual(expected, result)

@@ -8,7 +8,7 @@ steps:
 
   model:
     extract:
-      filepath:
+      filepath: data/models/sklearn.trained_model.sav
     transform:
       predict:
-        path: honcaml_reports
+        path: reports

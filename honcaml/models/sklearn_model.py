@@ -6,7 +6,6 @@ from honcaml.models import base, evaluate
 from honcaml.tools import custom_typing as ct
 from honcaml.tools import utils
 from honcaml.tools.startup import logger
-from honcaml.exceptions import model as model_exceptions
 
 
 class SklearnModel(base.BaseModel):
@@ -132,26 +131,23 @@ class SklearnModel(base.BaseModel):
         """
         return self._estimator.predict(x)
 
-    def evaluate(self, x: ct.Dataset, y: ct.Dataset, **kwargs) -> Dict:
+    def evaluate(self, x: ct.Dataset, y: ct.Dataset, metrics: List,
+                 **kwargs) -> Dict:
         """
         Evaluates the estimator on the given dataset.
 
         Args:
             x: Dataset features.
             y: Dataset target.
+            metrics: Metrics to be computed.
             **kwargs: Extra parameters.
 
         Returns:
             Resulting metrics from the evaluation.
         """
         y_pred = self._estimator.predict(x)
-        if self._estimator_type == base.EstimatorType.regressor:
-            metrics = evaluate.compute_regression_metrics(y, y_pred)
-        elif self._estimator_type == base.EstimatorType.classifier:
-            metrics = evaluate.compute_classification_metrics(y, y_pred)
-        else:
-            raise model_exceptions.EstimatorTypeNotAllowed(
-                self._estimator_type)
+        metrics = utils.ensure_input_list(metrics)
+        metrics = evaluate.compute_metrics(y, y_pred, metrics)
         return metrics
 
     def save(self, settings: Dict) -> None:

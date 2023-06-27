@@ -6,7 +6,7 @@ default_tuner = {
     "tune_config": {
         "num_samples": 2,
         "metric": {
-            "regression": "root_mean_square_error",
+            "regression": "root_mean_squared_error",
             "classification": "accuracy"
         },
         "mode": {
