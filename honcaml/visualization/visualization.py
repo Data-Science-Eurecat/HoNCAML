@@ -4,6 +4,7 @@ import streamlit as st
 import yaml
 import os
 from constants import benchmark_results_path
+from honcaml.config.defaults.model_step import default_model_step
 
 
 def get_results_table() -> pd.DataFrame:
@@ -131,3 +132,21 @@ def display_results(results_display) -> None:
                           use_container_width=False)
 
     st.write(f'Execution ID: {st.session_state["most_recent_execution"]}')
+
+
+def display_results_train():
+    model_configs = st.session_state["config_file"]["steps"]["model"]
+    # get model and params specified in the config file
+    if model_configs["transform"].get("fit"):
+        model = model_configs["transform"]["fit"]["estimator"]["module"]
+        params = model_configs["transform"]["fit"]["estimator"]["params"]
+    # get model and params specified by default
+    else:
+        problem_type = st.session_state["config_file"]["global"][
+            "problem_type"]
+        model = default_model_step["transform"]["fit"]["estimator"][
+            problem_type]["module"]
+        params = default_model_step["transform"]["fit"]["estimator"][
+            problem_type]["params"]
+    st.write(f"Model: **{model}**")
+    st.write(f"Parameters: **{params}**")

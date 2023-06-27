@@ -11,7 +11,8 @@ from constants import (metrics_mode,
                        config_file_path,
                        templates_path,
                        benchmark_results_path,
-                       model_results_path)
+                       model_results_path,
+                       trained_model_file)
 
 
 def set_current_session():
@@ -88,20 +89,33 @@ def initialize_config_file():
         st.session_state["config_file"]["steps"]["data"]["extract"][
             "filepath"] = data_file_path_config_file
 
-        if "benchmark" in st.session_state["config_file"]["steps"]:
+        if st.session_state["functionality"] == "Benchmark":
+            # add results path
             st.session_state["config_file"]["steps"]["benchmark"]["load"][
                 "path"] = os.path.join(benchmark_results_path,
                                        st.session_state["current_session"])
-
+            # set save_best_config_params as True
             st.session_state["config_file"]["steps"]["benchmark"]["load"][
                 "save_best_config_params"] = True
 
-        elif "model" in st.session_state["config_file"]["steps"]:
+        elif st.session_state["functionality"] == "Train":
+            # add results path
             st.session_state["config_file"]["steps"]["model"]["load"]["path"] \
                 = os.path.join(model_results_path,
                                st.session_state["current_session"])
 
-        if "target" in st.session_state:
+        elif st.session_state["functionality"] == "Predict":
+            # add results path
+            st.session_state["config_file"]["steps"]["model"]["transform"][
+                "predict"]["path"] \
+                = os.path.join(model_results_path,
+                               st.session_state["current_session"])
+            # add model filepath
+            st.session_state["config_file"]["steps"]["model"]["extract"][
+                "filepath"] = trained_model_file
+
+        if ("target" in st.session_state) and \
+                (st.session_state["functionality"] != "Predict"):
             st.session_state["config_file"]["steps"]["data"]["extract"][
                 "target"] = [st.session_state["target"]]
 
@@ -192,13 +206,20 @@ def download_trained_model_button(col):
     filepath = os.path.join('../../', model_results_path,
                             st.session_state["current_session"],
                             most_recent_execution)
-    #model = joblib.load(filepath)
-    model = open(filepath, "r")
-    col.download_button(
-        label="Download trained model .sav",
-        data=model.read(),
-        file_name="trained_model.sav"
-    )
+
+    results_filepath = os.path.abspath(filepath)
+
+    # Temporary solution
+    st.write(f"The model is saved in the following path: {results_filepath}")
+
+    # TODO: add a button to download the sav file
+    # model = joblib.load(filepath)
+    # model = open(filepath, "r")
+    # col.download_button(
+    #    label="Download trained model .sav",
+    #    data=model.read(),
+    #    file_name="trained_model.sav"
+    # )
 
 
 def error_message():
@@ -240,9 +261,28 @@ def write_uploaded_file(uploaded_file):
 
 
 def create_output_folder():
-    if "model" in st.session_state["config_file"]["steps"]:
+    if st.session_state["functionality"] == "Train":
         path_name = \
             st.session_state["config_file"]["steps"]["model"]["load"]["path"]
-        output_folder = os.path.join("../../", path_name)
-        if not os.path.exists(output_folder):
-            os.mkdir(output_folder)
+    elif st.session_state["functionality"] == "Predict":
+        path_name = \
+            st.session_state["config_file"]["steps"]["model"]["transform"][
+                "predict"]["path"]
+    output_folder = os.path.join("../../", path_name)
+    if not os.path.exists(output_folder):
+        os.mkdir(output_folder)
+
+
+def download_predictions_button(col=st):
+    filepath = os.path.join(
+        "../..",
+        st.session_state["config_file"]["steps"]["model"]["transform"][
+            "predict"]["path"]
+    )
+    filename = max(os.listdir(filepath))
+    predictions = \
+        pd.read_csv(os.path.join(filepath, filename)).to_csv(index=False) \
+        .encode('utf-8')
+    col.download_button(label="Download predictions as .csv",
+                        data=predictions,
+                        file_name='predictions.csv')

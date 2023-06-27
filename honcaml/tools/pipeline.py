@@ -7,6 +7,7 @@ from honcaml.steps import model as model_step
 from honcaml.steps import benchmark as benchmark_step
 from honcaml.tools import utils
 
+import json
 
 class Pipeline:
     """
@@ -41,6 +42,7 @@ class Pipeline:
         self._metadata = {}
 
         self._setup_pipeline()
+
 
     def _setup_pipeline(self):
         """

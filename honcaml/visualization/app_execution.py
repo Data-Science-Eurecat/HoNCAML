@@ -49,12 +49,12 @@ def generate_configs_file_yaml():
 
         yaml_file = st.session_state["config_file"]
         # make sure that the order of the steps is correct
-        if "benchmark" in yaml_file["steps"]:
+        if st.session_state["functionality"] == "Benchmark":
             yaml_file["steps"] = {
                 "data": yaml_file["steps"]["data"],
                 "benchmark": yaml_file["steps"]["benchmark"]
             }
-        elif "model" in yaml_file["steps"]:
+        elif st.session_state["functionality"] == "Train":
             yaml_file["steps"] = {
                 "data": yaml_file["steps"]["data"],
                 "model": yaml_file["steps"]["model"]

@@ -16,7 +16,8 @@ from utils import (set_current_session,
                    download_logs_button,
                    align_button,
                    download_trained_model_button,
-                   create_output_folder)
+                   create_output_folder,
+                   download_predictions_button)
 
 # from streamlit_ttyd import terminal
 # from streamlit.components.v1 import iframe
@@ -70,7 +71,7 @@ def main():
             yaml.safe_load(st.text_area("Paste here your config file in json "
                                         "or yaml format"))
 
-    # upload data file
+    # upload data file, add data preview collapsable
     st.session_state['data_uploaded'] = \
         upload_data_file(data_upload_col,
                          data_preview_container,
@@ -80,6 +81,10 @@ def main():
     if configs_mode == "Manually":
         initialize_config_file()
         manual_configs_elements()
+
+        # add a preview of the config file
+        with st.expander("Config file preview"):
+            st.write(st.session_state)
 
     # add "Run" button to execute the app
     col1, col2 = st.columns([1, 8])
@@ -156,18 +161,20 @@ def main():
                 col2.success('Execution successful!', icon="✅")
             else:
                 error_message()
-            pass
+
             col1, col2 = st.columns(2)
+            viz.display_results_train()
             download_logs_button(col1)
             download_trained_model_button(col2)
 
-        elif st.session_state["functionality"] == "Test":
+        elif st.session_state["functionality"] == "Predict":
             if st.session_state["process_poll"] == 0:
                 col2.success('Execution successful!', icon="✅")
             else:
                 error_message()
-            pass
-            download_logs_button()
+            col1, col2 = st.columns([1, 3])
+            download_predictions_button(col1)
+            download_logs_button(col2)
 
 
 if __name__ == '__main__':

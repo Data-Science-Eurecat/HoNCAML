@@ -2,6 +2,8 @@ import streamlit as st
 import numpy as np
 import utils
 import copy
+import joblib
+import os
 from honcaml.config.defaults.search_spaces import default_search_spaces
 from honcaml.config.defaults.model_step import default_model_step
 from honcaml.config.defaults.tuner import default_tuner
@@ -60,8 +62,7 @@ def data_preprocess_configs() -> None:
     # normalize target variable
     if data_step["extract"].get("target"):
         col1, _, col2 = st.columns([6, .5, 1])
-        target = data_step["extract"][
-            "target"][0]
+        target = data_step["extract"]["target"][0]
         if col1.radio(f"Normalize target: {target}", (True, False), index=1):
             target_with_std = col2.radio("With std (target)", (True, False))
             data_step["transform"]["normalize"]["target"] = {
@@ -74,6 +75,11 @@ def data_preprocess_configs() -> None:
         else:
             if "target" in data_step["transform"]["normalize"]:
                 data_step["transform"]["normalize"].pop("target")
+
+    elif st.session_state["functionality"] == "Predict":
+        if "target" in data_step["transform"]["normalize"]:
+            data_step["transform"]["normalize"].pop("target")
+
     else:
         st.warning("Add datafile and select target variable first to configure"
                    " the preprocess step")
@@ -371,6 +377,14 @@ def predict_model_configs() -> None:
         "Upload your trained model",
         type=[".sav"],
     )
+    if uploaded_model:
+        print(uploaded_model)
+        model = joblib.load(uploaded_model)
+        print(model)
+        filepath = st.session_state["config_file"]["steps"]["model"]["extract"][
+            "filepath"]
+
+        joblib.dump(model, os.path.join("../..", filepath))
 
 
 def cross_validation_configs() -> None:
