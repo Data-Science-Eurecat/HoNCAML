@@ -98,10 +98,10 @@ def train_model_params_configs(
 
     Args:
         model_configs (Dict): configurations of the model that will be
-        applied when running the app, changes by the user on the input elements
-        will be updated in this dictionary
+            applied when running the app, changes by the user on the input
+            elements will be updated in this dictionary
         default_params (Dict): dictionary containing the default parameters,
-        values in this dictionary will not variate
+            values in this dictionary will not variate
     """
     for parameter, configs in default_params.items():
         method = configs["method"]

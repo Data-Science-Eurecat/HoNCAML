@@ -6,7 +6,7 @@ from visualization import get_results_table, create_fig_visualization
 from constants import benchmark_results_path, config_file_path
 
 
-def run():
+def run() -> None:
     """
     Create a subprocess to run the HoNCAML library
     """
@@ -28,7 +28,11 @@ def run():
         st.session_state["process_poll"] = process_poll
 
 
-def process_results():
+def process_results() -> None:
+    """
+    Find the most recent execution, create a table and a figure with the
+    results of the execution
+    """
     most_recent_execution = \
         max(os.listdir(os.path.join('../../', benchmark_results_path,
                                     st.session_state["current_session"])))
@@ -39,7 +43,7 @@ def process_results():
         st.session_state["results"])
 
 
-def generate_configs_file_yaml():
+def generate_configs_file_yaml() -> None:
     """
     Parse the input data introduced by the user and generate the config file in
     yaml format

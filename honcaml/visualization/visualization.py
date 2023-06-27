@@ -10,7 +10,11 @@ from honcaml.config.defaults.model_step import default_model_step
 def data_previsualization(
         data_preview_container: st.delta_generator.DeltaGenerator) -> None:
     """
+    Display a table with a preview of 5 lives of the data file
 
+    Args:
+        data_preview_container: Defines the streamlit container where to place
+            the table.
     """
     data = st.session_state["data_uploaded"]
     with data_preview_container.expander("Data preview"):

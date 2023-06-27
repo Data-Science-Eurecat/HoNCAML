@@ -23,10 +23,13 @@ def load_data_file(data: pd.DataFrame) -> None:
         data.to_csv(data_file_path, index=False)
 
 
-def load_uploaded_file(uploaded_file) -> None:
+def load_uploaded_file(uploaded_file: object) -> None:
     """
     Read uploaded config file, set the problem type, set the data filepath, and
     write the config file in the config_file_path.
+
+    Args:
+        uploaded_file: Uploaded config file.
     """
     config_file = yaml.safe_load(uploaded_file)
 
@@ -42,9 +45,12 @@ def load_uploaded_file(uploaded_file) -> None:
                        sort_keys=False)
 
 
-def load_trained_model(uploaded_model):
+def load_trained_model(uploaded_model: object) -> None:
     """
+    Load updated model and save it locally
 
+    Args:
+        uploaded_model: Uploaded trained model
     """
     model = joblib.load(uploaded_model)
     filepath = st.session_state["config_file"]["steps"]["model"]["extract"][
@@ -57,6 +63,9 @@ def download_benchmark_results_button(col: st.delta_generator.DeltaGenerator) \
         -> None:
     """
     Add button to download benchmark results after execution.
+
+    Args:
+        col: Defines the column where to place the button.
     """
     col.download_button(
         label="Download results as .csv",
@@ -95,6 +104,9 @@ def download_predictions_button(col: st.delta_generator.DeltaGenerator = st) \
         -> None:
     """
     Add button to download predictions after execution.
+
+    Args:
+        col: Defines the column where to place the button.
     """
     filepath = os.path.join(
         "../..",
@@ -113,6 +125,9 @@ def download_predictions_button(col: st.delta_generator.DeltaGenerator = st) \
 def download_logs_button(col: st.delta_generator.DeltaGenerator = st) -> None:
     """
     Add button to download execution logs.
+
+    Args:
+        col: Defines the column where to place the button.
     """
     with open('logs.txt', 'r') as logs_reader:
         col.download_button(label="Download logs as .txt",

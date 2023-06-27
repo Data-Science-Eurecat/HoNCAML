@@ -31,9 +31,9 @@ def remove_previous_results() -> None:
     st.session_state["submit"] = False
 
 
-def sidebar():
+def sidebar() -> None:
     """
-    Sidebar of the web page
+    Sidebar of the web page.
     """
     with st.sidebar:
         st.markdown(
@@ -58,7 +58,10 @@ def sidebar():
         )
 
 
-def error_message():
+def error_message() -> None:
+    """
+    Display an error message.
+    """
     with open('errors.txt') as errors_reader:
         st.error("**There was an error during the execution:**\n\n" +
                  errors_reader.read(), icon='🚨')
@@ -95,7 +98,7 @@ def create_output_folder() -> None:
 
 def warning(warning_type: str) -> None:
     """
-    Display a warning
+    Display a warning.
     """
     if warning_type == "data_file":
         st.warning('You must upload data file', icon="⚠️")
