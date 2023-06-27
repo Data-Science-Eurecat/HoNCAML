@@ -4,7 +4,7 @@ ENV_BIN = .venv/bin
 ## Targets
 .PHONY: build install execute $(DEBUG_EXAMPLE_TARGETS) $(TEST_EXAMPLE_TARGETS) run_tests
 
-develop: honcaml config/requirements.txt
+develop: honcaml requirements.txt
 	$(ENV_BIN)/python -m pip install -e .
 
 docs/build: docs/source
