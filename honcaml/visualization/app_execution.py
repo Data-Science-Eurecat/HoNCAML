@@ -19,7 +19,7 @@ def run():
         # process = Popen(f'ttyd --port {port} --once honcaml -c
         # config_file.yaml', shell=True)
         process = Popen(f'cd ../.. && honcaml -c config_file.yaml',
-                        shell=True)  # , stdout=log, stderr=err)
+                        shell=True, stdout=log, stderr=err)
         # process = Popen(f'ls', shell=True, stdout=log, stderr=err)
         # host = "http://localhost"
         # iframe(f"{host}:{port}", height=400)

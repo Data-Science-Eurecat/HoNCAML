@@ -1,123 +1,34 @@
 import streamlit as st
-import pandas as pd
-import copy
 import os
-import yaml
 import datetime
-import joblib
-from constants import (metrics_mode,
-                       data_file_path,
-                       data_file_path_config_file,
-                       config_file_path,
-                       templates_path,
-                       benchmark_results_path,
-                       model_results_path,
-                       trained_model_file)
+from constants import (metrics_mode)
 
 
-def set_current_session():
-    """ """
+def set_current_session() -> str:
+    """
+    Creates an unique session ID.
+
+    Returns:
+        unique session ID.
+    """
     return datetime.datetime.now().strftime('%Y%m%d-%H%M%S')
 
 
-def change_configs_mode():
+def change_configs_mode() -> None:
     """
     Reset values of "submit" and  "configs_level" when changing the value of
-    configs mode button
+    configs mode button.
     """
     st.session_state["submit"] = False
     st.session_state["configs_level"] = "Advanced"
 
 
-def remove_previous_results():
+def remove_previous_results() -> None:
     """
     Set session_state["submit"] as False to remove results from previous
-    executions
+    executions.
     """
     st.session_state["submit"] = False
-
-
-def reset_config_file():
-    """
-    When config file is removed or updated:
-     - Remove config file dictionary from session state
-     - Remove results from previous executions
-    """
-    if "config_file" in st.session_state:
-        st.session_state.pop("config_file")
-
-    remove_previous_results()
-
-
-def reset_data_file():
-    """
-    When data file is removed or updated:
-     - Remove target, features and transform keys from session state
-     - Remove results from previous executions
-    """
-    data_step = st.session_state["config_file"]["steps"]["data"]
-    if "target" in data_step["extract"]:
-        data_step["extract"].pop("target")
-    if "features" in data_step["extract"]:
-        data_step["extract"].pop("features")
-    st.session_state["features_all"] = []
-    if "transform" in data_step:
-        data_step["transform"]["normalize"]["features"]["params"]["with_std"] \
-            = None
-        data_step["transform"]["normalize"]["features"]["columns"] = []
-        data_step["transform"]["normalize"]["target"]["params"]["with_std"] \
-            = None
-        data_step["transform"]["normalize"]["target"]["columns"] = []
-
-    remove_previous_results()
-
-
-def initialize_config_file():
-    """
-
-    """
-    if "config_file" not in st.session_state:
-
-        file_name = f'{st.session_state["configs_level"].lower()}_' \
-                    f'{st.session_state["functionality"].lower()}.yaml'
-
-        # add config_file key
-        with open(os.path.join(templates_path, file_name), "r") as f:
-            st.session_state["config_file"] = yaml.safe_load(f)
-
-        # add data filepath
-        st.session_state["config_file"]["steps"]["data"]["extract"][
-            "filepath"] = data_file_path_config_file
-
-        if st.session_state["functionality"] == "Benchmark":
-            # add results path
-            st.session_state["config_file"]["steps"]["benchmark"]["load"][
-                "path"] = os.path.join(benchmark_results_path,
-                                       st.session_state["current_session"])
-            # set save_best_config_params as True
-            st.session_state["config_file"]["steps"]["benchmark"]["load"][
-                "save_best_config_params"] = True
-
-        elif st.session_state["functionality"] == "Train":
-            # add results path
-            st.session_state["config_file"]["steps"]["model"]["load"]["path"] \
-                = os.path.join(model_results_path,
-                               st.session_state["current_session"])
-
-        elif st.session_state["functionality"] == "Predict":
-            # add results path
-            st.session_state["config_file"]["steps"]["model"]["transform"][
-                "predict"]["path"] \
-                = os.path.join(model_results_path,
-                               st.session_state["current_session"])
-            # add model filepath
-            st.session_state["config_file"]["steps"]["model"]["extract"][
-                "filepath"] = trained_model_file
-
-        if ("target" in st.session_state) and \
-                (st.session_state["functionality"] != "Predict"):
-            st.session_state["config_file"]["steps"]["data"]["extract"][
-                "target"] = [st.session_state["target"]]
 
 
 def sidebar():
@@ -147,142 +58,51 @@ def sidebar():
         )
 
 
-def upload_data_file(data_upload_col, data_preview_container, configs_mode):
-    uploaded_train_data_file = data_upload_col.file_uploader(
-        "Upload your data file .csv",
-        type=[".csv"],
-        help="""
-        **Train** dataset if the selected functionality is **Benchmark** or 
-        **Fit**\n
-        **Test** dataset if the selected functionality is **Predict**
-        """,
-        on_change=reset_data_file
-    )
-
-    if uploaded_train_data_file is not None:
-
-        train_data = pd.read_csv(uploaded_train_data_file)
-        if os.path.exists(data_file_path):
-            train_data_saved = pd.read_csv(data_file_path)
-            if not train_data.equals(train_data_saved):
-                train_data.to_csv(data_file_path, index=False)
-        else:
-            train_data.to_csv(data_file_path, index=False)
-        target = ""
-        columns = train_data.columns.tolist()
-        if (st.session_state["functionality"] != "Predict") and \
-                (configs_mode == "Manually"):
-            target = data_upload_col.selectbox("Target variable:", columns,
-                                               key="target")
-            if "config_file" in st.session_state:
-                st.session_state["config_file"]["steps"]["data"]["extract"][
-                    "target"] = [st.session_state["target"]]
-
-        features = copy.deepcopy(columns)
-        if target in features:
-            features.remove(str(target))
-        if features != st.session_state["features_all"]:
-            st.session_state["features_all"] = features
-        with data_preview_container.expander("Data preview"):
-            st.write(train_data.head())
-        return True
-
-    else:
-        return False
-
-
-def download_logs_button(col=st):
-    with open('logs.txt', 'r') as logs_reader:
-        col.download_button(label="Download logs as .txt",
-                            data=logs_reader.read(),
-                            file_name='logs.txt')
-
-
-def download_trained_model_button(col):
-    # define path to save the trained model
-    most_recent_execution = \
-        max(os.listdir(os.path.join('../../', model_results_path,
-                                    st.session_state["current_session"])))
-    filepath = os.path.join('../../', model_results_path,
-                            st.session_state["current_session"],
-                            most_recent_execution)
-
-    results_filepath = os.path.abspath(filepath)
-
-    # Temporary solution
-    st.write(f"The model is saved in the following path: {results_filepath}")
-
-    # TODO: add a button to download the sav file
-    # model = joblib.load(filepath)
-    # model = open(filepath, "r")
-    # col.download_button(
-    #    label="Download trained model .sav",
-    #    data=model.read(),
-    #    file_name="trained_model.sav"
-    # )
-
-
 def error_message():
     with open('errors.txt') as errors_reader:
         st.error("**There was an error during the execution:**\n\n" +
                  errors_reader.read(), icon='🚨')
 
 
-def align_button(col):
+def define_metrics() -> None:
     """
-    Print two break lines to align buttons
-    """
-    col.write("\n")
-    col.write("\n")
-
-
-def define_metrics():
-    """
-    Define possible metrics depending on the problem type
+    Define possible metrics depending on the problem type.
     """
     problem_type = st.session_state["config_file"]["global"]["problem_type"]
     st.session_state["metrics"] = list(metrics_mode[problem_type].keys())
 
 
-def write_uploaded_file(uploaded_file):
+def create_output_folder() -> None:
     """
-    Read uploaded file, set the problem type, set the data filepath, and write
-    the config file in the config_file_path
+    Create output folder to save the trained model or the prediction results.
     """
-    config_file = yaml.safe_load(uploaded_file)
-    st.session_state["config_file"]["global"]["problem_type"] = \
-        config_file["global"]["problem_type"]
-    config_file["steps"]["data"]["extract"]["filepath"] = \
-        st.session_state["config_file"]["steps"]["data"]["extract"]["filepath"]
-    with open(config_file_path, "w") as file:
-        yaml.safe_dump(config_file, file,
-                       default_flow_style=False,
-                       sort_keys=False)
-
-
-def create_output_folder():
     if st.session_state["functionality"] == "Train":
         path_name = \
             st.session_state["config_file"]["steps"]["model"]["load"]["path"]
+
     elif st.session_state["functionality"] == "Predict":
         path_name = \
             st.session_state["config_file"]["steps"]["model"]["transform"][
                 "predict"]["path"]
+
+    else:
+        return
+
     output_folder = os.path.join("../../", path_name)
     if not os.path.exists(output_folder):
         os.mkdir(output_folder)
 
 
-def download_predictions_button(col=st):
-    filepath = os.path.join(
-        "../..",
-        st.session_state["config_file"]["steps"]["model"]["transform"][
-            "predict"]["path"]
-    )
-    filename = max(os.listdir(filepath))
-    predictions = \
-        pd.read_csv(os.path.join(filepath, filename)).to_csv(index=False) \
-        .encode('utf-8')
-    col.download_button(label="Download predictions as .csv",
-                        data=predictions,
-                        file_name='predictions.csv')
+def warning(warning_type: str) -> None:
+    """
+    Display a warning
+    """
+    if warning_type == "data_file":
+        st.warning('You must upload data file', icon="⚠️")
+
+    elif warning_type == "config_file":
+        st.warning('You must provide a configuration file', icon="⚠️")
+
+    elif warning_type == "text_area":
+        st.warning("You must introduce your configurations in the text area",
+                   icon="⚠️")

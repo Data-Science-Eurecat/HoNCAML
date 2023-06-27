@@ -1,31 +1,35 @@
-import streamlit as st
-import numpy as np
 import utils
 import copy
-import joblib
-import os
+import streamlit as st
+import numpy as np
+from typing import Dict
 from honcaml.config.defaults.search_spaces import default_search_spaces
 from honcaml.config.defaults.model_step import default_model_step
 from honcaml.config.defaults.tuner import default_tuner
-from typing import Dict
 from constants import (names_of_models,
                        default_models,
                        model_configs_helper,
                        metrics_mode)
+from extract import extract_trained_model
+from load import load_trained_model
 
 
 def basic_configs() -> None:
     """
-    Display basic configuration elements and saves the values in the
-    session_state dictionary
+    Display basic configuration elements and save the values in the
+    config_file dictionary
     """
+    st.markdown("**Basic Configurations**")
     col1, col2 = st.columns([1, 6])
 
     if "features_all" not in st.session_state:
         st.session_state["features_all"] = []
 
+    # add problem_type selector
     st.session_state["config_file"]["global"]["problem_type"] = \
         col1.radio("Problem type", ('Regression', 'Classification')).lower()
+
+    # add features selector
     st.session_state["config_file"]["steps"]["data"]["extract"]["features"] = \
         col2.multiselect("Features",
                          options=st.session_state["features_all"],
@@ -179,7 +183,6 @@ def train_model_configs() -> None:
                             label_visibility="hidden")
 
     # initially, we set the default values
-
     config_model_name = names_of_models[problem_type][model_name]
     st.session_state["config_file"]["steps"]["model"]["transform"]["fit"][
         "estimator"]["module"] = config_model_name
@@ -214,10 +217,10 @@ def benchmark_model_params_configs(
     Args:
         model_name (str): a string containing the name of the model
         model_configs (Dict): configurations of the model that will be
-        applied when running the app, changes by the user on the input elements
-        will be updated in this dictionary
+            applied when running the app, changes by the user on the input
+            elements will be updated in this dictionary
         default_params (Dict): dictionary containing the default parameters,
-        values in this dictionary will not variate
+            values in this dictionary will not variate
     """
     for parameter, configs in default_params.items():
         method = configs["method"]
@@ -368,25 +371,6 @@ def benchmark_model_configs() -> None:
     st.divider()
 
 
-def predict_model_configs() -> None:
-    """
-    Add a file uploader element to input the trained model to use to predict
-    accepting .sav type of files
-    """
-    uploaded_model = st.file_uploader(
-        "Upload your trained model",
-        type=[".sav"],
-    )
-    if uploaded_model:
-        print(uploaded_model)
-        model = joblib.load(uploaded_model)
-        print(model)
-        filepath = st.session_state["config_file"]["steps"]["model"]["extract"][
-            "filepath"]
-
-        joblib.dump(model, os.path.join("../..", filepath))
-
-
 def cross_validation_configs() -> None:
     """
     Display different input elements corresponding to the cross validation
@@ -461,30 +445,26 @@ def manual_configs_elements() -> None:
     """
     Add the manual configuration elements when the manual option is selected
     """
-    st.markdown("**Basic Configurations**")
     basic_configs()
     utils.define_metrics()
-    if st.session_state["configs_level"] == "Advanced" \
-            and st.session_state["functionality"] == "Benchmark":
+    if st.session_state["configs_level"] == "Advanced":
         st.markdown("**Advanced Configurations**")
         data_preprocess_configs()
-        benchmark_model_configs()
-        metrics_configs()
-        col1, col2 = st.columns([1, 3])
-        with col1:
-            cross_validation_configs()
-        with col2:
-            tuner_configs()
 
-    elif st.session_state["functionality"] == "Train":
-        if st.session_state['configs_level'] == 'Advanced':
-            st.markdown("**Advanced Configurations**")
-            data_preprocess_configs()
+        if st.session_state["functionality"] == "Benchmark":
+            benchmark_model_configs()
+            metrics_configs()
+            col1, col2 = st.columns([1, 3])
+            with col1:
+                cross_validation_configs()
+            with col2:
+                tuner_configs()
+
+        elif st.session_state["functionality"] == "Train":
             train_model_configs()
             cross_validation_configs()
 
-    elif st.session_state["functionality"] == "Predict":
-        if st.session_state['configs_level'] == 'Advanced':
-            st.markdown("**Advanced Configurations**")
-            data_preprocess_configs()
-        predict_model_configs()
+    if st.session_state["functionality"] == "Predict":
+        uploaded_model = extract_trained_model()
+        if uploaded_model:
+            load_trained_model(uploaded_model)

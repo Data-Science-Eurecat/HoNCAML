@@ -1,23 +1,34 @@
 import yaml
 import streamlit as st
 from manual_configs import manual_configs_elements
-import app_execution
-import visualization as viz
+from app_execution import (generate_configs_file_yaml,
+                           run,
+                           process_results)
+from visualization import (data_previsualization,
+                           display_best_hyperparameters,
+                           display_results_train,
+                           display_results)
+from constants import config_file_path
 from utils import (set_current_session,
                    sidebar,
-                   change_configs_mode,
-                   reset_config_file,
-                   upload_data_file,
-                   initialize_config_file,
-                   write_uploaded_file,
                    define_metrics,
-                   config_file_path,
                    error_message,
-                   download_logs_button,
-                   align_button,
-                   download_trained_model_button,
                    create_output_folder,
-                   download_predictions_button)
+                   warning)
+from define_config_file import (initialize_config_file)
+from extract import (extract_configs_mode,
+                     extract_configs_level,
+                     extract_functionality,
+                     extract_configs_file_yaml,
+                     extract_configs_file_text_area,
+                     extract_data_file,
+                     extract_target)
+from load import (load_data_file,
+                  load_uploaded_file,
+                  download_logs_button,
+                  download_trained_model_button,
+                  download_predictions_button,
+                  download_benchmark_results_button)
 
 # from streamlit_ttyd import terminal
 # from streamlit.components.v1 import iframe
@@ -26,6 +37,8 @@ from utils import (set_current_session,
 
 def main():
     """Main execution function."""
+
+    # set page configs
     st.set_page_config(page_title="HoNCAML", layout="wide")
     st.header("HoNCAML")
     sidebar()
@@ -34,10 +47,9 @@ def main():
         st.session_state["current_session"] = set_current_session()
 
     col1, data_upload_col = st.columns(2)
-    configs_mode = col1.radio("Introduce configurations via:",
-                              ("Manually", "Config file .yaml",
-                               "Paste your configs"),
-                              on_change=change_configs_mode)
+
+    # define configs mode: Manually, Config file .yaml, or Paste your configs
+    configs_mode = extract_configs_mode(col1)
     col1.write("")
 
     # place the data preview container before the configs mode selector
@@ -48,34 +60,28 @@ def main():
     # train or test
     if configs_mode == "Manually":
         col1_1, col1_2 = col1.columns(2)
-        st.session_state["configs_level"] = \
-            col1_1.radio("Configurations", ("Basic", "Advanced"),
-                         on_change=reset_config_file)
-        st.session_state["functionality"] = \
-            col1_2.radio("Functionality", ("Benchmark", "Train", "Predict"),
-                         on_change=reset_config_file)
+        st.session_state["configs_level"] = extract_configs_level(col1_1)
+        st.session_state["functionality"] = extract_functionality(col1_2)
         st.write("")
 
     # if "Config file .yaml" option selected, add file uploader yaml
     elif configs_mode == "Config file .yaml":
-        col1.file_uploader(
-            "Upload your configurations file .yaml",
-            type=[".yaml"],
-            key="uploaded_file"
-        )
+        extract_configs_file_yaml(col1)
 
     # if "Paste your configs" option selected, add text input area to paste or
     # write the configs
     elif configs_mode == "Paste your configs":
-        st.session_state["text_area"] = \
-            yaml.safe_load(st.text_area("Paste here your config file in json "
-                                        "or yaml format"))
+        st.session_state["text_area"] = extract_configs_file_text_area()
 
     # upload data file, add data preview collapsable
-    st.session_state['data_uploaded'] = \
-        upload_data_file(data_upload_col,
-                         data_preview_container,
-                         configs_mode)
+    extract_data_file(data_upload_col)
+    if st.session_state.get("data_uploaded") is not None:
+        # load data locally
+        load_data_file(st.session_state["data_uploaded"])
+        # add target selector
+        extract_target(data_upload_col, configs_mode)
+        # pre-visualize data
+        data_previsualization(data_preview_container)
 
     # if "Manual" option selected, add manual configuration elements
     if configs_mode == "Manually":
@@ -93,28 +99,23 @@ def main():
     # when the "Run" button is pressed, execute the app
     if button:
         # check that the datafile is uploaded
-        if not st.session_state["data_uploaded"]:
-            st.session_state["submit"] = False
-            st.warning('You must upload data file', icon="⚠️")
-        else:
+        if st.session_state.get("data_uploaded") is not None:
             st.session_state["submit"] = True
 
             if configs_mode == "Manually":
                 with col2:
-                    app_execution.generate_configs_file_yaml()
+                    generate_configs_file_yaml()
                     create_output_folder()
-                    app_execution.run()
+                    run()
 
             elif configs_mode == "Config file .yaml":
                 if "uploaded_file" in st.session_state:
-                    write_uploaded_file(
-                        st.session_state["uploaded_file"])
+                    load_uploaded_file(st.session_state["uploaded_file"])
                     define_metrics()
                     with col2:
-                        app_execution.run()
+                        run()
                 else:
-                    st.warning('You must provide a configuration file',
-                               icon="⚠️")
+                    warning("config_file")
 
             elif configs_mode == "Paste your configs":
                 with open(config_file_path, "w") as file:
@@ -123,11 +124,13 @@ def main():
                                        default_flow_style=False,
                                        sort_keys=False)
                         with col2:
-                            app_execution.run()
+                            run()
                     else:
-                        st.warning("You must introduce your configurations in "
-                                   "the text area",
-                                   icon="⚠️")
+                        warning("text_area")
+
+        else:
+            st.session_state["submit"] = False
+            warning("data_file")
 
     if st.session_state.get("submit"):
 
@@ -135,21 +138,19 @@ def main():
             col2_1, col2_2 = col2.columns([1, 4])
             if st.session_state["process_poll"] == 0:
                 col2_2.success('Execution successful!', icon="✅")
-                app_execution.process_results()
+                process_results()
 
-                viz.display_best_hyperparameters()
+                display_best_hyperparameters()
 
                 col1, col2 = st.columns([1, 8])
                 results_display = col1.radio(
                     "Display results as:", ("Table", "BarChart")
                 )
-                align_button(col2)
-                col2.download_button(
-                    label="Download results as .csv",
-                    data=st.session_state["results"].to_csv().encode('utf-8'),
-                    file_name='results.csv')
+                col2.write("\n")
+                col2.write("\n")
+                download_benchmark_results_button(col2)
 
-                viz.display_results(results_display)
+                display_results(results_display)
 
             else:
                 error_message()
@@ -163,9 +164,9 @@ def main():
                 error_message()
 
             col1, col2 = st.columns(2)
-            viz.display_results_train()
+            display_results_train()
             download_logs_button(col1)
-            download_trained_model_button(col2)
+            download_trained_model_button()
 
         elif st.session_state["functionality"] == "Predict":
             if st.session_state["process_poll"] == 0:

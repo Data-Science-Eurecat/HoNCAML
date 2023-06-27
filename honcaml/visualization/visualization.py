@@ -7,17 +7,24 @@ from constants import benchmark_results_path
 from honcaml.config.defaults.model_step import default_model_step
 
 
+def data_previsualization(
+        data_preview_container: st.delta_generator.DeltaGenerator) -> None:
+    """
+
+    """
+    data = st.session_state["data_uploaded"]
+    with data_preview_container.expander("Data preview"):
+        st.write(data.head())
+
+
 def get_results_table() -> pd.DataFrame:
     """
     Load and process the results.csv file generated during the benchmark
     execution and process it in order to be posteriorly used to create the
-    visualization
-
-    Args:
-        most_recent_execution: date and time of the most recent execution
+    visualization.
 
     Returns:
-        results: pandas dataframe with the processed data
+        results: Pandas dataframe with the processed data.
     """
     # find the most recent execution folder
     file_path = os.path.join('../../', benchmark_results_path,
@@ -54,15 +61,15 @@ def get_results_table() -> pd.DataFrame:
     return results
 
 
-def create_fig_visualization(results):
+def create_fig_visualization(results) -> object:
     """
-    Creates a comparison visualization of the trained models and their metrics
+    Creates a comparison visualization of the trained models and their metrics.
 
     Args:
-        results: pandas dataframe containing the models and metrics values
+        results: Pandas dataframe containing the models and metrics values.
 
     Returns:
-        fig: plotly figure
+        fig: Plotly figure.
     """
     height = int(len(results.index) / 3 + 3)
 
@@ -93,7 +100,7 @@ def create_fig_visualization(results):
 
 def display_best_hyperparameters() -> None:
     """
-    Display best model and hyperparameters after the benchmark
+    Display best model and hyperparameters after running the benchmark.
     """
     yaml_file_path = \
         os.path.join('../../', benchmark_results_path,
@@ -115,9 +122,13 @@ def display_best_hyperparameters() -> None:
     )
 
 
-def display_results(results_display) -> None:
+def display_results(results_display: str) -> None:
     """
-    Display results in the form of table or barchart
+    Display results in the form of table or barchart.
+
+    Args:
+        results_display: ["Table", "BarChart"] Define the format of the results
+            display
     """
     if results_display == "Table":
         results_table = st.session_state["results"] \
@@ -134,7 +145,10 @@ def display_results(results_display) -> None:
     st.write(f'Execution ID: {st.session_state["most_recent_execution"]}')
 
 
-def display_results_train():
+def display_results_train() -> None:
+    """
+    Display name of the trained model and the hyperparameters used.
+    """
     model_configs = st.session_state["config_file"]["steps"]["model"]
     # get model and params specified in the config file
     if model_configs["transform"].get("fit"):
