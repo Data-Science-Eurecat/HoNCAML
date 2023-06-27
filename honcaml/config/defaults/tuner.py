@@ -7,10 +7,13 @@ default_tuner = {
         "time_budget_s": 10,
         "num_samples": 2,
         "metric": {
-            "regression": "root_mean_square_error",
+            "regression": "root_mean_squared_error",
             "classification": "accuracy"
         },
-        "mode": "min"
+        "mode": {
+            "regression": "min",
+            "classification": "max"
+        }
     },
     "run_config": {
         "stop": {

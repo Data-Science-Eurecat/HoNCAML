@@ -20,7 +20,7 @@ class ResultGridMockUp:
     @staticmethod
     def get_dataframe():
         data = {
-            'root_mean_square_error': [4, 3, 2, 1],
+            'root_mean_squared_error': [4, 3, 2, 1],
             'mean_squared_error': [1] * 4,
             'mean_absolute_percentage_error': [2] * 4,
             'median_absolute_error': [3] * 4,
@@ -54,7 +54,7 @@ class BenchmarkTest(unittest.TestCase):
                     'median_absolute_error',
                     'r2_score',
                     'mean_absolute_error',
-                    'root_mean_square_error',
+                    'root_mean_squared_error',
                 ],
                 'models': {
                     'sklearn.ensemble.RandomForestRegressor': {
@@ -83,7 +83,7 @@ class BenchmarkTest(unittest.TestCase):
                     },
                     'tune_config': {
                         'num_samples': 5,
-                        'metric': 'root_mean_square_error',
+                        'metric': 'root_mean_squared_error',
                         'mode': 'min',
                     },
                     'run_config': {
@@ -109,7 +109,7 @@ class BenchmarkTest(unittest.TestCase):
         self.tuner_settings = self.settings['transform']['tuner']
 
         data = {
-            'root_mean_square_error': [4, 3, 2, 1],
+            'root_mean_squared_error': [4, 3, 2, 1],
             'config/metric': ['metric'] * 4,
             'config/model_module': ['fake.module.Class1',
                                     'fake.module.Class2',
@@ -208,7 +208,7 @@ class BenchmarkTest(unittest.TestCase):
 
         # Test _filter_results_dataframe
         results = {
-            'root_mean_square_error': [4, 3, 2, 1],
+            'root_mean_squared_error': [4, 3, 2, 1],
             'config/cv_split': [object, object, object, object],
             'config/dataset': [object, object, object, object],
         }
@@ -224,13 +224,13 @@ class BenchmarkTest(unittest.TestCase):
         # Test _sort_results
         df = ben._sort_results(results_df)
         self.assertListEqual(
-            df['root_mean_square_error'].values.tolist(), [1, 2, 3, 4])
+            df['root_mean_squared_error'].values.tolist(), [1, 2, 3, 4])
 
         # Set mode to 'max'
         ben._mode = 'max'
         df = ben._sort_results(results_df)
         self.assertListEqual(
-            df['root_mean_square_error'].values.tolist(), [4, 3, 2, 1])
+            df['root_mean_squared_error'].values.tolist(), [4, 3, 2, 1])
 
         # Test get_best_result with 'max' mode
         ben._get_best_result(self.result_df, results_df.dtypes.to_dict())
@@ -246,13 +246,13 @@ class BenchmarkTest(unittest.TestCase):
 
         # Test get_best_metrics
         results = {
-            'root_mean_square_error': [4, 1, 2, 2],
+            'root_mean_squared_error': [4, 1, 2, 2],
             'fake_metrics_1': [1, 2, 3, 4],
             'fake_metric_2': [100, 200, 300, 400]
         }
         metrics_df = pd.DataFrame(results)
         best_metric = ben._get_best_metrics(metrics_df)
-        self.assertDictEqual({'root_mean_square_error': 4}, best_metric)
+        self.assertDictEqual({'root_mean_squared_error': 4}, best_metric)
 
         # Test get_best_model_and_params_dict
         best_config_dict = ben.get_best_model_and_hyperparams_dict()

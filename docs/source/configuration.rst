@@ -247,7 +247,7 @@ cross-validation. The available configurations are the following:
 - **fit** (dict [#comp3]_): Requests a model training on the current dataset. It
   may have the following additional information:
 
-  - **estimator_config** (dict, optional): Sppecifies the estimator and its
+  - **estimator** (dict, optional): Sppecifies the estimator and its
     hyperparameters. Consists of the following:
     - **module** (str, optional): Learner module to use.
     - **params** (dict, optional): Additional parameters to pass to module
@@ -260,16 +260,36 @@ cross-validation. The available configurations are the following:
     regression and ``sklearn.ensemble.RandomForestClassifier`` for
     classification problems, both with ``n_estimator`` equal to 100.
 
-    - **cross_validation** (dict, optional): Defines which cross-validation
-      strategy to use for training the model. Dictionary may have the following keys:
-      - **module** (str, optional): Cross validation module to use.
-      - **params** (dict, optional): Additional parameters to pass to module
-      class.
+  - **cross_validation** (dict, optional): Defines which cross-validation
+    strategy to use for training the model. Dictionary may have the following keys:
+    - **module** (str, optional): Cross validation module to use.
+    - **params** (dict, optional): Additional parameters to pass to module
+    class.
 
-      Any cross validation method in `sklearn cross-validation
-      <https://scikit-learn.org/stable/modules/cross_validation.html#cross-validation-iterators>`_
-      should work, provided that it follows their consistent structure.
-      Default: ``sklearn.model_selection.KFold`` with 3 splits.
+    Any cross validation method in `sklearn cross-validation
+    <https://scikit-learn.org/stable/modules/cross_validation.html#cross-validation-iterators>`_
+    should work, provided that it follows their consistent structure.
+    Default: ``sklearn.model_selection.KFold`` with 3 splits.
+
+  - **metrics** (list/str, optional): a list of metrics to evaluate the model,
+    or a single one. Any metric that it exists in `sklearn.metrics
+    <https://scikit-learn.org/stable/modules/classes.html#module-sklearn.metrics>`_
+    is allowed, of course that apply to the problem type; only the function
+    name is required.
+    Default values are ``mean_squared_error``,
+    ``mean_absolute_percentage_error``, ``median_absolute_error``,
+    ``mean_absolute_error``, ``root_mean_squared_error`` for regression problems
+    and ``accuracy_score``, ``precision_score``, ``recall_score``,
+    ``specificity_score``, ``f1_score`` and ``roc_auc_score`` for
+    classification problems.
+
+    It is even possible to define custom metrics. For this, what is needed just
+    to define a function named ``compute_{metric_name}_metric`` in the file
+    ``honcaml/models/evaluate.py``, being {metric_name} the name of the
+    metric, and having as input parameters the series of true values, and the
+    series of predicted ones, in this order (there are already a couple of
+    examples). Then, it is just a matter of include the metric name in the
+    configuration.
 
 - **predict** (dict [#comp4]_): Requests to run predictions over the dataset.
   - **path** (str, optional): Directory where the predictions will be
@@ -364,17 +384,6 @@ train and test data and parameters of search algorithm.
 
 The available configurations are the following:
 
-- **metrics** (list, optional): a list of metrics to evaluate the models. Any
-  metric that it exists in `sklearn.metrics
-  <https://scikit-learn.org/stable/modules/classes.html#module-sklearn.metrics>`_
-  is allowed, of course that apply to the problem type.
-  Default values are
-  ``mean_squared_error``, ``mean_absolute_percentage_error``,
-  ``median_absolute_error``, ``r2_score``, ``mean_absolute_error``,
-  ``root_mean_square_error`` for regression problems and ``accuracy``,
-  ``precision``, ``sensitivity``, ``specificity``, ``f1`` and ``roc_auc`` for
-  classification problems.
-
 - **models** (dict, optional): Dictionary of models and hyperparameters to
   search for best configuration. Each entry of the list refers to a model to
   benchmark. Keys should be the following:
@@ -466,7 +475,7 @@ definition:
        module: ray.tune.search.optuna.OptunaSearch
      tune_config:
        num_samples: 5
-       metric: root_mean_square_error
+       metric: root_mean_squared_error
        mode: min
      run_config:
        stop:

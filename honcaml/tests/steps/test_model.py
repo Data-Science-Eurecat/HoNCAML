@@ -76,7 +76,9 @@ class ModelTest(unittest.TestCase):
                     'cross_validation': {
                         'module': 'sklearn.model_selection.RepeatedKFold',
                         'params': {'n_splits': 20}
-                    }
+                    },
+                    'metrics': params['steps']['model']['transform'][
+                        'fit']['metrics']
                 }
             },
             'load': {
@@ -128,6 +130,9 @@ class ModelTest(unittest.TestCase):
         step._transform_settings['fit']['estimator'] = params[
             'steps']['model']['transform']['fit']['estimator'][
                 self._global_params['problem_type']]
+        step._transform_settings['fit']['metrics'] = params[
+            'steps']['model']['transform']['fit']['metrics'][
+                self._global_params['problem_type']]
 
         step._dataset = self.dataset
         step._transform(step._transform_settings)
@@ -143,6 +148,9 @@ class ModelTest(unittest.TestCase):
                                params['step_rules']['model'])
         step._transform_settings['fit']['estimator'] = params[
             'steps']['model']['transform']['fit']['estimator'][
+                self._global_params['problem_type']]
+        step._transform_settings['fit']['metrics'] = params[
+            'steps']['model']['transform']['fit']['metrics'][
                 self._global_params['problem_type']]
 
         step._dataset = self.dataset
@@ -160,6 +168,9 @@ class ModelTest(unittest.TestCase):
                                params['step_rules']['model'])
         step._transform_settings['fit']['estimator'] = params[
             'steps']['model']['transform']['fit']['estimator'][
+                self._global_params['problem_type']]
+        step._transform_settings['fit']['metrics'] = params[
+            'steps']['model']['transform']['fit']['metrics'][
                 self._global_params['problem_type']]
         step._dataset = self.dataset
         step._transform(step._transform_settings)
@@ -199,6 +210,9 @@ class ModelTest(unittest.TestCase):
         step = model.ModelStep(params['steps']['model'],
                                transform_user_settings, self._global_params,
                                params['step_rules']['model'])
+        step._transform_settings['fit']['metrics'] = params[
+            'steps']['model']['transform']['fit']['metrics'][
+                self._global_params['problem_type']]
         step._dataset = self.dataset
         step._model = general.initialize_model('sklearn', 'regression')
         step._model.build_model(
@@ -216,6 +230,9 @@ class ModelTest(unittest.TestCase):
         step = model.ModelStep(params['steps']['model'],
                                transform_user_settings, self._global_params,
                                params['step_rules']['model'])
+        step._transform_settings['fit']['metrics'] = params[
+            'steps']['model']['transform']['fit']['metrics'][
+                self._global_params['problem_type']]
         step._dataset = self.dataset
         step._model = general.initialize_model('sklearn', 'regression')
         step._model.build_model(

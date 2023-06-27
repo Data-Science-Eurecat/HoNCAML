@@ -24,8 +24,6 @@ class BenchmarkStep(base.BaseStep):
     Attributes:
         _store_results_folder (str): folder path to store results.
         _dataset: dataset class intance.
-        _reported_metrics (List[str]): metrics to compute during hyper
-            parameter search.
         _metric (str): metric function to optimize.
         _mode (str): maximize or minimize metric.
     """
@@ -49,7 +47,6 @@ class BenchmarkStep(base.BaseStep):
         self._execution_id = execution_id
         self._store_results_folder = None
         self._dataset = None
-        self._reported_metrics = None
         self._metric = None
         self._mode = None
         self._best_model = None

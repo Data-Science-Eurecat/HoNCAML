@@ -9,7 +9,6 @@ from sklearn.utils import validation
 from unittest.mock import patch
 
 from honcaml.data import tabular, normalization
-from honcaml.exceptions import model as model_exceptions
 from honcaml.models import sklearn_model
 from honcaml.tests import utils
 from honcaml.tools.startup import params
@@ -211,38 +210,27 @@ class SklearnTest(unittest.TestCase):
         problem_type = 'regression'
         model_config = {'module': 'sklearn.ensemble.RandomForestRegressor',
                         'params': {}}
+        metrics = ['mean_absolute_error', 'root_mean_squared_error']
         sk_model = sklearn_model.SklearnModel(problem_type)
         norm = normalization.Normalization({})
         sk_model.build_model(model_config, norm)
         x, y = self.dataset.values
         sk_model.fit(x, y)
-        metrics = sk_model.evaluate(x, y)
+        metrics = sk_model.evaluate(x, y, metrics)
         self.assertIsInstance(metrics, dict)
 
         # Evaluate classification problem
         problem_type = 'classification'
         model_config = {'module': 'sklearn.ensemble.RandomForestClassifier',
                         'params': {}}
+        metrics = ['accuracy_score', 'f1_score']
         sk_model = sklearn_model.SklearnModel(problem_type)
         norm = normalization.Normalization({})
         sk_model.build_model(model_config, norm)
         x, y = self.classifier_dataset.values
         sk_model.fit(x, y)
-        metrics = sk_model.evaluate(x, y)
+        metrics = sk_model.evaluate(x, y, metrics)
         self.assertIsInstance(metrics, dict)
-
-        # Evaluate unknown problem
-        problem_type = 'regression'
-        model_config = {'module': 'sklearn.ensemble.RandomForestRegressor',
-                        'params': {}}
-        sk_model = sklearn_model.SklearnModel(problem_type)
-        sk_model._estimator_type = 'unknown'
-        norm = normalization.Normalization({})
-        sk_model.build_model(model_config, norm)
-        x, y = self.dataset.values
-        sk_model.fit(x, y)
-        with self.assertRaises(model_exceptions.EstimatorTypeNotAllowed):
-            sk_model.evaluate(x, y)
 
     def test_save(self):
         problem_type = 'regression'
