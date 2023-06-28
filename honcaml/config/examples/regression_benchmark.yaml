@@ -68,6 +68,7 @@ steps:
             method: choice
             values:
               - uniform
-              - distance      
+              - distance
+      metrics: mean_absolute_percentage_error              
     load:
       path: reports      

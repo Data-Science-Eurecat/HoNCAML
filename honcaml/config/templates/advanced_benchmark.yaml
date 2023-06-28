@@ -68,6 +68,14 @@ steps:
         # See: https://scikit-learn.org/stable/modules/cross_validation.html#cross-validation-iterators
         module:
         params:
+      # If set, metrics reported in benchmark process will be the one/s
+      # specified here together with the one in the tuner module, if they are
+      # different.  It is possible to use already existing metrics from
+      # sklearn, or even define custom metrics. See the documentation for more
+      # details.
+      # See: # https://scikit-learn.org/stable/modules/classes.html#module-sklearn.metrics
+      # Both a list and a string (for a single metric) are accepted
+      metrics:          
       # Tuner options specify the exploration and exploitation of the
       # hyperparameter search defined in the benchmark process: algorithm to
       # explore the search space, termination, etc.

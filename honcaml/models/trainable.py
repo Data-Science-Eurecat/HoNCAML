@@ -2,7 +2,7 @@ from ray import tune
 from typing import Dict, Union, Optional
 
 from honcaml.models import general, evaluate
-from honcaml.tools import utils, custom_typing as ct
+from honcaml.tools import custom_typing as ct
 from honcaml.tools.startup import logger
 
 
@@ -23,6 +23,7 @@ class EstimatorTrainer(tune.Trainable):
         _cv_split: cross-validation object with train configurations.
         _param_space (Dict): dict with model's hyperparameters to search and
             all possible values.
+        _reported_metrics (List[str]): metrics to report
         _metric (str): metric to use to evaulate the model performance.
         _model: model instance.
     """
@@ -48,6 +49,7 @@ class EstimatorTrainer(tune.Trainable):
         self._dataset = config['dataset']
         self._cv_split = config['cv_split']
         self._param_space = config['param_space']
+        self._reported_metrics = config['reported_metrics']
         self._metric = config['metric']
         self._problem_type = config['problem_type']
 
@@ -73,9 +75,8 @@ class EstimatorTrainer(tune.Trainable):
         """
         logger.debug(f'Model iteration number {self._iteration}')
         x, y = self._dataset.x, self._dataset.y
-        metric_list = utils.ensure_input_list(self._metric)
         cv_results = evaluate.cross_validate_model(
-            self._model, x, y, self._cv_split, metric_list)
+            self._model, x, y, self._cv_split, self._reported_metrics)
         self._iteration += self._iteration
 
         return cv_results

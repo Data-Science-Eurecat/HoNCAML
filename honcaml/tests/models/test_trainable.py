@@ -26,6 +26,8 @@ class TrainableTest(unittest.TestCase):
                 'n_estimators': tune.randint(2, 10),
                 'max_features': tune.choice(['sqrt', 'log2'])
             },
+            'reported_metrics': ['mean_squared_error',
+                                 'root_mean_squared_error'],
             'metric': 'root_mean_squared_error',
             'problem_type': 'regression'
         }
@@ -54,6 +56,8 @@ class TrainableTest(unittest.TestCase):
                 seed_results[metric] = np.round(seed_results[metric], 2)
             cv_results.append(seed_results)
         expected_results = [
-            {'root_mean_squared_error': 11.33},
-            {'root_mean_squared_error': 9.52}]
+            {'root_mean_squared_error': 11.33,
+             'mean_squared_error': 132.0},
+            {'root_mean_squared_error': 9.52,
+             'mean_squared_error': 93.88}]
         self.assertListEqual(expected_results, cv_results)

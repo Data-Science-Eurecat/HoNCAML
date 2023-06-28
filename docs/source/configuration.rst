@@ -272,14 +272,13 @@ cross-validation. The available configurations are the following:
     Default: ``sklearn.model_selection.KFold`` with 3 splits.
 
   - **metrics** (list/str, optional): a list of metrics to evaluate the model,
-    or a single one. Any metric that it exists in `sklearn.metrics
+    or a single one. Any metric that exists in `sklearn.metrics
     <https://scikit-learn.org/stable/modules/classes.html#module-sklearn.metrics>`_
     is allowed, of course that apply to the problem type; only the function
-    name is required.
-    Default values are ``mean_squared_error``,
+    name is required.  Default values are ``mean_squared_error``,
     ``mean_absolute_percentage_error``, ``median_absolute_error``,
-    ``mean_absolute_error``, ``root_mean_squared_error`` for regression problems
-    and ``accuracy_score``, ``precision_score``, ``recall_score``,
+    ``mean_absolute_error``, ``root_mean_squared_error`` for regression
+    problems and ``accuracy_score``, ``precision_score``, ``recall_score``,
     ``specificity_score``, ``f1_score`` and ``roc_auc_score`` for
     classification problems.
 
@@ -412,6 +411,28 @@ The available configurations are the following:
   should work, provided that it follows their consistent structure.
   Default: ``sklearn.model_selection.KFold`` with 3 splits.
 
+- **metrics** (list/str, optional): a list of metrics to report in the
+  benchmark process, or a single one. Actually, reported metrics may be
+  appended with the one specified in tuner settings, if the latter is different
+  (as it is the one used to select the best model configuration). Any metric
+  that exists in `sklearn.metrics
+  <https://scikit-learn.org/stable/modules/classes.html#module-sklearn.metrics>`_
+  is allowed, of course that apply to the problem type; only the function name
+  is required.  Default values are ``mean_squared_error``,
+  ``mean_absolute_percentage_error``, ``median_absolute_error``,
+  ``mean_absolute_error``, ``root_mean_squared_error`` for regression problems
+  and ``accuracy_score``, ``precision_score``, ``recall_score``,
+  ``specificity_score``, ``f1_score`` and ``roc_auc_score`` for classification
+  problems.
+
+  It is even possible to define custom metrics. For this, what is needed just
+  to define a function named ``compute_{metric_name}_metric`` in the file
+  ``honcaml/models/evaluate.py``, being {metric_name} the name of the
+  metric, and having as input parameters the series of true values, and the
+  series of predicted ones, in this order (there are already a couple of
+  examples). Then, it is just a matter of include the metric name in the
+  configuration.
+  
 - **tuner** (dict): defines the configuration of tune process. Their options
   are the following:
   - **search_algorithm** (dict, optional): Specifies the algorithm to perform

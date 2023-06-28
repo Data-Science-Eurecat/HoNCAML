@@ -24,6 +24,8 @@ class BenchmarkStep(base.BaseStep):
     Attributes:
         _store_results_folder (str): folder path to store results.
         _dataset: dataset class intance.
+        _reported_metrics (List[str]): metrics to compute during hyper
+            parameter search.
         _metric (str): metric function to optimize.
         _mode (str): maximize or minimize metric.
     """
@@ -47,6 +49,7 @@ class BenchmarkStep(base.BaseStep):
         self._execution_id = execution_id
         self._store_results_folder = None
         self._dataset = None
+        self._reported_metrics = None
         self._metric = None
         self._mode = None
         self._best_model = None
@@ -120,15 +123,16 @@ class BenchmarkStep(base.BaseStep):
     def _clean_reported_metrics(self, settings: Dict) -> None:
         """
         Given a step settings, this function gets the metrics list to report.
-        If 'metrics' does not exist in settings file, it gets a metrics of
-        tuner as default.
+        The metrics are a union set of the metrics specified in the transform
+        step, together with the one used by tuner to select the best model.
 
         Args:
             settings (Dict): settings parameters with metrics to report.
 
         """
-        self._reported_metrics = settings.get(
-            'metrics', [self._metric])
+        tuner_set = set(utils.ensure_input_list(self._metric))
+        settings_set = set(utils.ensure_input_list(settings['metrics']))
+        self._reported_metrics = list(settings_set.union(tuner_set))
 
     @staticmethod
     def _clean_search_algorithm(settings: Dict) -> Union[Callable, None]:
@@ -298,8 +302,8 @@ class BenchmarkStep(base.BaseStep):
         Returns:
             (Dict[str, ct.Number])
         """
-        columns_to_drop = \
-            ['model_module', 'problem_type'] + self._reported_metrics
+        columns_to_drop = ['model_module', 'problem_type',
+                           'reported_metrics'] + self._reported_metrics
         best_hyper_params = df \
             .drop(columns=columns_to_drop, errors='ignore') \
             .to_dict('records')[0]
@@ -379,6 +383,7 @@ class BenchmarkStep(base.BaseStep):
         config = {
             'dataset': copy.deepcopy(self._dataset),
             'cv_split': copy.deepcopy(cv_split),
+            'reported_metrics': self._reported_metrics,
             'metric': self._metric,
             'problem_type': self._global_params['problem_type']
         }
@@ -427,13 +432,6 @@ class BenchmarkStep(base.BaseStep):
             iter_results_df = results.get_dataframe()
             iter_results_df = self._filter_results_dataframe(iter_results_df)
             iter_results_df = self._sort_results(iter_results_df)
-
-            best_hyper_params_iter = self._get_best_hyper_parameters(
-                iter_results_df)
-            best_metrics_iter = self._get_best_metrics(iter_results_df)
-            logger.debug(f'Best configuration for model {name} '
-                         f'is {best_hyper_params_iter} with '
-                         f'metrics {best_metrics_iter}')
 
             # Concat with all results dataframe.
             results_df = pd.concat(

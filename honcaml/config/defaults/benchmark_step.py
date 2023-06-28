@@ -11,6 +11,23 @@ default_benchmark_step = {
             "module": "sklearn.model_selection.KFold",
             "params": {"n_splits": 3}
         },
+        "metrics": {
+            "regression": [
+                "mean_squared_error",
+                "mean_absolute_percentage_error",
+                "median_absolute_error",
+                "mean_absolute_error",
+                "root_mean_squared_error"
+            ],
+            "classification": [
+                "accuracy_score",
+                "precision_score",
+                "recall_score",
+                "specificity_score",
+                "f1_score",
+                "roc_auc_score"
+            ]
+        },
         "tuner": default_tuner,
     },
     # Save the learner to disk and the results
