@@ -380,13 +380,13 @@ def cross_validation_configs() -> None:
     # TODO: configure other strategies than kfold
     n_splits = st.number_input("Number of splits", 2, 20, 3)
 
-    if "benchmark" in st.session_state["config_file"]["steps"]:
+    if st.session_state["functionality"] == "Benchmark":
         st.session_state["config_file"]["steps"]["benchmark"]["transform"][
             "cross_validation"] = {
                 "module": "sklearn.model_selection.KFold",
                 "params": {"n_splits": n_splits}
             }
-    elif "model" in st.session_state["config_file"]["steps"]:
+    elif st.session_state["functionality"] in ["Train", "Predict"]:
         st.session_state["config_file"]["steps"]["model"]["transform"]["fit"][
             "cross_validation"] = {
                 "module": "sklearn.model_selection.KFold",
@@ -414,6 +414,7 @@ def tuner_configs() -> None:
     col1, col2 = st.columns(2)
     config_tuner["tune_config"]["num_samples"] = \
         col1.number_input("Number of samples", 2, 100, 5)
+    print(st.session_state["metrics"])
     config_tuner["tune_config"]["metric"] = \
         col2.radio("Metric", st.session_state["metrics"],
                    index=st.session_state["metrics"].index(default_metric))
@@ -435,7 +436,7 @@ def metrics_configs() -> None:
     benchmark_metrics = st.multiselect("Benchmark Metrics",
                                        st.session_state["metrics"],
                                        default=st.session_state["metrics"])
-    if "benchmark" in st.session_state["config_file"]["steps"]:
+    if st.session_state["functionality"] == "Benchmark":
         st.session_state["config_file"]["steps"]["benchmark"]["transform"][
             "metrics"] = benchmark_metrics
     st.divider()
@@ -454,7 +455,7 @@ def manual_configs_elements() -> None:
         if st.session_state["functionality"] == "Benchmark":
             benchmark_model_configs()
             metrics_configs()
-            col1, col2 = st.columns([1, 3])
+            col1, col2 = st.columns([1, 2])
             with col1:
                 cross_validation_configs()
             with col2:

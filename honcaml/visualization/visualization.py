@@ -55,9 +55,19 @@ def get_results_table() -> pd.DataFrame:
         results['model'] + '<br>' + \
         results['configs'].replace(r' ', '<br>', regex=True)
 
-    results = results[
-        ['model', 'configs', 'model_configs'] + st.session_state["metrics"]
-        ]
+    print(st.session_state["metrics"])
+    print(results.columns)
+    if st.session_state["configs_level"] == "Advanced":
+        st.session_state["benchmark_metrics"] = \
+            st.session_state["config_file"]["steps"]["benchmark"]["transform"][
+                "metrics"]
+    elif st.session_state["configs_level"] == "Basic":
+        st.session_state["benchmark_metrics"] = \
+            list(set(st.session_state["metrics"])
+                 .intersection(set(results.columns)))
+
+    results = results[['model', 'configs', 'model_configs']
+                      + st.session_state["benchmark_metrics"]]
 
     results = results.drop_duplicates(subset=['model', 'configs']) \
         .reset_index() \
@@ -77,12 +87,13 @@ def create_fig_visualization(results) -> object:
     """
     height = int(len(results.index) / 3 + 3)
 
-    results_melted = results[['model_configs'] + st.session_state["metrics"]] \
+    results_melted = \
+        results[['model_configs'] + st.session_state["benchmark_metrics"]] \
         .melt(
-        id_vars=['model_configs'],
-        value_vars=st.session_state["metrics"],
-        var_name='metric'
-    )
+              id_vars=['model_configs'],
+              value_vars=st.session_state["benchmark_metrics"],
+              var_name='metric'
+        )
 
     fig = px.bar(
         results_melted,

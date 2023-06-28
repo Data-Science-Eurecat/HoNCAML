@@ -59,7 +59,7 @@ metrics_mode = {
         "median_absolute_error": "min",
         "r2_score": "max",
         "mean_absolute_error": "min",
-        "root_mean_square_error": "min"
+        "root_mean_squared_error": "min"
     },
     "classification": {
         "accuracy": "max",

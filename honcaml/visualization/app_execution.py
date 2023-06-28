@@ -18,8 +18,8 @@ def run() -> None:
         # port = get_port((5000, 7000))
         # process = Popen(f'ttyd --port {port} --once honcaml -c
         # config_file.yaml', shell=True)
-        process = Popen(f'cd ../.. && honcaml -c config_file.yaml',
-                        shell=True, stdout=log, stderr=err)
+        process = Popen(f'cd ../.. && honcaml -c config_file.yaml' ,
+                        shell=True) # , stdout=log, stderr=err)
         # process = Popen(f'ls', shell=True, stdout=log, stderr=err)
         # host = "http://localhost"
         # iframe(f"{host}:{port}", height=400)
@@ -64,7 +64,6 @@ def generate_configs_file_yaml() -> None:
                 "model": yaml_file["steps"]["model"]
             }
 
-        print(yaml_file)
         with open(config_file_path, 'w') as file:
             yaml.safe_dump(yaml_file, file,
                            default_flow_style=False,
