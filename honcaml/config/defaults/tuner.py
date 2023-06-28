@@ -4,7 +4,6 @@ default_tuner = {
         "params": None
     },
     "tune_config": {
-        "time_budget_s": 10,
         "num_samples": 2,
         "metric": {
             "regression": "root_mean_squared_error",
