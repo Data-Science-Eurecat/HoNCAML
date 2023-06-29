@@ -63,4 +63,7 @@ steps:
             
     load:
       # *REQ* Specify folder in which to store model object
-      path: 
+      path:
+      # Path to report train cross validation results if desired; if not, leave
+      # it null
+      results:

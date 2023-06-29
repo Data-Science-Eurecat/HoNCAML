@@ -1,3 +1,5 @@
+import os
+import pandas as pd
 from typing import Dict
 
 from honcaml.data import load
@@ -111,9 +113,12 @@ class ModelStep(base.BaseStep):
             cv_split = transform.CrossValidationSplit(
                 **settings['cross_validation'])
             self._cv_results = evaluate.cross_validate_model(
-                self._model, x, y, cv_split, settings['metrics'])
-            logger.info(self._cv_results)
-
+                self._model, x, y, cv_split, settings['metrics'],
+                aggregate_metrics=False)
+            logger.info(f'Cross validation results: {self._cv_results}')
+            if 'results' in self._step_settings['load']:
+                df_results = pd.DataFrame(self._cv_results)
+                self._store_results(df_results)
         # Train the model with whole data
         logger.info('Training model with all data ...')
         self._model.fit(x, y, **settings)
@@ -149,3 +154,21 @@ class ModelStep(base.BaseStep):
 
         metadata.update({'model': self._model})
         return metadata
+
+    def _store_results(self, df: pd.DataFrame) -> None:
+        """
+        Given a results dataframe, this function stores the dataframe to
+        disk.
+
+        Args:
+            df (pd.DataFrame): result's dataframe.
+        """
+        if not os.path.exists(self._step_settings['load']['results']):
+            os.mkdir(self._step_settings['load']['results'])
+        store_results_folder = os.path.join(
+            self._step_settings['load']['results'], self._execution_id)
+        if not os.path.exists(store_results_folder):
+            os.mkdir(store_results_folder)
+        file_path = os.path.join(store_results_folder, 'results.csv')
+        logger.info(f'Store metrics results in {file_path}')
+        df.to_csv(file_path, index=False)

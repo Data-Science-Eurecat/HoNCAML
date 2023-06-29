@@ -10,7 +10,8 @@ from honcaml.tools import custom_typing as ct
 def cross_validate_model(
         model: base_model.BaseModel, x: ct.Array, y: ct.Array,
         cv_split: ct.SklearnCrossValidation, metrics: List,
-        train_settings: Dict = None, test_settings: Dict = None) -> Dict:
+        train_settings: Dict = None, test_settings: Dict = None,
+        aggregate_metrics: bool = True) -> Dict:
     """
     This function trains a model with a cross-validation strategy. for each
     split, it trains a model and computes metrics. Finally, it computes the
@@ -25,6 +26,7 @@ def cross_validate_model(
         metrics (List): Metrics to be computed.
         train_settings (Dict): additional parameters for train step.
         test_settings (Dict): additional parameters for test step.
+        aggregate_metrics (bool): Whether to aggregate resulting metrics.
 
     Returns:
         (Dict): a dict with mean metrics.
@@ -34,13 +36,14 @@ def cross_validate_model(
     if test_settings is None:
         test_settings = {}
 
-    results = []
+    cv_results = []
     for split, x_train, x_test, y_train, y_test in cv_split.split(x, y):
         model.fit(x_train, y_train, **train_settings)
-        results.append(model.evaluate(x_test, y_test, metrics,
-                                      **test_settings))
+        cv_results.append(model.evaluate(x_test, y_test, metrics,
+                                         **test_settings))
     # Group cv metrics
-    cv_results = general.aggregate_cv_results(results)
+    if aggregate_metrics:
+        cv_results = general.aggregate_cv_results(cv_results)
 
     return cv_results
 
