@@ -14,7 +14,8 @@ class DataStep(base.BaseStep):
     """
 
     def __init__(self, default_settings: Dict, user_settings: Dict,
-                 global_params: Dict, step_rules: Dict) -> None:
+                 global_params: Dict, step_rules: Dict,
+                 execution_id: str) -> None:
         """
         Constructor method of class. It initializes the parameters and set up
         the current steps.
@@ -24,6 +25,7 @@ class DataStep(base.BaseStep):
             user_settings: User-defined settings for the steps.
             global_params: global parameters for the current pipeline.
             step_rules: Validation rules for this step.
+            execution_id: Execution identifier.
         """
         super().__init__(default_settings, user_settings, global_params,
                          step_rules)

@@ -1,4 +1,5 @@
 import copy
+import datetime
 import pandas as pd
 import unittest
 from unittest.mock import patch
@@ -13,6 +14,7 @@ class DataTest(unittest.TestCase):
         self.extract = base.StepPhase.extract
         self.transform = base.StepPhase.transform
         self.load = base.StepPhase.load
+        self._execution_id = datetime.datetime.now().strftime('%Y%m%d-%H%M%S')
         self._global_params = {'problem_type': 'regression'}
 
     # Test _merge_settings method
@@ -21,7 +23,8 @@ class DataTest(unittest.TestCase):
         empty_user_settings = dict()
         step = data.DataStep(params['steps']['data'],
                              empty_user_settings, self._global_params,
-                             params['step_rules']['data'])
+                             params['step_rules']['data'],
+                             self._execution_id)
         self.assertDictEqual({}, step.step_settings)
 
         # user settings contains filepath
@@ -34,7 +37,8 @@ class DataTest(unittest.TestCase):
         }
         step = data.DataStep(params['steps']['data'],
                              user_settings, self._global_params,
-                             params['step_rules']['data'])
+                             params['step_rules']['data'],
+                             self._execution_id)
         # The result dict has the same number of phases
         self.assertEqual(1, len(step.step_settings))
 
@@ -59,7 +63,8 @@ class DataTest(unittest.TestCase):
         }
         _ = data.DataStep(params['steps']['data'],
                           user_settings, self._global_params,
-                          params['step_rules']['data'])
+                          params['step_rules']['data'],
+                          self._execution_id)
         self.assertDictEqual(
             user_settings['transform'],
             {'override_param': {'param1': 1, 'param2': 2},
@@ -88,7 +93,8 @@ class DataTest(unittest.TestCase):
         # Check the default params for transform phase
         step = data.DataStep(params['steps']['data'],
                              user_settings, self._global_params,
-                             params['step_rules']['data'])
+                             params['step_rules']['data'],
+                             self._execution_id)
         step_settings = step.step_settings
         user_transform = user_settings['transform']
         self.assertEqual(
@@ -127,7 +133,8 @@ class DataTest(unittest.TestCase):
         # without target.
         step = data.DataStep(params['steps']['data'],
                              empty_user_settings, self._global_params,
-                             params['step_rules']['data'])
+                             params['step_rules']['data'],
+                             self._execution_id)
         step._extract(copy.deepcopy(step.extract_settings))
 
         self.assertListEqual(
@@ -147,6 +154,7 @@ class DataTest(unittest.TestCase):
         empty_user_settings = {}
         step = data.DataStep(default_without_normalize_settings,
                              empty_user_settings, self._global_params,
-                             params['step_rules']['data'])
+                             params['step_rules']['data'],
+                             self._execution_id)
         step._transform(step.step_settings)
         self.assertTrue(step.dataset.normalization is None)

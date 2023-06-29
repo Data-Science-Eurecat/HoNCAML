@@ -1,11 +1,11 @@
 from typing import Dict
 
 from honcaml.exceptions import step as step_exceptions
-from honcaml.steps import base as base_step, data as data_step
+from honcaml import steps
 from honcaml.tools.startup import logger, params
-from honcaml.steps import model as model_step
-from honcaml.steps import benchmark as benchmark_step
 from honcaml.tools import utils
+
+VALID_STEPS = ['data', 'model', 'benchmark']
 
 
 class Pipeline:
@@ -49,18 +49,11 @@ class Pipeline:
         """
         self._validate_pipeline(self._pipeline_content)
         for step_name, step_content in self._pipeline_content['steps'].items():
-            if step_name == base_step.StepType.data:
-                step = data_step.DataStep(
-                    params['steps'][step_name], step_content,
-                    self._pipeline_content['global'],
-                    params['step_rules'][step_name])
-            elif step_name == base_step.StepType.model:
-                step = model_step.ModelStep(
-                    params['steps'][step_name], step_content,
-                    self._pipeline_content['global'],
-                    params['step_rules'][step_name])
-            elif step_name == base_step.StepType.benchmark:
-                step = benchmark_step.BenchmarkStep(
+            if step_name in VALID_STEPS:
+                module = getattr(steps, step_name)
+                class_name = step_name.capitalize() + 'Step'
+                class_definition = getattr(module, class_name)
+                step = class_definition(
                     params['steps'][step_name], step_content,
                     self._pipeline_content['global'],
                     params['step_rules'][step_name], self._execution_id)
