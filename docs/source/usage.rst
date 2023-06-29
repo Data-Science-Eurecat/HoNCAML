@@ -2,17 +2,35 @@
  Usage
 =======
 
-Installation
+Setup
 ============
 
-To use HoNCAML, first install it from source, assuming environment is in *.venv/bin*:
+To set up and install HoNCAML, just run the following:
 
-.. code-block:: console
+.. code-block:: console   
 
-   (.venv) $ python -m pip install -e .
+   $ make all
+
+This will do the following:
+
+- Create a virtual environment to not interfere with the current environment
+- Install the library and its dependencies
+- Generate documentation
+
+Virtual environment directory is located in **./venv** by default, but it can
+be changed by changing the variable *ENV_PATH* located in **Makefile**.
 
 Quick execution
 ===============
+
+To execute HoNCAML, all commands should be executed from within the generated
+virtual environment; to enter it, run:
+
+.. code-block:: console
+
+   $ source {env_path}/bin/activate
+
+Replacing *{env_path}* with the virtual environment path.
 
 Train
 -----

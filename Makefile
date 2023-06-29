@@ -1,20 +1,29 @@
 ## Variables
-ENV_BIN = .venv/bin
+ENV_PATH = .venv
 
 ## Targets
-.PHONY: build install execute $(DEBUG_EXAMPLE_TARGETS) $(TEST_EXAMPLE_TARGETS) run_tests
+.PHONY: all build clean install execute tests
+
+all: clean setup develop docs/build
+
+setup:
+	python3 -m venv .venv
 
 develop: honcaml requirements.txt
-	$(ENV_BIN)/python -m pip install -e .
+	$(ENV_PATH)/bin/python -m pip install -e .
 
 docs/build: docs/source
-	$(ENV_BIN)/sphinx-build -b html docs/source/ docs/build/html
+	$(ENV_PATH)/bin/sphinx-build -b html docs/source/ docs/build/html
 
-install: honcaml config/requirements.txt
-	$(ENV_BIN)/python -m pip install .
+install: honcaml requirements.txt
+	$(ENV_PATH)/bin/python -m pip install .
 
-run_tests:
-	$(ENV_BIN)/python -m pytest --cov=honcaml --cov-report term-missing
+tests:
+	$(ENV_PATH)/bin/python -m pytest --cov=honcaml --cov-report term-missing
 
 validate_code:
-	$(ENV_BIN)/flake8 --exclude=./.venv,./build
+	$(ENV_PATH)/bin/flake8 --exclude=./.venv,./build
+
+clean:
+	rm -r .venv
+	rm -r docs/build
