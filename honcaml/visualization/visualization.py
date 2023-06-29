@@ -1,8 +1,8 @@
-import pandas as pd
-import plotly.express as px
-import streamlit as st
-import yaml
 import os
+import yaml
+import pandas as pd
+import streamlit as st
+import plotly.express as px
 from constants import benchmark_results_path
 from honcaml.config.defaults.model_step import default_model_step
 
@@ -55,15 +55,13 @@ def get_results_table() -> pd.DataFrame:
         results['model'] + '<br>' + \
         results['configs'].replace(r' ', '<br>', regex=True)
 
-    print(st.session_state["metrics"])
-    print(results.columns)
     if st.session_state["configs_level"] == "Advanced":
         st.session_state["benchmark_metrics"] = \
             st.session_state["config_file"]["steps"]["benchmark"]["transform"][
                 "metrics"]
     elif st.session_state["configs_level"] == "Basic":
         st.session_state["benchmark_metrics"] = \
-            list(set(st.session_state["metrics"])
+            list(set(st.session_state["problem_type_metrics"])
                  .intersection(set(results.columns)))
 
     results = results[['model', 'configs', 'model_configs']
@@ -145,6 +143,8 @@ def display_results(results_display: str) -> None:
         results_display: ["Table", "BarChart"] Define the format of the results
             display
     """
+    # TODO: change when train results are exported as csv and read from the
+    #  file instead from the config_file dict
     if results_display == "Table":
         results_table = st.session_state["results"] \
             .set_index(['model', 'configs']) \

@@ -16,6 +16,7 @@ packaging==21.0
 pandas==1.4.1
 platformdirs==2.4.0
 pluggy==1.0.0
+plotly==5.14.1
 py==1.10.0
 pylint==2.11.1
 pyparsing==2.4.7
@@ -27,6 +28,7 @@ ray[air]
 ray[rllib]
 scikit-learn==1.1.2
 Sphinx==5.2.2
+streamlit==1.22.0
 toml==0.10.2
 typing-extensions==3.10.0.2
 Twisted==22.4.0

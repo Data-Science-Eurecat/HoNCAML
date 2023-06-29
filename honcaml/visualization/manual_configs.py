@@ -1,11 +1,10 @@
-import utils
 import copy
-import streamlit as st
 import numpy as np
+import streamlit as st
 from typing import Dict
 from honcaml.config.defaults.search_spaces import default_search_spaces
-from honcaml.config.defaults.model_step import default_model_step
 from honcaml.config.defaults.tuner import default_tuner
+from utils import define_metrics
 from constants import (names_of_models,
                        default_models,
                        model_configs_helper,
@@ -351,7 +350,6 @@ def benchmark_model_configs() -> None:
         if col1.checkbox(model_name,
                          True if model_name in default_models[problem_type]
                          else False):
-
             # initially, we set the default values
             config_model_name = names_of_models[problem_type][model_name]
             default_params = default_search_spaces[problem_type][
@@ -383,15 +381,15 @@ def cross_validation_configs() -> None:
     if st.session_state["functionality"] == "Benchmark":
         st.session_state["config_file"]["steps"]["benchmark"]["transform"][
             "cross_validation"] = {
-                "module": "sklearn.model_selection.KFold",
-                "params": {"n_splits": n_splits}
-            }
+            "module": "sklearn.model_selection.KFold",
+            "params": {"n_splits": n_splits}
+        }
     elif st.session_state["functionality"] in ["Train", "Predict"]:
         st.session_state["config_file"]["steps"]["model"]["transform"]["fit"][
             "cross_validation"] = {
-                "module": "sklearn.model_selection.KFold",
-                "params": {"n_splits": n_splits}
-            }
+            "module": "sklearn.model_selection.KFold",
+            "params": {"n_splits": n_splits}
+        }
 
     st.divider()
 
@@ -414,10 +412,11 @@ def tuner_configs() -> None:
     col1, col2 = st.columns(2)
     config_tuner["tune_config"]["num_samples"] = \
         col1.number_input("Number of samples", 2, 100, 5)
-    print(st.session_state["metrics"])
+
     config_tuner["tune_config"]["metric"] = \
-        col2.radio("Metric", st.session_state["metrics"],
-                   index=st.session_state["metrics"].index(default_metric))
+        col2.radio("Metric", st.session_state["problem_type_metrics"],
+                   index=st.session_state["problem_type_metrics"]
+                   .index(default_metric))
 
     # automatically set the mode to min or max depending on the metric to
     # optimize
@@ -433,9 +432,10 @@ def metrics_configs() -> None:
     them in the session_state dict
     """
     st.write("Metrics")
-    benchmark_metrics = st.multiselect("Benchmark Metrics",
-                                       st.session_state["metrics"],
-                                       default=st.session_state["metrics"])
+    benchmark_metrics = \
+        st.multiselect("Benchmark Metrics",
+                       st.session_state["problem_type_metrics"],
+                       default=st.session_state["problem_type_metrics"])
     if st.session_state["functionality"] == "Benchmark":
         st.session_state["config_file"]["steps"]["benchmark"]["transform"][
             "metrics"] = benchmark_metrics
@@ -447,7 +447,7 @@ def manual_configs_elements() -> None:
     Add the manual configuration elements when the manual option is selected
     """
     basic_configs()
-    utils.define_metrics()
+    define_metrics()
     if st.session_state["configs_level"] == "Advanced":
         st.markdown("**Advanced Configurations**")
         data_preprocess_configs()

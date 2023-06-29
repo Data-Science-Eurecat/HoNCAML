@@ -6,7 +6,12 @@ from constants import (data_file_path_config_file,
                        benchmark_results_path,
                        trained_model_file,
                        model_results_path)
-from utils import remove_previous_results
+
+
+def add_data_filepath() -> None:
+    """Add data filepath to the config_file dict."""
+    st.session_state["config_file"]["steps"]["data"]["extract"][
+        "filepath"] = data_file_path_config_file
 
 
 def initialize_config_file() -> None:
@@ -24,8 +29,7 @@ def initialize_config_file() -> None:
             st.session_state["config_file"] = yaml.safe_load(f)
 
         # add data filepath
-        st.session_state["config_file"]["steps"]["data"]["extract"][
-            "filepath"] = data_file_path_config_file
+        add_data_filepath()
 
         # add results path
         if st.session_state["functionality"] == "Benchmark":
@@ -66,7 +70,7 @@ def reset_config_file() -> None:
     if "config_file" in st.session_state:
         st.session_state.pop("config_file")
 
-    remove_previous_results()
+    st.session_state["submit"] = False
 
 
 def reset_data_file() -> None:
@@ -75,21 +79,28 @@ def reset_data_file() -> None:
      - Remove target, features and transform keys from session state
      - Remove results from previous executions
     """
-    data_step = st.session_state["config_file"]["steps"]["data"]
-    if "target" in data_step["extract"]:
-        data_step["extract"].pop("target")
-    if "features" in data_step["extract"]:
-        data_step["extract"].pop("features")
-    st.session_state["features_all"] = []
-    if "transform" in data_step:
-        data_step["transform"]["normalize"]["features"]["params"]["with_std"] \
-            = None
-        data_step["transform"]["normalize"]["features"]["columns"] = []
-        data_step["transform"]["normalize"]["target"]["params"]["with_std"] \
-            = None
-        data_step["transform"]["normalize"]["target"]["columns"] = []
 
-    remove_previous_results()
+    # remove features from features_all variable
+    st.session_state["features_all"] = []
+
+    st.session_state["submit"] = False
+
+    if st.session_state.get("config_file"):
+        st.session_state["config_file"]["steps"].pop("data")
+
+    if st.session_state["configs_mode"] == "Manually":
+        file_name = f'{st.session_state["configs_level"].lower()}_' \
+                    f'{st.session_state["functionality"].lower()}.yaml'
+        template = \
+            yaml.safe_load(open(os.path.join(templates_path, file_name), "r"))
+
+        # reset data config_file keys
+        st.session_state["config_file"]["steps"]["data"] = \
+            template["steps"]["data"]
+
+        # add data filepath
+        st.session_state["config_file"]["steps"]["data"]["extract"][
+            "filepath"] = data_file_path_config_file
 
 
 def set_target_config_file() -> None:

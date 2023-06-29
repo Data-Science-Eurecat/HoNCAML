@@ -1,7 +1,8 @@
-import streamlit as st
 import os
 import datetime
-from constants import (metrics_mode)
+import streamlit as st
+from constants import metrics_mode
+from define_config_file import reset_config_file
 
 
 def set_current_session() -> str:
@@ -21,14 +22,7 @@ def change_configs_mode() -> None:
     """
     st.session_state["submit"] = False
     st.session_state["configs_level"] = "Advanced"
-
-
-def remove_previous_results() -> None:
-    """
-    Set session_state["submit"] as False to remove results from previous
-    executions.
-    """
-    st.session_state["submit"] = False
+    reset_config_file()
 
 
 def sidebar() -> None:
@@ -72,7 +66,27 @@ def define_metrics() -> None:
     Define possible metrics depending on the problem type.
     """
     problem_type = st.session_state["config_file"]["global"]["problem_type"]
-    st.session_state["metrics"] = list(metrics_mode[problem_type].keys())
+    st.session_state["problem_type_metrics"] = \
+        list(metrics_mode[problem_type].keys())
+
+
+def define_functionality_configs_level() -> None:
+    """
+    Define functionality when config mode is not manual
+    """
+    if st.session_state["config_file"]["steps"].get("benchmark"):
+        st.session_state["functionality"] = "Benchmark"
+        if st.session_state["config_file"]["steps"]["benchmark"] \
+                .get("transform"):
+            st.session_state["configs_level"] = "Advanced"
+        else:
+            st.session_state["configs_level"] = "Basic"
+
+    elif st.session_state["config_file"]["steps"]["model"].get("extract"):
+        st.session_state["functionality"] = "Predict"
+
+    else:
+        st.session_state["functionality"] = "Train"
 
 
 def create_output_folder() -> None:

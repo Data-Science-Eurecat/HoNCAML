@@ -62,11 +62,11 @@ metrics_mode = {
         "root_mean_squared_error": "min"
     },
     "classification": {
-        "accuracy": "max",
-        "precision": "max",
-        "sensitivity": "max",
-        "specificity": "max",
-        "f1": "max",
-        "roc_auc": "max"
+        "accuracy_score": "max",
+        "precision_score": "max",
+        "recall_score": "max",
+        "specificity_score": "max",
+        "f1_score": "max",
+        "roc_auc_score": "max"
     }
 }

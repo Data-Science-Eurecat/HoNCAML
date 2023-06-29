@@ -6,15 +6,14 @@ import streamlit as st
 from constants import (data_file_path,
                        config_file_path,
                        model_results_path)
+from define_config_file import add_data_filepath
 
 
-def load_data_file(data: pd.DataFrame) -> None:
+def load_data_file() -> None:
     """
-    Save data file in the specified path
-
-    Args:
-        data: DataFrame to save
+    Save data file in the specified path.
     """
+    data = st.session_state["data_uploaded"]
     if os.path.exists(data_file_path):
         data_saved = pd.read_csv(data_file_path)
         if not data.equals(data_saved):
@@ -23,24 +22,19 @@ def load_data_file(data: pd.DataFrame) -> None:
         data.to_csv(data_file_path, index=False)
 
 
-def load_uploaded_file(uploaded_file: object) -> None:
+def load_uploaded_file() -> None:
     """
     Read uploaded config file, set the problem type, set the data filepath, and
     write the config file in the config_file_path.
-
-    Args:
-        uploaded_file: Uploaded config file.
     """
-    config_file = yaml.safe_load(uploaded_file)
+    st.session_state["config_file"] = \
+        yaml.safe_load(st.session_state["uploaded_file"])
 
-    st.session_state["config_file"]["global"]["problem_type"] = \
-        config_file["global"]["problem_type"]
-
-    config_file["steps"]["data"]["extract"]["filepath"] = \
-        st.session_state["config_file"]["steps"]["data"]["extract"]["filepath"]
+    # add data filepath
+    add_data_filepath()
 
     with open(config_file_path, "w") as file:
-        yaml.safe_dump(config_file, file,
+        yaml.safe_dump(st.session_state["config_file"], file,
                        default_flow_style=False,
                        sort_keys=False)
 
@@ -57,6 +51,17 @@ def load_trained_model(uploaded_model: object) -> None:
         "filepath"]
 
     joblib.dump(model, os.path.join("../..", filepath))
+
+
+def load_text_area_configs():
+    """
+    Load config file pasted in the text area
+    """
+    with open(config_file_path, "w") as file:
+        yaml.safe_dump(st.session_state["text_area"], file,
+                       default_flow_style=False,
+                       sort_keys=False)
+    st.session_state["config_file"] = st.session_state["text_area"]
 
 
 def download_benchmark_results_button(col: st.delta_generator.DeltaGenerator) \
@@ -113,7 +118,8 @@ def download_predictions_button(col: st.delta_generator.DeltaGenerator = st) \
         st.session_state["config_file"]["steps"]["model"]["transform"][
             "predict"]["path"]
     )
-    filename = max(os.listdir(filepath))
+    filename = max([file for file in os.listdir(filepath)
+                    if file.startswith("predictions")])
     predictions = \
         pd.read_csv(os.path.join(filepath, filename)).to_csv(index=False) \
         .encode('utf-8')

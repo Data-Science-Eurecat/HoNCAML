@@ -7,7 +7,7 @@ default_tuner = {
         "num_samples": 2,
         "metric": {
             "regression": "root_mean_squared_error",
-            "classification": "accuracy"
+            "classification": "accuracy_score"
         },
         "mode": {
             "regression": "min",

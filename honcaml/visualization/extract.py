@@ -1,12 +1,14 @@
 import yaml
 import copy
-import streamlit as st
 import pandas as pd
+import streamlit as st
 from typing import Any, Union
 from utils import change_configs_mode
 from define_config_file import (reset_config_file,
                                 reset_data_file,
                                 set_target_config_file)
+from load import load_data_file
+from visualization import data_previsualization
 
 
 def extract_configs_mode(col: st.delta_generator.DeltaGenerator) -> str:
@@ -158,3 +160,48 @@ def extract_target(data_upload_col: st.delta_generator.DeltaGenerator,
             features.remove(str(target))
 
     st.session_state["features_all"] = features
+
+
+def add_init_input_elements() -> None:
+    """
+    Add initial input elements into the webpage: configs mode, config file
+    uploader, data uploader, target selector, configs level, functionality,
+    and data pre-visualization
+    """
+    col1, data_upload_col = st.columns(2)
+
+    # define configs mode: Manually, Config file .yaml, or Paste your configs
+    st.session_state["configs_mode"] = extract_configs_mode(col1)
+    configs_mode = st.session_state["configs_mode"]
+    col1.write("")
+
+    # place the data preview container before the configs mode selector
+    data_preview_container = st.container()
+
+    # if "Manual" option selected, add radio selectors for the level of
+    # configurations (basic or advanced) and the functionality (benchmark,
+    # train or test
+    if configs_mode == "Manually":
+        col1_1, col1_2 = col1.columns(2)
+        st.session_state["configs_level"] = extract_configs_level(col1_1)
+        st.session_state["functionality"] = extract_functionality(col1_2)
+        st.write("")
+
+    # if "Config file .yaml" option selected, add file uploader yaml
+    elif configs_mode == "Config file .yaml":
+        extract_configs_file_yaml(col1)
+
+    # if "Paste your configs" option selected, add text input area to paste or
+    # write the configs
+    elif configs_mode == "Paste your configs":
+        st.session_state["text_area"] = extract_configs_file_text_area()
+
+    # upload data file, add data preview collapsable
+    extract_data_file(data_upload_col)
+    if st.session_state.get("data_uploaded") is not None:
+        # load data locally
+        load_data_file()
+        # add target selector
+        extract_target(data_upload_col, configs_mode)
+        # pre-visualize data
+        data_previsualization(data_preview_container)
