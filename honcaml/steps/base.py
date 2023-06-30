@@ -194,18 +194,6 @@ class BaseStep(ABC):
             logger.info('Load phase complete.')
 
 
-class StepType:
-    """
-    Defines the valid types of steps. Valid steps are the following:
-    - data
-    - model
-    - benchmark
-    """
-    data = 'data'
-    model = 'model'
-    benchmark = 'benchmark'
-
-
 class StepPhase:
     """
     Defines available valid step phases.

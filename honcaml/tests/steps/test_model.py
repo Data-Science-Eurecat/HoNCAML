@@ -1,3 +1,4 @@
+import datetime
 import os
 import shutil
 import tempfile
@@ -17,6 +18,7 @@ class ModelTest(unittest.TestCase):
         self.extract = base.StepPhase.extract
         self.transform = base.StepPhase.transform
         self.load = base.StepPhase.load
+        self._execution_id = datetime.datetime.now().strftime('%Y%m%d-%H%M%S')
         self._global_params = {'problem_type': 'regression'}
 
         self.dataset = tabular.TabularDataset()
@@ -36,7 +38,8 @@ class ModelTest(unittest.TestCase):
         empty_user_settings = dict()
         step = model.ModelStep(params['steps']['model'],
                                empty_user_settings, self._global_params,
-                               params['step_rules']['model'])
+                               params['step_rules']['model'],
+                               self._execution_id)
         self.assertDictEqual({}, step._step_settings)
 
         # Fill transform cross-validation settings
@@ -45,7 +48,8 @@ class ModelTest(unittest.TestCase):
         }
         step = model.ModelStep(params['steps']['model'],
                                transform_user_settings, self._global_params,
-                               params['step_rules']['model'])
+                               params['step_rules']['model'],
+                               self._execution_id)
 
         self.assertDictEqual(
             step._step_settings,
@@ -64,7 +68,8 @@ class ModelTest(unittest.TestCase):
         }
         step = model.ModelStep(params['steps']['model'],
                                override_user_settings, self._global_params,
-                               params['step_rules']['model'])
+                               params['step_rules']['model'],
+                               self._execution_id)
         self.assertDictEqual(step._step_settings, {
             'extract': {
                 'filepath': 'sklearn.regressor.1234.sav'
@@ -113,7 +118,8 @@ class ModelTest(unittest.TestCase):
         }
         step = model.ModelStep(params['steps']['model'],
                                user_settings, self._global_params,
-                               params['step_rules']['model'])
+                               params['step_rules']['model'],
+                               self._execution_id)
         step._extract(step._extract_settings)
         self.assertIsInstance(step._model, sklearn_model.SklearnModel)
         self.assertIsNotNone(step._model.estimator)
@@ -123,10 +129,12 @@ class ModelTest(unittest.TestCase):
         user_settings = {
             'global': {'problem_type': 'regression'},
             'transform': {'fit': None},
+            'load': {'path': 'data/models'},
         }
         step = model.ModelStep(params['steps']['model'],
                                user_settings, self._global_params,
-                               params['step_rules']['model'])
+                               params['step_rules']['model'],
+                               self._execution_id)
         step._transform_settings['fit']['estimator'] = params[
             'steps']['model']['transform']['fit']['estimator'][
                 self._global_params['problem_type']]
@@ -142,10 +150,12 @@ class ModelTest(unittest.TestCase):
         # Fit and cross-validate
         user_settings = {
             'transform': {'fit': {'cross_validation': None}},
+            'load': {'path': 'data/models'}
         }
         step = model.ModelStep(params['steps']['model'],
                                user_settings, self._global_params,
-                               params['step_rules']['model'])
+                               params['step_rules']['model'],
+                               self._execution_id)
         step._transform_settings['fit']['estimator'] = params[
             'steps']['model']['transform']['fit']['estimator'][
                 self._global_params['problem_type']]
@@ -153,6 +163,7 @@ class ModelTest(unittest.TestCase):
             'steps']['model']['transform']['fit']['metrics'][
                 self._global_params['problem_type']]
 
+        # TODO: Mock save results
         step._dataset = self.dataset
         step._transform(step._transform_settings)
         self.assertIsNone(
@@ -162,10 +173,12 @@ class ModelTest(unittest.TestCase):
         # Predict (also fit to avoid not fitted predictor error)
         user_settings = {
             'transform': {'predict': {'path': self.test_dir}, 'fit': None},
+            'load': {'path': 'data/models'}
         }
         step = model.ModelStep(params['steps']['model'],
                                user_settings, self._global_params,
-                               params['step_rules']['model'])
+                               params['step_rules']['model'],
+                               self._execution_id)
         step._transform_settings['fit']['estimator'] = params[
             'steps']['model']['transform']['fit']['estimator'][
                 self._global_params['problem_type']]
@@ -188,7 +201,8 @@ class ModelTest(unittest.TestCase):
         norm = normalization.Normalization({})
         step = model.ModelStep(params['steps']['model'],
                                user_settings, self._global_params,
-                               params['step_rules']['model'])
+                               params['step_rules']['model'],
+                               self._execution_id)
 
         step._model = general.initialize_model('sklearn', 'regression')
 
@@ -205,11 +219,13 @@ class ModelTest(unittest.TestCase):
         # Only fit
         transform_user_settings = {
             'transform': {'fit': None},
+            'load': {'path': 'data/models'}
         }
         norm = normalization.Normalization({})
         step = model.ModelStep(params['steps']['model'],
                                transform_user_settings, self._global_params,
-                               params['step_rules']['model'])
+                               params['step_rules']['model'],
+                               self._execution_id)
         step._transform_settings['fit']['metrics'] = params[
             'steps']['model']['transform']['fit']['metrics'][
                 self._global_params['problem_type']]
@@ -225,11 +241,13 @@ class ModelTest(unittest.TestCase):
         # Fit and cross-validation
         transform_user_settings = {
             'transform': {'fit': {'cross_validation': None}},
+            'load': {'path': 'data/models'}
         }
         norm = normalization.Normalization({})
         step = model.ModelStep(params['steps']['model'],
                                transform_user_settings, self._global_params,
-                               params['step_rules']['model'])
+                               params['step_rules']['model'],
+                               self._execution_id)
         step._transform_settings['fit']['metrics'] = params[
             'steps']['model']['transform']['fit']['metrics'][
                 self._global_params['problem_type']]
@@ -252,7 +270,8 @@ class ModelTest(unittest.TestCase):
         norm = normalization.Normalization({})
         step = model.ModelStep(params['steps']['model'],
                                transform_user_settings, self._global_params,
-                               params['step_rules']['model'])
+                               params['step_rules']['model'],
+                               self._execution_id)
         step._dataset = self.dataset
         step._model = general.initialize_model('sklearn', 'regression')
         step._model.build_model(

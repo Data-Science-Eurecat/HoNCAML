@@ -45,6 +45,6 @@ default_model_step = {
         }
     },
     "load": {
-        "path": "honcaml_reports"
+        "path": "data/models",
     }
 }

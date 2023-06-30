@@ -18,11 +18,28 @@ At this moment, the following types of problems are supported:
 Quick usage
 -----------
 
-To use HoNCAML, first install it from source, together with its documentation:
+To set up and install HoNCAML, just run the following:
 
    ```commandline
-   make install doc
+   make all
    ```
+
+This will do the following:
+- Create a virtual environment to not interfere with the current environment
+- Install the library and its dependencies
+- Generate documentation
+
+Virtual environment directory is located in **./venv** by default, but it can
+be changed by changing the variable *ENV_PATH* located in **Makefile**.
+
+Then, to execute HoNCAML, all commands should be executed from within the
+generated virtual environment; to enter it, run:
+
+    ```commandline
+    source {env_path}/bin/activate
+    ```
+
+Replacing *{env_path}* with the virtual environment path.
 
 For a quick train execution, given that a dataset is available with the target
 value informed, it is necessary to first create a basic configuration file:
