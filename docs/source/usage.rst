@@ -71,6 +71,25 @@ in the blanks. All the details of the configuration file are explained in
 :ref:`configuration`. Moreover, many examples can be found at
 *honcaml/config/examples*.
 
+Executing from the GUI
+======================
+
+To run the HoNCAML GUI locally in a web browser tab, run the following command:
+
+.. code-block:: console
+
+   (.venv) $ honcaml -g
+
+
+It allows to execute HoNCAML providing a datafile and a configuration file, or
+to manually select the configuration options instead of providing the file.
+
+When using the manual configuration, it allows both levels of configuration:
+Basic, for a faster execution, and Advanced, allows users to configure the
+model hyperparameters; and three functionalities: Benchmark, Train and Predict.
+
+
+
 Command-line reference
 ======================
 
@@ -92,7 +111,8 @@ The command-line reference usage is the following:
     -t {train,predict,benchmark}, --pipeline-type {train,predict,benchmark}
                         type of execution used while creating YAML
                         configuration. Only makes sense together with
-                        -a or -b arguments.                        
+                        -a or -b arguments.
+    -g, --gui           open GUI in a web browser tab
 
 Extending HoNCAML
 =================

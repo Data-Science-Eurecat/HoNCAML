@@ -4,7 +4,7 @@ Description
 -----------
 
 HoNCAML (Holistic No Code Automated Machine Learning) is a tool aimed to run
-automated machine learning pipelines for problems of diferent nature; main
+automated machine learning pipelines for problems of different nature; main
 types of pipeline would be:
 
 1. Training the best possible model for the problem at hand
@@ -35,9 +35,9 @@ be changed by changing the variable *ENV_PATH* located in **Makefile**.
 Then, to execute HoNCAML, all commands should be executed from within the
 generated virtual environment; to enter it, run:
 
-    ```commandline
-    source {env_path}/bin/activate
-    ```
+   ```commandline
+   source {env_path}/bin/activate
+   ```
 
 Replacing *{env_path}* with the virtual environment path.
 
@@ -60,3 +60,19 @@ possible to run the intended pipeline with the following command:
    ```
 
 This will run the pipeline and export the trained model.
+
+Run GUI
+-----------
+
+To run the HoNCAML GUI locally in a web browser tab, run the following command:
+
+   ```commnadline
+   honcaml -g
+   ```
+
+It allows to execute HoNCAML providing a datafile and a configuration file, or 
+to manually select the configuration options instead of providing the file. 
+
+When using the manual configuration, it allows both levels of configuration: 
+Basic, for a faster execution, and Advanced, allows users to configure the 
+model hyperparameters; and three functionalities: Benchmark, Train and Predict.

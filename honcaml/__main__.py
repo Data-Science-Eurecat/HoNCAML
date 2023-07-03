@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import argparse
 import pkg_resources
+from subprocess import Popen
 from honcaml.tools import startup, utils
 from honcaml.config import user
 
@@ -53,6 +54,13 @@ parser.add_argument(
     help='type of execution used while creating YAML configuration. '
     'Only makes sense together with -a or -b arguments.')
 
+parser.add_argument(
+    "-g",
+    "--gui",
+    action='store_true',
+    help='open GUI in a web browser tab'
+)
+
 args = parser.parse_args()
 
 
@@ -61,6 +69,8 @@ def main():
     if args.generate_basic_config or args.generate_advanced_config:
         conf_options = utils.get_configuration_arguments(args)
         user.export_config(*conf_options)
+    elif args.gui:
+        Popen(f'cd honcaml/visualization && streamlit run gui.py', shell=True)
     else:
         if args.log:
             startup.setup_file_logging(args.log)
