@@ -25,5 +25,5 @@ validate_code:
 	$(ENV_PATH)/bin/flake8 --exclude=./.venv,./build
 
 clean:
-	rm -r .venv
-	rm -r docs/build
+	rm -rf .venv
+	rm -rf docs/build 
