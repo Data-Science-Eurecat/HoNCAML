@@ -70,7 +70,8 @@ def main():
         conf_options = utils.get_configuration_arguments(args)
         user.export_config(*conf_options)
     elif args.gui:
-        Popen(f'cd honcaml/visualization && streamlit run gui.py', shell=True)
+        Popen(f'cd honcaml/visualization && streamlit run gui.py '
+              f'--server.headless true', shell=True)
     else:
         if args.log:
             startup.setup_file_logging(args.log)
