@@ -1,7 +1,7 @@
 import os
 import datetime
 import streamlit as st
-from constants import metrics_mode
+from constants import metrics_mode, logs_path
 from define_config_file import reset_config_file
 
 
@@ -56,7 +56,9 @@ def error_message() -> None:
     """
     Display an error message.
     """
-    with open('errors.txt') as errors_reader:
+    with open(os.path.join("../..", logs_path,
+                           st.session_state["current_session"],
+                           'logs.txt')) as errors_reader:
         st.error("**There was an error during the execution:**\n\n" +
                  errors_reader.read(), icon='🚨')
 

@@ -5,6 +5,7 @@ templates_path = "../config/templates/"
 benchmark_results_path = "honcaml_reports/"
 model_results_path = "data/models/"
 trained_model_file = "data/models/sklearn.trained_model.sav"
+logs_path = "data/logs/"
 
 # dictionary containing the display name of the model and the name of the model
 # to use in the configs file
