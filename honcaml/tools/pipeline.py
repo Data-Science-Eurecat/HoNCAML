@@ -42,7 +42,6 @@ class Pipeline:
 
         self._setup_pipeline()
 
-
     def _setup_pipeline(self):
         """
         Builds the pipeline structure. Using the user defined pipeline_content,

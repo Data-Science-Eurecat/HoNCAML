@@ -5,6 +5,7 @@ from honcaml import exceptions
 from honcaml.data import extract
 from honcaml.tools import pipeline, utils
 from honcaml.tools.startup import logger
+from honcaml.tools.save_name_holder import SaveNameHolder
 
 
 class Execution:
@@ -32,9 +33,17 @@ class Execution:
 
         # Parse pipeline content
         pipeline_content = self._read_pipeline_file()
+
         # Create a Pipeline instance
         self._pipeline = pipeline.Pipeline(
             pipeline_content, self._execution_id)
+
+        # Search and save the name of the model, only for the train
+        search = 'save'
+        for key in pipeline_content['steps']['model']:
+            if key == search:
+                name = pipeline_content['steps']['model']['save']['save_name']
+                SaveNameHolder.set_save_name(name)
 
     def _read_pipeline_file(self) -> Dict:
         """

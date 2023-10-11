@@ -24,3 +24,7 @@ steps:
 
     load:
       path: data/models
+    
+    save:
+      save_name: mymodel
+

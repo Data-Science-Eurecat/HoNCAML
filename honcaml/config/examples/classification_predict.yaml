@@ -8,7 +8,7 @@ steps:
 
   model:
     extract:
-      filepath: data/models/sklearn.trained_model.sav
+      filepath: data/models/mymodel.sav
     transform:
       predict:
         path: reports

@@ -44,6 +44,9 @@ class ModelStep(base.BaseStep):
         """
         super().__init__(default_settings, user_settings, global_params,
                          step_rules)
+        module_name = default_settings[
+            'transform']['fit']['estimator']['module']
+        self._module = module_name.split('.')[0]
         self._execution_id = execution_id
         self._estimator_config = None
         self._model = None
@@ -66,8 +69,12 @@ class ModelStep(base.BaseStep):
         Args:
             settings: Settings defining the extract ETL process.
         """
+        settings_name = settings['filepath'].split('/')[-1].split('.')[0]
+        if self._module not in settings_name:
+            settings_name = self._module
+
         self._model = general.initialize_model(
-            settings['filepath'].split('/')[-1].split('.')[0],
+            settings_name,
             self._global_params['problem_type'])
         self._model.read(settings)
 

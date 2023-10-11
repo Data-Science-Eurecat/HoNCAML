@@ -60,6 +60,7 @@ class EstimatorTrainer(tune.Trainable):
             'module': self._model_module,
             'params': self._param_space,
         }
+
         self._model.build_model(
             model_config, self._dataset.normalization)
 
