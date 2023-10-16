@@ -22,7 +22,6 @@ def read_yaml(file_path: str) -> Dict:
     """
     with open(file_path, encoding='utf8') as file:
         params = yaml.safe_load(file)
-
     return params
 
 

@@ -120,6 +120,7 @@ class ModelTest(unittest.TestCase):
                                user_settings, self._global_params,
                                params['step_rules']['model'],
                                self._execution_id)
+
         step._extract(step._extract_settings)
         self.assertIsInstance(step._model, sklearn_model.SklearnModel)
         self.assertIsNotNone(step._model.estimator)

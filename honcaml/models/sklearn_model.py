@@ -6,6 +6,7 @@ from honcaml.models import base, evaluate
 from honcaml.tools import custom_typing as ct
 from honcaml.tools import utils
 from honcaml.tools.startup import logger
+from honcaml.tools.save_name_holder import SaveNameHolder
 
 
 class SklearnModel(base.BaseModel):
@@ -157,6 +158,6 @@ class SklearnModel(base.BaseModel):
         Args:
             settings: Parameter settings defining the store operation.
         """
-        settings['filename'] = utils.generate_unique_id(
-            base.ModelType.sklearn) + '.sav'
+        _save_name = SaveNameHolder.get_save_name()
+        settings['filename'] = _save_name + '.sav'
         load.save_model(self._estimator, settings)
