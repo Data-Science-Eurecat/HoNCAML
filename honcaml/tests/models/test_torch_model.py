@@ -25,7 +25,12 @@ class TorchModelTest(unittest.TestCase):
                     {'module': 'torch.nn.Linear'}
                 ],
                 'loader': {'batch_size': 20, 'shuffle': True},
-                'loss': {'module': 'torch.nn.BCEWithLogitsLoss'},
+                'loss': {
+                    'regression': {
+                        'module': 'torch.nn.MSELoss'},
+                    'classification': {
+                        'module': 'torch.nn.BCEWithLogitsLoss'}
+                },
                 'optimizer': {
                     'module': 'torch.optim.SGD',
                     'params': {'lr': 0.001, 'momentum': 0.9}
@@ -51,6 +56,9 @@ class TorchModelTest(unittest.TestCase):
         shutil.rmtree(self.test_dir)
 
     def test_import_estimator(self):
+        problem_type = 'regression'
+        self.model_config['params']['loss'] = self.model_config[
+            'params']['loss'][problem_type]
         whole_input_dim = 10
         whole_output_dim = 1
         expected = torch.nn.Sequential(
@@ -65,6 +73,8 @@ class TorchModelTest(unittest.TestCase):
     @unittest.mock.patch('joblib.load')
     def test_read(self, read_model_mockup):
         problem_type = 'regression'
+        self.model_config['params']['loss'] = self.model_config[
+            'params']['loss'][problem_type]
         read_model_mockup.return_value = utils.mock_up_read_model(
             'torch', problem_type, self.model_config, None,
             self.regression_dataset._features,
@@ -76,6 +86,8 @@ class TorchModelTest(unittest.TestCase):
 
     def test_build_model_regression(self):
         problem_type = 'regression'
+        self.model_config['params']['loss'] = self.model_config[
+            'params']['loss'][problem_type]
         model = torch_model.TorchModel(problem_type)
         model.build_model(
             self.model_config, None, self.regression_dataset._features,
@@ -85,6 +97,8 @@ class TorchModelTest(unittest.TestCase):
 
     def test_build_model_classification(self):
         problem_type = 'classification'
+        self.model_config['params']['loss'] = self.model_config[
+            'params']['loss'][problem_type]
         model = torch_model.TorchModel(problem_type)
         model.build_model(
             self.model_config, None, self.classification_dataset._features,
@@ -94,6 +108,8 @@ class TorchModelTest(unittest.TestCase):
 
     def test_fit_regression(self):
         problem_type = 'regression'
+        self.model_config['params']['loss'] = self.model_config[
+            'params']['loss'][problem_type]
         model = torch_model.TorchModel(problem_type)
         model.build_model(
             self.model_config, None, self.regression_dataset._features,
@@ -109,6 +125,8 @@ class TorchModelTest(unittest.TestCase):
 
     def test_fit_classification(self):
         problem_type = 'classification'
+        self.model_config['params']['loss'] = self.model_config[
+            'params']['loss'][problem_type]
         model = torch_model.TorchModel(problem_type)
         model.build_model(
             self.model_config, None, self.classification_dataset._features,

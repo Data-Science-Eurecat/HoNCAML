@@ -8,7 +8,7 @@ steps:
 
   model:
     extract:
-      filepath: data/models/torch.20231017-144744.sav
+      filepath: data/models/
     transform:
       predict:
         estimator:

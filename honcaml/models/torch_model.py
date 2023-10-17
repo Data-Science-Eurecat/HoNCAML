@@ -191,6 +191,8 @@ class TorchModel(base.BaseModel):
                 outputs = self._estimator(inputs)
                 loss = criterion(outputs, labels)
                 loss.backward()
+                torch.nn.utils.clip_grad_norm_(
+                    self._estimator.parameters(), 1.0)
                 optimizer.step()
                 running_loss += loss.item()
 

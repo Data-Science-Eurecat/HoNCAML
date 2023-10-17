@@ -68,7 +68,7 @@ steps:
               batch_size: 20
               shuffle: True
             loss:
-              module: torch.nn.CrossEntropyLoss
+              module: torch.nn.MSELoss
             optimizer:
               module: torch.optim.SGD
               params:

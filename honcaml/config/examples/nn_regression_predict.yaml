@@ -47,7 +47,7 @@ steps:
 
   model:
     extract:
-      filepath: data/models/torch.20231017-144658.sav
+      filepath: data/models/
     transform:
       predict:
         estimator:
@@ -55,4 +55,4 @@ steps:
             loader:
               batch_size: 20
               shuffle: True
-        path: honcaml_reports
+        path: reports
