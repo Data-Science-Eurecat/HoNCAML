@@ -1,0 +1,19 @@
+global:
+  problem_type: classification
+
+steps:
+  data:
+    extract:
+      filepath: data/processed/bank_test.csv
+
+  model:
+    extract:
+      filepath: data/models/torch.20231017-144744.sav
+    transform:
+      predict:
+        estimator:
+          params:
+            loader:
+              batch_size: 20
+              shuffle: True
+        path: reports

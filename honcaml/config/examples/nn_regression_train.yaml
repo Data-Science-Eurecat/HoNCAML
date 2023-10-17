@@ -1,0 +1,79 @@
+global:
+  problem_type: regression
+
+steps:
+  data:
+    extract:
+      filepath: data/processed/kc_house_data_train.csv
+      features:
+        - bedrooms
+        - bathrooms
+        - sqft_living
+        - sqft_lot
+        - floors
+        - waterfront
+        - view
+        - condition
+        - grade
+        - sqft_above
+        - sqft_basement
+        - yr_built
+        - yr_renovated
+        - zipcode
+        - lat
+        - long
+        - sqft_living15
+        - sqft_lot15
+      target:
+        - price
+
+    transform:
+      normalize:
+        features:
+          module: sklearn.preprocessing.StandardScaler
+          params:
+            with_std: True
+          columns:
+            - sqft_living
+            - sqft_lot
+            - sqft_above
+            - sqft_basement
+            - sqft_living15
+            - sqft_lot15
+        target:
+          module: sklearn.preprocessing.StandardScaler
+          params:
+            with_std: True
+          columns:
+            - price        
+
+  model:
+    transform:
+      fit:
+        estimator:
+          module: torch
+          params:
+            epochs: 3
+            layers:
+              - module: torch.nn.Linear
+                params:
+                  out_features: 64
+              - module: torch.nn.ReLU
+              - module: torch.nn.Linear
+                params:
+                  out_features: 32
+              - module: torch.nn.Dropout
+              - module: torch.nn.Linear                
+            loader:
+              batch_size: 20
+              shuffle: True
+            loss:
+              module: torch.nn.CrossEntropyLoss
+            optimizer:
+              module: torch.optim.SGD
+              params:
+                lr: 0.001
+                momentum: 0.9
+
+    load:
+      path: data/models

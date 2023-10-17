@@ -3,7 +3,7 @@ from typing import Dict
 
 from honcaml.data import normalization
 from honcaml.models import base as base_model
-from honcaml.models import sklearn_model
+from honcaml.models import sklearn_model, torch_model
 
 
 def mock_up_yaml() -> Dict:
@@ -57,7 +57,8 @@ def mock_up_read_classifier_dataframe() -> pd.DataFrame:
 
 
 def mock_up_read_model(model_type: str, problem_type: str,
-                       model_config: Dict, norm_config: dict = None) \
+                       model_config: Dict, norm_config: dict = None,
+                       features: list = None, target: list = None) \
         -> base_model.BaseModel:
     """
     Generates a model based on the type set for testing purposes.
@@ -66,17 +67,22 @@ def mock_up_read_model(model_type: str, problem_type: str,
         model_type: The kind of model to fake.
         problem_type: The kind of problem to fake.
         model_config: The estimator config to fake.
+        norm_config: Normalizations configuration.
+        features: List of columns used as features.
+        target: List of columns considered targets.
 
     Returns:
         The fake model.
     """
     if norm_config is None:
         norm_config = {}
+    norm = normalization.Normalization(norm_config)
     if model_type == base_model.ModelType.sklearn:
         model = sklearn_model.SklearnModel(problem_type)
-        norm = normalization.Normalization(norm_config)
+    elif model_type == base_model.ModelType.torch:
+        model = torch_model.TorchModel(problem_type)
     else:
         raise NotImplementedError('The model implementation does not exist ')
 
-    model.build_model(model_config, norm)
+    model.build_model(model_config, norm, features, target)
     return model

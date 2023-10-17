@@ -70,15 +70,14 @@ class BaseModel(ABC):
         pass
 
     @abstractmethod
-    def build_model(self, model_config: Dict, normalizations: Dict) -> None:
+    def build_model(self, model_config: Dict, *args) -> None:
         """
         Creates the requested estimator. Must be implemented by child classes.
 
         Args:
             model_config: Model configuration, i.e. module and its
                 hyperparameters.
-            normalizations: Definition of normalizations that applies to
-                the dataset during the model pipeline.
+            **kwargs: Extra parameters.
         """
         pass
 
@@ -142,6 +141,7 @@ class ModelType:
     Defines the available types of models.
     """
     sklearn = 'sklearn'
+    torch = 'torch'
 
 
 estimator_types = [

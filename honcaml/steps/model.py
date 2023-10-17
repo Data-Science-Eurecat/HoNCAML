@@ -84,7 +84,8 @@ class ModelStep(base.BaseStep):
             self._model = general.initialize_model(
                 model_type, self._global_params['problem_type'])
             self._model.build_model(
-                self._estimator_config, self._dataset.normalization)
+                self._estimator_config, self._dataset.normalization,
+                self._dataset.features, self._dataset.target)
         if ModelActions.fit in settings:
             self._fit(settings['fit'])
         if ModelActions.predict in settings:
@@ -114,6 +115,8 @@ class ModelStep(base.BaseStep):
                 **settings['cross_validation'])
             self._cv_results = evaluate.cross_validate_model(
                 self._model, x, y, cv_split, settings['metrics'],
+                train_settings=settings['estimator']['params'],
+                test_settings=settings['estimator']['params'],
                 aggregate_metrics=False)
             logger.info(f'Cross validation results: {self._cv_results}')
             if 'results' in self._step_settings['load']:
@@ -121,7 +124,7 @@ class ModelStep(base.BaseStep):
                 self._store_results(df_results)
         # Train the model with whole data
         logger.info('Training model with all data ...')
-        self._model.fit(x, y, **settings)
+        self._model.fit(x, y, **settings['estimator']['params'])
 
     def _predict(self, settings: Dict) -> None:
         """
@@ -131,7 +134,11 @@ class ModelStep(base.BaseStep):
             settings: Predict configuration.
         """
         x = self._dataset.x
-        predictions = self._model.predict(x, **settings)
+        if 'estimator' in settings:
+            predictions = self._model.predict(
+                x, **settings['estimator']['params'])
+        else:
+            predictions = self._model.predict(x, **settings)
         load.save_predictions(predictions, settings)
 
     def run(self, metadata: Dict) -> Dict:

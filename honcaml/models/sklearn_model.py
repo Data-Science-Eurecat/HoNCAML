@@ -70,7 +70,8 @@ class SklearnModel(base.BaseModel):
         self._estimator = extract.read_model(settings)
 
     def build_model(self, model_config: Dict,
-                    normalizations: normalization.Normalization) -> None:
+                    normalizations: normalization.Normalization,
+                    *args: Dict) -> None:
         """
         Creates the sklearn estimator. It builds a sklearn pipeline to handle
         the requested normalizations.
@@ -80,6 +81,7 @@ class SklearnModel(base.BaseModel):
                 hyperparameters.
             normalizations: Definition of normalizations that applies to
                 the dataset during the model pipeline.
+            **kwargs: Extra parameters.
         """
         pipeline_steps = []
         # Preprocessing

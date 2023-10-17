@@ -1,0 +1,40 @@
+global:
+  problem_type: classification
+
+steps:
+  data:
+    extract:
+      filepath: data/processed/bank_train.csv
+      target:
+        - class
+
+  model:
+    transform:
+      fit:
+        estimator:
+          module: torch
+          params:
+            epochs: 3
+            layers:
+              - module: torch.nn.Linear
+                params:
+                  out_features: 20
+              - module: torch.nn.ReLU
+              - module: torch.nn.Linear
+                params:
+                  out_features: 9
+              - module: torch.nn.Dropout
+              - module: torch.nn.Linear                
+            loader:
+              batch_size: 20
+              shuffle: True
+            loss:
+              module: torch.nn.BCEWithLogitsLoss
+            optimizer:
+              module: torch.optim.SGD
+              params:
+                lr: 0.001
+                momentum: 0.9        
+
+    load:
+      path: data/models

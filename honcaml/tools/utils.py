@@ -8,7 +8,9 @@ from functools import reduce
 from typing import Dict, Callable, List
 
 
-def import_library(module: str, params: Dict = None) -> Callable:
+def import_library(
+        module: str, params: Dict = None,
+        mand_argument: object = None) -> Callable:
     """
     Imports the module specified and creates a new callable with specific
     parameters.
@@ -16,6 +18,8 @@ def import_library(module: str, params: Dict = None) -> Callable:
     Args:
         module: Module name.
         params: Parameters for the specific module initialization.
+        mand_argument: Any mandatory argument to instantiate the library, which
+            cannot be passed as params
 
     Returns:
         callable of imported module with parameters.
@@ -27,7 +31,11 @@ def import_library(module: str, params: Dict = None) -> Callable:
     if params is None:
         params = dict()
 
-    return getattr(imported_module, name)(**params)
+    if mand_argument:
+        inst = getattr(imported_module, name)(mand_argument, **params)
+    else:
+        inst = getattr(imported_module, name)(**params)
+    return inst
 
 
 def ensure_input_list(obj: object) -> list:

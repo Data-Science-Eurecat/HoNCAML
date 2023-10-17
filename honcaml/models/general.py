@@ -2,7 +2,11 @@ import pandas as pd
 from typing import Dict, List
 
 from honcaml.exceptions import model as model_exceptions
-from honcaml.models import base as base_model, sklearn_model
+from honcaml.models import (
+    base as base_model,
+    sklearn_model,
+    torch_model
+)
 
 
 def initialize_model(model_type: str, problem_type: str) \
@@ -20,6 +24,8 @@ def initialize_model(model_type: str, problem_type: str) \
     """
     if model_type == base_model.ModelType.sklearn:
         model = sklearn_model.SklearnModel(problem_type)
+    elif model_type == base_model.ModelType.torch:
+        model = torch_model.TorchModel(problem_type)
     else:
         raise model_exceptions.ModelDoesNotExists(model_type)
     return model

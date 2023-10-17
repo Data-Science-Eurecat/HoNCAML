@@ -226,6 +226,9 @@ class ModelTest(unittest.TestCase):
                                transform_user_settings, self._global_params,
                                params['step_rules']['model'],
                                self._execution_id)
+        step._transform_settings['fit']['estimator'] = params[
+            'steps']['model']['transform']['fit']['estimator'][
+                self._global_params['problem_type']]
         step._transform_settings['fit']['metrics'] = params[
             'steps']['model']['transform']['fit']['metrics'][
                 self._global_params['problem_type']]
@@ -248,6 +251,9 @@ class ModelTest(unittest.TestCase):
                                transform_user_settings, self._global_params,
                                params['step_rules']['model'],
                                self._execution_id)
+        step._transform_settings['fit']['estimator'] = params[
+            'steps']['model']['transform']['fit']['estimator'][
+                self._global_params['problem_type']]
         step._transform_settings['fit']['metrics'] = params[
             'steps']['model']['transform']['fit']['metrics'][
                 self._global_params['problem_type']]
@@ -265,7 +271,10 @@ class ModelTest(unittest.TestCase):
         # Predict
         # TODO: mock save predictions
         transform_user_settings = {
-            'transform': {'predict': {'path': self.test_dir}},
+            'transform': {
+                'fit': None,
+                'predict': {'path': self.test_dir}},
+            'load': {'path': 'data/models'}
         }
         norm = normalization.Normalization({})
         step = model.ModelStep(params['steps']['model'],
@@ -277,7 +286,13 @@ class ModelTest(unittest.TestCase):
         step._model.build_model(
             {'module': 'sklearn.ensemble.RandomForestRegressor',
              'params': {}}, norm)
-        step._fit({'fit': None})
+        step._transform_settings['fit']['estimator'] = params[
+            'steps']['model']['transform']['fit']['estimator'][
+                self._global_params['problem_type']]
+        step._transform_settings['fit']['metrics'] = params[
+            'steps']['model']['transform']['fit']['metrics'][
+                self._global_params['problem_type']]
+        step._fit(step.transform_settings['fit'])
         step._predict(step._transform_settings['predict'])
         files_in_test_dir = os.listdir(self.test_dir)
         self.assertTrue(any(f.startswith('predictions')
@@ -286,3 +301,7 @@ class ModelTest(unittest.TestCase):
     def test_run(self):
         # TODO: make test
         pass
+
+
+if __name__ == '__main__':
+    unittest.main()
