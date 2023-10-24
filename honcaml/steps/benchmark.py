@@ -1,13 +1,12 @@
-import os.path
-
 import copy
 import logging
+import os.path
 import pandas as pd
 from ray import tune, air
 from typing import Dict, Callable, Union
 
+from honcaml import benchmark
 from honcaml.data import transform, load
-from honcaml.exceptions import benchmark as benchmark_exceptions
 from honcaml.models import trainable
 from honcaml.steps import base
 from honcaml.tools import utils, custom_typing as ct
@@ -49,54 +48,33 @@ class BenchmarkStep(base.BaseStep):
         self._execution_id = execution_id
         self._store_results_folder = None
         self._dataset = None
+        self._benchmark = None
         self._reported_metrics = None
         self._metric = None
         self._mode = None
         self._best_model = None
         self._best_hyper_parameters = None
 
-    def _clean_search_space(self, search_space: Dict) -> Dict:
+    @staticmethod
+    def _retrieve_benchmark_class(name: str) -> Callable:
         """
-        Given a dict with a search space for a model, this function gets the
-        module of model to import and the hyperparameters search space and
-        ensures that method exists.
+        Retrieve corresponding benchmark class.
 
         Args:
-            search_space (Dict): a dict with the search space to explore
-
-            Example of 'search_space' input parameter:
-            {
-                'n_estimators':
-                    method: randint
-                    values: [2, 110],
-                  max_features:
-                    method: choice
-                    values: [sqrt, log2]
-            }
+            name: Estimator name
 
         Returns:
-            (Dict): a dict where for each hyperparameter the corresponding
-            method to generate all possible values during the search.
+            Corresponding class
         """
-        cleaned_search_space = {}
-        for hyper_parameter, space in search_space.items():
-
-            try:
-                tune_method = getattr(tune, space['method'])
-            except AttributeError:
-                raise benchmark_exceptions.TuneMethodDoesNotExists(
-                    space['method'])
-
-            if space['method'] in ['choice', 'grid_search']:
-                space['values'] = [space['values']]
-
-            cleaned_search_space[hyper_parameter] = tune_method(
-                *space['values'])
-
-        return cleaned_search_space
+        root = name.split('.')[0]
+        module = getattr(benchmark, root)
+        class_name = root.capitalize() + 'Benchmark'
+        class_ = getattr(module, class_name)
+        return class_
 
     @staticmethod
     def _clean_scheduler(settings: Dict) -> Union[Callable, None]:
+
         """
         Given a dict of settings for Tune configuration, this function checks
         if exists a configuration for 'scheduler'. If it exists, It creates a
@@ -395,9 +373,12 @@ class BenchmarkStep(base.BaseStep):
         for i, name in enumerate(models, start=1):
             logger.info(
                 f'Starting search space for model {name} ({i}/{len(models)})')
+
+            self._benchmark = self._retrieve_benchmark_class(name)
+
             # Clean model params
             search_space = models[name]
-            param_space = self._clean_search_space(search_space)
+            param_space = self._benchmark._clean_search_space(search_space)
 
             # Adding model and model's hyper parameters
             config['model_module'] = name

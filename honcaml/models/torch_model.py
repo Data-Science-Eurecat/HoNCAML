@@ -1,4 +1,5 @@
 import numpy as np
+import random
 from sklearn import compose, pipeline
 import torch
 from typing import Callable, Dict, List, Tuple
@@ -57,24 +58,28 @@ class TorchModel(base.BaseModel):
         self._estimator = extract.read_model(settings)
 
     @staticmethod
-    def _import_estimator(
-            layers_config: dict, whole_input_dim: int,
+    def _import_estimator_by_layers(
+            layers_config: list, whole_input_dim: int,
             whole_output_dim: int) -> Callable:
         """
-        Given a dict with model configuration, this function import the model
-        and, it creates a new instance with the hyperparameters.
+        Given a configuration of layers, this function imports the model
+        and it creates a new instance of it. It assumes that configuration is
+        more fine-grained that its block counterpart, which means specific
+        order of all layers, and specify their hyperparameters as well.
 
         Args:
-            layers_config (dict): a dict with layers information
-            whole_input_dim (int): Input dimension of the whole network
-            whole_output_dim (int): Output dimension for the whole network
+            layers_config: Layers' information
+            whole_input_dim: Input dimension of the whole network
+            whole_output_dim: Output dimension for the whole network
 
         Returns:
-            (Callable): an instance of model with specific hyperparameters.
+            An instance of model with specific hyperparameters.
+
         """
         layers_ops = []
         prev_out_features = None
         for i, layer in enumerate(layers_config):
+            logger.debug(f'Into layer {layer}')
             if 'params' not in layer:
                 layer['params'] = {}
             layer_type = layer['module'].split('.')[-1]
@@ -93,6 +98,92 @@ class TorchModel(base.BaseModel):
             layers_ops.append(layer_op)
         model = torch.nn.Sequential(*layers_ops).to(torch.device('cpu'))
         return model
+
+    @classmethod
+    def _import_estimator_by_blocks(
+            cls, blocks_config: dict, whole_input_dim: int,
+            whole_output_dim: int) -> Callable:
+        """
+        Given a configuration of blocks of layers, this function imports the
+        model and it creates a new instance of it.  It assumes a basic
+        configuration, with just an ordered number of blocks, the last of which
+        could be null, as required by benchmark process.
+
+        Args:
+            blocks_config: Configuration of layer's blocks
+            whole_input_dim: Input dimension of the whole network
+            whole_output_dim: Output dimension for the whole network
+            first_block:
+
+        Returns:
+            An instance of model with specific hyperparameters.
+        """
+        layers_ops = []
+        # Convert to list and remove empty blocks
+        blocks = [block for block in blocks_config.values() if block]
+        features_conf = cls._generate_num_features_for_linear_layers(
+            blocks, whole_input_dim, whole_output_dim)
+        # Parse each block
+        for i, block in enumerate(blocks):
+            logger.debug(f'Into block {block}')
+            layers = block.replace(' ', '').split('+')
+            for layer_type in layers:
+                params = {}
+                if layer_type == 'Linear':
+                    # Retrieve number of features
+                    params = features_conf.pop(0)
+                layer_obj = '.'.join(['torch', 'nn', layer_type])
+                layer_conf = {
+                    'module': layer_obj,
+                    'params': params
+                }
+                layer_op = utils.import_library(**layer_conf)
+                layers_ops.append(layer_op)
+        model = torch.nn.Sequential(*layers_ops).to(torch.device('cpu'))
+        return model
+
+    @staticmethod
+    def _generate_num_features_for_linear_layers(
+            blocks: list, whole_input_dim: int,
+            whole_output_dim: int) -> list[dict]:
+        """
+        Generate number of input and output features for linear layers of block
+        configuration. The way it is done is the following:
+        1. Compute number of linear layers from configuration
+        2. For each layer, randomly decide if there will be reduction of
+           features or not
+        3. If the layer has been set for reduction, randomly select features
+           between current ones - 1 and minimum ones
+
+        Args:
+            blocks: Configuration of blocks
+            whole_input_dim: Input dimension of the whole network
+            whole_output_dim: Output dimension for the whole network
+
+        Returns:
+            List of parameters to pass to torch.nn.Linear layers in order
+        """
+        layer_features = []
+        num_linears = len([x for x in blocks if 'Linear' in x])
+        input_dim = whole_input_dim
+        for layer_num in range(num_linears):
+            if layer_num == num_linears - 1:
+                output_dim = whole_output_dim
+            else:
+                # Ensure
+                if input_dim > whole_output_dim:
+                    bool_reduction = random.choice([True, False])
+                    if bool_reduction:
+                        output_dim = random.randint(
+                            whole_output_dim, input_dim - 1)
+                    else:
+                        output_dim = input_dim
+                else:
+                    output_dim = input_dim
+            layer_features.append(
+                {'in_features': input_dim, 'out_features': output_dim})
+            input_dim = output_dim
+        return layer_features
 
     def build_model(self, model_config: Dict,
                     normalizations: normalization.Normalization,
@@ -135,8 +226,13 @@ class TorchModel(base.BaseModel):
         # Model
         input_dim, output_dim = self._retrieve_input_and_output_dims(
             features, target)
-        self._estimator = self._import_estimator(
-            model_config['params']['layers'], input_dim, output_dim)
+        layers_config = model_config['params']['layers']
+        if isinstance(layers_config, list):
+            self._estimator = self._import_estimator_by_layers(
+                layers_config, input_dim, output_dim)
+        elif isinstance(layers_config, dict):
+            self._estimator = self._import_estimator_by_blocks(
+                layers_config, input_dim, output_dim)
         logger.debug(f'Model object {self._estimator}')
 
     @staticmethod

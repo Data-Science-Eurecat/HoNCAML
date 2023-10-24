@@ -4,6 +4,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
+from honcaml import benchmark as benchmark_modules
 from honcaml.data import extract
 from honcaml.exceptions import benchmark as benchmark_exceptions
 from honcaml.steps import base
@@ -120,6 +121,16 @@ class BenchmarkTest(unittest.TestCase):
         }
         self.result_df = pd.DataFrame(data)
 
+    def test_retrieve_benchmark_class_sklearn(self):
+        name = 'sklearn.ensemble.RandomForestRegressor'
+        returned = benchmark.BenchmarkStep._retrieve_benchmark_class(name)
+        self.assertEqual(returned, benchmark_modules.sklearn.SklearnBenchmark)
+
+    def test_retrieve_benchmark_class_torch(self):
+        name = 'torch'
+        returned = benchmark.BenchmarkStep._retrieve_benchmark_class(name)
+        self.assertEqual(returned, benchmark_modules.torch.TorchBenchmark)
+
     @patch('honcaml.tools.utils.import_library')
     def test_class_methods(self, import_library_mock_up):
         import_library_mock_up.return_value = object
@@ -131,9 +142,10 @@ class BenchmarkTest(unittest.TestCase):
         # Test _clean_search_space
         models = self.settings['transform']['models']
         for model_name in models:
+            self._benchmark = ben._retrieve_benchmark_class(model_name)
             search_space = models[model_name]
 
-            param_space = ben._clean_search_space(search_space)
+            param_space = self._benchmark._clean_search_space(search_space)
 
             for _, tune_method in param_space.items():
                 self.assertNotIsInstance(tune_method, str)
@@ -146,7 +158,7 @@ class BenchmarkTest(unittest.TestCase):
                 'method': 'fake_choice', 'values': ['sqrt', 'log']}
         }
         with self.assertRaises(benchmark_exceptions.TuneMethodDoesNotExists):
-            _ = ben._clean_search_space(
+            _ = self._benchmark._clean_search_space(
                 search_space_with_nonexistent_methods)
 
         # _clean_scheduler

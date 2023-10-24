@@ -56,13 +56,6 @@ class EstimatorTrainer(tune.Trainable):
         model_type = self._model_module.split('.')[0]
         self._model = general.initialize_model(model_type, self._problem_type)
 
-        model_config = {
-            'module': self._model_module,
-            'params': self._param_space,
-        }
-        self._model.build_model(
-            model_config, self._dataset.normalization)
-
     def step(self) -> Dict[str, ct.Number]:
         """
         This function is invoked for each iteration during the search process.
@@ -73,10 +66,20 @@ class EstimatorTrainer(tune.Trainable):
         Returns:
             Dict[str, ct.Number]: a dict with score of the iteration.
         """
+        model_config = {
+            'module': self._model_module,
+            'params': self._param_space,
+        }
         logger.debug(f'Model iteration number {self._iteration}')
+        logger.debug(f'Param space: {self._param_space}')
+        self._model.build_model(
+            model_config, self._dataset.normalization,
+            self._dataset.features, self._dataset.target)
         x, y = self._dataset.x, self._dataset.y
         cv_results = evaluate.cross_validate_model(
-            self._model, x, y, self._cv_split, self._reported_metrics)
+            self._model, x, y, self._cv_split, self._reported_metrics,
+            train_settings=self._param_space,
+            test_settings=self._param_space)
         self._iteration += self._iteration
 
         return cv_results

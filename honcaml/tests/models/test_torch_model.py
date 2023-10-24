@@ -1,5 +1,6 @@
 import numpy as np
 import os
+import random
 import shutil
 import tempfile
 import torch
@@ -24,6 +25,12 @@ class TorchModelTest(unittest.TestCase):
                     {'module': 'torch.nn.ReLU'},
                     {'module': 'torch.nn.Linear'}
                 ],
+                'blocks': {
+                    'block_1': 'Linear + ReLU',
+                    'block_2': 'Dropout',
+                    'block_3': 'Linear',
+                    'block_4': None
+                },
                 'loader': {'batch_size': 20, 'shuffle': True},
                 'loss': {
                     'regression': {
@@ -55,20 +62,46 @@ class TorchModelTest(unittest.TestCase):
         # Remove the directory after the test
         shutil.rmtree(self.test_dir)
 
-    def test_import_estimator(self):
-        problem_type = 'regression'
-        self.model_config['params']['loss'] = self.model_config[
-            'params']['loss'][problem_type]
+    def test_import_estimator_by_layers(self):
         whole_input_dim = 10
         whole_output_dim = 1
         expected = torch.nn.Sequential(
             *[torch.nn.Linear(10, 64),
               torch.nn.ReLU(),
               torch.nn.Linear(64, 1)])
-        result = torch_model.TorchModel._import_estimator(
+        result = torch_model.TorchModel._import_estimator_by_layers(
             self.model_config['params']['layers'],
             whole_input_dim, whole_output_dim)
         self.assertTrue(str(expected), str(result))
+
+    def test_import_estimator_by_blocks(self):
+        random.seed(19)
+        whole_input_dim = 10
+        whole_output_dim = 1
+        expected = torch.nn.Sequential(
+            *[torch.nn.Linear(10, 8),
+              torch.nn.ReLU(),
+              torch.nn.Dropout(),
+              torch.nn.Linear(8, 1)])
+        result = torch_model.TorchModel._import_estimator_by_blocks(
+            self.model_config['params']['blocks'],
+            whole_input_dim, whole_output_dim)
+        self.assertTrue(str(expected), str(result))
+
+    def test_generate_num_features_for_linear_layers(self):
+        random.seed(7)
+        TM = torch_model.TorchModel
+        blocks = ['Linear + ReLU', 'Dropout', 'Linear + ReLU', 'Linear']
+        whole_input_dim = 10
+        whole_output_dim = 1
+        expected = [
+            {'in_features': 10, 'out_features': 10},
+            {'in_features': 10, 'out_features': 7},
+            {'in_features':  7, 'out_features': 1}
+        ]
+        result = TM._generate_num_features_for_linear_layers(
+            blocks, whole_input_dim, whole_output_dim)
+        self.assertEqual(expected, result)
 
     @unittest.mock.patch('joblib.load')
     def test_read(self, read_model_mockup):
