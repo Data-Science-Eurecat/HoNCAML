@@ -87,7 +87,7 @@ class TorchBenchmarkTest(unittest.TestCase):
             '[optimizer]-[torch.optim.Adam]-eps': search_module.Float,
             'optimizer': search_module.Categorical,
         }
-        result = torch.TorchBenchmark._clean_search_space(
+        result = torch.TorchBenchmark.clean_search_space(
             search_space, special_keys)
         # Assert main structure
         self.assertEqual(list(result), list(expected))
@@ -116,7 +116,7 @@ class TorchBenchmarkTest(unittest.TestCase):
         }
         special_types = ['layers']
         with self.assertRaises(exceptions.IncorrectParameterConfiguration):
-            torch.TorchBenchmark._clean_search_space(
+            torch.TorchBenchmark.clean_search_space(
                 search_space, special_types)
 
     def test_clean_search_space_layers_different(self):
@@ -192,3 +192,33 @@ class TorchBenchmarkTest(unittest.TestCase):
         layer_type = 'Incorrect'
         with self.assertRaises(exceptions.TorchLayerTypeDoesNotExist):
             torch.TorchBenchmark._check_layer_type(layer_type)
+
+    def test_invalidate_experiment_false(self):
+        search_space = {
+            'layers': {
+                'blocks': {
+                    'block_1': 'Linear + ReLU',
+                    'block_2': 'Linear + ReLU',
+                    'block_3': 'Dropout',
+                    'block_4': 'Linear'
+                }
+            }
+        }
+        expected = False
+        result = torch.TorchBenchmark.invalidate_experiment(search_space)
+        self.assertEqual(expected, result)
+
+    def test_invalidate_experiment_true(self):
+        search_space = {
+            'layers': {
+                'blocks': {
+                    'block_1': 'Linear + ReLU',
+                    'block_2': 'Dropout',
+                    'block_3': 'Dropout',
+                    'block_4': 'Linear'
+                }
+            }
+        }
+        expected = True
+        result = torch.TorchBenchmark.invalidate_experiment(search_space)
+        self.assertEqual(expected, result)

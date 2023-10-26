@@ -20,7 +20,7 @@ class BaseBenchmark(ABC):
         """
 
     @abstractmethod
-    def _clean_search_space(search_space: dict) -> dict:
+    def clean_search_space(search_space: dict) -> dict:
         """
         Given a dict with a search space for a model, this function gets the
         module of model to import and the hyperparameters search space and
@@ -36,6 +36,23 @@ class BaseBenchmark(ABC):
             method to generate all possible values during the search.
         """
         pass
+
+    def invalidate_experiment(search_space: dict) -> bool:
+        """
+        Logic to specify if an experiment should be invalidated before
+        estimator is cross-validated, in order to avoid unnecessary time and
+        resources. This is due to incoherent or unrealistic combination of
+        parameters that are known beforehand.
+
+        Must be implemented by child classes.
+
+        Args:
+            search_space: Search space to explore.
+
+        Returns:
+            Whether experiment should be invalidated or not
+        """
+        return False
 
     @classmethod
     def _clean_parameter_search_space(

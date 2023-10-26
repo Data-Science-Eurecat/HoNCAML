@@ -1,4 +1,5 @@
 import copy
+import numpy as np
 from ray import tune
 import re
 from typing import Dict, Union, Optional
@@ -52,7 +53,9 @@ class EstimatorTrainer(tune.Trainable):
         self._cv_split = config['cv_split']
         self._reported_metrics = config['reported_metrics']
         self._metric = config['metric']
+        self._mode = config['mode']
         self._problem_type = config['problem_type']
+        self._invalid_logic = config['invalid_logic']
 
         model_type = self._model_module.split('.')[0]
         self._model = general.initialize_model(model_type, self._problem_type)
@@ -103,16 +106,25 @@ class EstimatorTrainer(tune.Trainable):
         }
         logger.debug(f'Model iteration number {self._iteration}')
         logger.debug(f'Trainable parameter space: {self._param_space}')
-        self._model.build_model(
-            model_config, self._dataset.normalization,
-            self._dataset.features, self._dataset.target)
-        x, y = self._dataset.x, self._dataset.y
-        cv_results = evaluate.cross_validate_model(
-            self._model, x, y, self._cv_split, self._reported_metrics,
-            train_settings=self._param_space,
-            test_settings=self._param_space)
+        # In case experiment has invalid parameter space, return worst value
+        # This is in order to avoid unnecessary validations
+        if self._invalid_logic(self._param_space):
+            logger.debug('Invalidated experiment')
+            if self.mode == 'max':
+                val = -np.inf
+            else:
+                val = np.inf
+            return {self.metric: val}
+        else:
+            self._model.build_model(
+                model_config, self._dataset.normalization,
+                self._dataset.features, self._dataset.target)
+            x, y = self._dataset.x, self._dataset.y
+            cv_results = evaluate.cross_validate_model(
+                self._model, x, y, self._cv_split, self._reported_metrics,
+                train_settings=self._param_space,
+                test_settings=self._param_space)
         self._iteration += self._iteration
-
         return cv_results
 
     def save_checkpoint(

@@ -269,3 +269,17 @@ class UtilsTest(unittest.TestCase):
         utils.select_scope_params(
             params, ['regression', 'benchmark'])
         self.assertDictEqual(expected, params)
+
+    def test_create_sequence_subsets_size_2(self):
+        list_ = list(range(4))
+        size = 2
+        expected = [(0, 1), (1, 2), (2, 3)]
+        result = utils.create_sequence_subsets(list_, size)
+        self.assertEqual(expected, result)
+
+    def test_create_sequence_subsets_size_3(self):
+        list_ = list(range(4))
+        size = 3
+        expected = [(0, 1, 2), (1, 2, 3)]
+        result = utils.create_sequence_subsets(list_, size)
+        self.assertEqual(expected, result)

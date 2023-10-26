@@ -145,7 +145,7 @@ class BenchmarkTest(unittest.TestCase):
             self._benchmark = ben._retrieve_benchmark_class(model_name)
             search_space = models[model_name]
 
-            param_space = self._benchmark._clean_search_space(search_space)
+            param_space = self._benchmark.clean_search_space(search_space)
 
             for _, tune_method in param_space.items():
                 self.assertNotIsInstance(tune_method, str)
@@ -158,7 +158,7 @@ class BenchmarkTest(unittest.TestCase):
                 'method': 'fake_choice', 'values': ['sqrt', 'log']}
         }
         with self.assertRaises(benchmark_exceptions.TuneMethodDoesNotExists):
-            _ = self._benchmark._clean_search_space(
+            _ = self._benchmark.clean_search_space(
                 search_space_with_nonexistent_methods)
 
         # _clean_scheduler

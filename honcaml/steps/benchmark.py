@@ -112,8 +112,8 @@ class BenchmarkStep(base.BaseStep):
         settings_set = set(utils.ensure_input_list(settings['metrics']))
         self._reported_metrics = list(settings_set.union(tuner_set))
 
-    @staticmethod
-    def _clean_search_algorithm(settings: Dict) -> Union[Callable, None]:
+    @classmethod
+    def _clean_search_algorithm(cls, settings: Dict) -> Union[Callable, None]:
         """
         Given a dict of settings for Tune configuration, this function checks
         if exists a configuration for 'search algorithm'. If it exists,
@@ -363,6 +363,7 @@ class BenchmarkStep(base.BaseStep):
             'cv_split': copy.deepcopy(cv_split),
             'reported_metrics': self._reported_metrics,
             'metric': self._metric,
+            'mode': self._mode,
             'problem_type': self._global_params['problem_type']
         }
 
@@ -378,11 +379,12 @@ class BenchmarkStep(base.BaseStep):
 
             # Clean model params
             search_space = models[name]
-            param_space = self._benchmark._clean_search_space(search_space)
+            param_space = self._benchmark.clean_search_space(search_space)
 
             # Adding model and model's hyper parameters
             config['model_module'] = name
             config['param_space'] = param_space
+            config['invalid_logic'] = self._benchmark.invalidate_experiment
             logger.debug(f'Parameter space: {param_space}')
 
             # Prepare Tuner configurations

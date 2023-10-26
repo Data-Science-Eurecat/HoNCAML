@@ -3,6 +3,7 @@ import numpy as np
 from ray import tune
 import unittest
 
+from honcaml.benchmark import base
 from honcaml.data import tabular, transform
 from honcaml.models import trainable
 from honcaml.tests import utils
@@ -21,6 +22,8 @@ class TrainableTest(unittest.TestCase):
         self.config = {
             'model_module': 'sklearn.ensemble.RandomForestRegressor',
             'dataset': dataset,
+            'mode': 'min',
+            'invalid_logic': base.BaseBenchmark.invalidate_experiment,
             'cv_split': transform.CrossValidationSplit(**cv_split),
             'param_space': {
                 'n_estimators': tune.randint(2, 10),

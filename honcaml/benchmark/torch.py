@@ -3,13 +3,14 @@ import torch
 from honcaml.benchmark import base
 from honcaml.exceptions import benchmark as exceptions
 from honcaml.tools.startup import logger
+from honcaml.tools import utils
 
 
 class TorchBenchmark(base.BaseBenchmark):
 
     @classmethod
-    def _clean_search_space(cls, search_space: dict,
-                            special_keys: list = ['layers']) -> dict:
+    def clean_search_space(cls, search_space: dict,
+                           special_keys: list = ['layers']) -> dict:
         """
         Given a dict with a search space for a model, this function gets the
         module of model to import and the hyperparameters search space and
@@ -36,7 +37,7 @@ class TorchBenchmark(base.BaseBenchmark):
                     # Several parameters are introduced at once
                     new_parameters = func_obj(**space)
                     cleaned_search_space[
-                        hyper_parameter] = cls._clean_search_space(
+                        hyper_parameter] = cls.clean_search_space(
                             new_parameters, special_keys)
                 # Specific parameter set if module/params combination is used
                 elif ('module' and 'params' in space) or (
@@ -45,7 +46,7 @@ class TorchBenchmark(base.BaseBenchmark):
                 # Recursive call in case there are nested options
                 elif isinstance(space, dict):
                     cleaned_search_space[
-                        hyper_parameter] = cls._clean_search_space(space)
+                        hyper_parameter] = cls.clean_search_space(space)
                 else:
                     raise exceptions.IncorrectParameterConfiguration(
                         hyper_parameter)
@@ -128,3 +129,32 @@ class TorchBenchmark(base.BaseBenchmark):
                 getattr(torch.nn, part)
             except AttributeError:
                 raise exceptions.TorchLayerTypeDoesNotExist(part)
+
+    @staticmethod
+    def invalidate_experiment(search_space: dict) -> bool:
+        """
+        Logic to specify if an experiment should be invalidated before
+        estimator is cross-validated, in order to avoid unnecessary time and
+        resources. This is due to incoherent or unrealistic combination of
+        parameters that are known beforehand.
+        For torch models, invalid experiments are the ones that have two
+        dropout layers in sequence, which does not make sense.
+
+        Args:
+            search_space: Search space to explore.
+
+        Returns:
+            Whether experiment should be invalidated or not
+        """
+        invalidate = False
+        # Select non-empty blocks in sequence
+        blocks = search_space['layers']['blocks']
+        seq_blocks = [val for key, val in blocks.items()
+                      if 'block_' in key and blocks[key]]
+        # Get pairs of sequences
+        pair_blocks = utils.create_sequence_subsets(seq_blocks, size=2)
+        # Invalidate in case of two sequential dropout layers
+        for pair in pair_blocks:
+            if pair == ('Dropout', 'Dropout'):
+                invalidate = True
+        return invalidate

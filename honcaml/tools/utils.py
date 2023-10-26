@@ -218,6 +218,26 @@ def select_scope_params(params: Dict, scope_list: List) -> Dict:
                     select_scope_params(scope_params, scope_list)
 
 
+def create_sequence_subsets(list_: list, size: int) -> list:
+    """
+    Given a list, generates a list with all ordered subsets found of specified
+    width.
+
+    Args:
+        list_: Input list.
+        width: Size of subsets.
+
+    Returns:
+        List with all subsets
+    """
+    subset_list = []
+    for i in range(len(list_)):
+        if i <= len(list_) - size:
+            subset = tuple(list_[i:i+size])
+            subset_list.append(subset)
+    return subset_list
+
+
 class FileExtension:
     """
     Defines the available file formats to read data.

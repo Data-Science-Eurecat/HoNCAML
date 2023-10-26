@@ -21,6 +21,6 @@ class SklearnBenchmarkTest(unittest.TestCase):
             'n_estimators': ray.tune.search.sample.Integer,
             'max_features': ray.tune.search.sample.Categorical
         }
-        result = sklearn.SklearnBenchmark._clean_search_space(search_space)
+        result = sklearn.SklearnBenchmark.clean_search_space(search_space)
         for key in result:
             self.assertIsInstance(result[key], expected_inst[key])

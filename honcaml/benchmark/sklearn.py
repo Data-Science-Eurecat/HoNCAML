@@ -4,7 +4,7 @@ from honcaml.benchmark import base
 class SklearnBenchmark(base.BaseBenchmark):
 
     @classmethod
-    def _clean_search_space(cls, search_space: dict) -> dict:
+    def clean_search_space(cls, search_space: dict) -> dict:
         """
         Given a dict with a search space for a model, this function gets the
         module of model to import and the hyperparameters search space and
