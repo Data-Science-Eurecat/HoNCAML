@@ -7,7 +7,7 @@ from typing import Dict, Callable, Union
 
 from honcaml import benchmark
 from honcaml.data import transform, load
-from honcaml.models import trainable
+from honcaml.benchmark import trainable
 from honcaml.steps import base
 from honcaml.tools import utils, custom_typing as ct
 from honcaml.tools.startup import logger

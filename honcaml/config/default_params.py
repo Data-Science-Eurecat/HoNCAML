@@ -13,7 +13,7 @@ params = {
             "format": "%(asctime)s - %(message)s",
             "time_format": "%Y-%m-%d %H:%M:%S"
         },
-        "level": "DEBUG",
+        "level": "INFO",
     },
 
     "step_rules": default_step_rules,

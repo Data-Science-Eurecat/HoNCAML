@@ -3,9 +3,8 @@ import numpy as np
 from ray import tune
 import unittest
 
-from honcaml.benchmark import base
+from honcaml.benchmark import base, trainable
 from honcaml.data import tabular, transform
-from honcaml.models import trainable
 from honcaml.tests import utils
 
 
