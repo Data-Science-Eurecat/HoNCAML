@@ -37,8 +37,9 @@ class BaseBenchmark(ABC):
         """
         pass
 
-    @staticmethod
-    def _clean_parameter_search_space(space: dict) -> callable:
+    @classmethod
+    def _clean_parameter_search_space(
+            cls, name: str, space: dict) -> dict:
         """
         Convert parameter search space to tune formatting in order to be
         correctly fed afterwards.
@@ -52,11 +53,56 @@ class BaseBenchmark(ABC):
         Raises:
             Exception in case that tune method does not exist.
         """
+        search_space = {}
+        # Append internal spaces if there are any
+        internal_spaces = cls._clean_internal_params_for_search_space(
+            name, space)
+        if internal_spaces:
+            search_space.update(internal_spaces)
+            # Prune internal spaces
+            for i, option in enumerate(space['values']):
+                space['values'][i].__delitem__('params')
+        # Append main parameter
         try:
             tune_method = getattr(tune, space['method'])
         except AttributeError:
             raise exceptions.TuneMethodDoesNotExists(space['method'])
         if space['method'] in ['choice', 'grid_search']:
             space['values'] = [space['values']]
-        search_space = tune_method(*space['values'])
+        search_space.update({name: tune_method(*space['values'])})
         return search_space
+
+    @classmethod
+    def _clean_internal_params_for_search_space(
+            cls, name: str, space: dict,
+            format_parts: str = '[{}]', join_parts: str = '-') -> dict:
+        """
+        Cleans internal parameters to consider for search space; this checks if
+        there are nested parameters for the benchmark a part from the main one,
+        and returns them in a specific format that will be handled in the
+        `EstimatorTrainer._parse_param_space` method properly.
+
+        Args:
+            name: Name of main parameter that is being handled
+            space: Search space for parameter
+            format_parent: Format in which parent will be
+
+        Returns:
+            Dictionary with all internal parameters.
+        """
+        internal_spaces = {}
+        if space['method'] == 'choice' and isinstance(space['values'], list):
+            for i, element in enumerate(space['values']):
+                if isinstance(element, dict) and 'params' in element:
+                    for param_name, param_val in element['params'].items():
+                        if 'method' and 'values' in param_val:
+                            prefix_main = format_parts.format(name)
+                            prefix_module = format_parts.format(
+                                element['module'])
+                            internal_name = join_parts.join(
+                                [prefix_main, prefix_module, param_name])
+                            internal_val = cls._clean_parameter_search_space(
+                                param_name, param_val)
+                            internal_spaces.update(
+                                {internal_name: internal_val[param_name]})
+        return internal_spaces

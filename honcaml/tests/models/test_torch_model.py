@@ -25,12 +25,6 @@ class TorchModelTest(unittest.TestCase):
                     {'module': 'torch.nn.ReLU'},
                     {'module': 'torch.nn.Linear'}
                 ],
-                'blocks': {
-                    'block_1': 'Linear + ReLU',
-                    'block_2': 'Dropout',
-                    'block_3': 'Linear',
-                    'block_4': None
-                },
                 'loader': {'batch_size': 20, 'shuffle': True},
                 'loss': {
                     'regression': {
@@ -74,8 +68,16 @@ class TorchModelTest(unittest.TestCase):
             whole_input_dim, whole_output_dim)
         self.assertTrue(str(expected), str(result))
 
-    def test_import_estimator_by_blocks(self):
+    def test_import_estimator_by_blocks_without_params(self):
         random.seed(19)
+        self.blocks_config = {
+            'blocks': {
+                'block_1': 'Linear + ReLU',
+                'block_2': 'Dropout',
+                'block_3': 'Linear',
+                'block_4': None
+            }
+        }
         whole_input_dim = 10
         whole_output_dim = 1
         expected = torch.nn.Sequential(
@@ -84,8 +86,29 @@ class TorchModelTest(unittest.TestCase):
               torch.nn.Dropout(),
               torch.nn.Linear(8, 1)])
         result = torch_model.TorchModel._import_estimator_by_blocks(
-            self.model_config['params']['blocks'],
-            whole_input_dim, whole_output_dim)
+            self.blocks_config, whole_input_dim, whole_output_dim)
+        self.assertTrue(str(expected), str(result))
+
+    def test_import_estimator_by_blocks_with_params(self):
+        random.seed(19)
+        self.blocks_config = {
+            'blocks': {
+                'block_1': 'Linear + ReLU',
+                'block_2': 'Dropout',
+                'block_3': 'Linear',
+                'block_4': None
+            },
+            'params': {'Dropout': {'p': 0.6}}
+        }
+        whole_input_dim = 10
+        whole_output_dim = 1
+        expected = torch.nn.Sequential(
+            *[torch.nn.Linear(10, 8),
+              torch.nn.ReLU(),
+              torch.nn.Dropout(0.6),
+              torch.nn.Linear(8, 1)])
+        result = torch_model.TorchModel._import_estimator_by_blocks(
+            self.blocks_config, whole_input_dim, whole_output_dim)
         self.assertTrue(str(expected), str(result))
 
     def test_generate_num_features_for_linear_layers(self):

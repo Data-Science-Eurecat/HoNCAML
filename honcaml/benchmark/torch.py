@@ -40,7 +40,7 @@ class TorchBenchmark(base.BaseBenchmark):
                             new_parameters, special_keys)
                 # Specific parameter set if module/params combination is used
                 elif ('module' and 'params' in space) or (
-                        'block' in hyper_parameter):
+                        'block_' in hyper_parameter):
                     cleaned_search_space[hyper_parameter] = space
                 # Recursive call in case there are nested options
                 elif isinstance(space, dict):
@@ -50,17 +50,18 @@ class TorchBenchmark(base.BaseBenchmark):
                     raise exceptions.IncorrectParameterConfiguration(
                         hyper_parameter)
             else:
-                cleaned_search_space[
-                    hyper_parameter] = super()._clean_parameter_search_space(
-                        space)
+                params_to_append = super()._clean_parameter_search_space(
+                    hyper_parameter, space)
+                cleaned_search_space.update(params_to_append)
 
+        logger.debug(f'Cleaned search space: {cleaned_search_space}')
         return cleaned_search_space
 
     @classmethod
     def _clean_search_space_layers(
-            cls, number_blocks: list, types: list[str],
+            cls, number_blocks: list, types: list, params: dict = None,
             first_block: str = 'Linear + ReLU',
-            last_block: str = 'Linear') -> dict:
+            last_block: str = 'Linear', **kwargs: dict) -> dict:
         """
         Clean search space related to neural net layers.
 
@@ -80,6 +81,7 @@ class TorchBenchmark(base.BaseBenchmark):
                 types from `torch.nn` module:
                  - Simple layer -> {layer}
                  - Sequential layers -> {layer1 + ... + layern}
+            params: Specific params to benchmark within each layer type
             first_block: Type of first block
             last_block: Type of last block
 
@@ -93,18 +95,20 @@ class TorchBenchmark(base.BaseBenchmark):
         # Ensure types are correct
         for layer_type in types:
             cls._check_layer_type(layer_type)
-        parameters = {}
-        parameters['block_1'] = first_block
+        parameters = {'blocks': {}}
+        parameters['blocks']['block_1'] = first_block
         initial_layer = 2
         layer_types = types
         for i in range(number_blocks[1] - 2):
             layer_num = initial_layer + i
             if layer_num > number_blocks[0] - 1:
                 layer_types = types + [None]
-            parameters[f'block_{layer_num}'] = {
+            parameters['blocks'][f'block_{layer_num}'] = {
                 'method': 'choice', 'values': layer_types}
         layer_num += 1
-        parameters[f'block_{layer_num}'] = last_block
+        parameters['blocks'][f'block_{layer_num}'] = last_block
+        if params:
+            parameters.update({'params': params})
         return parameters
 
     @staticmethod

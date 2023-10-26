@@ -383,6 +383,7 @@ class BenchmarkStep(base.BaseStep):
             # Adding model and model's hyper parameters
             config['model_module'] = name
             config['param_space'] = param_space
+            logger.debug(f'Parameter space: {param_space}')
 
             # Prepare Tuner configurations
             run_config = air.RunConfig(

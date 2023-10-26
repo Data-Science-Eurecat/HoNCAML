@@ -8,6 +8,7 @@ from honcaml.exceptions import benchmark as exceptions
 class TorchBenchmarkTest(unittest.TestCase):
 
     def test_clean_search_space_correct(self):
+        search_module = ray.tune.search.sample
         search_space = {
             'epochs': {
                 'method': 'randint',
@@ -32,35 +33,59 @@ class TorchBenchmarkTest(unittest.TestCase):
                 'values': ['nn.torch.MLELoss', 'nn.torch.L1Loss']
             },
             'optimizer': {
-                'module': 'torch.optim.SGD',
-                'params': {
-                    'lr': 0.001,
-                    'momentum': 0.9
-                }
+                'method': 'choice',
+                'values': [
+                    {
+                        'module': 'torch.optim.SGD',
+                        'params': {
+                            'lr': {
+                                'method': 'loguniform',
+                                'values': [0.001, 0.01]
+                            },
+                            'momentum': {
+                                'method': 'uniform',
+                                'values': [0.5, 1]
+                            }
+                        }
+                    },
+                    {
+                        'module': 'torch.optim.Adam',
+                        'params': {
+                            'lr': {
+                                'method': 'loguniform',
+                                'values': [0.001, 0.1]
+                            },
+                            'eps': {
+                                'method': 'loguniform',
+                                'values': [0.0000001, 0.00001]
+                            }
+                        }
+                    }
+                ]
             }
         }
         special_keys = ['layers']
         expected = {
             'epochs': ray.tune.search.sample.Integer,
             'layers': {
-                'block_1': 'Linear + ReLU',
-                'block_2': ray.tune.search.sample.Categorical,
-                'block_3': ray.tune.search.sample.Categorical,
-                'block_4': ray.tune.search.sample.Categorical,
-                'block_5': 'Linear'
+                'blocks': {
+                    'block_1': 'Linear + ReLU',
+                    'block_2': search_module.Categorical,
+                    'block_3': search_module.Categorical,
+                    'block_4': search_module.Categorical,
+                    'block_5': 'Linear'
+                }
             },
             'loader': {
-                'batch_size': ray.tune.search.sample.Integer,
-                'shuffle': ray.tune.search.sample.Categorical
+                'batch_size': search_module.Integer,
+                'shuffle': search_module.Categorical
             },
-            'loss': ray.tune.search.sample.Categorical,
-            'optimizer': {
-                'module': 'torch.optim.SGD',
-                'params': {
-                    'lr': 0.001,
-                    'momentum': 0.9
-                }
-            }
+            'loss': search_module.Categorical,
+            '[optimizer]-[torch.optim.SGD]-lr': search_module.Float,
+            '[optimizer]-[torch.optim.SGD]-momentum': search_module.Float,
+            '[optimizer]-[torch.optim.Adam]-lr': search_module.Float,
+            '[optimizer]-[torch.optim.Adam]-eps': search_module.Float,
+            'optimizer': search_module.Categorical,
         }
         result = torch.TorchBenchmark._clean_search_space(
             search_space, special_keys)
@@ -76,6 +101,9 @@ class TorchBenchmarkTest(unittest.TestCase):
                 elif isinstance(result[key], dict):
                     assert_dict_types(result[key], expected[key])
                 else:
+                    print('key', key)
+                    print('result', result)
+                    print('expected', expected)
                     self.assertIsInstance(result[key], expected[key])
         # Run function
         assert_dict_types(result, expected)
@@ -94,36 +122,42 @@ class TorchBenchmarkTest(unittest.TestCase):
     def test_clean_search_space_layers_different(self):
         number_blocks = [3, 5]
         types = ['Linear + ReLU', 'Dropout']
+        params = {'Dropout': {'method': 'uniform', 'values': [0.4, 0.6]}}
         expected = {
-            'block_1': 'Linear + ReLU',
-            'block_2': {
-                'method': 'choice',
-                'values': ['Linear + ReLU', 'Dropout']
+            'blocks': {
+                'block_1': 'Linear + ReLU',
+                'block_2': {
+                    'method': 'choice',
+                    'values': ['Linear + ReLU', 'Dropout']
+                },
+                'block_3': {
+                    'method': 'choice',
+                    'values': ['Linear + ReLU', 'Dropout', None]
+                },
+                'block_4': {
+                    'method': 'choice',
+                    'values': ['Linear + ReLU', 'Dropout', None]
+                },
+                'block_5': 'Linear'
             },
-            'block_3': {
-                'method': 'choice',
-                'values': ['Linear + ReLU', 'Dropout', None]
-            },
-            'block_4': {
-                'method': 'choice',
-                'values': ['Linear + ReLU', 'Dropout', None]
-            },
-            'block_5': 'Linear'
+            'params': {'Dropout': {'method': 'uniform', 'values': [0.4, 0.6]}}
         }
         result = torch.TorchBenchmark._clean_search_space_layers(
-            number_blocks, types)
+            number_blocks, types, params)
         self.assertEqual(expected, result)
 
     def test_clean_search_space_layers_equal(self):
         number_blocks = [3, 3]
         types = ['Linear + ReLU', 'Dropout']
         expected = {
-            'block_1': 'Linear + ReLU',
-            'block_2': {
-                'method': 'choice',
-                'values': ['Linear + ReLU', 'Dropout']
-            },
-            'block_3': 'Linear'
+            'blocks': {
+                'block_1': 'Linear + ReLU',
+                'block_2': {
+                    'method': 'choice',
+                    'values': ['Linear + ReLU', 'Dropout']
+                },
+                'block_3': 'Linear'
+            }
         }
         result = torch.TorchBenchmark._clean_search_space_layers(
             number_blocks, types)

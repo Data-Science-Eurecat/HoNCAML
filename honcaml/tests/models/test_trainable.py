@@ -38,6 +38,56 @@ class TrainableTest(unittest.TestCase):
         self.assertIsInstance(train_obj, trainable.EstimatorTrainer)
         self.assertDictEqual(train_obj.config, self.config)
 
+    def test_parse_param_space(self) -> None:
+        space = {
+            'epochs': 2,
+            'layers': {
+                'block_1': 'Linear + ReLU',
+                'block_2': 'Dropout',
+                'block_3': 'Dropout',
+                'block_4': 'Linear + ReLU',
+                'block_5': None,
+                'block_6': 'Linear'
+            },
+            'loader': {
+                'batch_size': 31,
+                'shuffle': False
+            },
+            'loss': {'module': 'torch.nn.L1Loss'},
+            'optimizer': {
+                'module': 'torch.optim.SGD',
+            },
+            '[optimizer]-[torch.optim.SGD]-lr': 0.6,
+            '[optimizer]-[torch.optim.SGD]-momentum': 0.8,
+            '[optimizer]-[torch.optim.Adam]-lr': 0.2,
+            '[optimizer]-[torch.optim.Adam]-eps': 0.1
+        }
+        expected = {
+            'epochs': 2,
+            'layers': {
+                'block_1': 'Linear + ReLU',
+                'block_2': 'Dropout',
+                'block_3': 'Dropout',
+                'block_4': 'Linear + ReLU',
+                'block_5': None,
+                'block_6': 'Linear'
+            },
+            'loader': {
+                'batch_size': 31,
+                'shuffle': False
+            },
+            'loss': {'module': 'torch.nn.L1Loss'},
+            'optimizer': {
+                'module': 'torch.optim.SGD',
+                'params': {
+                    'lr': 0.6,
+                    'momentum': 0.8
+                }
+            }
+        }
+        result = trainable.EstimatorTrainer._parse_param_space(space)
+        self.assertEqual(expected, result)
+
     def test_step(self) -> None:
         seeds = [1, 4]
         param_spaces = copy.deepcopy(self.config['param_space'])

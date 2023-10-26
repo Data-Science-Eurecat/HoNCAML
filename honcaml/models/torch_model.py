@@ -120,7 +120,12 @@ class TorchModel(base.BaseModel):
         """
         layers_ops = []
         # Convert to list and remove empty blocks
-        blocks = [block for block in blocks_config.values() if block]
+        blocks = [block for block
+                  in blocks_config['blocks'].values() if block]
+        if 'params' in blocks_config:
+            params = blocks_config['params']
+        else:
+            params = {}
         features_conf = cls._generate_num_features_for_linear_layers(
             blocks, whole_input_dim, whole_output_dim)
         # Parse each block
@@ -128,14 +133,17 @@ class TorchModel(base.BaseModel):
             logger.debug(f'Into block {block}')
             layers = block.replace(' ', '').split('+')
             for layer_type in layers:
-                params = {}
+                layer_params = {}
+                if layer_type in params:
+                    # Configuration parameters
+                    layer_params.update(params[layer_type])
                 if layer_type == 'Linear':
                     # Retrieve number of features
-                    params = features_conf.pop(0)
+                    layer_params.update(features_conf.pop(0))
                 layer_obj = '.'.join(['torch', 'nn', layer_type])
                 layer_conf = {
                     'module': layer_obj,
-                    'params': params
+                    'params': layer_params
                 }
                 layer_op = utils.import_library(**layer_conf)
                 layers_ops.append(layer_op)

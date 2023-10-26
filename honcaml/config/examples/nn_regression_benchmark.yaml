@@ -59,6 +59,11 @@ steps:
             types:
               - Linear + ReLU
               - Dropout
+            params:
+              Dropout:
+                p: 
+                  method: uniform
+                  values: [0.4, 0.6]
           loader:
             batch_size:
               method: randint
@@ -74,10 +79,25 @@ steps:
               - module: torch.nn.MSELoss
               - module: torch.nn.L1Loss
           optimizer:
-            module: torch.optim.SGD
-            params:
-              lr: 0.001
-              momentum: 0.9
+            method: choice
+            values:
+              - module: torch.optim.SGD
+                params:
+                  lr:
+                    method: loguniform
+                    values: [0.001, 0.01]
+                  momentum:
+                    method: uniform
+                    values: [0.5, 1]
+              - module: torch.optim.Adam
+                params:
+                  lr:
+                    method: loguniform
+                    values: [0.001, 0.1]
+                  eps:
+                    method: loguniform
+                    values: [0.0000001, 0.00001]                
       metrics: mean_absolute_percentage_error
     load:
       path: data/models
+      

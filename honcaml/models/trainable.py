@@ -1,4 +1,6 @@
+import copy
 from ray import tune
+import re
 from typing import Dict, Union, Optional
 
 from honcaml.models import general, evaluate
@@ -48,13 +50,42 @@ class EstimatorTrainer(tune.Trainable):
         self._model_module = config['model_module']
         self._dataset = config['dataset']
         self._cv_split = config['cv_split']
-        self._param_space = config['param_space']
         self._reported_metrics = config['reported_metrics']
         self._metric = config['metric']
         self._problem_type = config['problem_type']
 
         model_type = self._model_module.split('.')[0]
         self._model = general.initialize_model(model_type, self._problem_type)
+        self._param_space = self._parse_param_space(config['param_space'])
+
+    @staticmethod
+    def _parse_param_space(
+            space: dict, regexp: str = '^\\[(.+)\\]-\\[(.+)\\]-(.*)$') -> dict:
+        """
+        Parse parameter space, which consists of replacing conditional (nested)
+        parameters that have been formatted in
+        `BaseBenchmark._clean_internal_params_for_search_space`.
+
+        Args:
+            space: Parameter space
+            regexp: Regular expression to capture internal parameters and parts
+
+        Returns:
+            Updated parameter space
+        """
+        new_space = copy.deepcopy(space)
+        for key in space:
+            match_obj = re.match(regexp, key)
+            if match_obj:
+                main = match_obj[1]
+                module = match_obj[2]
+                if 'params' not in new_space[main]:
+                    new_space[main]['params'] = {}
+                if space[main]['module'] == module:
+                    internal_param = match_obj[3]
+                    new_space[main]['params'][internal_param] = space[key]
+                new_space.__delitem__(key)
+        return new_space
 
     def step(self) -> Dict[str, ct.Number]:
         """
@@ -71,7 +102,7 @@ class EstimatorTrainer(tune.Trainable):
             'params': self._param_space,
         }
         logger.debug(f'Model iteration number {self._iteration}')
-        logger.debug(f'Param space: {self._param_space}')
+        logger.debug(f'Trainable parameter space: {self._param_space}')
         self._model.build_model(
             model_config, self._dataset.normalization,
             self._dataset.features, self._dataset.target)

@@ -29,6 +29,7 @@ class SklearnBenchmark(base.BaseBenchmark):
         """
         cleaned_search_space = {}
         for hyper_parameter, space in search_space.items():
-            cleaned_search_space[
-                hyper_parameter] = super()._clean_parameter_search_space(space)
+            params_to_append = super()._clean_parameter_search_space(
+                    hyper_parameter, space)
+            cleaned_search_space.update(params_to_append)
         return cleaned_search_space
