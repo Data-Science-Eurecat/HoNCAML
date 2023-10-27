@@ -323,31 +323,12 @@ class TorchModel(base.BaseModel):
         with torch.no_grad():
             for data in loader:
                 outputs = self._estimator(data)
-                # In case of classification?
                 if self.estimator_type == 'classifier':
                     _, predicted = torch.max(outputs.data, 1)
                 else:
                     predicted = outputs.data
                 predictions = torch.cat((predictions, predicted), 0)
         predictions = np.array(predictions)
-        return predictions
-
-    @staticmethod
-    def _append_predictions(
-            predictions: torch.Tensor, outputs: torch.Tensor) -> torch.Tensor:
-        """
-        Append batch predictions to global ones, considering multiple targets
-        if necessary.
-
-        Args:
-            predictions: Global predictions until previous batch.
-            outputs: Batch output.
-
-        Returns:
-            Updated predictions.
-        """
-        _, predicted = torch.max(outputs.data, 1)
-        predictions = torch.cat((predictions, predicted), 0)
         return predictions
 
     def evaluate(self, x: ct.Dataset, y: ct.Dataset, metrics: List,
