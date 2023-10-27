@@ -41,9 +41,9 @@ steps:
       # See: https://scikit-learn.org/stable/modules/classes.html#module-sklearn.metrics
       metrics:
       # Models and hyperparameters to benchmark; if ommited, defaults are used.
-      # Available models are the ones available from sklearn, and of course
-      # just the ones related to the problem type specified.
-      # See: https://scikit-learn.org/stable/supervised_learning.html
+      # Available models are the ones available from sklearn and torch models,
+      # and of course if they apply to the problem type specified.
+      # See for example: https://scikit-learn.org/stable/supervised_learning.html
       # Each of the model should be a key, which as values should have as many
       # keys as hiperparameters to consider in the search space. Each of the
       # hyperparameters will have a search method and the values desired for
@@ -61,6 +61,8 @@ steps:
       #       values:
       #         - uniform
       #         - distance
+      # Deep learning models (implemented in torch) follow a specific format,
+      # which is covered in detail within the documentation
       models:
       cross_validation:
         # Module to use for cross validation and parameters if required.

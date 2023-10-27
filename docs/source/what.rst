@@ -32,7 +32,18 @@ There are (at least) two main types of users who could benefit from this tool:
 Pipelines
 =========
 
+This library assumes data has tabular format, and is clean enough to be used to
+train models.
+
 At this moment, the following types of problems are supported:
 
 * Regression
 * Classification
+
+Regarding available models, the following are supported:
+
+* Sklearn models
+* Pytorch (neural net) models
+
+However, due to its nature, extend the library to include other type of
+problems and models should be not only feasible, but intuitive.

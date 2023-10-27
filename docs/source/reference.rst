@@ -77,12 +77,6 @@ The model step is the one related to model management.
   .. autoclass:: honcaml.models.base.BaseModel
      :members:
                
-- EstimatorTrainer: Computes optimised hyperparameters for a specific model,
-  based on `tune.Trainable` class.
-
-  .. autoclass:: honcaml.models.trainable.EstimatorTrainer
-     :members:
-
                
 Benchmark
 ---------
@@ -92,3 +86,16 @@ select the best model between all of the available options.
 
 .. autoclass:: honcaml.steps.benchmark.BenchmarkStep
    :members:
+
+- BaseBenchmark: Defines an abstract class for model benchmarking.
+
+  .. autoclass:: honcaml.benchmark.base.BaseBenchmark
+     :members:      
+
+- EstimatorTrainer: Computes optimised hyperparameters for a specific model,
+  based on `tune.Trainable` class.
+
+  .. autoclass:: honcaml.benchmark.trainable.EstimatorTrainer
+     :members:
+
+      

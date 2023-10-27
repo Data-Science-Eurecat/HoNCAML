@@ -249,9 +249,10 @@ cross-validation. The available configurations are the following:
 
   - **estimator** (dict, optional): Sppecifies the estimator and its
     hyperparameters. Consists of the following:
+    
     - **module** (str, optional): Learner module to use.
     - **params** (dict, optional): Additional parameters to pass to module
-    class.
+      class.
 
     Available models are the ones `available from sklearn
     <https://scikit-learn.org/stable/supervised_learning.html>`_, and of
@@ -261,10 +262,12 @@ cross-validation. The available configurations are the following:
     classification problems, both with ``n_estimator`` equal to 100.
 
   - **cross_validation** (dict, optional): Defines which cross-validation
-    strategy to use for training the model. Dictionary may have the following keys:
+    strategy to use for training the model. Dictionary may have the following
+    keys:
+    
     - **module** (str, optional): Cross validation module to use.
     - **params** (dict, optional): Additional parameters to pass to module
-    class.
+      class.
 
     Any cross validation method in `sklearn cross-validation
     <https://scikit-learn.org/stable/modules/cross_validation.html#cross-validation-iterators>`_
@@ -291,8 +294,9 @@ cross-validation. The available configurations are the following:
     configuration.
 
 - **predict** (dict [#comp4]_): Requests to run predictions over the dataset.
+  
   - **path** (str, optional): Directory where the predictions will be
-  stored. Default value: ``data/processed``.
+    stored. Default value: ``data/processed``.
 
 .. [#comp3]
 
@@ -312,7 +316,6 @@ definition:
 
 .. code:: yaml
 
-
     transform:
       fit:
         estimator:
@@ -324,6 +327,89 @@ definition:
           params:
             n_splits: 2
 
+.. _deep-learning-models:
+
+Deep learning models
+^^^^^^^^^^^^^^^^^^^^
+       
+Deep learning models implemented in torch require a specific format, different
+from sklearn based models or similar, in which parameters are passed directly
+when instantiating the model class.
+
+First of all, **module** key should have just as value ``torch`` in order to
+indicate that a neural net will be used as estimator. Within the **params**
+key, the following keys should be specified [#comp5]_:
+
+- **epochs** (int): Number of training epochs.
+
+- **layers** (list) Layers configuration; the structure of each one is:
+  
+  - **module** (str): Layer module to use.
+  - **params** (dict, optional [#comp6]_): Additional parameters to pass to
+    layers.
+
+  In the case of linear layers, as the parameter **in_features** is dependent
+  on previous layers, only **out_features** is required; however, if the last
+  layer of the neural net is another linear layer, no **out_features** should
+  be provided, as dimension will be inferred from targets.
+
+- **loader**: (dict): Specifies data loader options to use. Internal keys:
+  
+    - **batch_size** (int): Number of rows to consider for each batch.
+    - **shuffle** (bool): Whether to shuffle data at every epoch.
+
+- **loss** (dict): Loss to consider; requires the following:
+  
+  - **module** (str): Loss module to use.
+  - **params** (dict, optional): Additional parameters to pass to module.
+
+- **optimizer** (dict): Optimizer to consider; requires the following:
+  
+  - **module** (str): Optimizer module to use.
+  - **params** (dict, optional): Additional parameters to pass to module.
+
+An example of a training configuration for a deep learning model would be:
+
+.. code:: yaml
+
+  model:
+    transform:
+      fit:
+        estimator:
+          module: torch
+          params:
+            epochs: 3
+            layers:
+              - module: torch.nn.Linear
+                params:
+                  out_features: 64
+              - module: torch.nn.ReLU
+              - module: torch.nn.Linear
+                params:
+                  out_features: 32
+              - module: torch.nn.Dropout
+              - module: torch.nn.Linear                
+            loader:
+              batch_size: 20
+              shuffle: True
+            loss:
+              module: torch.nn.MSELoss
+            optimizer:
+              module: torch.optim.SGD
+              params:
+                lr: 0.001
+                momentum: 0.9          
+    
+.. [#comp5]
+
+   All options are required for training and benchmark pipelines, whereas
+   dataloader is the only one required by predict pipelines.
+
+.. [#comp6]
+
+   Optional for all layer types except for linear ones, except for the last
+   layer if it is linear.
+            
 Load
 ----
 
@@ -331,7 +417,7 @@ In load phase the possible configurations are the following:
 
 - **path** (str, optional): Directory where the model will be saved.
 
-- **results** (str, [#comp5]_): Directory where to store training cross
+- **results** (str, [#comp7]_): Directory where to store training cross
   validation results; generated file will have the following format:
   ``{results}/{execution_id}/results.csv``. If not set, results will not be
   exported.
@@ -339,7 +425,7 @@ In load phase the possible configurations are the following:
 The filename is generated by the framework following the
 following convention: ``{model_type}.{execution_id}.sav``
 
-.. [#comp5]
+.. [#comp7]
 
    Optional for train pipelines, and excluded for the rest of pipeline
    types.
@@ -355,6 +441,7 @@ It is made up for the following ETL phases:
 
 - **transform**: this phase runs an hyperparamater search algorithm for each
   specified model. Furthermore, it gets the best model configuration.
+  
 - **load**: it saves the best configuration into a yaml file.
 
 Apart from obtaining the best model configuration, it is possible to train the
@@ -396,26 +483,38 @@ The available configurations are the following:
 - **models** (dict, optional): Dictionary of models and hyperparameters to
   search for best configuration. Each entry of the list refers to a model to
   benchmark. Keys should be the following:
+  
   - **{model_name}** (dict, optional): Name of model module,
-  e.g. ``sklearn.ensemble.RandomForestRegressor``.
+    e.g. ``sklearn.ensemble.RandomForestRegressor``.
 
-  Within each module, there should be as many keys as model parameters to search:
-  - **{hyperparameter}** (dict, optional): Name of hyperparameter,
-  e.g. ``n_estimators``.
-  Within each hyperparameter, the following needs to be specified:
-  - **method** (str, optional): Method to consider for searching hyperparameter values.
-  - **values** (tuple/list, optional): Values to consider for hyperparameter
-  search, passed to specified method.
+  Within each module, there should be as many keys as model parameters to
+  search:
+
+    - **{hyperparameter}** (dict, optional): Name of hyperparameter,
+      e.g. ``n_estimators``. Within each hyperparameter, the following needs to
+      be specified:
+
+      - **method** (str, optional): Method to consider for searching
+        hyperparameter values.
+      - **values** (tuple/list, optional): Values to consider for hyperparameter
+        search, passed to specified method.
 
   Available methods and value parameters are defined in the `search space
   <https://docs.ray.io/en/latest/tune/api/search_space.html>`_.  The default
   models and hyperparameters for each type of problem are defined at
   *honcaml/config/defaults/search_spaces.py*.
 
+  In case of deep learning models, the name of the model to use is ``torch``,
+  and there is a specific chapter to detail the required configuration in
+  :ref:`deep-learning-benchmark`.
+
 - **cross_validation** (dict, optional): defines which cross-validation
-  strategy to use for training each model. Dictionary may have the following keys:
+  strategy to use for training each model. Dictionary may have the following
+  keys:
+  
   - **module** (str, optional): Cross validation module to use.
   - **params** (dict, optional): Additional parameters to pass to module class.
+
   Any cross validation method in `sklearn cross-validation
   <https://scikit-learn.org/stable/modules/cross_validation.html#cross-validation-iterators>`_
   should work, provided that it follows their consistent structure.
@@ -445,8 +544,9 @@ The available configurations are the following:
   
 - **tuner** (dict): defines the configuration of tune process. Their options
   are the following:
+  
   - **search_algorithm** (dict, optional): Specifies the algorithm to perform
-  the search. Consists of the following:
+    the search. Consists of the following:
 
     - **module** (str, optional): Algorithm module to use.
     - **params** (dict, optional): Additional parameters to pass to module
@@ -455,16 +555,17 @@ The available configurations are the following:
   For all available options, see `the search algorithms documentation
   <https://docs.ray.io/en/latest/tune/api/suggestion.html>`_.
   Default is ``ray.tune.search.optuna.OptunaSearch``.
+  
   - **tune_config** (dict, optional): Parameters to pass to tuner config
-  object, specified as key-value pairs. For available options, see `TuneConfig
-  documentation
-  <https://docs.ray.io/en/latest/tune/api/doc/ray.tune.TuneConfig.html>`_.
+    object, specified as key-value pairs. For available options, see `TuneConfig
+    documentation
+    <https://docs.ray.io/en/latest/tune/api/doc/ray.tune.TuneConfig.html>`_.
   - **run_config** (dict, optional): Parameters to be used during run,
-  specified as key-value pairs. For available options, see `RunConfig
-  documentation
-  <https://docs.ray.io/en/latest/ray-air/api/doc/ray.air.RunConfig.html>`_.
+    specified as key-value pairs. For available options, see `RunConfig
+    documentation
+    <https://docs.ray.io/en/latest/ray-air/api/doc/ray.air.RunConfig.html>`_.
   - **scheduler** (dict, optional): Allows to define different strategies
-  during the search process. Consists of the following:
+    during the search process. Consists of the following:
   
     - **module** (str, optional): Algorithm module to use.
     - **params** (dict, optional): Additional parameters to pass to module
@@ -514,6 +615,124 @@ definition:
      scheduler:
        module: ray.tune.schedulers.HyperBandScheduler
 
+.. _deep-learning-benchmark:
+       
+Deep learning benchmark
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Deep learning models, in a benchmark pipeline, require a specific format, due
+to the fact that models require a custom format as well (it is advisable to
+review their structure in :ref:`deep-learning-models`). The main structure
+should be the same:
+
+- **epochs** (dict): Typical keys **method** (with value ``randint``) and
+  **values** should be specified.
+
+- **layers** (dict) Layer structure to benchmark; this key is the only one with
+  a completely different structure than specified in deep learning models; this
+  is because the approach for benchmarking them is through what are called
+  blocks. Blocks are a predefined combination of layers that will be shuffled
+  with a specific layer to generate combinations to benchmark. For example, one
+  block could be a linear layer + rectified linear unit, and another one could
+  be a dropout layer. The required structure is the following:
+
+  - **number_blocks** (list): List of two values, which is the minimum and
+    maximum number of blocks considered for the models.
+  - **types** (list): List of strings that specify succession of layer types to
+    be considered as blocks, assuming that their names are contained within
+    `torch nn module <https://pytorch.org/docs/stable/nn.html>`_. Blocks that
+    contain a sequence of layers should join their names with the symbol ``+``.
+  - **params** (dict, optional): In case some layer types require specific
+    parameters to be benchmarked, they should be informed within this key. The
+    structure to follow is the following:
+  
+    - **{layer name}** (str): Layer name, as specified in **types**.
+
+      - **{parameter name}** (str): Name of parameter to be benchmarked. Its
+        internal structure should have the typical benchmark structure,
+        **method** and **values**.
+
+- **loader**: (dict): Should still have both keys, **batch_size** and
+  **shuffle**, and each of them follow the standard benchmark structure
+  (**method** and **values**).
+
+- **loss** (dict): Loss to consider; requires the following:
+  
+  - **method** (str): Should be equal to ``choice``.
+  - **values** (list): For each possible option to consider, specify the
+    following:
+  
+    - **module** (str): Loss module.
+    - **params** (dict, optional): Parameters to benchmark for the specific
+      module, in case there are any. Each of them should have the standard
+      structure **method** and **values**.
+
+- **optimizer** (dict): Optimizer to consider; requires the following:
+  
+  - **method** (str): Should be equal to ``choice``.
+  - **values** (list): For each possible option to consider, specify the
+    following:
+  
+    - **module** (str): Optimizer module.
+    - **params** (dict, optional): Parameters to benchmark for the specific
+      module, in case there are any. Each of them should have the standard
+      structure **method** and **values**.      
+
+An example of a benchmark configuration for deep learning models would be:
+
+.. code:: yaml
+
+  benchmark:
+    transform:
+      models:
+        torch:
+          epochs:
+            method: randint
+            values: [2, 5]
+          layers:
+            number_blocks: [3, 6]
+            types:
+              - Linear + ReLU
+              - Dropout
+            params:
+              Dropout:
+                p: 
+                  method: uniform
+                  values: [0.4, 0.6]
+          loader:
+            batch_size:
+              method: randint
+              values: [20, 40]
+            shuffle:
+              method: choice
+              values:
+                - True
+                - False
+          loss:
+            method: choice
+            values:
+              - module: torch.nn.MSELoss
+              - module: torch.nn.L1Loss
+          optimizer:
+            method: choice
+            values:
+              - module: torch.optim.SGD
+                params:
+                  lr:
+                    method: loguniform
+                    values: [0.001, 0.01]
+                  momentum:
+                    method: uniform
+                    values: [0.5, 1]
+              - module: torch.optim.Adam
+                params:
+                  lr:
+                    method: loguniform
+                    values: [0.001, 0.1]
+                  eps:
+                    method: loguniform
+                    values: [0.0000001, 0.00001]          
+      
 Load
 ----
 
