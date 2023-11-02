@@ -110,11 +110,11 @@ class EstimatorTrainer(tune.Trainable):
         # This is in order to avoid unnecessary validations
         if self._invalid_logic(self._param_space):
             logger.debug('Invalidated experiment')
-            if self.mode == 'max':
+            if self._mode == 'max':
                 val = -np.inf
             else:
                 val = np.inf
-            return {self.metric: val}
+            return {self._metric: val}
         else:
             self._model.build_model(
                 model_config, self._dataset.normalization,
