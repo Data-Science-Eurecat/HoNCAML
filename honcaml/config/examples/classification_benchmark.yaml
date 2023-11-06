@@ -55,7 +55,7 @@ steps:
           params:
         tune_config:
           num_samples: 5
-          metric: accuracy
+          metric: accuracy_score
           mode: max
         run_config:
           stop:
