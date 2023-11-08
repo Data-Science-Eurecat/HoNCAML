@@ -18,18 +18,18 @@ steps:
             layers:
               - module: torch.nn.Linear
                 params:
-                  out_features: 20
+                  out_features: 4
               - module: torch.nn.ReLU
               - module: torch.nn.Linear
                 params:
-                  out_features: 9
+                  out_features: 2
               - module: torch.nn.Dropout
               - module: torch.nn.Linear                
             loader:
-              batch_size: 20
+              batch_size: 5
               shuffle: True
             loss:
-              module: torch.nn.BCEWithLogitsLoss
+              module: torch.nn.CrossEntropyLoss
             optimizer:
               module: torch.optim.SGD
               params:

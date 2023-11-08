@@ -206,7 +206,7 @@ class TorchModel(base.BaseModel):
             normalizations: Definition of normalizations that applies to
                 the dataset during the model pipeline.
             features: List of features for model.
-            target: List of targets for model.
+            target: Target values for model.
             **kwargs: Extra parameters.
         """
         pipeline_steps = []
@@ -233,7 +233,7 @@ class TorchModel(base.BaseModel):
             self._target_pipeline = pipeline.Pipeline(target_pre_process)
         # Model
         input_dim, output_dim = self._retrieve_input_and_output_dims(
-            features, target)
+            self.estimator_type, features, target)
         layers_config = model_config['params']['layers']
         if isinstance(layers_config, list):
             self._estimator = self._import_estimator_by_layers(
@@ -245,7 +245,7 @@ class TorchModel(base.BaseModel):
 
     @staticmethod
     def _retrieve_input_and_output_dims(
-            features: List, target: List) -> Tuple[int]:
+            estimator_type: str, features: List, target: List) -> Tuple[int]:
         """
         Retrieve input and output dimensions of model from dataset shape.
 
@@ -257,7 +257,10 @@ class TorchModel(base.BaseModel):
             - Model input dimension
             - Model output dimension
         """
-        output_dim = len(target)
+        if estimator_type == 'regressor':
+            output_dim = 1
+        else:
+            output_dim = len(set(target))
         input_dim = len(features)
         return (input_dim, output_dim)
 
@@ -293,6 +296,8 @@ class TorchModel(base.BaseModel):
                 optimizer.zero_grad()
                 # Forward + backward + optimize
                 outputs = self._estimator(inputs)
+                if self.estimator_type == 'classifier':
+                    labels = labels.long()
                 loss = criterion(outputs, labels)
                 loss.backward()
                 torch.nn.utils.clip_grad_norm_(
@@ -373,7 +378,7 @@ class TorchTrainDataset(torch.utils.data.Dataset):
 
     def __getitem__(self, idx):
         x_val = self.x[idx]
-        y_val = self.y[idx]
+        y_val = self.y[idx][0]
         return x_val, y_val
 
     def __len__(self):

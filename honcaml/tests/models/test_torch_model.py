@@ -30,7 +30,7 @@ class TorchModelTest(unittest.TestCase):
                     'regression': {
                         'module': 'torch.nn.MSELoss'},
                     'classification': {
-                        'module': 'torch.nn.BCEWithLogitsLoss'}
+                        'module': 'torch.nn.CrossEntropyLoss'}
                 },
                 'optimizer': {
                     'module': 'torch.optim.SGD',
@@ -158,7 +158,7 @@ class TorchModelTest(unittest.TestCase):
         model = torch_model.TorchModel(problem_type)
         model.build_model(
             self.model_config, None, self.classification_dataset._features,
-            self.classification_dataset._target)
+            self.classification_dataset.values[1].ravel())
         self.assertIsNotNone(model._estimator)
         self.assertEqual('classifier', model.estimator_type)
 
@@ -186,7 +186,7 @@ class TorchModelTest(unittest.TestCase):
         model = torch_model.TorchModel(problem_type)
         model.build_model(
             self.model_config, None, self.classification_dataset._features,
-            self.classification_dataset._target)
+            self.classification_dataset.values[1].ravel())
         x, y = self.classification_dataset.values
         model.fit(x, y, **self.model_config['params'])
         expected = torch.nn.Sequential(

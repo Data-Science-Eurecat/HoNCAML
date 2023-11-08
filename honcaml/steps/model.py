@@ -85,7 +85,7 @@ class ModelStep(base.BaseStep):
                 model_type, self._global_params['problem_type'])
             self._model.build_model(
                 self._estimator_config, self._dataset.normalization,
-                self._dataset.features, self._dataset.target)
+                self._dataset.features, self._dataset.values[1].ravel())
         if ModelActions.fit in settings:
             self._fit(settings['fit'])
         if ModelActions.predict in settings:

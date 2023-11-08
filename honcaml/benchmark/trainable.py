@@ -118,7 +118,7 @@ class EstimatorTrainer(tune.Trainable):
         else:
             self._model.build_model(
                 model_config, self._dataset.normalization,
-                self._dataset.features, self._dataset.target)
+                self._dataset.features, self._dataset.values[1].ravel())
             x, y = self._dataset.x, self._dataset.y
             cv_results = evaluate.cross_validate_model(
                 self._model, x, y, self._cv_split, self._reported_metrics,
