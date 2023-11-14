@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import sklearn.metrics as sk_metrics
 from typing import Dict, List
 from honcaml.exceptions import model as model_exceptions
@@ -119,3 +120,37 @@ def compute_specificity_score_metric(
     tn, fp, fn, tp = sk_metrics.confusion_matrix(y_true, y_predicted).ravel()
     specificity = tn / (tn + fp)
     return specificity
+
+
+def compute_roc_auc_score_metric(
+         y_true: pd.Series, y_predicted: pd.Series, **kwargs) -> ct.Number:
+    """_summary_
+
+    Args:
+        y_true (pd.Series): _description_
+        y_predicted (pd.Series): _description_
+
+    Returns:
+        ct.Number: _description_
+    """
+    classes = np.unique(y_true)
+    n_classes = len(classes)
+
+    df = pd.DataFrame(y_true, columns=['Valor'])
+    one_hot_encoded = pd.get_dummies(df['Valor'])
+    y_test_binarized = np.array(one_hot_encoded.values.tolist())
+
+    df2 = pd.DataFrame(y_predicted, columns=['Valor'])
+    one_hot_encoded = pd.get_dummies(df2['Valor'])
+    y_pred_binarized = np.array(one_hot_encoded.values.tolist())
+
+    fpr = dict()
+    tpr = dict()
+    roc_auc = dict()
+    for i in range(n_classes):
+        fpr[i], tpr[i], _ = sk_metrics.roc_curve(y_test_binarized[:, i],
+                                                 y_pred_binarized[:, i])
+        roc_auc[i] = sk_metrics.auc(fpr[i], tpr[i])
+    roc_auc_score = sum(roc_auc.values()) / n_classes
+
+    return roc_auc_score

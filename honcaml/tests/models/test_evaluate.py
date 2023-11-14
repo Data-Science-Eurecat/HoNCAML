@@ -52,3 +52,18 @@ class EvaluateTest(unittest.TestCase):
         expected = 0.5
         result = evaluate.compute_specificity_score_metric(y_true, y_pred)
         self.assertEqual(expected, result)
+
+    def test_compute_roc_auc_score_metric_binary(self):
+        y_true = pd.Series([0, 1, 0, 1])
+        y_pred = pd.Series([1, 1, 0, 1])
+        expected = 0.75
+        result = evaluate.compute_roc_auc_score_metric(y_true, y_pred)
+        self.assertEqual(expected, result)
+
+    def test_compute_roc_auc_score_metric_multiclass(self):
+        y_true = pd.Series([0, 1, 2, 1, 2, 0])
+        y_pred = pd.Series([0, 1, 2, 0, 1, 2])
+        expected = 0.625
+        result = evaluate.compute_roc_auc_score_metric(y_true, y_pred)
+        self.assertEqual(expected, result)
+        
