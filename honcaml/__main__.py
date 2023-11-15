@@ -4,6 +4,7 @@ import pkg_resources
 from subprocess import Popen
 from honcaml.tools import startup, utils
 from honcaml.config import user
+from honcaml.tools import logger_option
 
 __version__ = pkg_resources.get_distribution('honcaml').version
 TYPE_CHOICES = ['train', 'predict', 'benchmark']
@@ -72,6 +73,9 @@ def main():
     elif args.gui:
         Popen(f'cd honcaml/visualization && streamlit run gui.py', shell=True)
     else:
+        if args.config:
+            config = logger_option.yaml_reader(args.config)
+            startup.setup_logging_config(config)
         if args.log:
             startup.setup_file_logging(args.log)
         from honcaml.tools import execution

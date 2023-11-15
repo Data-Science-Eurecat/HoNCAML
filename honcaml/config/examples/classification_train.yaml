@@ -1,6 +1,9 @@
 global:
   problem_type: classification
 
+logging:
+  level: Warning
+
 steps:
   data:
     extract:
