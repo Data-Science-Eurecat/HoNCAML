@@ -5,6 +5,7 @@ import re
 from typing import Dict, Union, Optional
 
 from honcaml.models import general, evaluate
+from honcaml.steps.model import ModelActions
 from honcaml.tools import custom_typing as ct
 from honcaml.tools.startup import logger
 
@@ -50,6 +51,9 @@ class EstimatorTrainer(tune.Trainable):
         """
         self._model_module = config['model_module']
         self._dataset = config['dataset']
+        self._dataset._dataset = self._dataset._clean_dataset_for_model(
+            self._dataset._dataset,
+            [ModelActions.fit, ModelActions.predict])
         self._cv_split = config['cv_split']
         self._reported_metrics = config['reported_metrics']
         self._metric = config['metric']

@@ -9,6 +9,7 @@ from unittest.mock import patch
 
 from honcaml.data import tabular, extract
 from honcaml.exceptions import data as data_exception
+from honcaml.steps.model import ModelActions
 from honcaml.tests import utils
 
 
@@ -112,14 +113,16 @@ class TabularTest(unittest.TestCase):
             self.tabular_obj.values
 
     @patch('pandas.read_csv')
-    def test_clean_dataset(self, read_csv_mock_up):
+    def test_clean_dataset_for_model(self, read_csv_mock_up):
         read_csv_mock_up.return_value = utils.mock_up_read_dataframe()
         # Features and target correct
         settings = self.settings_with_csv.copy()
         self.tabular_obj._features = settings.pop('features')
         self.tabular_obj._target = settings.pop('target')
         dataset = extract.read_dataframe(settings)
-        cleaned_dataset = self.tabular_obj._clean_dataset(dataset)
+        model_actions = [ModelActions.fit]
+        cleaned_dataset = self.tabular_obj._clean_dataset_for_model(
+            dataset, model_actions)
         self.assertIsInstance(cleaned_dataset, pd.DataFrame)
         self.assertTrue(cleaned_dataset.equals(
             dataset[self.tabular_obj._features + self.tabular_obj._target]))
@@ -130,7 +133,9 @@ class TabularTest(unittest.TestCase):
         self.tabular_obj._features = []
         self.tabular_obj._target = settings.pop('target')
         dataset = extract.read_dataframe(settings)
-        cleaned_dataset = self.tabular_obj._clean_dataset(dataset)
+        model_actions = [ModelActions.fit]
+        cleaned_dataset = self.tabular_obj._clean_dataset_for_model(
+            dataset, model_actions)
         self.assertIsInstance(cleaned_dataset, pd.DataFrame)
         self.assertEqual(self.tabular_obj._features, ['col1', 'col2'])
         self.assertTrue(cleaned_dataset.equals(
@@ -143,8 +148,10 @@ class TabularTest(unittest.TestCase):
         settings.pop('target')
         self.tabular_obj._target = ['target0']
         dataset = extract.read_dataframe(settings)
+        model_actions = [ModelActions.fit]
         with self.assertRaises(data_exception.ColumnDoesNotExists):
-            self.tabular_obj._clean_dataset(dataset)
+            cleaned_dataset = self.tabular_obj._clean_dataset_for_model(
+                dataset, model_actions)
 
         # Feature column does not exist
         settings = self.settings_with_csv.copy()
@@ -152,8 +159,10 @@ class TabularTest(unittest.TestCase):
         self.tabular_obj._features = ['col0']
         self.tabular_obj._target = settings.pop('target')
         dataset = extract.read_dataframe(settings)
+        model_actions = [ModelActions.fit]
         with self.assertRaises(data_exception.ColumnDoesNotExists):
-            self.tabular_obj._clean_dataset(dataset)
+            cleaned_dataset = self.tabular_obj._clean_dataset_for_model(
+                dataset, model_actions)
 
         # Target column does not exist
         settings = self.settings_with_csv.copy()
@@ -161,8 +170,10 @@ class TabularTest(unittest.TestCase):
         settings.pop('target')
         self.tabular_obj._target = ['target0']
         dataset = extract.read_dataframe(settings)
+        model_actions = [ModelActions.fit]
         with self.assertRaises(data_exception.ColumnDoesNotExists):
-            self.tabular_obj._clean_dataset(dataset)
+            cleaned_dataset = self.tabular_obj._clean_dataset_for_model(
+                dataset, model_actions)
 
     # Test class tabular.TabularDataset method read
     @patch('pandas.read_csv')
@@ -188,51 +199,6 @@ class TabularTest(unittest.TestCase):
             self.settings_with_csv['target']
         for col in total_columns:
             self.assertIn(col, result_dataset)
-
-        # Raise exception when column does not exist
-        tabular_obj.read(self.settings_with_csv.copy())
-        settings_with_wrong_features_columns = {
-            'filepath': 'fake/file/path.csv',
-            'features':
-                ['col1', 'col22'],
-            'target':
-                ['target1', 'target2']
-        }
-        with self.assertRaises(data_exception.ColumnDoesNotExists):
-            tabular_obj.read(settings_with_wrong_features_columns)
-
-        # Raise exception when column does not exist
-        tabular_obj.read(self.settings_with_csv.copy())
-        settings_with_wrong_target_columns = {
-            'filepath': 'fake/file/path.csv',
-            'features':
-                ['col1', 'col2'],
-            'target':
-                ['target1', 'target22']
-        }
-        with self.assertRaises(data_exception.ColumnDoesNotExists):
-            tabular_obj.read(settings_with_wrong_target_columns)
-
-        # If features list is empty, it includes all features without target
-        settings_without_features_list = {
-            'filepath': 'fake/file/path.csv',
-            'target':
-                ['target1']
-        }
-        tabular_obj.read(copy.deepcopy(settings_without_features_list))
-        fake_df = utils.mock_up_read_dataframe()
-        df_columns_without_target = fake_df \
-            .drop(columns=settings_without_features_list['target']) \
-            .columns.to_list()
-        self.assertListEqual(tabular_obj.features, df_columns_without_target)
-
-        # If features and target list is empty, it includes all columns
-        settings_without_features_list = {
-            'filepath': 'fake/file/path.csv',
-        }
-        tabular_obj.read(copy.deepcopy(settings_without_features_list))
-        self.assertListEqual(tabular_obj.features, fake_df.columns.to_list())
-        self.assertListEqual(tabular_obj.target, [])
 
         # Excel
         tabular_obj.read(self.settings_with_excel.copy())

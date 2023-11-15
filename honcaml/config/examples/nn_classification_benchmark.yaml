@@ -5,8 +5,10 @@ steps:
   data:
     extract:
       filepath: data/processed/bank_train.csv
-      target:
-        - class
+      features:
+        - variance
+        - skewness
+      target: class
         
   benchmark:            
     transform:
@@ -35,10 +37,8 @@ steps:
                 - True
                 - False
           loss:
-            method: choice
-            values:
-              - module: torch.nn.BCEWithLogitsLoss
-              - module: torch.nn.CrossEntropyLoss
+            module: torch.nn.CrossEntropyLoss
+            params:
           optimizer:
             method: choice
             values:

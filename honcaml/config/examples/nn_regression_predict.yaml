@@ -24,6 +24,7 @@ steps:
         - long
         - sqft_living15
         - sqft_lot15
+      target: price
 
     transform:
       normalize:
@@ -42,12 +43,11 @@ steps:
           module: sklearn.preprocessing.StandardScaler
           params:
             with_std: True
-          columns:
-            - price
+          columns: price
 
   model:
     extract:
-      filepath: data/models/
+      filepath:
     transform:
       predict:
         estimator:

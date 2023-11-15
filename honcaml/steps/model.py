@@ -1,7 +1,8 @@
 import os
-import pandas as pd
 from typing import Dict
 
+import numpy as np
+import pandas as pd
 from honcaml.data import load
 from honcaml.data import transform
 from honcaml.models import base as base_model
@@ -78,6 +79,8 @@ class ModelStep(base.BaseStep):
         Args:
             settings: Settings defining the transform ETL process.
         """
+        self._dataset._dataset = self._dataset._clean_dataset_for_model(
+            self._dataset._dataset, list(settings.keys()))
         if self._model is None:
             self._estimator_config = settings['fit']['estimator']
             model_type = self._estimator_config['module'].split('.')[0]
@@ -139,7 +142,25 @@ class ModelStep(base.BaseStep):
                 x, **settings['estimator']['params'])
         else:
             predictions = self._model.predict(x, **settings)
-        load.save_predictions(predictions, settings)
+        df_predictions = self._generate_predictions_df(
+            x, predictions, self._dataset.target)
+        load.save_predictions(df_predictions, settings)
+
+    @staticmethod
+    def _generate_predictions_df(
+            x: pd.DataFrame, predictions: np.array,
+            target: str) -> pd.DataFrame:
+        """
+        Generate dataset with predictions for storing.
+
+        Args:
+            x: Dataset containing features used to generate predictions.
+            predictions: Obtained predictions.
+            target: Target column name.
+        """
+        df = x.copy(deep=True)
+        df[target] = predictions
+        return df
 
     def run(self, metadata: Dict) -> Dict:
         """

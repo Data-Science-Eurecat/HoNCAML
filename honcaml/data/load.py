@@ -5,7 +5,7 @@ import yaml
 from typing import Dict
 
 from honcaml.exceptions import data as data_exception
-from honcaml.tools import utils, custom_typing as ct
+from honcaml.tools import utils
 from honcaml.tools.startup import logger
 
 
@@ -41,18 +41,17 @@ def save_model(model: object, settings: Dict) -> None:
     joblib.dump(model, filepath)
 
 
-def save_predictions(predictions: ct.Array, settings: Dict) -> None:
+def save_predictions(df_predictions: pd.DataFrame, settings: Dict) -> None:
     """
     Save the list of predictions to disk.
 
     Args:
-        predictions: List of predictions to be saved.
+        df_predictions: Predictions dataset to be saved.
         settings: Parameters to save the predictions.
     """
     filename = utils.generate_unique_id('predictions')
     filepath = os.path.join(settings['path'], filename)
-    predictions = pd.DataFrame({'predictions': predictions.ravel()})
-    predictions.to_csv(f'{filepath}.csv', index=None)
+    df_predictions.to_csv(f'{filepath}.csv', index=None)
 
 
 def save_yaml(dictionary: Dict, filepath: str) -> None:

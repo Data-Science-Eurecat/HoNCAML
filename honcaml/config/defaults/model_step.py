@@ -1,6 +1,6 @@
 default_model_step = {
     "extract": {
-        "filepath": "models/sklearn.regressor.20220819-122417.sav"
+        "filepath": "models/default_model_name.sav"
     },
     "transform": {
         "fit": {

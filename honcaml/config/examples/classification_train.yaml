@@ -8,8 +8,7 @@ steps:
   data:
     extract:
       filepath: data/processed/bank_train.csv
-      target:
-        - 'class'
+      target: 'class'
 
   model:
     transform:

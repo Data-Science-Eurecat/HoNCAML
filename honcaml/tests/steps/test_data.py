@@ -139,9 +139,7 @@ class DataTest(unittest.TestCase):
 
         self.assertListEqual(
             step.dataset.target, step.extract_settings['target'])
-        features = fake_df \
-            .drop(columns=step.extract_settings['target']).columns.to_list()
-        self.assertListEqual(features, step.dataset.features)
+        self.assertListEqual([], step.dataset.features)
         self.assertTrue(isinstance(step.dataset.dataframe, pd.DataFrame))
 
     def test_when_transform_not_contains_normalization_is_none(self):

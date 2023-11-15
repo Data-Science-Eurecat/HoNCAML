@@ -24,6 +24,7 @@ steps:
         - long
         - sqft_living15
         - sqft_lot15
+      target: price
 
     transform:
       normalize:

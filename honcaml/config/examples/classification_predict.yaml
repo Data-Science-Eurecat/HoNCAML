@@ -1,14 +1,18 @@
 global:
   problem_type: classification
 
+logging:
+  level: DEBUG
+
 steps:
   data:
     extract:
       filepath: data/processed/bank_test.csv
+      target: class
 
   model:
     extract:
-      filepath: data/models/sklearn.trained_model.sav
+      filepath:
     transform:
       predict:
         path: reports

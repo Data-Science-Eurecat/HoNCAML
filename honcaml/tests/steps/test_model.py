@@ -3,14 +3,16 @@ import os
 import shutil
 import tempfile
 import unittest
-from sklearn.utils import validation
 from unittest.mock import patch
 
-from honcaml.data import tabular, normalization
-from honcaml.models import sklearn_model, general
-from honcaml.steps import model, base
+import numpy as np
+import pandas as pd
+from honcaml.data import normalization, tabular
+from honcaml.models import general, sklearn_model
+from honcaml.steps import base, model
 from honcaml.tests import utils
 from honcaml.tools.startup import params
+from sklearn.utils import validation
 
 
 class ModelTest(unittest.TestCase):
@@ -267,9 +269,22 @@ class ModelTest(unittest.TestCase):
             validation.check_is_fitted(step._model.estimator))
         self.assertIsNotNone(step._cv_results)
 
+    def test_generate_predictions_df(self):
+        x = pd.DataFrame(
+            columns=['f1', 'f2'],
+            data=[[0, 'Str1'],
+                  [1, 'Str2']])
+        predictions = np.array([2, 5])
+        target = 'target'
+        expected = pd.DataFrame(
+            columns=['f1', 'f2', 'target'],
+            data=[[0, 'Str1', 2],
+                  [1, 'Str2', 5]])
+        result = model.ModelStep._generate_predictions_df(
+            x, predictions, target)
+        pd.testing.assert_frame_equal(expected, result)
+
     def test_predict(self):
-        # Predict
-        # TODO: mock save predictions
         transform_user_settings = {
             'transform': {
                 'fit': None,

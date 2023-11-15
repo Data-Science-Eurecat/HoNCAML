@@ -298,6 +298,8 @@ class TorchModel(base.BaseModel):
                 outputs = self._estimator(inputs)
                 if self.estimator_type == 'classifier':
                     labels = labels.long()
+                elif self._estimator_type == 'regressor':
+                    outputs = outputs.ravel()
                 loss = criterion(outputs, labels)
                 loss.backward()
                 torch.nn.utils.clip_grad_norm_(
@@ -378,7 +380,7 @@ class TorchTrainDataset(torch.utils.data.Dataset):
 
     def __getitem__(self, idx):
         x_val = self.x[idx]
-        y_val = self.y[idx][0]
+        y_val = self.y[idx]
         return x_val, y_val
 
     def __len__(self):

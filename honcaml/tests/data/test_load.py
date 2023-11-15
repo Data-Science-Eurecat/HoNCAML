@@ -1,12 +1,12 @@
-import unittest
-import numpy as np
-import tempfile
-import shutil
 import os
+import shutil
+import tempfile
+import unittest
 
-from honcaml.tests import utils
+import pandas as pd
 from honcaml.data import load
 from honcaml.exceptions import data as data_exceptions
+from honcaml.tests import utils
 
 
 class LoadTest(unittest.TestCase):
@@ -60,8 +60,11 @@ class LoadTest(unittest.TestCase):
 
     def test_save_predictions(self):
         settings = {'path': self.test_dir}
-        predictions = np.array([1, 2, 3, 4])
-        load.save_predictions(predictions, settings)
+        df_predictions = pd.DataFrame(
+            columns=['f1', 'f2', 'target'],
+            data=[[0, 'Str1', 2],
+                  [1, 'Str2', 5]])
+        load.save_predictions(df_predictions, settings)
         files_in_test_dir = os.listdir(self.test_dir)
         self.assertTrue(any(f.startswith('predictions')
                         for f in files_in_test_dir))

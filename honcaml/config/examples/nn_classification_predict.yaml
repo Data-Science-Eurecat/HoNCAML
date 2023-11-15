@@ -5,10 +5,11 @@ steps:
   data:
     extract:
       filepath: data/processed/bank_test.csv
+      target: class
 
   model:
     extract:
-      filepath: data/models/
+      filepath:
     transform:
       predict:
         estimator:

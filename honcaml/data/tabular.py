@@ -3,8 +3,9 @@ from typing import Dict, Tuple
 
 from honcaml.data import base, extract, transform, load
 from honcaml.exceptions import data as data_exception
-from honcaml.tools import utils, custom_typing as ct
+from honcaml.steps.model import ModelActions
 from honcaml.tools.startup import logger
+from honcaml.tools import custom_typing as ct
 
 
 class TabularDataset(base.BaseDataset):
@@ -103,36 +104,45 @@ class TabularDataset(base.BaseDataset):
 
         return x, y
 
-    def _clean_dataset(
-            self, dataset: pd.DataFrame) -> pd.DataFrame:
+    def _clean_dataset_for_model(
+            self, dataset: pd.DataFrame, model_actions: str) -> pd.DataFrame:
         """
-        Clean dataset with previous validation. The validations are the
-        following:
-            - features and target columns exists.
+        Clean dataset and perform validations to ensure that model will work.
+        What is done is the following, in this order:
+        1. Features are defined if not specified in the settings, depending on
+           dataset columns.
+        2. Validations are performed:
+            - For fit: features and target columns exist.
+            - For predictions: features exist.
+        3. All non-required columns are removed from the dataset.
 
         Args:
             dataset: Dataset to check.
+            model_actions: Model actions to be performed.
 
         Returns:
             Cleaned dataset.
         """
-        self._target = utils.ensure_input_list(self._target)
-        if self._features:
-            try:
-                logger.debug(f'Features considered are {self._features}')
-                logger.debug(f'Target considered are {self._target}')
-                dataset = dataset[self._features + self._target]
-            except KeyError as e:
-                logger.warning(f'Dataset columns do not exist: {e}')
-                raise data_exception.ColumnDoesNotExists(f'{self._features}')
-        else:
-            try:
-                self._features = dataset \
-                    .drop(columns=self._target).columns.to_list()
-            except KeyError as e:
-                logger.warning(f'Dataset columns do not exist: {e}')
+        # Set features if not specified
+        ds_cols = list(dataset.columns)
+        if not self._features:
+            if ModelActions.fit in model_actions and self._target in ds_cols:
+                self._features = list(
+                    dataset.drop(columns=self._target).columns)
+            else:
+                self._features = ds_cols
+        # Perform validations
+        feat_inters = set(self._features).intersection(set(ds_cols))
+        if not feat_inters:
+            raise data_exception.ColumnDoesNotExists(f'{self._features}')
+        if ModelActions.fit in model_actions:
+            if self._target not in ds_cols:
                 raise data_exception.ColumnDoesNotExists(f'{self._target}')
-
+        # Remove all columns not features and not target
+        cols_to_rm = set(ds_cols).difference(
+            set(self._features + [self._target]))
+        logger.debug(f'Columns to remove from dataset: {cols_to_rm}')
+        dataset = dataset.drop(columns=cols_to_rm)
         return dataset
 
     def read(self, settings: Dict) -> None:
@@ -147,10 +157,7 @@ class TabularDataset(base.BaseDataset):
         """
         self._features = settings.pop('features', [])
         self._target = settings.pop('target', [])
-
-        dataset = extract.read_dataframe(settings)
-
-        self._dataset = self._clean_dataset(dataset)
+        self._dataset = extract.read_dataframe(settings)
 
     def preprocess(self, settings: Dict):
         """
