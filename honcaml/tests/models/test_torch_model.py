@@ -42,7 +42,7 @@ class TorchModelTest(unittest.TestCase):
         self.regression_dataset = tabular.TabularDataset()
         self.regression_dataset._dataset = utils.mock_up_read_dataframe()
         self.regression_dataset._features = ['col1', 'col2']
-        self.regression_dataset._target = ['target1', 'target2']
+        self.regression_dataset._target = ['target1']
         # Classifier dataset
         self.classification_dataset = tabular.TabularDataset()
         self.classification_dataset._dataset = \
