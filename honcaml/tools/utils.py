@@ -243,7 +243,7 @@ class FileExtension:
     Defines the available file formats to read data.
     """
     csv = '.csv'
-    excel = ['.xlsx', '.xls']
+    excel = '.xlsx'
     # Adding more file extensions here
 
 
