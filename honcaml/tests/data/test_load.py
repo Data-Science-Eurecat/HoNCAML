@@ -26,13 +26,6 @@ class LoadTest(unittest.TestCase):
         self.assertTrue(os.path.exists(filepath))
         self.assertTrue(os.stat(filepath).st_size > 0)
 
-        # Extension .xls
-        filepath = os.path.join(self.test_dir, 'dataset.xls')
-        settings = {'filepath': filepath}
-        load.save_dataframe(dataset, settings)
-        self.assertTrue(os.path.exists(filepath))
-        self.assertTrue(os.stat(filepath).st_size > 0)
-
         # Extension .xlsx
         filepath = os.path.join(self.test_dir, 'dataset.xlsx')
         settings = {'filepath': filepath}

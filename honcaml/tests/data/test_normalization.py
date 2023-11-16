@@ -16,7 +16,7 @@ class NormalizationTest(unittest.TestCase):
             'target': {
                 'module': 'sklearn.preprocessing.MinMaxScaler',
                 'params': {'param1': 10, 'param2': 20},
-                'columns': ['target1', 'target2']
+                'columns': ['target']
             }
         }
 
@@ -70,7 +70,7 @@ class NormalizationTest(unittest.TestCase):
             'target': {
                 'module': 'sklearn.preprocessing.MinMaxScaler',
                 'params': {'param1': 10, 'param2': 20},
-                'columns': ['target1', 'target2']
+                'columns': ['target']
             }
         }
         norm = normalization.Normalization(copy.deepcopy(only_target_settings))
@@ -113,7 +113,7 @@ class NormalizationTest(unittest.TestCase):
             'target': {
                 'module': 'sklearn.preprocessing.MinMaxScaler',
                 'params': {},
-                'columns': ['target1', 'target2']
+                'columns': ['target']
             }
         }
         norm = normalization.Normalization(real_scalers_settings)

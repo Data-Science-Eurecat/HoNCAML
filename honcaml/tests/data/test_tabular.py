@@ -19,16 +19,14 @@ class TabularTest(unittest.TestCase):
             'filepath': 'fake/file/path.csv',
             'features':
                 ['col1', 'col2'],
-            'target':
-                ['target1', 'target2']
+            'target': 'target'
         }
 
         self.settings_with_excel = {
             'filepath': 'fake/file/path.xls',
             'features':
                 ['col1', 'col2'],
-            'target':
-                ['target1', 'target2']
+            'target': 'target'
         }
 
         self.tabular_obj = tabular.TabularDataset()
@@ -51,7 +49,7 @@ class TabularTest(unittest.TestCase):
         read_csv_mock_up.return_value = utils.mock_up_read_dataframe()
         self.tabular_obj.read(self.settings_with_csv.copy())
         target = self.tabular_obj.target
-        self.assertIsInstance(target, list)
+        self.assertIsInstance(target, str)
         self.assertEqual(target, self.tabular_obj._target)
 
     @patch('pandas.read_csv')
@@ -73,20 +71,13 @@ class TabularTest(unittest.TestCase):
     @patch('pandas.read_csv')
     def test_y(self, read_csv_mock_up):
         read_csv_mock_up.return_value = utils.mock_up_read_dataframe()
-        # Only one target
+
+        # With target
         settings_one_target = copy.deepcopy(self.settings_with_csv)
-        del settings_one_target['target'][1]
         self.tabular_obj.read(settings_one_target)
         y = self.tabular_obj.y
         self.assertIsInstance(y, np.ndarray)
-        self.assertEqual(y.shape[1], 1)
-
-        # Multiple target
-        self.tabular_obj.read(copy.deepcopy(self.settings_with_csv))
-        y = self.tabular_obj.y
-        self.assertIsInstance(y, np.ndarray)
-        self.assertTrue(np.array_equal(
-            y, self.tabular_obj._dataset[['target1', 'target2']].values))
+        self.assertEqual(len(y.shape), 1)
 
         # No target
         self.settings_with_csv.pop('target')
@@ -97,6 +88,8 @@ class TabularTest(unittest.TestCase):
     @patch('pandas.read_csv')
     def test_values(self, read_csv_mock_up):
         read_csv_mock_up.return_value = utils.mock_up_read_dataframe()
+
+        # With target
         self.tabular_obj.read(self.settings_with_csv.copy())
         x, y = self.tabular_obj.values
         self.assertIsInstance(x, np.ndarray)
@@ -104,7 +97,7 @@ class TabularTest(unittest.TestCase):
         self.assertTrue(np.array_equal(
             x, self.tabular_obj._dataset[['col1', 'col2']].values))
         self.assertTrue(np.array_equal(
-            y, self.tabular_obj._dataset[['target1', 'target2']].values))
+            y, self.tabular_obj._dataset['target'].values))
 
         # No target
         self.settings_with_csv.pop('target')
@@ -125,7 +118,7 @@ class TabularTest(unittest.TestCase):
             dataset, model_actions)
         self.assertIsInstance(cleaned_dataset, pd.DataFrame)
         self.assertTrue(cleaned_dataset.equals(
-            dataset[self.tabular_obj._features + self.tabular_obj._target]))
+            dataset[self.tabular_obj._features + [self.tabular_obj._target]]))
 
         # Features not set
         settings = self.settings_with_csv.copy()
@@ -139,14 +132,14 @@ class TabularTest(unittest.TestCase):
         self.assertIsInstance(cleaned_dataset, pd.DataFrame)
         self.assertEqual(self.tabular_obj._features, ['col1', 'col2'])
         self.assertTrue(cleaned_dataset.equals(
-            dataset[self.tabular_obj._features + self.tabular_obj._target]))
+            dataset[self.tabular_obj._features + [self.tabular_obj._target]]))
 
         # Features not set, target not exists
         settings = self.settings_with_csv.copy()
         settings.pop('features')
         self.tabular_obj._features = []
         settings.pop('target')
-        self.tabular_obj._target = ['target0']
+        self.tabular_obj._target = ['target_incorrect']
         dataset = extract.read_dataframe(settings)
         model_actions = [ModelActions.fit]
         with self.assertRaises(data_exception.ColumnDoesNotExists):
@@ -156,7 +149,7 @@ class TabularTest(unittest.TestCase):
         # Feature column does not exist
         settings = self.settings_with_csv.copy()
         settings.pop('features')
-        self.tabular_obj._features = ['col0']
+        self.tabular_obj._features = ['col_incorrect']
         self.tabular_obj._target = settings.pop('target')
         dataset = extract.read_dataframe(settings)
         model_actions = [ModelActions.fit]
@@ -168,7 +161,7 @@ class TabularTest(unittest.TestCase):
         settings = self.settings_with_csv.copy()
         self.tabular_obj._features = settings.pop('features')
         settings.pop('target')
-        self.tabular_obj._target = ['target0']
+        self.tabular_obj._target = ['target_incorrect']
         dataset = extract.read_dataframe(settings)
         model_actions = [ModelActions.fit]
         with self.assertRaises(data_exception.ColumnDoesNotExists):
@@ -181,37 +174,30 @@ class TabularTest(unittest.TestCase):
     def test_read_dataset(self, read_csv_mock_up, read_excel_mock_up):
         read_csv_mock_up.return_value = utils.mock_up_read_dataframe()
         read_excel_mock_up.return_value = utils.mock_up_read_dataframe()
-
         tabular_obj = tabular.TabularDataset()
 
         # CSV
         tabular_obj.read(self.settings_with_csv.copy())
         result_dataset = tabular_obj.dataframe
-
         self.assertListEqual(
             tabular_obj._features, self.settings_with_csv['features'])
-        self.assertListEqual(
+        self.assertEqual(
             tabular_obj.target, self.settings_with_csv['target'])
         self.assertTrue(isinstance(tabular_obj.dataframe, pd.DataFrame))
-
-        total_columns = \
-            self.settings_with_csv['features'] + \
-            self.settings_with_csv['target']
+        total_columns = self.settings_with_csv['features'] + [
+            self.settings_with_csv['target']]
         for col in total_columns:
             self.assertIn(col, result_dataset)
 
         # Excel
         tabular_obj.read(self.settings_with_excel.copy())
         result_dataset = tabular_obj.dataframe
-
         self.assertListEqual(
             tabular_obj._features, self.settings_with_csv['features'])
-        self.assertListEqual(
+        self.assertEqual(
             tabular_obj.target, self.settings_with_csv['target'])
-
-        total_columns = \
-            self.settings_with_csv['features'] + \
-            self.settings_with_csv['target']
+        total_columns = self.settings_with_csv['features'] + [
+            self.settings_with_csv['target']]
         for col in total_columns:
             self.assertIn(col, result_dataset)
 

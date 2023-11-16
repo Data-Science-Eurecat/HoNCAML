@@ -11,7 +11,7 @@ steps:
     extract:
       # Specify path of file containing input data
       filepath:
-      # Specify target column name
+      # *REQ*: Specify target column name
       target:
 
   benchmark:

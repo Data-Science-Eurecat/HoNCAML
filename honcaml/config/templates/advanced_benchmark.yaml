@@ -10,12 +10,12 @@ global:
 steps:
   data:
     extract:
-      # *REQ* Specify path of file containing input data
+      # Specify path of file containing input data
       filepath:
-      # *REQ* Specify target column name
-      target:
       # Specify columns that will be used as features to learn from
       features:
+      # *REQ* Specify target column name
+      target:
 
     transform:
       normalize:

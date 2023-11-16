@@ -11,6 +11,8 @@ steps:
     extract:
       # Specify path of file containing input data
       filepath:
+      # *REQ*: Specify target column name
+      target:      
 
   model:
     extract:

@@ -13,7 +13,7 @@ class TrainableTest(unittest.TestCase):
         dataset = tabular.TabularDataset()
         dataset._dataset = utils.mock_up_read_dataframe()
         dataset._features = ['col1', 'col2']
-        dataset._target = ['target1', 'target2']
+        dataset._target = 'target'
         cv_split = {
             'module': 'sklearn.model_selection.KFold',
             'params': {'n_splits': 3}

@@ -85,7 +85,7 @@ class DataTest(unittest.TestCase):
                     },
                     'target': {
                         'params': {'param1': 10, 'with_std': False},
-                        'columns': ['target1', 'target2']
+                        'columns': ['target']
                     }
                 }
             }
@@ -127,7 +127,7 @@ class DataTest(unittest.TestCase):
 
         fake_df = utils.mock_up_read_dataframe()
 
-        empty_user_settings = {'extract': {'target': ['target1', 'target2']}}
+        empty_user_settings = {'extract': {'target': 'target'}}
 
         # When settings does not have features, it includes all features
         # without target.
@@ -137,8 +137,7 @@ class DataTest(unittest.TestCase):
                              self._execution_id)
         step._extract(copy.deepcopy(step.extract_settings))
 
-        self.assertListEqual(
-            step.dataset.target, step.extract_settings['target'])
+        self.assertEqual(step.dataset.target, step.extract_settings['target'])
         self.assertListEqual([], step.dataset.features)
         self.assertTrue(isinstance(step.dataset.dataframe, pd.DataFrame))
 

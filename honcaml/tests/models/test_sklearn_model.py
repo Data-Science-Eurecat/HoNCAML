@@ -19,14 +19,14 @@ class SklearnTest(unittest.TestCase):
         self.dataset = tabular.TabularDataset()
         self.dataset._dataset = utils.mock_up_read_dataframe()
         self.dataset._features = ['col1', 'col2']
-        self.dataset._target = ['target1', 'target2']
+        self.dataset._target = 'target'
 
         # Classifier dataset
         self.classifier_dataset = tabular.TabularDataset()
         self.classifier_dataset._dataset = \
             utils.mock_up_read_classifier_dataframe()
         self.classifier_dataset._features = ['col1', 'col2']
-        self.classifier_dataset._target = ['target']
+        self.classifier_dataset._target = 'target'
 
         self.test_dir = tempfile.mkdtemp()
 
@@ -95,7 +95,7 @@ class SklearnTest(unittest.TestCase):
                        TransformedTargetRegressor))
 
         # Normalize only target
-        target_to_normalize = ['target1', 'target2']
+        target_to_normalize = 'target'
         target_norm_config = {
             'target': {
                 'module': 'sklearn.preprocessing.StandardScaler',

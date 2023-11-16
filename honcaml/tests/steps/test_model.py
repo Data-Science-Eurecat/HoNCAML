@@ -26,7 +26,7 @@ class ModelTest(unittest.TestCase):
         self.dataset = tabular.TabularDataset()
         self.dataset._dataset = utils.mock_up_read_dataframe()
         self.dataset._features = ['col1', 'col2']
-        self.dataset._target = ['target1', 'target2']
+        self.dataset._target = 'target'
 
         self.test_dir = tempfile.mkdtemp()
 

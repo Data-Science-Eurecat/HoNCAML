@@ -10,12 +10,14 @@ global:
 steps:
   data:
     extract:
-      # *REQ* Specify path of file containing input data
+      # Specify path of file containing input data
       filepath:
       # Specify list of columns needed for the model; depending on how the
       # model was trained and the columns in the test dataset, it may be
       # necessary to specify them
       features:
+      # *REQ* Specify target column name
+      target:      
 
     transform:
       # If specified, data normalization will be done

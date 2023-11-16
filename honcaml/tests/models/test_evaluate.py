@@ -20,7 +20,7 @@ class EvaluateTest(unittest.TestCase):
         dataset = tabular.TabularDataset()
         dataset._dataset = utils.mock_up_read_dataframe()
         dataset._features = ['col1', 'col2']
-        dataset._target = ['target1', 'target2']
+        dataset._target = 'target'
         x, y = dataset.values
         metrics = ['mean_absolute_error', 'root_mean_squared_error']
         cv_split = transform.CrossValidationSplit(

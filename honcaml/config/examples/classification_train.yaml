@@ -1,14 +1,11 @@
 global:
   problem_type: classification
 
-logging:
-  level: Warning
-
 steps:
   data:
     extract:
       filepath: data/processed/bank_train.csv
-      target: 'class'
+      target: class
 
   model:
     transform:

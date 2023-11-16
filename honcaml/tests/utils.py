@@ -35,8 +35,7 @@ def mock_up_read_dataframe() -> pd.DataFrame:
     data = {
         'col1': [1, 2, 3],
         'col2': [4, 5, 6],
-        'target1': [10, 20, 30],
-        'target2': [40, 50, 60]
+        'target': [10, 20, 30]
     }
     return pd.DataFrame(data)
 
