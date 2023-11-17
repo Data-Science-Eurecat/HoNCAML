@@ -1,5 +1,4 @@
 import numpy as np
-import os
 import random
 import shutil
 import tempfile
@@ -9,7 +8,6 @@ import unittest
 from honcaml.data import tabular
 from honcaml.models import torch_model
 from honcaml.tests import utils
-from honcaml.tools.startup import params
 
 
 class TorchModelTest(unittest.TestCase):
@@ -126,20 +124,6 @@ class TorchModelTest(unittest.TestCase):
             blocks, whole_input_dim, whole_output_dim)
         self.assertEqual(expected, result)
 
-    @unittest.mock.patch('joblib.load')
-    def test_read(self, read_model_mockup):
-        problem_type = 'regression'
-        self.model_config['params']['loss'] = self.model_config[
-            'params']['loss'][problem_type]
-        read_model_mockup.return_value = utils.mock_up_read_model(
-            'torch', problem_type, self.model_config, None,
-            self.regression_dataset._features,
-            self.regression_dataset._target)._estimator
-
-        model = torch_model.TorchModel(problem_type)
-        model.read(params['steps']['model']['extract'])
-        self.assertIsNotNone(model._estimator)
-
     def test_build_model_regression(self):
         problem_type = 'regression'
         self.model_config['params']['loss'] = self.model_config[
@@ -225,17 +209,6 @@ class TorchModelTest(unittest.TestCase):
         metrics = self.classification_model.evaluate(
             x, y, metrics, self.model_config['params']['loader'])
         self.assertIsInstance(metrics, dict)
-
-    def test_save(self):
-        problem_type = 'regression'
-        model = torch_model.TorchModel(problem_type)
-        model.build_model(
-            self.model_config, None, self.regression_dataset._features,
-            self.regression_dataset._target)
-        model.save({'path': self.test_dir})
-        files_in_test_dir = os.listdir(self.test_dir)
-        self.assertTrue(
-            any(f.startswith('torch') for f in files_in_test_dir))
 
 
 if __name__ == '__main__':

@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Dict, List, Callable
 
+from honcaml.data import extract, load
 from honcaml.exceptions import pipeline as pipeline_exceptions
 from honcaml.tools import custom_typing as ct
 from honcaml.tools import utils
@@ -39,6 +40,7 @@ class BaseModel(ABC):
         else:
             raise pipeline_exceptions.ProblemTypeNotAllowed(problem_type)
         self._estimator = None
+        self._model_type = None
 
     @staticmethod
     def _import_model_library(model_config: dict) -> Callable:
@@ -59,15 +61,16 @@ class BaseModel(ABC):
         return utils.import_library(
             model_config['module'], model_config['hyperparameters'])
 
-    @abstractmethod
-    def read(self, settings: Dict) -> None:
+    @staticmethod
+    def read(settings: Dict) -> None:
         """
-        Reads an estimator from disk. Must be implemented by child classes.
+        Read an estimator from disk.
 
         Args:
-            settings: Parameters configuring read operation.
+            settings: Parameter settings defining the read operation.
         """
-        pass
+        class_instance = extract.read_model(settings)
+        return class_instance
 
     @abstractmethod
     def build_model(self, model_config: Dict, *args) -> None:
@@ -125,15 +128,16 @@ class BaseModel(ABC):
         """
         pass
 
-    @abstractmethod
     def save(self, settings: Dict) -> None:
         """
-        Stores the estimator to disk. Must be implemented by child classes.
+        Stores the estimator to disk.
 
         Args:
             settings: Parameter settings defining the store operation.
         """
-        pass
+        settings['filename'] = utils.generate_unique_id(
+            self._model_type) + '.sav'
+        load.save_model(self, settings)
 
 
 class ModelType:

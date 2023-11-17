@@ -67,10 +67,7 @@ class ModelStep(base.BaseStep):
         Args:
             settings: Settings defining the extract ETL process.
         """
-        self._model = general.initialize_model(
-            settings['filepath'].split('/')[-1].split('.')[0],
-            self._global_params['problem_type'])
-        self._model.read(settings)
+        self._model = base_model.BaseModel.read(settings)
 
     def _transform(self, settings: Dict) -> None:
         """

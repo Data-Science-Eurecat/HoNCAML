@@ -3,7 +3,6 @@ import os
 import shutil
 import tempfile
 import unittest
-from unittest.mock import patch
 
 import numpy as np
 import pandas as pd
@@ -108,15 +107,12 @@ class ModelTest(unittest.TestCase):
         #                            override_user_settings,
         #                            params['step_rules']['model'])
 
-    @patch('joblib.load')
-    def test_extract(self, read_model_mockup):
-        model_config = {'module': 'sklearn.ensemble.RandomForestRegressor',
-                        'params': {}}
-        read_model_mockup.return_value = utils.mock_up_read_model(
-            'sklearn', 'regression', model_config).estimator
-
+    def test_extract(self):
+        self.test_load()
+        model_name = os.listdir(self.test_dir)[0]
+        model_path = os.path.join(self.test_dir, model_name)
         user_settings = {
-            'extract': {'filepath': 'sklearn.1234.sav'},
+            'extract': {'filepath': model_path},
         }
         step = model.ModelStep(params['steps']['model'],
                                user_settings, self._global_params,
@@ -207,7 +203,6 @@ class ModelTest(unittest.TestCase):
                                self._execution_id)
 
         step._model = general.initialize_model('sklearn', 'regression')
-
         step._model.build_model({
             'module': 'sklearn.ensemble.RandomForestRegressor',
             'params': {}

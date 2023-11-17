@@ -4,7 +4,7 @@ from sklearn import compose, pipeline
 import torch
 from typing import Callable, Dict, List, Tuple
 
-from honcaml.data import extract, load, normalization
+from honcaml.data import normalization
 from honcaml.models import base, evaluate
 from honcaml.tools import custom_typing as ct
 from honcaml.tools import utils
@@ -25,6 +25,7 @@ class TorchModel(base.BaseModel):
                 values are `regression` and `classification`.
         """
         super().__init__(problem_type)
+        self._model_type = base.ModelType.torch
         self._estimator = None
         self._pipeline = None
 
@@ -47,15 +48,6 @@ class TorchModel(base.BaseModel):
             '_estimator_type' current value.
         """
         return self._estimator_type
-
-    def read(self, settings: Dict) -> None:
-        """
-        Read an estimator from disk.
-
-        Args:
-            settings: Parameter settings defining the read operation.
-        """
-        self._estimator = extract.read_model(settings)
 
     @staticmethod
     def _import_estimator_by_layers(
@@ -357,17 +349,6 @@ class TorchModel(base.BaseModel):
         metrics = utils.ensure_input_list(metrics)
         metrics = evaluate.compute_metrics(y, y_pred, metrics)
         return metrics
-
-    def save(self, settings: Dict) -> None:
-        """
-        Stores the estimator to disk.
-
-        Args:
-            settings: Parameter settings defining the store operation.
-        """
-        settings['filename'] = utils.generate_unique_id(
-            base.ModelType.torch) + '.sav'
-        load.save_model(self._estimator, settings)
 
 
 class TorchTrainDataset(torch.utils.data.Dataset):

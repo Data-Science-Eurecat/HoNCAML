@@ -1,17 +1,14 @@
 import copy
 import numpy as np
-import os
 import shutil
 import tempfile
 import unittest
 from sklearn.compose import TransformedTargetRegressor
 from sklearn.utils import validation
-from unittest.mock import patch
 
 from honcaml.data import tabular, normalization
 from honcaml.models import sklearn_model
 from honcaml.tests import utils
-from honcaml.tools.startup import params
 
 
 class SklearnTest(unittest.TestCase):
@@ -33,18 +30,6 @@ class SklearnTest(unittest.TestCase):
     def tearDown(self):
         # Remove the directory after the test
         shutil.rmtree(self.test_dir)
-
-    @patch('joblib.load')
-    def test_read(self, read_model_mockup):
-        problem_type = 'regression'
-        model_config = {'module': 'sklearn.ensemble.RandomForestRegressor',
-                        'params': {}}
-        read_model_mockup.return_value = utils.mock_up_read_model(
-            'sklearn', problem_type, model_config)._estimator
-
-        sk_model = sklearn_model.SklearnModel(problem_type)
-        sk_model.read(params['steps']['model']['extract'])
-        self.assertIsNotNone(sk_model._estimator)
 
     def test_build_model_without_normalization(self):
         problem_type = 'regression'
@@ -231,15 +216,3 @@ class SklearnTest(unittest.TestCase):
         sk_model.fit(x, y)
         metrics = sk_model.evaluate(x, y, metrics)
         self.assertIsInstance(metrics, dict)
-
-    def test_save(self):
-        problem_type = 'regression'
-        model_config = {'module': 'sklearn.ensemble.RandomForestRegressor',
-                        'params': {}}
-        sk_model = sklearn_model.SklearnModel(problem_type)
-        norm = normalization.Normalization({})
-        sk_model.build_model(model_config, norm)
-        sk_model.save({'path': self.test_dir})
-        files_in_test_dir = os.listdir(self.test_dir)
-        self.assertTrue(
-            any(f.startswith('sklearn') for f in files_in_test_dir))

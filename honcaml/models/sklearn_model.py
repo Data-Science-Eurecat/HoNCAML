@@ -1,7 +1,7 @@
 from sklearn import compose, pipeline
 from typing import Dict, List, Callable
 
-from honcaml.data import extract, load, normalization
+from honcaml.data import normalization
 from honcaml.models import base, evaluate
 from honcaml.tools import custom_typing as ct
 from honcaml.tools import utils
@@ -22,6 +22,7 @@ class SklearnModel(base.BaseModel):
                 values are `regression` and `classification`.
         """
         super().__init__(problem_type)
+        self._model_type = base.ModelType.sklearn
         self._estimator = None
 
     @property
@@ -59,15 +60,6 @@ class SklearnModel(base.BaseModel):
         """
         return utils.import_library(
             model_config['module'], model_config['params'])
-
-    def read(self, settings: Dict) -> None:
-        """
-        Read an estimator from disk.
-
-        Args:
-            settings: Parameter settings defining the read operation.
-        """
-        self._estimator = extract.read_model(settings)
 
     def build_model(self, model_config: Dict,
                     normalizations: normalization.Normalization,
@@ -151,14 +143,3 @@ class SklearnModel(base.BaseModel):
         metrics = utils.ensure_input_list(metrics)
         metrics = evaluate.compute_metrics(y, y_pred, metrics)
         return metrics
-
-    def save(self, settings: Dict) -> None:
-        """
-        Stores the estimator to disk.
-
-        Args:
-            settings: Parameter settings defining the store operation.
-        """
-        settings['filename'] = utils.generate_unique_id(
-            base.ModelType.sklearn) + '.sav'
-        load.save_model(self._estimator, settings)
