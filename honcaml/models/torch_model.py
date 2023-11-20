@@ -27,6 +27,7 @@ class TorchModel(base.BaseModel):
         super().__init__(problem_type)
         self._model_type = base.ModelType.torch
         self._estimator = None
+        self._torch_model = None
         self._pipeline = None
 
     @property
@@ -214,7 +215,6 @@ class TorchModel(base.BaseModel):
                 transformers=pre_process_transformations,
                 remainder='passthrough')
             pipeline_steps.append(('pre_process', pre_process))
-        self._pipeline = pipeline.Pipeline(pipeline_steps)
         # Target preprocessing
         if normalizations is not None and normalizations.target:
             target_norm = ('target_normalization',
@@ -228,11 +228,18 @@ class TorchModel(base.BaseModel):
             self.estimator_type, features, target)
         layers_config = model_config['params']['layers']
         if isinstance(layers_config, list):
-            self._estimator = self._import_estimator_by_layers(
+            estimator = self._import_estimator_by_layers(
                 layers_config, input_dim, output_dim)
         elif isinstance(layers_config, dict):
-            self._estimator = self._import_estimator_by_blocks(
+            estimator = self._import_estimator_by_blocks(
                 layers_config, input_dim, output_dim)
+        self._torch_model = estimator
+        if normalizations is not None and normalizations.target:
+            estimator = compose.TransformedTargetRegressor(
+                regressor=estimator,
+                transformer=normalizations.target_normalizer)
+        pipeline_steps.append(('estimator', estimator))
+        self._estimator = pipeline.Pipeline(pipeline_steps)
         logger.debug(f'Model object {self._estimator}')
 
     @staticmethod
@@ -277,7 +284,7 @@ class TorchModel(base.BaseModel):
         # Define dictionary to pass to optimizer
         # Estimator parameters should be included
         optimizer = utils.import_library(
-            **optimizer, mand_argument=self._estimator.parameters())
+            **optimizer, mand_argument=self._torch_model.parameters())
 
         for epoch in range(epochs):
             running_loss = 0.0
@@ -287,7 +294,7 @@ class TorchModel(base.BaseModel):
                 # Zero the parameter gradients
                 optimizer.zero_grad()
                 # Forward + backward + optimize
-                outputs = self._estimator(inputs)
+                outputs = self._torch_model(inputs)
                 if self.estimator_type == 'classifier':
                     labels = labels.long()
                 elif self._estimator_type == 'regressor':
@@ -295,7 +302,53 @@ class TorchModel(base.BaseModel):
                 loss = criterion(outputs, labels)
                 loss.backward()
                 torch.nn.utils.clip_grad_norm_(
-                    self._estimator.parameters(), 1.0)
+                    self._torch_model.parameters(), 1.0)
+                optimizer.step()
+                running_loss += loss.item()
+
+                logger.debug(
+                    f'[{epoch + 1}, {i + 1}] loss: {running_loss}')
+
+    def _torch_fit(self, x: ct.Dataset, y: ct.Dataset, loader: Dict, loss: str,
+                   optimizer: Dict, epochs: int, **kwargs: Dict) -> None:
+        """
+        Trains the estimator on the specified dataset. Must be implemented by
+        child classes.
+
+        Args:
+            x: Dataset features.
+            y: Dataset target.
+            loader: Options for dataloader.
+            loss: Name of loss function to use.
+            optimizer: Optimizer module and params to use.
+            epochs: Number of epochs for training.
+            **kwargs: Extra parameters.
+        """
+        dataset = TorchTrainDataset(x, y)
+        loader = torch.utils.data.DataLoader(dataset, **loader)
+        criterion = utils.import_library(**loss)
+        # Define dictionary to pass to optimizer
+        # Estimator parameters should be included
+        optimizer = utils.import_library(
+            **optimizer, mand_argument=self._torch_model.parameters())
+
+        for epoch in range(epochs):
+            running_loss = 0.0
+            for i, data in enumerate(loader, 0):
+                # Get the inputs; data is a list of [inputs, labels]
+                inputs, labels = data
+                # Zero the parameter gradients
+                optimizer.zero_grad()
+                # Forward + backward + optimize
+                outputs = self._torch_model(inputs)
+                if self.estimator_type == 'classifier':
+                    labels = labels.long()
+                elif self._estimator_type == 'regressor':
+                    outputs = outputs.ravel()
+                loss = criterion(outputs, labels)
+                loss.backward()
+                torch.nn.utils.clip_grad_norm_(
+                    self._torch_model.parameters(), 1.0)
                 optimizer.step()
                 running_loss += loss.item()
 
@@ -321,7 +374,7 @@ class TorchModel(base.BaseModel):
         predictions = torch.tensor([])
         with torch.no_grad():
             for data in loader:
-                outputs = self._estimator(data)
+                outputs = self._torch_model(data)
                 if self.estimator_type == 'classifier':
                     _, predicted = torch.max(outputs.data, 1)
                 else:
