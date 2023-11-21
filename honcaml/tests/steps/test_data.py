@@ -125,8 +125,6 @@ class DataTest(unittest.TestCase):
         read_csv_mock_up.return_value = utils.mock_up_read_dataframe()
         read_excel_mock_up.return_value = utils.mock_up_read_dataframe()
 
-        fake_df = utils.mock_up_read_dataframe()
-
         empty_user_settings = {'extract': {'target': 'target'}}
 
         # When settings does not have features, it includes all features

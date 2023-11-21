@@ -71,7 +71,7 @@ def main():
         conf_options = utils.get_configuration_arguments(args)
         user.export_config(*conf_options)
     elif args.gui:
-        Popen(f'cd honcaml/visualization && streamlit run gui.py', shell=True)
+        Popen('cd honcaml/visualization && streamlit run gui.py', shell=True)
     else:
         if args.config:
             config = logger_option.yaml_reader(args.config)

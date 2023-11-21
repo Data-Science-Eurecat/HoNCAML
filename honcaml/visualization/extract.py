@@ -118,7 +118,7 @@ def extract_data_file(data_upload_col: st.delta_generator.DeltaGenerator) \
         "Upload your data file .csv",
         type=[".csv"],
         help="""
-        **Train** dataset if the selected functionality is **Benchmark** or 
+        **Train** dataset if the selected functionality is **Benchmark** or
         **Fit**\n
         **Test** dataset if the selected functionality is **Predict**
         """,

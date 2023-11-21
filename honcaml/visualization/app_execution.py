@@ -17,12 +17,12 @@ def run(col: st.delta_generator.DeltaGenerator) -> None:
         st.session_state["submit"] = True
     with col:
         with st.spinner("Running... This may take a while⏳"):
-            log = open('logs.txt', 'w')
-            err = open('errors.txt', 'w')
+            # log = open('logs.txt', 'w')
+            # err = open('errors.txt', 'w')
             # port = get_port((5000, 7000))
             # process = Popen(f'ttyd --port {port} --once honcaml -c
             # config_file.yaml', shell=True)
-            process = Popen(f'cd ../.. && honcaml -c config_file.yaml',
+            process = Popen('cd ../.. && honcaml -c config_file.yaml',
                             shell=True)  # , stdout=log, stderr=err)
             # process = Popen(f'ls', shell=True, stdout=log, stderr=err)
             # host = "http://localhost"

@@ -66,4 +66,3 @@ class EvaluateTest(unittest.TestCase):
         expected = 0.625
         result = evaluate.compute_roc_auc_score_metric(y_true, y_pred)
         self.assertEqual(expected, result)
-        
