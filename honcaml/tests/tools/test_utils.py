@@ -2,7 +2,6 @@ import argparse
 from honcaml.tools import utils
 import unittest
 from sklearn.ensemble import RandomForestRegressor
-from cerberus import Validator
 
 
 class UtilsTest(unittest.TestCase):
@@ -183,51 +182,6 @@ class UtilsTest(unittest.TestCase):
             },
             'nested_key3': 20,
             'nested_key4': 30,
-        })
-
-    # Test build_validator
-    def test_build_validator(self):
-        rules = {
-            'rule1': {
-                'nested_rule': [
-                    {'required': True}
-                ]
-            }
-        }
-        validator = utils.build_validator(rules)
-        self.assertIsInstance(validator, Validator)
-
-        rules = {
-            'rule1': [
-                {'required': True}
-            ]
-        }
-        validator = utils.build_validator(rules)
-        self.assertIsInstance(validator, Validator)
-
-    # Test build_validator_schema
-    def test_build_validator_schema(self):
-        rules = {
-            'rule1': {
-                'nested_rule1': [
-                    {'required': True}
-                ]
-            }
-        }
-        schema = utils.build_validator_schema(rules)
-        self.assertDictEqual(schema, {
-            'type': 'dict',
-            'keysrules': {
-                'allowed': ['rule1']
-            },
-            'valuesrules': {
-                'type': 'dict',
-                'schema': {
-                    'nested_rule1': {
-                        'required': True
-                    }
-                },
-            }
         })
 
     # Test get_configuration_arguments

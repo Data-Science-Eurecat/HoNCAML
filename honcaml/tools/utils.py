@@ -3,8 +3,6 @@ import datetime
 import importlib
 import re
 import uuid
-from cerberus import Validator
-from functools import reduce
 from typing import Dict, Callable, List
 
 
@@ -119,49 +117,6 @@ def update_dict_from_default_dict(
                 source_dict[key] = update_dict_from_default_dict(
                     value, source_dict[key], key, parent)
     return source_dict
-
-
-def build_validator(rules: Dict) -> Validator:
-    """
-    Builds a cerberus.Validator object by creating a rule schema.
-
-    Args:
-        rules: Rules to validate the input with.
-
-    Returns:
-        The validator build with the schema defined by the input rules.
-    """
-    schema = {}
-    for key, value in rules.items():
-        if isinstance(value, dict):
-            schema[key] = build_validator_schema(rules[key])
-        else:
-            schema[key] = reduce(lambda a, b: {**a, **b}, value)
-
-    return Validator(schema, allow_unknown=True)
-
-
-def build_validator_schema(rules: Dict) -> Dict:
-    """
-    Builds the schema for the validator.
-
-    Args:
-        rules: Rules to validate the input with.
-
-    Returns:
-        The schema built with the rules given.
-    """
-    schema = {'type': 'dict'}
-    for key, value in rules.items():
-        if isinstance(value, dict):
-            schema['keysrules'] = {'allowed': list(rules.keys())}
-            schema['valuesrules'] = build_validator_schema(rules[key])
-        else:
-            if value is not None:
-                schema['schema'] = schema.get('schema', {})
-                schema['schema'][key] = reduce(lambda a, b: {**a, **b}, value)
-
-    return schema
 
 
 def get_configuration_arguments(

@@ -22,8 +22,8 @@ tests:
 	$(ENV_PATH)/bin/python -m pytest --cov=honcaml --cov-report term-missing
 
 validate_code:
-	$(ENV_PATH)/bin/flake8 --exclude=./.venv,./build
+	flake8 --exclude=./.venv,./build
 
 clean:
-	rm -r .venv
-	rm -r docs/build
+	rm -rf .venv
+	rm -rf docs/build
