@@ -35,6 +35,3 @@ class ExecutionTest(unittest.TestCase):
                 'model': {},
             },
         })
-
-    def test_run(self):
-        pass

@@ -41,8 +41,3 @@ class PipelineTest(unittest.TestCase):
         pipeline_obj = pipeline.Pipeline(
             self.pipeline_content, utils.generate_unique_id())
         pipeline_obj._validate_pipeline(self.pipeline_content)
-        # TODO: make assertions once implemented
-
-    def test_run(self):
-        # TODO: write test
-        pass

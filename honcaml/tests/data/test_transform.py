@@ -16,7 +16,6 @@ class TransformTest(unittest.TestCase):
             'params': {'n_splits': 3}}
 
     def test_process_data(self):
-        # TODO: make test once logic implemented
         dataset = utils.mock_up_read_dataframe()
         settings = {}
         transform.process_data(dataset, settings)

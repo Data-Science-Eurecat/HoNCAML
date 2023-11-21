@@ -95,15 +95,6 @@ def download_trained_model_button() -> None:
     # Temporary solution
     st.write(f"The model is saved in the following path: {results_filepath}")
 
-    # TODO: add a button to download the sav file
-    # model = joblib.load(filepath)
-    # model = open(filepath, "r")
-    # col.download_button(
-    #    label="Download trained model .sav",
-    #    data=model.read(),
-    #    file_name="trained_model.sav"
-    # )
-
 
 def download_predictions_button(col: st.delta_generator.DeltaGenerator = st) \
         -> None:

@@ -143,8 +143,6 @@ def display_results(results_display: str) -> None:
         results_display: ["Table", "BarChart"] Define the format of the results
             display
     """
-    # TODO: change when train results are exported as csv and read from the
-    #  file instead from the config_file dict
     if results_display == "Table":
         results_table = st.session_state["results"] \
             .set_index(['model', 'configs']) \

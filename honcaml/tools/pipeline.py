@@ -71,16 +71,9 @@ class Pipeline:
         Args:
             pipeline_content: Settings defining the pipeline steps.
         """
-        # TODO: Loop the steps and check the rules
-        #    Rules validation rules should be defined within
-        #    global['pipeline_rules']
-        #    Raise an exception when the rule validation fail
-
         if 'steps' not in pipeline_content:
             raise ValueError("Incorrect configuration file structure. "
                              "Missing field: steps")
-
-        pass
 
     def run(self):
         """

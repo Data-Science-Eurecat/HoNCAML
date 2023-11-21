@@ -30,7 +30,6 @@ class DataStep(base.BaseStep):
         super().__init__(default_settings, user_settings, global_params,
                          step_rules)
 
-        # TODO: identify the dataset type. Assuming TabularDataset for now.
         self._dataset = tabular.TabularDataset()
 
     @property

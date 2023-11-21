@@ -207,7 +207,6 @@ def train_model_configs() -> None:
     st.divider()
 
 
-# TODO add possibility to add custom elements to multi-selects
 def benchmark_model_params_configs(
         model_name: str, model_configs: Dict, default_params: Dict) -> None:
     """
@@ -375,7 +374,6 @@ def cross_validation_configs() -> None:
     configuration arguments
     """
     st.write("Cross Validation")
-    # TODO: configure other strategies than kfold
     n_splits = st.number_input("Number of splits", 2, 20, 3)
 
     if st.session_state["functionality"] == "Benchmark":

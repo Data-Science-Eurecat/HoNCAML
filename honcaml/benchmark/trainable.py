@@ -137,6 +137,3 @@ class EstimatorTrainer(tune.Trainable):
 
     def load_checkpoint(self, checkpoint: Union[Dict, str]):
         pass
-
-    # If reuse_actors=True, implement the following function
-    # def reset_config(self, new_config):

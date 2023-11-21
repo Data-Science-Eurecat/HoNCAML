@@ -92,21 +92,6 @@ class ModelTest(unittest.TestCase):
             }
         })
 
-    def test_validate_step(self):
-        pass
-        # TODO: refactor test once validate step applies
-        # override_user_settings = {
-        #     'extract': {'filepath': None},
-        #     'transform': {'fit': {'cross_validation': {
-        #         'strategy': None}}
-        #     },
-        #     'load': {'path': None}
-        # }
-        # with self.assertRaises(step_exception.StepValidationError):
-        #     step = model.ModelStep(params['steps']['model'],
-        #                            override_user_settings,
-        #                            params['step_rules']['model'])
-
     def test_extract(self):
         self.test_load()
         model_name = os.listdir(self.test_dir)[0]
@@ -161,7 +146,6 @@ class ModelTest(unittest.TestCase):
             'steps']['model']['transform']['fit']['metrics'][
                 self._global_params['problem_type']]
 
-        # TODO: Mock save results
         step._dataset = self.dataset
         step._transform(step._transform_settings)
         self.assertIsNone(
@@ -307,10 +291,6 @@ class ModelTest(unittest.TestCase):
         files_in_test_dir = os.listdir(self.test_dir)
         self.assertTrue(any(f.startswith('predictions')
                             for f in files_in_test_dir))
-
-    def test_run(self):
-        # TODO: make test
-        pass
 
 
 if __name__ == '__main__':

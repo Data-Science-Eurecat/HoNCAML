@@ -38,7 +38,6 @@ class BaseStep(ABC):
         self._step_settings = self._merge_settings(
             default_settings.copy(), user_settings.copy())
 
-        # TODO: review and fix step validation
         # self._validate_step()
 
         self._extract_settings = \
