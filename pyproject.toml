@@ -1,0 +1,71 @@
+[build-system]
+requires = ["setuptools >= 61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "honcaml"
+version = "0.1.0"
+description = "Holistic and No Code Auto Machine Learning"
+authors = [
+    { name="Xavier de Juan", email="xavier.dejuang@eurecat.org" },
+    { name="Joan Erráez", email="joan.erraez@eurecat.org" },
+    { name="Jordi Casals", email="jordi.casalsg@eurecat.org" },
+    { name="Marina Rosell", email="marina.rosellg@eurecat.org" },
+    { name="Cristina Soler", email="marina.rosellg@eurecat.org" },
+    { name="Cirus Iniesta", email="cirus.iniesta@eurecat.org" },
+    { name="Luca Piras", email="luca.piras@eurecat.org" }
+]
+maintainers = [
+    { name="Applied Machine Learning", email="aml@eurecat.org" }
+]
+readme = "README.md"
+license = {file = "LICENSE"}
+requires-python = ">=3.10"
+dependencies = [
+  "joblib",
+  "openpyxl",
+  "optuna",
+  "pandas",
+  "pyyaml",
+  "ray==2.0.0",
+  "ray[tune]",
+  "scikit-learn",
+  "streamlit",
+  "torch==2.0.1"
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3 :: Only",
+  "License :: OSI Approved :: BSD 3-clause License",
+  "Intended Audience :: Science/Research",
+  "Intended Audience :: Developers",
+  "Intended Audience :: End Users/Desktop",
+  "License :: OSI Approved :: BSD License ",
+  "Topic :: Scientific/Engineering",
+  "Topic :: Scientific/Engineering :: Mathematics",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+  "Topic :: Software Development",
+  "Topic :: Software Development :: Libraries",
+  "Topic :: Software Development :: Libraries :: Python Modules"
+]
+
+[project.optional-dependencies]
+check = ["flake8"]
+document = ["sphinx"]
+tests = [
+  "pytest",
+  "pytest-cov"
+]
+
+[project.scripts]
+honcaml = "honcaml.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["honcaml"]
+
+[project.urls]
+Homepage = "https://github.com/Eurecat/honcaml"

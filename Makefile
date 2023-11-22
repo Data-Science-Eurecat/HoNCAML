@@ -9,20 +9,21 @@ all: clean setup develop docs/build
 setup:
 	python3 -m venv .venv
 
-develop: honcaml requirements.txt
+develop: honcaml pyproject.toml
 	$(ENV_PATH)/bin/python -m pip install -e .
+	$(ENV_PATH)/bin/python -m pip install honcaml[check] honcaml[document] honcaml[tests]
 
 docs/build: docs/source
 	$(ENV_PATH)/bin/sphinx-build -b html docs/source/ docs/build/html
 
-install: honcaml requirements.txt
+install: honcaml pyproject.toml
 	$(ENV_PATH)/bin/python -m pip install .
 
 tests:
 	$(ENV_PATH)/bin/python -m pytest --cov=honcaml --cov-report term-missing
 
 validate_code:
-	flake8 --exclude=./.venv,./build
+	$(ENV_PATH)/bin/flake8 --exclude=./.venv,./build
 
 clean:
 	rm -rf .venv
