@@ -9,6 +9,11 @@ all: clean setup develop docs/build
 setup:
 	python3 -m venv .venv
 
+build: dist
+
+dist: honcaml
+	python3 -m build
+
 develop: honcaml pyproject.toml
 	$(ENV_PATH)/bin/python -m pip install -e .
 	$(ENV_PATH)/bin/python -m pip install honcaml[check] honcaml[document] honcaml[tests]

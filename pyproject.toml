@@ -35,16 +35,16 @@ dependencies = [
 ]
 classifiers = [
   "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Science/Research",
+  "Intended Audience :: End Users/Desktop",
+  "License :: OSI Approved :: BSD License ",
+  "Operating System :: Unix",
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3 :: Only",
-  "License :: OSI Approved :: BSD 3-clause License",
-  "Intended Audience :: Science/Research",
-  "Intended Audience :: Developers",
-  "Intended Audience :: End Users/Desktop",
-  "License :: OSI Approved :: BSD License ",
   "Topic :: Scientific/Engineering",
   "Topic :: Scientific/Engineering :: Mathematics",
   "Topic :: Scientific/Engineering :: Artificial Intelligence",
@@ -65,7 +65,7 @@ tests = [
 honcaml = "honcaml.__main__:main"
 
 [tool.setuptools.packages.find]
-include = ["honcaml"]
+include = ["honcaml*"]
 
 [project.urls]
 Homepage = "https://github.com/Eurecat/honcaml"
