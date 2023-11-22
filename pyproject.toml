@@ -7,11 +7,11 @@ name = "honcaml"
 version = "0.1.0"
 description = "Holistic and No Code Auto Machine Learning"
 authors = [
-    { name="Xavier de Juan", email="xavier.dejuang@eurecat.org" },
+    { name="Xavier de Juan", email="xavier.dejuan@eurecat.org" },
     { name="Joan Erráez", email="joan.erraez@eurecat.org" },
     { name="Jordi Casals", email="jordi.casalsg@eurecat.org" },
     { name="Marina Rosell", email="marina.rosellg@eurecat.org" },
-    { name="Cristina Soler", email="marina.rosellg@eurecat.org" },
+    { name="Cristina Soler", email="cristina.soler@eurecat.org" },
     { name="Cirus Iniesta", email="cirus.iniesta@eurecat.org" },
     { name="Luca Piras", email="luca.piras@eurecat.org" }
 ]
