@@ -19,8 +19,8 @@ style](https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.ht
 
 Before sending any patch, please ensure the following:
 
-- Code style has no problems: `make validate_code` (require flake8 package)
-- All tests are passed: `make tests` (require pytest and pytest-cov packages)
+- Code style has no problems: `make validate_code`
+- All tests are passed: `make tests`
 - Pipelines run without problems:
     - Train
     - Predict
@@ -32,6 +32,10 @@ Before sending any patch, please ensure the following:
         - TODO.md
         - Configuration files from [examples](honcaml/config/examples)
         - Configuration files from [templates](honcaml/config/templates)
+
+In order to perform this checks, additional dependencies will be needed. These
+can be installed by `pip install honcaml[check] honcaml[document]
+honcaml[tests]`.
 
 It is not compulsory, but clearly encouraged, to create tests to validate
 any new functionality that has been introduced.
