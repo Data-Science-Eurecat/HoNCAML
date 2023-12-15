@@ -63,4 +63,4 @@ steps:
         metrics: mean_absolute_percentage_error
 
     load:
-      path: data/models/
+      filepath: data/models/sklearn_regression.sav

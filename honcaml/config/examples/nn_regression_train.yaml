@@ -74,4 +74,4 @@ steps:
                 momentum: 0.9
 
     load:
-      path: data/models
+      filepath: data/models/torch_regression.sav

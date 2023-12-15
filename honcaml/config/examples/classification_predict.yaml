@@ -12,7 +12,7 @@ steps:
 
   model:
     extract:
-      filepath:
+      filepath: data/models/sklearn_classification.sav
     transform:
       predict:
         path: reports

@@ -65,7 +65,7 @@ class ModelTest(unittest.TestCase):
                 'module': 'sklearn.model_selection.RepeatedKFold',
                 'params': {'n_splits': 20}}}
             },
-            'load': {'path': 'models'}
+            'load': {'filepath': 'models'}
         }
         step = model.ModelStep(params['steps']['model'],
                                override_user_settings, self._global_params,
@@ -88,7 +88,7 @@ class ModelTest(unittest.TestCase):
                 }
             },
             'load': {
-                'path': 'models'
+                'filepath': 'models'
             }
         })
 
@@ -112,7 +112,7 @@ class ModelTest(unittest.TestCase):
         user_settings = {
             'global': {'problem_type': 'regression'},
             'transform': {'fit': None},
-            'load': {'path': 'data/models'},
+            'load': {'filepath': 'data/models'},
         }
         step = model.ModelStep(params['steps']['model'],
                                user_settings, self._global_params,
@@ -133,7 +133,7 @@ class ModelTest(unittest.TestCase):
         # Fit and cross-validate
         user_settings = {
             'transform': {'fit': {'cross_validation': None}},
-            'load': {'path': 'data/models'}
+            'load': {'filepath': 'data/models'}
         }
         step = model.ModelStep(params['steps']['model'],
                                user_settings, self._global_params,
@@ -155,7 +155,7 @@ class ModelTest(unittest.TestCase):
         # Predict (also fit to avoid not fitted predictor error)
         user_settings = {
             'transform': {'predict': {'path': self.test_dir}, 'fit': None},
-            'load': {'path': 'data/models'}
+            'load': {'filepath': 'data/models'}
         }
         step = model.ModelStep(params['steps']['model'],
                                user_settings, self._global_params,
@@ -178,7 +178,7 @@ class ModelTest(unittest.TestCase):
     def test_load(self):
         # User settings
         user_settings = {
-            'load': {'path': self.test_dir}
+            'load': {'filepath': self.test_dir + '/{autogenerate}.sav'}
         }
         norm = normalization.Normalization({})
         step = model.ModelStep(params['steps']['model'],
@@ -200,7 +200,7 @@ class ModelTest(unittest.TestCase):
         # Only fit
         transform_user_settings = {
             'transform': {'fit': None},
-            'load': {'path': 'data/models'}
+            'load': {'filepath': 'data/models'}
         }
         norm = normalization.Normalization({})
         step = model.ModelStep(params['steps']['model'],
@@ -225,7 +225,7 @@ class ModelTest(unittest.TestCase):
         # Fit and cross-validation
         transform_user_settings = {
             'transform': {'fit': {'cross_validation': None}},
-            'load': {'path': 'data/models'}
+            'load': {'filepath': 'data/models'}
         }
         norm = normalization.Normalization({})
         step = model.ModelStep(params['steps']['model'],
@@ -268,7 +268,7 @@ class ModelTest(unittest.TestCase):
             'transform': {
                 'fit': None,
                 'predict': {'path': self.test_dir}},
-            'load': {'path': 'data/models'}
+            'load': {'filepath': 'data/models'}
         }
         norm = normalization.Normalization({})
         step = model.ModelStep(params['steps']['model'],

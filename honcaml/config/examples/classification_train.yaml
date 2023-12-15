@@ -22,4 +22,4 @@ steps:
             random_state: 90
 
     load:
-      path: data/models
+      filepath: data/models/sklearn_classification.sav

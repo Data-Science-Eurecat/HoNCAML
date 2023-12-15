@@ -49,11 +49,6 @@ would be the following:
 - This class will be instantiated before and after the model call, within the
   model object, in order to be included when storing it.
 
-### Save model objects with custom names
-
-Right now, it is not possible to properly specify custom names to save
-models.
-
 ## Fixes
 
 There are still some pending fixes that should be relatively straightforward:

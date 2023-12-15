@@ -1,7 +1,4 @@
 default_model_step = {
-    "extract": {
-        "filepath": "models/default_model_name.sav"
-    },
     "transform": {
         "fit": {
             "estimator": {
@@ -45,6 +42,6 @@ default_model_step = {
         }
     },
     "load": {
-        "path": "data/models",
+        "filepath": "data/models/{autogenerate}.sav",
     }
 }

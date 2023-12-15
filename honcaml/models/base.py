@@ -5,6 +5,7 @@ from honcaml.data import extract, load
 from honcaml.exceptions import pipeline as pipeline_exceptions
 from honcaml.tools import custom_typing as ct
 from honcaml.tools import utils
+from honcaml.tools.startup import logger
 
 
 class EstimatorType:
@@ -135,8 +136,19 @@ class BaseModel(ABC):
         Args:
             settings: Parameter settings defining the store operation.
         """
-        settings['filename'] = utils.generate_unique_id(
-            self._model_type) + '.sav'
+        new_path = settings['filepath'].split("/")
+        path = "/".join(new_path[:-1])
+        settings['path'] = path
+
+        if '{autogenerate}.sav' in new_path[-1]:
+            settings['filename'] = utils.generate_unique_id(
+                self._model_type) + '.sav'
+            logger.info(f"Save file {settings['filename']}")
+        else:
+            if '.sav' in new_path[-1]:
+                settings['filename'] = new_path[-1]
+            else:
+                raise Exception('Model format not supported')
         load.save_model(self, settings)
 
 

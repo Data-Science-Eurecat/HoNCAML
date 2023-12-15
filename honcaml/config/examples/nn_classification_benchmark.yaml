@@ -60,4 +60,4 @@ steps:
                     values: [0.0000001, 0.00001]
       metrics: f1_score
     load:
-      path: data/models
+      path: reports

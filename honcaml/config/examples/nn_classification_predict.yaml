@@ -9,7 +9,7 @@ steps:
 
   model:
     extract:
-      filepath:
+      filepath: data/models/torch_classification.sav
     transform:
       predict:
         estimator:

@@ -68,6 +68,7 @@ steps:
 
     load:
       save_best_config_params: True
+      path: reports
 
   model:
     transform:
@@ -80,4 +81,4 @@ steps:
           random_state: 90          
 
     load:
-      path: data/models/
+      filepath: data/models/sklearn_classification_benchmark.sav

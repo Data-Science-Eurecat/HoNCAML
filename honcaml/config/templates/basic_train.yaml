@@ -18,5 +18,6 @@ steps:
     transform:
       fit:
     load:
-      # Specify folder in which to store model object
-      path:
+      # Specify the folder and the name of the file in which to store model object
+      # The filename should end with the '.sav' extension.
+      filepath:

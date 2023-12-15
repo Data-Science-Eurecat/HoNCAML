@@ -47,7 +47,7 @@ steps:
 
   model:
     extract:
-      filepath:
+      filepath: data/models/torch_regression.sav
     transform:
       predict:
         estimator:
