@@ -19,7 +19,7 @@ def basic_configs() -> None:
     config_file dictionary
     """
     st.markdown("**Basic Configurations**")
-    col1, col2 = st.columns([1, 6])
+    col1, col2 = st.columns([1, 5])
 
     if "features_all" not in st.session_state:
         st.session_state["features_all"] = []
@@ -45,12 +45,15 @@ def data_preprocess_configs() -> None:
     data_step = st.session_state["config_file"]["steps"]["data"]
 
     # normalize features
-    col1, _, col2 = st.columns([6, .5, 1])
+    col1, _, col2 = st.columns([6, .5, 2])
     features_to_normalize = \
         col1.multiselect("Features to normalize",
                          data_step["extract"]["features"])
     if len(features_to_normalize) > 0:
-        with_std = col2.radio("With std (features)", (True, False))
+        #with_std = col2.radio("With std (features)", (True, False))
+        col2.write("")
+        col2.write("")
+        with_std = col2.toggle("With std (features)")
         data_step["transform"]["normalize"]["features"] = {
             "module": "sklearn.preprocessing.StandardScaler",
             "params": {
@@ -64,10 +67,12 @@ def data_preprocess_configs() -> None:
 
     # normalize target variable
     if data_step["extract"].get("target"):
-        col1, _, col2 = st.columns([6, .5, 1])
+        col1, _, col2 = st.columns([6, .5, 2])
         target = data_step["extract"]["target"][0]
-        if col1.radio(f"Normalize target: {target}", (True, False), index=1):
-            target_with_std = col2.radio("With std (target)", (True, False))
+        #if col1.radio(f"Normalize target: {target}", (True, False), index=1):
+        if col1.toggle(f"Normalize target: `{target}`"):
+            #target_with_std = col2.radio("With std (target)", (True, False))
+            target_with_std = col2.toggle("With std (target)")
             data_step["transform"]["normalize"]["target"] = {
                 "module": "sklearn.preprocessing.StandardScaler",
                 "params": {
@@ -107,16 +112,22 @@ def train_model_params_configs(
         values = configs["values"]
         output_value = ""
 
-        col1, col2 = st.columns([7, 1])
+        col1, col2 = st.columns([5, 1])
 
-        use_config = \
-            col2.radio("Use config", ("custom", "default"),
-                       key=parameter + "_use_config")
+        col2.write("")
+        use_config = col2.toggle("custom", value=True,
+                                 key=parameter + "_use_config")
 
-        if use_config == "custom":
-            st.session_state["default_configs"][parameter] = False
-        else:
-            st.session_state["default_configs"][parameter] = True
+        st.session_state["default_configs"][parameter] = not use_config
+
+        #use_config = \
+        #    col2.radio("Use config", ("custom", "default"),
+        #               key=parameter + "_use_config")
+        #if use_config == "custom":
+        #    st.session_state["default_configs"][parameter] = False
+        #else:
+        #    st.session_state["default_configs"][parameter] = True
+
 
         # remove parameter from the config file, default value by sklearn will
         # be used
@@ -226,20 +237,17 @@ def benchmark_model_params_configs(
         output_values = ""
 
         if method in ["choice", "randint", "uniform"]:
-            col1, col3 = st.columns([7, 1])
+            col1, col3 = st.columns([5, 1])
         elif method in ["qrandint", "quniform"]:
-            col1, col2, col3 = st.columns([5.5, 1.5, 1])
+            col1, col2, col3 = st.columns([3.5, 1.5, 1])
         else:
             raise Exception("method not found in the known options")
 
-        use_config = \
-            col3.radio("Use config", ("custom", "default"),
-                       key=model_name + "_" + parameter + "_use_config")
+        col3.write("")
 
-        if use_config == "custom":
-            st.session_state["default_configs"][model_name][parameter] = False
-        else:
-            st.session_state["default_configs"][model_name][parameter] = True
+        use_config = col3.toggle("custom", value=True,
+                                 key=model_name + "_" + parameter + "_use_config")
+        st.session_state["default_configs"][model_name][parameter] = not use_config
 
         # remove parameter from the config file, default value by sklearn will
         # be used
@@ -252,9 +260,9 @@ def benchmark_model_params_configs(
             # add a multiselect to select input options when method is choice
             if method == "choice":
                 output_values = \
-                    [*col1.multiselect(parameter, values, values,
+                    list(col1.multiselect(parameter, values, values,
                                        help=model_configs_helper[method],
-                                       key=f"{model_name}_{parameter}")]
+                                       key=f"{model_name}_{parameter}"))
                 if len(output_values) == 0:
                     st.warning("There must be at least one value selected")
 
@@ -263,9 +271,9 @@ def benchmark_model_params_configs(
                 min_slider = 2
                 max_slider = values[1] * 3
                 output_values = \
-                    [*col1.slider(parameter, min_slider, max_slider, values,
+                    list(col1.slider(parameter, min_slider, max_slider, values,
                                   help=model_configs_helper[method],
-                                  key=f"{model_name}_{parameter}")]
+                                  key=f"{model_name}_{parameter}"))
 
             # add a slider to select input values and a number input field to
             # select the round increment when method is qrandint
@@ -274,10 +282,10 @@ def benchmark_model_params_configs(
                 max_slider = values[1] * 3
                 *values_slider, round_increment = values
                 output_values = \
-                    [*col1.slider(parameter, min_slider, max_slider,
+                    list(col1.slider(parameter, min_slider, max_slider,
                                   values_slider,
                                   help=model_configs_helper[method],
-                                  key=f"{model_name}_{parameter}_slider")]
+                                  key=f"{model_name}_{parameter}_slider"))
                 round_increment = \
                     col2.number_input("Round increment of", min_value=1,
                                       value=round_increment,
@@ -289,10 +297,10 @@ def benchmark_model_params_configs(
                 min_slider = 0.0
                 max_slider = 1.0
                 output_values = \
-                    [*col1.slider(parameter, min_slider, max_slider,
+                    list(col1.slider(parameter, min_slider, max_slider,
                                   [float(val) for val in values], step=0.01,
                                   help=model_configs_helper[method],
-                                  key=f"{model_name}_{parameter}")]
+                                  key=f"{model_name}_{parameter}"))
 
             # add a slider to select input values and a number input field to
             # select the round increment when method is quniform
@@ -301,11 +309,11 @@ def benchmark_model_params_configs(
                 max_slider = 1.0
                 *values_slider, round_increment = values
                 output_values = \
-                    [*col1.slider(parameter, min_slider, max_slider,
+                    list(col1.slider(parameter, min_slider, max_slider,
                                   [float(val) for val in values_slider],
                                   step=0.01,
                                   help=model_configs_helper[method],
-                                  key=f"{model_name}_{parameter}")]
+                                  key=f"{model_name}_{parameter}"))
                 round_increment = \
                     col2.number_input("Round increment of", min_value=0.01,
                                       value=round_increment,
@@ -389,8 +397,6 @@ def cross_validation_configs() -> None:
             "params": {"n_splits": n_splits}
         }
 
-    st.divider()
-
 
 def tuner_configs() -> None:
     """
@@ -420,8 +426,6 @@ def tuner_configs() -> None:
     # optimize
     config_tuner["tune_config"]["mode"] = \
         metrics_mode[problem_type][config_tuner["tune_config"]["metric"]]
-
-    st.divider()
 
 
 def metrics_configs() -> None:
@@ -462,6 +466,8 @@ def manual_configs_elements() -> None:
         elif st.session_state["functionality"] == "Train":
             train_model_configs()
             cross_validation_configs()
+
+        st.divider()
 
     if st.session_state["functionality"] == "Predict":
         uploaded_model = extract_trained_model()
