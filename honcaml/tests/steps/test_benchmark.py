@@ -187,7 +187,7 @@ class BenchmarkTest(unittest.TestCase):
         self.assertListEqual(
             ben._reported_metrics, self.settings['transform']['metrics'])
 
-        no_metrics_in_settings_ = {'metrics': None}
+        no_metrics_in_settings_ = {'metrics': []}
         ben._clean_reported_metrics(no_metrics_in_settings_)
         self.assertIsInstance(ben._reported_metrics, list)
         self.assertEqual(len(ben._reported_metrics), 1)

@@ -9,7 +9,7 @@ steps:
     extract:
       filepath: data/processed/bank_train.csv
       target: class
-    
+
     transform:
       normalize:
         features:
@@ -19,7 +19,7 @@ steps:
           columns:
             - variance
             - skewness
-  
+
   benchmark:
     transform:
 
@@ -57,7 +57,7 @@ steps:
           params:
         tune_config:
           num_samples: 5
-          metric: accuracy_score
+          metric: roc_auc_score
           mode: max
         run_config:
           stop:
@@ -65,6 +65,11 @@ steps:
         scheduler:
           module: ray.tune.schedulers.HyperBandScheduler
           params:
+
+      metrics:
+        - accuracy_score
+        - f1_score:
+            average: macro
 
     load:
       save_best_config_params: True
@@ -78,7 +83,7 @@ steps:
         params:
           n_splits: 2
           shuffle: True
-          random_state: 90          
+          random_state: 90
 
     load:
       filepath: data/models/sklearn_classification_benchmark.sav

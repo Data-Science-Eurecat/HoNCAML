@@ -54,12 +54,17 @@ def compute_metrics(
         metrics: list) -> Dict[str, ct.Number]:
     """
     Computes specified metrics from true values and predictions.
-    For each metric, there are two possible ways to be computed:
+    Metrics values can be either strings or dictionaries.
+    The way to compute them is depending on their name (string or key,
+    respectively):
     - If there is a function in this same script named
     'compute_{metric}_metric', replacing {metric} for the given name, this
     function is used.
     - If not, it is assumed that metric can be directly drawn from
-    sklearn.metrics module, and its raw function is used without parameters.
+    sklearn.metrics module.
+    In any case, if metric value is a single string, it means to pass no
+    parameters to the function, whereas if it is a dictionary, its values are
+    the set of parameters to pass.
 
     Args:
         y_true: Ground truth outputs.
@@ -75,6 +80,11 @@ def compute_metrics(
     """
     metrics_results = {}
     for metric in metrics:
+        metric_params = {}
+        # In case metric is a dict, get function name and parameters
+        if isinstance(metric, dict):
+            metric_params = list(metric.values())[0]
+            metric = list(metric.keys())[0]
         try:
             metric_func_name = '_'.join(['compute', metric, 'metric'])
             metric_function = globals()[metric_func_name]
@@ -83,7 +93,8 @@ def compute_metrics(
                 metric_function = getattr(sk_metrics, metric)
             except AttributeError:
                 raise model_exceptions.MetricDoesNotExist(metric)
-        metrics_results[metric] = metric_function(y_true, y_predicted)
+        metrics_results[metric] = metric_function(
+            y_true, y_predicted, **metric_params)
     return metrics_results
 
 

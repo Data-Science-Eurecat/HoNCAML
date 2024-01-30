@@ -95,7 +95,7 @@ In addition, it uses ``bedrooms``, ``bathrooms``, ``sqft_living`` as features.
        - bathrooms
        - sqft_living
      target: price
-         
+
 
 Transform
 ---------
@@ -221,7 +221,7 @@ Extract
 
 In extract phase the possible configurations are the following:
 
-- **filepath** (str [#comp1]_): File path of model to read. 
+- **filepath** (str [#comp1]_): File path of model to read.
 
 .. [#comp1]
 
@@ -238,7 +238,7 @@ cross-validation. The available configurations are the following:
 
   - **estimator** (dict, optional): Sppecifies the estimator and its
     hyperparameters. Consists of the following:
-    
+
     - **module** (str, optional): Learner module to use.
     - **params** (dict, optional): Additional parameters to pass to module
       class.
@@ -253,7 +253,7 @@ cross-validation. The available configurations are the following:
   - **cross_validation** (dict, optional): Defines which cross-validation
     strategy to use for training the model. Dictionary may have the following
     keys:
-    
+
     - **module** (str, optional): Cross validation module to use.
     - **params** (dict, optional): Additional parameters to pass to module
       class.
@@ -263,8 +263,8 @@ cross-validation. The available configurations are the following:
     should work, provided that it follows their consistent structure.
     Default: ``sklearn.model_selection.KFold`` with 3 splits.
 
-  - **metrics** (list/str, optional): a list of metrics to evaluate the model,
-    or a single one. Any metric that exists in `sklearn.metrics
+  - **metrics** (list): a list of metrics to evaluate the model.
+    Any metric that exists in `sklearn.metrics
     <https://scikit-learn.org/stable/modules/classes.html#module-sklearn.metrics>`_
     is allowed, of course that apply to the problem type; only the function
     name is required.  Default values are ``mean_squared_error``,
@@ -282,8 +282,13 @@ cross-validation. The available configurations are the following:
     examples). Then, it is just a matter of include the metric name in the
     configuration.
 
+    Both options have the possibility to pass additional parameters to the
+    metric function, by specifying the metric as a dictionary instead of a
+    single string. The dictionary key would be the metric name, whereas its
+    values would refer to function parameters.
+
 - **predict** (dict [#comp3]_): Requests to run predictions over the dataset.
-  
+
   - **path** (str, optional): Directory where the predictions will be
     stored. Default value: ``data/processed``.
 
@@ -320,7 +325,7 @@ definition:
 
 Deep learning models
 ^^^^^^^^^^^^^^^^^^^^
-       
+
 Deep learning models implemented in torch require a specific format, different
 from sklearn based models or similar, in which parameters are passed directly
 when instantiating the model class.
@@ -332,7 +337,7 @@ key, the following keys should be specified [#comp4]_:
 - **epochs** (int): Number of training epochs.
 
 - **layers** (list) Layers configuration; the structure of each one is:
-  
+
   - **module** (str): Layer module to use.
   - **params** (dict, optional [#comp5]_): Additional parameters to pass to
     layers.
@@ -343,17 +348,17 @@ key, the following keys should be specified [#comp4]_:
   be provided, as dimension will be inferred from targets.
 
 - **loader**: (dict): Specifies data loader options to use. Internal keys:
-  
+
     - **batch_size** (int): Number of rows to consider for each batch.
     - **shuffle** (bool): Whether to shuffle data at every epoch.
 
 - **loss** (dict): Loss to consider; requires the following:
-  
+
   - **module** (str): Loss module to use.
   - **params** (dict, optional): Additional parameters to pass to module.
 
 - **optimizer** (dict): Optimizer to consider; requires the following:
-  
+
   - **module** (str): Optimizer module to use.
   - **params** (dict, optional): Additional parameters to pass to module.
 
@@ -377,7 +382,7 @@ An example of a training configuration for a deep learning model would be:
                 params:
                   out_features: 32
               - module: torch.nn.Dropout
-              - module: torch.nn.Linear                
+              - module: torch.nn.Linear
             loader:
               batch_size: 20
               shuffle: True
@@ -387,8 +392,8 @@ An example of a training configuration for a deep learning model would be:
               module: torch.optim.SGD
               params:
                 lr: 0.001
-                momentum: 0.9          
-    
+                momentum: 0.9
+
 .. [#comp4]
 
    All options are required for training and benchmark pipelines, whereas
@@ -398,15 +403,15 @@ An example of a training configuration for a deep learning model would be:
 
    Optional for all layer types except for linear ones, except for the last
    layer if it is linear.
-            
+
 Load
 ----
 
 In load phase the possible configurations are the following:
 
 - **filepath** (str, required): Directory and file name where the model will be saved.
-  If the user specifies the file name as ``{autogenerate}.sav``, the filename is 
-  generated by the framework following the following 
+  If the user specifies the file name as ``{autogenerate}.sav``, the filename is
+  generated by the framework following the following
   convention: ``{model_type}.{execution_id}.sav``
   Otherwise, if the user specifies a custom name, the file is saved with that name.
   The supported formats for saving a model include the extension ``.sav``
@@ -432,7 +437,7 @@ It is made up for the following ETL phases:
 
 - **transform**: this phase runs an hyperparamater search algorithm for each
   specified model. Furthermore, it gets the best model configuration.
-  
+
 - **load**: it saves the best configuration into a yaml file.
 
 Apart from obtaining the best model configuration, it is possible to train the
@@ -474,7 +479,7 @@ The available configurations are the following:
 - **models** (dict, optional): Dictionary of models and hyperparameters to
   search for best configuration. Each entry of the list refers to a model to
   benchmark. Keys should be the following:
-  
+
   - **{model_name}** (dict, optional): Name of model module,
     e.g. ``sklearn.ensemble.RandomForestRegressor``.
 
@@ -502,7 +507,7 @@ The available configurations are the following:
 - **cross_validation** (dict, optional): defines which cross-validation
   strategy to use for training each model. Dictionary may have the following
   keys:
-  
+
   - **module** (str, optional): Cross validation module to use.
   - **params** (dict, optional): Additional parameters to pass to module class.
 
@@ -532,10 +537,10 @@ The available configurations are the following:
   series of predicted ones, in this order (there are already a couple of
   examples). Then, it is just a matter of include the metric name in the
   configuration.
-  
+
 - **tuner** (dict): defines the configuration of tune process. Their options
   are the following:
-  
+
   - **search_algorithm** (dict, optional): Specifies the algorithm to perform
     the search. Consists of the following:
 
@@ -546,7 +551,7 @@ The available configurations are the following:
   For all available options, see `the search algorithms documentation
   <https://docs.ray.io/en/latest/tune/api/suggestion.html>`_.
   Default is ``ray.tune.search.optuna.OptunaSearch``.
-  
+
   - **tune_config** (dict, optional): Parameters to pass to tuner config
     object, specified as key-value pairs. For available options, see `TuneConfig
     documentation
@@ -557,7 +562,7 @@ The available configurations are the following:
     <https://docs.ray.io/en/latest/ray-air/api/doc/ray.air.RunConfig.html>`_.
   - **scheduler** (dict, optional): Allows to define different strategies
     during the search process. Consists of the following:
-  
+
     - **module** (str, optional): Algorithm module to use.
     - **params** (dict, optional): Additional parameters to pass to module
       class.
@@ -607,7 +612,7 @@ definition:
        module: ray.tune.schedulers.HyperBandScheduler
 
 .. _deep-learning-benchmark:
-       
+
 Deep learning benchmark
 ^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -636,7 +641,7 @@ should be the same:
   - **params** (dict, optional): In case some layer types require specific
     parameters to be benchmarked, they should be informed within this key. The
     structure to follow is the following:
-  
+
     - **{layer name}** (str): Layer name, as specified in **types**.
 
       - **{parameter name}** (str): Name of parameter to be benchmarked. Its
@@ -648,26 +653,26 @@ should be the same:
   (**method** and **values**).
 
 - **loss** (dict): Loss to consider; requires the following:
-  
+
   - **method** (str): Should be equal to ``choice``.
   - **values** (list): For each possible option to consider, specify the
     following:
-  
+
     - **module** (str): Loss module.
     - **params** (dict, optional): Parameters to benchmark for the specific
       module, in case there are any. Each of them should have the standard
       structure **method** and **values**.
 
 - **optimizer** (dict): Optimizer to consider; requires the following:
-  
+
   - **method** (str): Should be equal to ``choice``.
   - **values** (list): For each possible option to consider, specify the
     following:
-  
+
     - **module** (str): Optimizer module.
     - **params** (dict, optional): Parameters to benchmark for the specific
       module, in case there are any. Each of them should have the standard
-      structure **method** and **values**.      
+      structure **method** and **values**.
 
 An example of a benchmark configuration for deep learning models would be:
 
@@ -687,7 +692,7 @@ An example of a benchmark configuration for deep learning models would be:
               - Dropout
             params:
               Dropout:
-                p: 
+                p:
                   method: uniform
                   values: [0.4, 0.6]
           loader:
@@ -722,8 +727,8 @@ An example of a benchmark configuration for deep learning models would be:
                     values: [0.001, 0.1]
                   eps:
                     method: loguniform
-                    values: [0.0000001, 0.00001]          
-      
+                    values: [0.0000001, 0.00001]
+
 Load
 ----
 

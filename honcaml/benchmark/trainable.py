@@ -27,7 +27,7 @@ class EstimatorTrainer(tune.Trainable):
         _cv_split: cross-validation object with train configurations.
         _param_space (Dict): dict with model's hyperparameters to search and
             all possible values.
-        _reported_metrics (List[str]): metrics to report
+        _reported_metrics (List): metrics to report
         _metric (str): metric to use to evaulate the model performance.
         _model: model instance.
     """

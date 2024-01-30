@@ -50,6 +50,7 @@ class BenchmarkStep(base.BaseStep):
         self._dataset = None
         self._benchmark = None
         self._reported_metrics = None
+        self._result_metrics = None
         self._metric = None
         self._mode = None
         self._best_model = None
@@ -101,16 +102,22 @@ class BenchmarkStep(base.BaseStep):
     def _clean_reported_metrics(self, settings: Dict) -> None:
         """
         Given a step settings, this function gets the metrics list to report.
-        The metrics are a union set of the metrics specified in the transform
-        step, together with the one used by tuner to select the best model.
+        The metrics are a union of the metrics specified in the transform step,
+        together with the one used by tuner to select the best model. In
+        practice, tuner metric is only added if is not already in transform
+        metrics.
 
         Args:
             settings (Dict): settings parameters with metrics to report.
 
         """
-        tuner_set = set(utils.ensure_input_list(self._metric))
-        settings_set = set(utils.ensure_input_list(settings['metrics']))
-        self._reported_metrics = list(settings_set.union(tuner_set))
+        self._reported_metrics = settings['metrics']
+        is_simple_metric = self._metric in settings['metrics']
+        dict_metrics = [list(x.keys())[0] for x in settings['metrics']
+                        if isinstance(x, dict)]
+        is_dict_metric = self._metric in dict_metrics
+        if not is_simple_metric and not is_dict_metric:
+            self._reported_metrics.append(self._metric)
 
     @classmethod
     def _clean_search_algorithm(cls, settings: Dict) -> Union[Callable, None]:
@@ -429,6 +436,9 @@ class BenchmarkStep(base.BaseStep):
         results_df = self._sort_results(results_df)
         self._store_results(results_df)
         # Get best model and hyperparameters configuration.
+        self._reported_metrics = [
+            list(x.keys())[0] if isinstance(x, dict) else x
+            for x in self._reported_metrics]
         self._get_best_result(results_df, results_dtypes)
 
     def _load(self, settings: Dict) -> None:

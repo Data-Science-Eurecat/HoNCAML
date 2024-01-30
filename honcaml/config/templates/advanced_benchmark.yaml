@@ -34,12 +34,6 @@ steps:
 
   benchmark:
     transform:
-      # List of metrics to be considered, that should apply to the problem
-      # type. Any of the ones available in sklearn.metrics are supported, given
-      # that apply to the problem type. Only the function name should be
-      # specified, e.g. r2_score.
-      # See: https://scikit-learn.org/stable/modules/classes.html#module-sklearn.metrics
-      metrics:
       # Models and hyperparameters to benchmark; if ommited, defaults are used.
       # Available models are the ones available from sklearn and torch models,
       # and of course if they apply to the problem type specified.
@@ -76,8 +70,9 @@ steps:
       # sklearn, or even define custom metrics. See the documentation for more
       # details.
       # See: # https://scikit-learn.org/stable/modules/classes.html#module-sklearn.metrics
-      # Both a list and a string (for a single metric) are accepted
-      metrics:          
+      # It should be a list, containing strings (for metric functions without
+      # parameters) or dictionaries, with key as metric name and values as parameters.
+      metrics:
       # Tuner options specify the exploration and exploitation of the
       # hyperparameter search defined in the benchmark process: algorithm to
       # explore the search space, termination, etc.
