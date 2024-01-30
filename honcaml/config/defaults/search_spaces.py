@@ -175,7 +175,7 @@ classification = {
     "sklearn.ensemble.GradientBoostingClassifier": {
         "loss": {
             "method": "choice",
-            "values": ["log_loss", "deviance", "exponential"]
+            "values": ["log_loss", "exponential"]
         },
         "n_estimators": {
             "method": "qrandint",
