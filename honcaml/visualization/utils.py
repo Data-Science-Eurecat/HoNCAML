@@ -1,7 +1,7 @@
 import os
 import datetime
 import streamlit as st
-from constants import metrics_mode
+from constants import metrics_mode, logs_path
 from define_config_file import reset_config_file
 
 
@@ -56,7 +56,10 @@ def error_message() -> None:
     """
     Display an error message.
     """
-    with open('errors.txt') as errors_reader:
+    error_file_path = os.path.join(logs_path, 
+                                   st.session_state["current_session"], 
+                                   'errors.txt')
+    with open(error_file_path) as errors_reader:
         st.error("**There was an error during the execution:**\n\n" +
                  errors_reader.read(), icon='🚨')
 
@@ -108,6 +111,17 @@ def create_output_folder() -> None:
     output_folder = os.path.join("../../", path_name)
     if not os.path.exists(output_folder):
         os.mkdir(output_folder)
+
+
+def create_logs_folder() -> None:
+    """
+    Create output folder to save the trained model or the prediction results.
+    """
+    logs_folder = os.path.join("../../", logs_path, 
+                               st.session_state["current_session"])
+    if not os.path.exists(logs_folder):
+        os.mkdir(logs_folder)
+
 
 
 def warning(warning_type: str) -> None:

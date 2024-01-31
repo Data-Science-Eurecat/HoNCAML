@@ -2,10 +2,10 @@ data_file_path = "../../data/processed/data_file.csv"
 data_file_path_config_file = "data/processed/data_file.csv"
 config_file_path = "../../config_file.yaml"
 templates_path = "../config/templates/"
-benchmark_results_path = "honcaml_reports/"
+benchmark_results_path = "data/models/"
 model_results_path = "data/models/"
 trained_model_file = "data/models/sklearn.trained_model.sav"
-
+logs_path = "data/logs/"
 # dictionary containing the display name of the model and the name of the model
 # to use in the configs file
 names_of_models = {
@@ -18,6 +18,7 @@ names_of_models = {
         "Gradient Boosting Regressor":
             "sklearn.ensemble.GradientBoostingRegressor",
         "Elastic Net": "sklearn.linear_model.ElasticNet",
+        "Neural Network": "torch"
     },
     "classification": {
         "Logistic Regression": "sklearn.linear_model.LogisticRegression",
@@ -26,7 +27,8 @@ names_of_models = {
         "K-Neighbors Classifier": "sklearn.neighbors.KNeighborsClassifier",
         "SGD Classifier": "sklearn.linear_model.SGDClassifier",
         "Gradient Boosting Classifier":
-            "sklearn.ensemble.GradientBoostingClassifier"
+            "sklearn.ensemble.GradientBoostingClassifier",
+        "Neural Network": "torch"
     }
 }
 
@@ -43,6 +45,8 @@ model_configs_helper = {
     "quniform": "Sample a float uniformly between min and max values selected "
                 "on the slider, rounding to increments of the value selected "
                 "on the number input field",
+    "loguniform": "Sample a float uniformly in a log order of magnitude between"
+                  " min and max values selected on the slider",
     "randint": "Sample a integer uniformly between min (inclusive) and max "
                "(exclusive) values selected on the slider",
     "qrandint": "Sample a random uniformly between min (inclusive) and max "

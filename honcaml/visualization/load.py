@@ -126,6 +126,8 @@ def download_logs_button(col: st.delta_generator.DeltaGenerator = st) -> None:
     Args:
         col: Defines the column where to place the button.
     """
+    print(os.listdir())
+    print(os.getcwd())
     with open('logs.txt', 'r') as logs_reader:
         col.download_button(label="Download logs as .txt",
                             data=logs_reader.read(),

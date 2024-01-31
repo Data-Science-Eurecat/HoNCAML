@@ -1,9 +1,9 @@
 import copy
 import numpy as np
 import streamlit as st
-from typing import Dict
-from honcaml.config.defaults.search_spaces import default_search_spaces
-from honcaml.config.defaults.tuner import default_tuner
+from typing import Dict, List
+from defaults import (default_search_spaces,
+                      default_tuner)
 from utils import define_metrics
 from constants import (names_of_models,
                        default_models,
@@ -11,6 +11,7 @@ from constants import (names_of_models,
                        metrics_mode)
 from extract import extract_trained_model
 from load import load_trained_model
+import json
 
 
 def basic_configs() -> None:
@@ -115,19 +116,10 @@ def train_model_params_configs(
         col1, col2 = st.columns([5, 1])
 
         col2.write("")
-        use_config = col2.toggle("custom", value=True,
-                                 key=parameter + "_use_config")
+        use_config = col2.toggle("custom", value=True, 
+                                 key=f"{parameter}_use_config")
 
         st.session_state["default_configs"][parameter] = not use_config
-
-        #use_config = \
-        #    col2.radio("Use config", ("custom", "default"),
-        #               key=parameter + "_use_config")
-        #if use_config == "custom":
-        #    st.session_state["default_configs"][parameter] = False
-        #else:
-        #    st.session_state["default_configs"][parameter] = True
-
 
         # remove parameter from the config file, default value by sklearn will
         # be used
@@ -236,7 +228,7 @@ def benchmark_model_params_configs(
         values = configs["values"]
         output_values = ""
 
-        if method in ["choice", "randint", "uniform"]:
+        if method in ["choice", "randint", "uniform", "loguniform"]:
             col1, col3 = st.columns([5, 1])
         elif method in ["qrandint", "quniform"]:
             col1, col2, col3 = st.columns([3.5, 1.5, 1])
@@ -245,14 +237,20 @@ def benchmark_model_params_configs(
 
         col3.write("")
 
-        use_config = col3.toggle("custom", value=True,
-                                 key=model_name + "_" + parameter + "_use_config")
-        st.session_state["default_configs"][model_name][parameter] = not use_config
+        # if the model is Neural Network we add a "reset" button instead of a
+        # "custom/default" toggle, because there are no default values
+        if model_name == "Neural Network":
+            st.session_state["default_configs"][model_name][parameter] = False
+            #reset = col3.button("reset", key=f"{model_name}_{parameter}_reset")
+        else:
+            use_config = col3.toggle("custom", value=True,
+                                    key=f"{model_name}_{parameter}_use_config")
+            st.session_state["default_configs"][model_name][parameter] = not use_config
 
         # remove parameter from the config file, default value by sklearn will
         # be used
         if st.session_state["default_configs"][model_name][parameter]:
-            col1.write(parameter)
+            col1.write(f"{parameter} - Using sklearn default values")
             model_configs.pop(parameter)
 
         # add input options to set custom values to config the parameter
@@ -293,7 +291,7 @@ def benchmark_model_params_configs(
                 output_values.append(round_increment)
 
             # add a slider to select input values when method is uniform
-            elif method == "uniform":
+            elif method in ["uniform", "loguniform"]:
                 min_slider = 0.0
                 max_slider = 1.0
                 output_values = \
@@ -325,6 +323,71 @@ def benchmark_model_params_configs(
                 model_configs[parameter]["values"] = output_values
 
 
+def convert_params(default_dict: Dict) -> Dict:
+    """
+    """
+    params_dict = copy.deepcopy(default_dict)
+    new_dict = {}
+    new_dict["epochs"] = params_dict["epochs"]
+    new_dict["layers_number_blocks"] = {
+        "method": "randint",
+        "values": params_dict["layers"]["number_blocks"]
+    }
+    new_dict["dropout_p_parameter"] = \
+        params_dict["layers"]["params"]["Dropout"]["p"]
+    new_dict["loader_batch_size"] = params_dict["loader"]["batch_size"]
+    new_dict["loader_shuffle"] = params_dict["loader"]["shuffle"]
+    new_dict["loss"] = params_dict["loss"]
+    new_dict["loss"]["values"] = \
+        [val["module"] for val in params_dict["loss"]["values"]]
+    new_dict["optimizer"] = copy.deepcopy(params_dict["optimizer"])
+    new_dict["optimizer"]["values"] = \
+        [val["module"] for val in params_dict["optimizer"]["values"]]
+    # TODO: find a way to map the dict
+    for val in params_dict["optimizer"]["values"]:
+        module_name = val["module"]
+        for param, vals_dict in val["params"].items():
+            new_dict[f"optimizer_{module_name}_{param}"] = vals_dict
+    # to delete    
+    json.dump(new_dict, open("convert_params_results.json", "w"))
+    return new_dict
+
+
+def reconvert_params(model_params: Dict, default_dict: Dict) -> Dict:
+    """
+    """
+    params_dict = copy.deepcopy(model_params)
+    new_dict = {}
+    new_dict["epochs"] = params_dict["epochs"]
+    new_dict["layers"] = {
+        "number_blocks" : params_dict["layers_number_blocks"]["values"],
+        "types": copy.deepcopy(default_dict["layers"]["types"]),
+        "params": {"Dropout": {"p": params_dict["dropout_p_parameter"]}}
+    }
+    new_dict["loader"] = {
+        "batch_size": params_dict["loader_batch_size"],
+        "shuffle": params_dict["loader_shuffle"]
+    }
+    new_dict["loss"] = params_dict["loss"]
+    new_dict["loss"]["values"] = \
+        [{"module": val} for val in params_dict["loss"]["values"]]
+    # TODO: find a way to map the dict new_dict["optimizer"]
+    
+    new_dict["optimizer"] = copy.deepcopy(params_dict["optimizer"])
+    new_dict["optimizer"]["values"] = []
+    for module in params_dict["optimizer"]["values"]:
+        optimizer_dict = \
+            {key.split("_")[-1]: val for key, val in params_dict.items()
+             if f"optimizer_{module}" in key}
+        #print(f"optimizer_{module}")
+        #print([key for key in params_dict.keys() if f"optimizer_{module}" in key])
+        new_dict["optimizer"]["values"].append({"module": module,
+                                                "params": optimizer_dict})
+    # to delete
+    json.dump(new_dict, open("reconvert_params_results.json", "w"))
+    return new_dict
+
+
 def benchmark_model_configs() -> None:
     """
     Display the input selectors to select the models to benchmark and their
@@ -354,24 +417,35 @@ def benchmark_model_configs() -> None:
         # display list of possible models as a checkbox (multiple choice)
         # by default only 2 models will be selected (defined in default_models)
         col1, col2 = st.container().columns(cols_dist)
-        if col1.checkbox(model_name,
-                         True if model_name in default_models[problem_type]
-                         else False):
+        if col1.checkbox(model_name, model_name in default_models[problem_type]):
             # initially, we set the default values
             config_model_name = names_of_models[problem_type][model_name]
             default_params = default_search_spaces[problem_type][
                 config_model_name]
-            st.session_state["config_file"]["steps"]["benchmark"]["transform"][
-                "models"][config_model_name] = copy.deepcopy(default_params)
-            model_configs = \
+                        
+            # Neural Network parameters follow a different structure and need to
+            # be converted
+            if model_name == "Neural Network":
                 st.session_state["config_file"]["steps"]["benchmark"][
-                    "transform"]["models"][config_model_name]
+                    "transform"]["models"][config_model_name] = \
+                        convert_params(default_params)
+            else:
+                st.session_state["config_file"]["steps"]["benchmark"][
+                    "transform"]["models"][config_model_name] = \
+                        copy.deepcopy(default_params)
+                
+            model_configs = st.session_state["config_file"]["steps"][
+                "benchmark"]["transform"]["models"][config_model_name]
 
             # display configs input parameters
             with col2:
                 with st.expander(f"{model_name} configs:"):
-                    benchmark_model_params_configs(model_name, model_configs,
-                                                   default_params)
+                    benchmark_model_params_configs(
+                        model_name, model_configs, model_configs)
+                    
+            # Convert Neural Network parameters back to its original format
+            if model_name == "Neural Network":
+                model_configs = reconvert_params(model_configs, default_params)
 
     st.divider()
 

@@ -109,4 +109,4 @@ def set_target_config_file() -> None:
     session_state
     """
     st.session_state["config_file"]["steps"]["data"]["extract"][
-        "target"] = [st.session_state["target"]]
+        "target"] = st.session_state["target"]

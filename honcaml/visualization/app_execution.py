@@ -3,7 +3,7 @@ import yaml
 import streamlit as st
 from subprocess import Popen
 from visualization import get_results_table, create_fig_visualization
-from constants import benchmark_results_path, config_file_path
+from constants import benchmark_results_path, config_file_path, logs_path
 
 
 def run(col: st.delta_generator.DeltaGenerator) -> None:
@@ -17,14 +17,19 @@ def run(col: st.delta_generator.DeltaGenerator) -> None:
         st.session_state["submit"] = True
     with col:
         with st.spinner("Running... This may take a while⏳"):
-            # log = open('logs.txt', 'w')
-            # err = open('errors.txt', 'w')
+            log = open(os.path.join("../../", logs_path, 
+                                    st.session_state["current_session"], 
+                                    'logs.txt'), 'w')
+            err = open(os.path.join("../../", logs_path, 
+                                    st.session_state["current_session"], 
+                                    'errors.txt'), 'w')
             # port = get_port((5000, 7000))
             # process = Popen(f'ttyd --port {port} --once honcaml -c
             # config_file.yaml', shell=True)
             process = Popen('cd ../.. && honcaml -c config_file.yaml',
-                            shell=True)  # , stdout=log, stderr=err)
-            # process = Popen(f'ls', shell=True, stdout=log, stderr=err)
+                            shell=True , stdout=log, stderr=err)
+            # process = Popen(f'ls', shell=True, stdout=log, stderr=er
+            # r)
             # host = "http://localhost"
             # iframe(f"{host}:{port}", height=400)
             process.wait()
@@ -76,3 +81,5 @@ def generate_configs_file_yaml(col: st.delta_generator.DeltaGenerator) -> None:
                 yaml.safe_dump(yaml_file, file,
                                default_flow_style=False,
                                sort_keys=False)
+                
+            return yaml_file

@@ -12,6 +12,7 @@ from utils import (set_current_session,
                    define_functionality_configs_level,
                    error_message,
                    create_output_folder,
+                   create_logs_folder,
                    warning)
 from define_config_file import initialize_config_file
 from extract import add_init_input_elements
@@ -21,6 +22,7 @@ from load import (load_uploaded_file,
                   download_trained_model_button,
                   download_predictions_button,
                   download_benchmark_results_button)
+import yaml
 
 # from streamlit_ttyd import terminal
 # from streamlit.components.v1 import iframe
@@ -57,12 +59,22 @@ def main():
     # add "Run" button to execute the app
     col1, col2 = st.columns([1, 8])
     button = col1.button("Run")
+    #download_configs_file_button = col1.button("Download config file")
+
+    #if download_configs_file_button:
+    #    configs_file = generate_configs_file_yaml(col2)
+    #    with open('config_file.yaml', 'w') as file:
+    #        yaml.safe_dump(configs_file, file,
+    #                        default_flow_style=False,
+    #                        sort_keys=False)
+
 
     # when the "Run" button is pressed, execute the app
     if button:
         # check that the datafile is uploaded
         if st.session_state.get("data_uploaded") is not None:
             st.session_state["submit"] = True
+            create_logs_folder()
 
             if configs_mode == "Manually":
                 generate_configs_file_yaml(col2)
@@ -103,7 +115,7 @@ def main():
                 process_results()
                 display_best_hyperparameters()
 
-                col1, col2 = st.columns([1, 8])
+                col1, col2 = st.columns([1, 5])
                 results_display = col1.radio(
                     "Display results as:", ("Table", "BarChart")
                 )

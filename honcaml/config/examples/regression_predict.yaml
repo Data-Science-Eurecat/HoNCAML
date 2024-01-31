@@ -51,4 +51,4 @@ steps:
       filepath:
     transform:
       predict:
-        path: honcaml_reports
+        path: reports
