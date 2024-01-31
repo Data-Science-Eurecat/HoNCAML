@@ -406,7 +406,6 @@ def reconvert_params(model_params: Dict, default_dict: Dict) -> Dict:
     new_dict["loss"] = params_dict["loss"]
     new_dict["loss"]["values"] = \
         [{"module": val} for val in params_dict["loss"]["values"]]
-    # TODO: find a way to map the dict new_dict["optimizer"]
     
     new_dict["optimizer"] = copy.deepcopy(params_dict["optimizer"])
     new_dict["optimizer"]["values"] = []
@@ -419,7 +418,6 @@ def reconvert_params(model_params: Dict, default_dict: Dict) -> Dict:
     # to delete
     json.dump(new_dict, open("reconvert_params_results.json", "w"))
     return new_dict
-
 
 def benchmark_model_configs() -> None:
     """
