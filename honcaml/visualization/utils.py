@@ -12,7 +12,8 @@ def set_current_session() -> str:
     Returns:
         unique session ID.
     """
-    return datetime.datetime.now().strftime('%Y%m%d-%H%M%S')
+    session_datetime = datetime.datetime.now().strftime('%Y%m%d-%H%M%S')
+    return f"GUI_session_{session_datetime}"
 
 
 def change_configs_mode() -> None:

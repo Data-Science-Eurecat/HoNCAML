@@ -31,6 +31,17 @@ def load_uploaded_file() -> None:
     st.session_state["config_file"] = \
         yaml.safe_load(st.session_state["uploaded_file"])
 
+    # add save_best_config_params key to be able to display best parameters
+    if "benchmark" in st.session_state["config_file"]["steps"]:
+        st.session_state["config_file"]["steps"]["benchmark"]["load"][
+            "save_best_config_params"] = True
+
+    # add the GUI session folder to the load path
+    if "benchmark" in st.session_state["config_file"]["steps"]:
+        st.session_state["config_file"]["steps"]["benchmark"]["load"]["path"] =\
+            os.path.join(st.session_state["config_file"]["steps"]["benchmark"][
+                "load"]["path"], st.session_state["current_session"])
+
     # add data filepath
     add_data_filepath()
 

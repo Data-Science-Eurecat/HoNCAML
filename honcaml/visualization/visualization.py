@@ -86,8 +86,11 @@ def create_fig_visualization(results) -> object:
     """
     height = int(len(results.index) / 3 + 3)
 
+    benchmark_metrics = st.session_state["benchmark_metrics"] if \
+        isinstance(st.session_state["benchmark_metrics"], list) else \
+        [st.session_state["benchmark_metrics"]]
     results_melted = \
-        results[['model_configs'] + st.session_state["benchmark_metrics"]] \
+        results[['model_configs'] + benchmark_metrics] \
         .melt(
               id_vars=['model_configs'],
               value_vars=st.session_state["benchmark_metrics"],
