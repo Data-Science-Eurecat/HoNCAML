@@ -66,8 +66,7 @@ def get_results_table() -> pd.DataFrame:
                 
     b_met = st.session_state["benchmark_metrics"]
     benchmark_metrics = b_met if isinstance(b_met, list) else [b_met]
-    cols_list = ['model', 'configs', 'model_configs'] + benchmark_metrics
-                      
+    cols_list = ['model', 'configs', 'model_configs'] + benchmark_metrics       
     results = results[cols_list]
 
     results = results.drop_duplicates(subset=['model', 'configs']) \

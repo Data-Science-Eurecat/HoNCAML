@@ -56,7 +56,7 @@ def error_message() -> None:
     """
     Display an error message.
     """
-    error_file_path = os.path.join(logs_path, 
+    error_file_path = os.path.join("../../", logs_path, 
                                    st.session_state["current_session"], 
                                    'errors.txt')
     with open(error_file_path) as errors_reader:

@@ -446,6 +446,8 @@ def benchmark_model_configs() -> None:
             # Convert Neural Network parameters back to its original format
             if model_name == "Neural Network":
                 model_configs = reconvert_params(model_configs, default_params)
+    st.session_state["config_file"]["steps"]["benchmark"]["transform"][
+        "models"][config_model_name] = copy.deepcopy(model_configs)
 
     st.divider()
 
