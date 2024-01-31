@@ -27,7 +27,7 @@ def run(col: st.delta_generator.DeltaGenerator) -> None:
             # process = Popen(f'ttyd --port {port} --once honcaml -c
             # config_file.yaml', shell=True)
             process = Popen('cd ../.. && honcaml -c config_file.yaml',
-                            shell=True, stdout=log, stderr=err)
+                            shell=True )#, stdout=log, stderr=err)
             # process = Popen(f'ls', shell=True, stdout=log, stderr=er
             # r)
             # host = "http://localhost"

@@ -5,7 +5,8 @@ import pandas as pd
 import streamlit as st
 from constants import (data_file_path,
                        config_file_path,
-                       model_results_path)
+                       model_results_path,
+                       logs_path)
 from define_config_file import add_data_filepath
 
 
@@ -126,7 +127,10 @@ def download_logs_button(col: st.delta_generator.DeltaGenerator = st) -> None:
     Args:
         col: Defines the column where to place the button.
     """
-    with open('logs.txt', 'r') as logs_reader:
+
+    logs_folder = os.path.join("../../", logs_path, 
+                               st.session_state["current_session"])
+    with open(os.path.join(logs_folder, 'logs.txt'), 'r') as logs_reader:
         col.download_button(label="Download logs as .txt",
                             data=logs_reader.read(),
                             file_name='logs.txt')

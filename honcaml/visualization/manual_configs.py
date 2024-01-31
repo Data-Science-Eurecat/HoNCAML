@@ -224,6 +224,8 @@ def benchmark_model_params_configs(
             values in this dictionary will not variate
     """
     for parameter, configs in default_params.items():
+        if parameter not in model_configs:
+            continue
         method = configs["method"]
         values = configs["values"]
         output_values = ""
@@ -293,12 +295,16 @@ def benchmark_model_params_configs(
             # add a slider to select input values when method is uniform
             elif method in ["uniform", "loguniform"]:
                 min_slider = 0.0
-                max_slider = 1.0
-                output_values = \
-                    list(col1.slider(parameter, min_slider, max_slider,
-                                  [float(val) for val in values], step=0.01,
-                                  help=model_configs_helper[method],
-                                  key=f"{model_name}_{parameter}"))
+                max_slider = min(values[1] * 5, 1.0)
+                scientific_notation = values[0] <= 1e-4 and values[0] > 0
+                step = values[0]/100 if scientific_notation else \
+                    0.01 if values[0] == 0 else values[0]/10
+                output_values = list(col1.slider(
+                    parameter, min_slider, max_slider,
+                    value=[float(val) for val in values], step=step,
+                    help=model_configs_helper[method],
+                    key=f"{model_name}_{parameter}",
+                    format="%.2e" if scientific_notation else "%f"))
 
             # add a slider to select input values and a number input field to
             # select the round increment when method is quniform
@@ -321,6 +327,33 @@ def benchmark_model_params_configs(
             # update the dictionary with the config file parameters
             if output_values != [*values]:
                 model_configs[parameter]["values"] = output_values
+                if parameter == "optimizer":
+                    model_configs = update_optimizer_configs(model_configs, default_params)
+
+
+def update_optimizer_configs(model_configs: Dict, default_params) -> Dict:
+    """
+    """
+    optimizer_params = {key: val for key, val in model_configs.items() if \
+                             "optimizer_" in key}
+    model_configs = {key: val for key, val in model_configs.items() if \
+                     key not in optimizer_params}
+
+    optimizer_default_params = \
+        {key: val for key, val in default_params.items() if "optimizer_" in key}
+
+    optimizer_default_params.update(optimizer_default_params)
+
+    for value in model_configs["optimizer"]["values"]:
+        # keep only the configs of the optimizer present in the values key
+        for key, val in optimizer_params.items():
+            if f"optimizer_{value}" in key:
+                model_configs[key] = val
+            else:
+                for key, val in optimizer_default_params.items():
+                    if f"optimizer_{value}" in key:
+                        model_configs[key] = val
+    return model_configs
 
 
 def convert_params(default_dict: Dict) -> Dict:
@@ -328,6 +361,7 @@ def convert_params(default_dict: Dict) -> Dict:
     """
     params_dict = copy.deepcopy(default_dict)
     new_dict = {}
+
     new_dict["epochs"] = params_dict["epochs"]
     new_dict["layers_number_blocks"] = {
         "method": "randint",
@@ -340,14 +374,15 @@ def convert_params(default_dict: Dict) -> Dict:
     new_dict["loss"] = params_dict["loss"]
     new_dict["loss"]["values"] = \
         [val["module"] for val in params_dict["loss"]["values"]]
+    
     new_dict["optimizer"] = copy.deepcopy(params_dict["optimizer"])
     new_dict["optimizer"]["values"] = \
         [val["module"] for val in params_dict["optimizer"]["values"]]
-    # TODO: find a way to map the dict
     for val in params_dict["optimizer"]["values"]:
         module_name = val["module"]
         for param, vals_dict in val["params"].items():
             new_dict[f"optimizer_{module_name}_{param}"] = vals_dict
+
     # to delete    
     json.dump(new_dict, open("convert_params_results.json", "w"))
     return new_dict
@@ -379,8 +414,6 @@ def reconvert_params(model_params: Dict, default_dict: Dict) -> Dict:
         optimizer_dict = \
             {key.split("_")[-1]: val for key, val in params_dict.items()
              if f"optimizer_{module}" in key}
-        #print(f"optimizer_{module}")
-        #print([key for key in params_dict.keys() if f"optimizer_{module}" in key])
         new_dict["optimizer"]["values"].append({"module": module,
                                                 "params": optimizer_dict})
     # to delete
