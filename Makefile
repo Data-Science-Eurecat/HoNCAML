@@ -2,7 +2,7 @@
 ENV_PATH = .venv
 
 ## Targets
-.PHONY: all build clean install execute tests
+.PHONY: all build clean install tests
 
 all: clean setup develop docs/build
 
