@@ -52,32 +52,25 @@ def main():
         initialize_config_file()
         manual_configs_elements()
 
-        # add a preview of the config file
-        # with st.expander("Config file preview"):
-        #    st.write(st.session_state)
-
     # add "Run" button to execute the app
     col1, col2 = st.columns([1, 8])
-    button = col1.button("Run")
-    #download_configs_file_button = col1.button("Download config file")
+    run_button = col1.button("Run")
 
-    #if download_configs_file_button:
-    #    configs_file = generate_configs_file_yaml(col2)
-    #    with open('config_file.yaml', 'w') as file:
-    #        yaml.safe_dump(configs_file, file,
-    #                        default_flow_style=False,
-    #                        sort_keys=False)
-
+    # add a button to download the config file
+    yaml_file = generate_configs_file_yaml(col2)
+    yaml_file_string = yaml.safe_dump(yaml_file, default_flow_style=False,
+                                      sort_keys=False)
+    col1.download_button("Download config file", data=yaml_file_string,
+                         file_name="config_file.yaml")
 
     # when the "Run" button is pressed, execute the app
-    if button:
+    if run_button:
         # check that the datafile is uploaded
         if st.session_state.get("data_uploaded") is not None:
             st.session_state["submit"] = True
             create_logs_folder()
 
             if configs_mode == "Manually":
-                generate_configs_file_yaml(col2)
                 create_output_folder()
                 run(col2)
 
@@ -128,8 +121,8 @@ def main():
         elif st.session_state["functionality"] == "Train":
             col1, col2 = st.columns(2)
             display_results_train()
-            download_logs_button(col1)  # col2 when model button gets updated
-            download_trained_model_button()  # col1 when updated
+            download_logs_button(col1) 
+            download_trained_model_button()
 
         elif st.session_state["functionality"] == "Predict":
             col1, col2 = st.columns([1, 3])

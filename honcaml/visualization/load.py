@@ -103,9 +103,11 @@ def download_trained_model_button() -> None:
                             most_recent_execution)
 
     results_filepath = os.path.abspath(filepath)
+    #model = joblib.load(filepath)
+    model = open(filepath, "rb").read()
 
-    # Temporary solution
-    st.write(f"The model is saved in the following path: {results_filepath}")
+    st.download_button("Download trained model", data=model,
+                       file_name=f"trained_model_{most_recent_execution}")
 
 
 def download_predictions_button(col: st.delta_generator.DeltaGenerator = st) \

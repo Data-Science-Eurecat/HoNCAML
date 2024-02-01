@@ -58,7 +58,7 @@ def initialize_config_file() -> None:
         if ("target" in st.session_state) and \
                 (st.session_state["functionality"] != "Predict"):
             st.session_state["config_file"]["steps"]["data"]["extract"][
-                "target"] = [st.session_state["target"]]
+                "target"] = st.session_state["target"]
 
 
 def reset_config_file() -> None:
@@ -108,5 +108,5 @@ def set_target_config_file() -> None:
     Define target in the config_file dictionary from the target defined in the
     session_state
     """
-    st.session_state["config_file"]["steps"]["data"]["extract"][
-        "target"] = st.session_state["target"]
+    st.session_state["config_file"]["steps"]["data"]["extract"]["target"] = \
+        st.session_state["target"]

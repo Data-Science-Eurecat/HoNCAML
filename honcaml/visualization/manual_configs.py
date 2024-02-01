@@ -69,7 +69,7 @@ def data_preprocess_configs() -> None:
     # normalize target variable
     if data_step["extract"].get("target"):
         col1, _, col2 = st.columns([6, .5, 2])
-        target = data_step["extract"]["target"][0]
+        target = data_step["extract"]["target"]
         #if col1.radio(f"Normalize target: {target}", (True, False), index=1):
         if col1.toggle(f"Normalize target: `{target}`"):
             #target_with_std = col2.radio("With std (target)", (True, False))
