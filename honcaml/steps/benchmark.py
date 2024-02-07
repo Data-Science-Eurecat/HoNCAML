@@ -251,12 +251,11 @@ class BenchmarkStep(base.BaseStep):
             df (pd.DataFrame): results dataframe.
             df_dtypes: the dtypes of the columns in the df.
         """
-        cond_param_columns = df.columns.str.contains('config')
-        selected_columns = \
-            df.columns[cond_param_columns].tolist() + self._reported_metrics
+        model_columns = ['config/model_module'] + [
+            x for x in list(df) if 'param_space' in x]
+        selected_columns = model_columns + self._reported_metrics
         best_params_df = df \
             .head(1)[selected_columns] \
-            .drop(columns=['config/metric']) \
             .dropna(axis=1)
 
         # Convert dtypes
