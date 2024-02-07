@@ -111,11 +111,13 @@ class BenchmarkStep(base.BaseStep):
             settings (Dict): settings parameters with metrics to report.
 
         """
-        self._reported_metrics = settings['metrics']
+        logger.debug(f'Metrics are {settings["metrics"]}')
+        self._reported_metrics = utils.ensure_input_list(settings['metrics'])
         is_simple_metric = self._metric in settings['metrics']
         dict_metrics = [list(x.keys())[0] for x in settings['metrics']
                         if isinstance(x, dict)]
         is_dict_metric = self._metric in dict_metrics
+        logger.debug(f'Metric is {self._metric}')
         if not is_simple_metric and not is_dict_metric:
             self._reported_metrics.append(self._metric)
 
