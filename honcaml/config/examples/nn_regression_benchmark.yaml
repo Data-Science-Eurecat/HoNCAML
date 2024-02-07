@@ -45,7 +45,7 @@ steps:
             with_std: True
           columns: price
 
-  benchmark:            
+  benchmark:
     transform:
       models:
         torch:
@@ -59,7 +59,7 @@ steps:
               - Dropout
             params:
               Dropout:
-                p: 
+                p:
                   method: uniform
                   values: [0.4, 0.6]
           loader:
@@ -97,5 +97,4 @@ steps:
                     values: [0.0000001, 0.00001]
       metrics: mean_absolute_percentage_error
     load:
-      path: report
-      
+      path: reports
