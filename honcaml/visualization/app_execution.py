@@ -42,14 +42,17 @@ def process_results() -> None:
     Find the most recent execution, create a table and a figure with the
     results of the execution
     """
-    most_recent_execution = \
-        max(os.listdir(os.path.join('../../', benchmark_results_path,
-                       st.session_state["current_session"])))
-    st.session_state["most_recent_execution"] = most_recent_execution
+    session_folder_path = os.path.join('../../', benchmark_results_path,
+                   st.session_state["current_session"])
+    content_session_folder = os.listdir(session_folder_path)
+
+    executions = [el for el in content_session_folder if \
+                  os.path.isdir(os.path.join(session_folder_path, el))]
+    st.session_state["most_recent_execution"] = max(executions)
 
     st.session_state["results"] = get_results_table()
-    st.session_state["fig"] = create_fig_visualization(
-        st.session_state["results"])
+    st.session_state["fig"] = \
+        create_fig_visualization(st.session_state["results"])
 
 
 def generate_configs_file_yaml(col: st.delta_generator.DeltaGenerator) -> None:
@@ -71,7 +74,7 @@ def generate_configs_file_yaml(col: st.delta_generator.DeltaGenerator) -> None:
                     "data": yaml_file["steps"]["data"],
                     "benchmark": yaml_file["steps"]["benchmark"]
                 }
-            elif st.session_state["functionality"] == "Train":
+            elif st.session_state["functionality"] in ["Train", "Predict"]:
                 yaml_file["steps"] = {
                     "data": yaml_file["steps"]["data"],
                     "model": yaml_file["steps"]["model"]
@@ -82,4 +85,5 @@ def generate_configs_file_yaml(col: st.delta_generator.DeltaGenerator) -> None:
                                default_flow_style=False,
                                sort_keys=False)
                 
-            return yaml_file
+            return yaml.safe_dump(yaml_file, default_flow_style=False,
+                                  sort_keys=False)

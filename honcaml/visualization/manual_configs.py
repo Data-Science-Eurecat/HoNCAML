@@ -1,17 +1,20 @@
 import copy
+import json
+import yaml
+from typing import Dict, List
 import numpy as np
 import streamlit as st
-from typing import Dict, List
 from defaults import (default_search_spaces,
-                      default_tuner)
-from utils import define_metrics
+                      default_tuner,
+                      layers_train_configs)
 from constants import (names_of_models,
                        default_models,
                        model_configs_helper,
                        metrics_mode)
+from utils import (define_metrics,
+                   check_target_datatype)
 from extract import extract_trained_model
 from load import load_trained_model
-import json
 
 
 def basic_configs() -> None:
@@ -26,8 +29,13 @@ def basic_configs() -> None:
         st.session_state["features_all"] = []
 
     # add problem_type selector
-    st.session_state["config_file"]["global"]["problem_type"] = \
+    problem_type = \
         col1.radio("Problem type", ('Regression', 'Classification')).lower()
+    
+    st.session_state["config_file"]["global"]["problem_type"] = problem_type
+
+    # check if target data type matches the problem type selected
+    check_target_datatype(problem_type)
 
     # add features selector
     st.session_state["config_file"]["steps"]["data"]["extract"]["features"] = \
@@ -97,11 +105,12 @@ def data_preprocess_configs() -> None:
 
 
 def train_model_params_configs(
-        model_configs: Dict, default_params: Dict) -> None:
+        model_name: str, model_configs: Dict, default_params: Dict) -> None:
     """
     Add input elements to set configurations to train the models
 
     Args:
+        model_name (str): a string containing the name of the model
         model_configs (Dict): configurations of the model that will be
             applied when running the app, changes by the user on the input
             elements will be updated in this dictionary
@@ -109,6 +118,13 @@ def train_model_params_configs(
             values in this dictionary will not variate
     """
     for parameter, configs in default_params.items():
+        if "optimizer" in model_configs:
+            model_configs = update_optimizer_configs_train(model_configs, 
+                                                           default_params)
+        if parameter not in model_configs:
+            # skip optimizer configs of non-selected optimizer modules
+            continue
+
         method = configs["method"]
         values = configs["values"]
         output_value = ""
@@ -116,10 +132,15 @@ def train_model_params_configs(
         col1, col2 = st.columns([5, 1])
 
         col2.write("")
-        use_config = col2.toggle("custom", value=True, 
-                                 key=f"{parameter}_use_config")
 
-        st.session_state["default_configs"][parameter] = not use_config
+        # TODO: if the model is Neural Network we add a "reset" button instead 
+        # of a "custom/default" toggle, because there are no default values
+        if model_name == "Neural Network":
+            st.session_state["default_configs"][parameter] = False
+        else:
+            use_config = col2.toggle("custom", value=True, 
+                                    key=f"{parameter}_use_config")
+            st.session_state["default_configs"][parameter] = not use_config
 
         # remove parameter from the config file, default value by sklearn will
         # be used
@@ -132,10 +153,9 @@ def train_model_params_configs(
             current_value = model_configs[parameter]
             # add a multiselect to select input options when method is choice
             if method == "choice":
-                output_value = \
-                    col1.multiselect(parameter, values, current_value,
-                                     key=parameter,
-                                     max_selections=1)
+                output_value = col1.multiselect(
+                    parameter, values, current_value, key=parameter,
+                    max_selections=1)
                 if len(output_value) == 0:
                     st.warning("You must select one value")
                 else:
@@ -146,24 +166,32 @@ def train_model_params_configs(
             elif method in ["randint", "qrandint"]:
                 min_slider = 2
                 max_slider = values[1] * 3
-                output_value = \
-                    col1.slider(parameter, min_slider, max_slider,
-                                int(current_value),
-                                key=parameter)
+                output_value = col1.slider(
+                    parameter, min_slider, max_slider, int(current_value),
+                    key=parameter)
 
             # add a slider to select input values when method is uniform or
             # quniform
-            elif method in ["uniform", "quniform"]:
+            elif method in ["uniform", "quniform", "loguniform"]:
                 min_slider = 0.0
-                max_slider = 1.0
-                output_value = \
-                    col1.slider(parameter, min_slider, max_slider,
-                                float(current_value), step=0.01,
-                                key=parameter)
+                max_slider = min(values[1] * 5, 1.0)
+                scientific_notation = values[0] <= 1e-4 and values[0] > 0
+                step = values[0]/100 if scientific_notation else \
+                    0.01 if values[0] == 0 else values[0]/10
+                output_value = col1.slider(
+                    parameter, min_slider, max_slider, 
+                    value=float(current_value), step=step, key=parameter,
+                    format="%.2e" if scientific_notation else "%f")
+
+            elif method == "layers":
+                output_value = yaml.safe_load( \
+                    col1.text_area(parameter, yaml.dump(values), height=230))
 
             # update the dictionary with the config file parameters
             if output_value != model_configs[parameter]:
                 model_configs[parameter] = output_value
+    
+    return model_configs
 
 
 def train_model_configs() -> None:
@@ -189,23 +217,39 @@ def train_model_configs() -> None:
     st.session_state["config_file"]["steps"]["model"]["transform"]["fit"][
         "estimator"]["module"] = config_model_name
 
-    st.session_state["config_file"]["steps"]["model"]["transform"]["fit"][
-        "estimator"]["params"] = {}
-    model_configs = st.session_state["config_file"]["steps"]["model"][
-        "transform"]["fit"]["estimator"]["params"]
-    for param, config in default_search_spaces[problem_type][
-            config_model_name].items():
+    model_configs = {}
+    default_params = default_search_spaces[problem_type][config_model_name]
+
+    # Neural Network parameters follow a different structure and need to be 
+    # converted
+    if model_name == "Neural Network":
+        model_configs = convert_params(default_params)
+        if "layers_number_blocks" in model_configs:
+            model_configs.pop("layers_number_blocks")
+        if "layers" not in model_configs:
+            model_configs["layers"] = layers_train_configs
+        default_params = copy.deepcopy(model_configs)
+
+    for param, config in default_params.items():
         if config["method"] == "choice":
             model_configs[param] = config["values"][0]
         elif config["method"] in ["randint", "qrandint"]:
             model_configs[param] = int(np.mean(config["values"][:2]))
-        elif config["method"] in ["uniform", "quniform"]:
+        elif config["method"] in ["uniform", "quniform", "loguniform"]:
             model_configs[param] = float(np.mean(config["values"][:2]))
-
-    default_params = default_search_spaces[problem_type][config_model_name]
+        elif config["method"] == "layers":
+            model_configs[param] = config["values"]
 
     with col2:
-        train_model_params_configs(model_configs, default_params)
+        model_configs = train_model_params_configs(model_name, model_configs, 
+                                                   default_params)
+
+    # Convert Neural Network parameters back to its original format
+    if model_name == "Neural Network":
+        model_configs = reconvert_params_train(model_configs)
+
+    st.session_state["config_file"]["steps"]["model"]["transform"]["fit"][
+        "estimator"]["params"] = copy.deepcopy(model_configs)
 
     st.divider()
 
@@ -225,6 +269,7 @@ def benchmark_model_params_configs(
     """
     for parameter, configs in default_params.items():
         if parameter not in model_configs:
+            # skip optimizer configs of non-selected optimizer modules
             continue
         method = configs["method"]
         values = configs["values"]
@@ -239,8 +284,8 @@ def benchmark_model_params_configs(
 
         col3.write("")
 
-        # if the model is Neural Network we add a "reset" button instead of a
-        # "custom/default" toggle, because there are no default values
+        # TODO: if the model is Neural Network we add a "reset" button instead 
+        # of a "custom/default" toggle, because there are no default values
         if model_name == "Neural Network":
             st.session_state["default_configs"][model_name][parameter] = False
             #reset = col3.button("reset", key=f"{model_name}_{parameter}_reset")
@@ -328,36 +373,81 @@ def benchmark_model_params_configs(
             if output_values != [*values]:
                 model_configs[parameter]["values"] = output_values
                 if parameter == "optimizer":
-                    model_configs = update_optimizer_configs(model_configs, default_params)
+                    model_configs = update_optimizer_configs_benchmark(\
+                        model_configs, default_params)
 
 
-def update_optimizer_configs(model_configs: Dict, default_params) -> Dict:
+def update_optimizer_configs_train(model_configs: Dict, default_params: Dict) \
+    -> Dict:
     """
+    Update optimizer-related configurations when the chosen optimizer module to
+    use is changed so it only shows the config elements of the selected module
+    for train functionality.
     """
+    # remove optimizer configs
+    model_configs = {key: val for key, val in model_configs.items() \
+                     if "optimizer_" not in key}
+    
+    if model_configs.get("optimizer"):
+        # extract default optimizer configs
+        optimizer_configs = {key: val for key, val in default_params.items() \
+                            if model_configs["optimizer"] in key}
+        
+        # retrieve the formatted defaults optimizer configs
+        for param, config in optimizer_configs.items():
+            if config["method"] == "choice":
+                model_configs[param] = config["values"][0]
+            elif config["method"] in ["randint", "qrandint"]:
+                model_configs[param] = int(np.mean(config["values"][:2]))
+            elif config["method"] in ["uniform", "quniform", "loguniform"]:
+                model_configs[param] = float(np.mean(config["values"][:2]))
+    
+    return model_configs
+
+
+def update_optimizer_configs_benchmark(\
+        model_configs: Dict, default_params: Dict) -> Dict:
+    """
+    Update optimizer-related configurations when the chosen optimizer modules to
+    use are changed so it only shows the config elements of the selected modules
+    for benchmark functionality.
+    """
+    # extract optimizer configs (maybe modified by the user)
     optimizer_params = {key: val for key, val in model_configs.items() if \
                              "optimizer_" in key}
+    # remove optimizer configs
     model_configs = {key: val for key, val in model_configs.items() if \
                      key not in optimizer_params}
 
+    # extract default optimizer configs
     optimizer_default_params = \
         {key: val for key, val in default_params.items() if "optimizer_" in key}
 
-    optimizer_default_params.update(optimizer_default_params)
-
+    # keep only the configs of the optimizer present in the values key
     for value in model_configs["optimizer"]["values"]:
-        # keep only the configs of the optimizer present in the values key
         for key, val in optimizer_params.items():
             if f"optimizer_{value}" in key:
+                # retrieve the optimizer configs (maybe modified by the user)
                 model_configs[key] = val
             else:
                 for key, val in optimizer_default_params.items():
                     if f"optimizer_{value}" in key:
+                        # retrieve the defaults optimizer configs
                         model_configs[key] = val
     return model_configs
 
 
 def convert_params(default_dict: Dict) -> Dict:
     """
+    Modify structure of the parameter's configurations of Neural Network models
+    so it is parseable by the option parameter displayer. 
+    The resulting format of the configurations dictionary is:
+
+        configs["parameter"] = {
+            "method": str indicate optuna method to chose a value
+            "values": list of possible values or range of values
+        }
+
     """
     params_dict = copy.deepcopy(default_dict)
     new_dict = {}
@@ -383,13 +473,14 @@ def convert_params(default_dict: Dict) -> Dict:
         for param, vals_dict in val["params"].items():
             new_dict[f"optimizer_{module_name}_{param}"] = vals_dict
 
-    # to delete    
-    json.dump(new_dict, open("convert_params_results.json", "w"))
     return new_dict
 
 
-def reconvert_params(model_params: Dict, default_dict: Dict) -> Dict:
+def reconvert_params_benchmark(model_params: Dict, default_dict: Dict) -> Dict:
     """
+    Modify structure of the parameter's configurations of Neural Network models 
+    from the method/values structure back to its original structure for 
+    benchmark functionality.
     """
     params_dict = copy.deepcopy(model_params)
     new_dict = {}
@@ -415,9 +506,34 @@ def reconvert_params(model_params: Dict, default_dict: Dict) -> Dict:
              if f"optimizer_{module}" in key}
         new_dict["optimizer"]["values"].append({"module": module,
                                                 "params": optimizer_dict})
-    # to delete
-    json.dump(new_dict, open("reconvert_params_results.json", "w"))
+        
     return new_dict
+
+
+def reconvert_params_train(model_params: Dict) -> Dict:
+    """
+    Modify structure of the parameter's configurations of Neural Network models 
+    from the method/values structure back to its original structure for 
+    train functionality.
+    """
+    params_dict = copy.deepcopy(model_params)
+    new_dict = {}
+    new_dict["epochs"] = params_dict["epochs"]
+    new_dict["layers"] = params_dict["layers"]
+    new_dict["loader"] = {
+        "batch_size": params_dict["loader_batch_size"],
+        "shuffle": params_dict["loader_shuffle"]
+    }
+    new_dict["loss"] = {"module": params_dict["loss"]}
+    
+    new_dict["optimizer"] = {"module": params_dict["optimizer"]}
+    optimizer_dict = \
+        {key.split("_")[-1]: val for key, val in params_dict.items()
+            if f"optimizer_{params_dict['optimizer']}" in key}
+    new_dict["optimizer"]["params"] = optimizer_dict
+
+    return new_dict
+
 
 def benchmark_model_configs() -> None:
     """
@@ -457,28 +573,26 @@ def benchmark_model_configs() -> None:
             # Neural Network parameters follow a different structure and need to
             # be converted
             if model_name == "Neural Network":
-                st.session_state["config_file"]["steps"]["benchmark"][
-                    "transform"]["models"][config_model_name] = \
-                        convert_params(default_params)
-            else:
-                st.session_state["config_file"]["steps"]["benchmark"][
-                    "transform"]["models"][config_model_name] = \
-                        copy.deepcopy(default_params)
-                
-            model_configs = st.session_state["config_file"]["steps"][
-                "benchmark"]["transform"]["models"][config_model_name]
+                model_configs = convert_params(default_params)
+                # display configs input parameters
+                with col2:
+                    with st.expander(f"{model_name} configs:"):
+                        benchmark_model_params_configs(
+                            model_name, model_configs, model_configs)
+                # Convert Neural Network parameters back to its original format
+                model_configs = reconvert_params_benchmark(model_configs, 
+                                                           default_params)
 
-            # display configs input parameters
-            with col2:
-                with st.expander(f"{model_name} configs:"):
-                    benchmark_model_params_configs(
-                        model_name, model_configs, model_configs)
-                    
-            # Convert Neural Network parameters back to its original format
-            if model_name == "Neural Network":
-                model_configs = reconvert_params(model_configs, default_params)
-    st.session_state["config_file"]["steps"]["benchmark"]["transform"][
-        "models"][config_model_name] = copy.deepcopy(model_configs)
+            else:
+                model_configs = copy.deepcopy(default_params)
+                # display configs input parameters
+                with col2:
+                    with st.expander(f"{model_name} configs:"):
+                        benchmark_model_params_configs(
+                            model_name, model_configs, default_params)
+
+            st.session_state["config_file"]["steps"]["benchmark"]["transform"][
+                "models"][config_model_name] = copy.deepcopy(model_configs)
 
     st.divider()
 

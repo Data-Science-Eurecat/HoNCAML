@@ -37,10 +37,19 @@ def load_uploaded_file() -> None:
             "save_best_config_params"] = True
 
     # add the GUI session folder to the load path
+    # for benchmark
     if "benchmark" in st.session_state["config_file"]["steps"]:
         st.session_state["config_file"]["steps"]["benchmark"]["load"]["path"] =\
             os.path.join(st.session_state["config_file"]["steps"]["benchmark"][
                 "load"]["path"], st.session_state["current_session"])
+    """# for train
+    if "model" in st.session_state["config_file"]["steps"]:
+        if "load" in st.session_state["config_file"]["steps"]["model"]:
+            st.session_state["config_file"]["steps"]["model"]["load"]["path"] =\
+                os.path.join(st.session_state["config_file"]["steps"]["model"][
+                    "load"]["path"], st.session_state["current_session"])
+            print(os.path.join(st.session_state["config_file"]["steps"]["model"][
+                    "load"]["path"]))"""
 
     # add data filepath
     add_data_filepath()
@@ -95,17 +104,13 @@ def download_trained_model_button() -> None:
     Add button to download trained model after execution.
     """
     # define path to save the trained model
+    trained_model_path = \
+        st.session_state["config_file"]["steps"]["model"]["load"]["path"]
     most_recent_execution = \
-        max(os.listdir(os.path.join('../../', model_results_path,
-                                    st.session_state["current_session"])))
-    filepath = os.path.join('../../', model_results_path,
-                            st.session_state["current_session"],
-                            most_recent_execution)
+        max(os.listdir(os.path.join('../../', trained_model_path)))
+    filepath = os.path.join('../../', trained_model_path, most_recent_execution)
 
-    results_filepath = os.path.abspath(filepath)
-    #model = joblib.load(filepath)
     model = open(filepath, "rb").read()
-
     st.download_button("Download trained model", data=model,
                        file_name=f"trained_model_{most_recent_execution}")
 

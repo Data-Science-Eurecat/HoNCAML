@@ -355,3 +355,26 @@ default_search_spaces = {
     "regression": regression,
     "classification": classification
 }
+
+layers_train_configs = {
+    "method": "layers",
+    "values": [
+        {
+            "module": "torch.nn.Linear",
+            "params": {"out_features": 64}
+        },
+        {
+            "module": "torch.nn.ReLU"
+        },
+        {
+            "module": "torch.nn.Linear",
+            "params": {"out_features": 32}
+        },
+        {
+            "module": "torch.nn.Dropout"
+        },
+        {
+            "module": "torch.nn.Linear"
+        }
+    ]
+}

@@ -97,11 +97,13 @@ def create_output_folder() -> None:
     """
     Create output folder to save the trained model or the prediction results.
     """
-    if st.session_state["functionality"] == "Train":
+    if (st.session_state["functionality"] == "Train") and \
+            ("model" in st.session_state["config_file"]["steps"]):
         path_name = \
             st.session_state["config_file"]["steps"]["model"]["load"]["path"]
 
-    elif st.session_state["functionality"] == "Predict":
+    elif (st.session_state["functionality"] == "Predict") and \
+            ("model" in st.session_state["config_file"]["steps"]):
         path_name = \
             st.session_state["config_file"]["steps"]["model"]["transform"][
                 "predict"]["path"]
@@ -124,7 +126,6 @@ def create_logs_folder() -> None:
         os.mkdir(logs_folder)
 
 
-
 def warning(warning_type: str) -> None:
     """
     Display a warning.
@@ -138,3 +139,22 @@ def warning(warning_type: str) -> None:
     elif warning_type == "text_area":
         st.warning("You must introduce your configurations in the text area",
                    icon="⚠️")
+
+
+def check_target_datatype(problem_type) -> None:
+    """
+    Check if the target data type matches the problem type selected, and if it 
+    does not, display a warning message pointing out the datatype of the 
+    selected target and the selected problem type.
+    """
+    if st.session_state["functionality"] in ["Train", "Benchmark"]:
+        data = st.session_state.get("data_uploaded", None)
+        if data is not None:
+            target_dtype = data[st.session_state["target"]].dtype
+            if (problem_type == "regression" and target_dtype != float) or \
+                    (problem_type == "classification" and target_dtype != int):
+                st.warning(f"The datatype of the target selected "
+                        f"`{st.session_state['target']}` is `{target_dtype}`,"
+                        f" and the selected problem type is `{problem_type}`",
+                        icon="⚠️")
+            

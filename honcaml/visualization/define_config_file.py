@@ -5,7 +5,8 @@ from constants import (data_file_path_config_file,
                        templates_path,
                        benchmark_results_path,
                        trained_model_file,
-                       model_results_path)
+                       model_results_path,
+                       predict_results_path)
 
 
 def add_data_filepath() -> None:
@@ -48,7 +49,7 @@ def initialize_config_file() -> None:
         elif st.session_state["functionality"] == "Predict":
             st.session_state["config_file"]["steps"]["model"]["transform"][
                 "predict"]["path"] \
-                = os.path.join(model_results_path,
+                = os.path.join(predict_results_path,
                                st.session_state["current_session"])
             # add model filepath
             st.session_state["config_file"]["steps"]["model"]["extract"][
@@ -86,7 +87,8 @@ def reset_data_file() -> None:
     st.session_state["submit"] = False
 
     if st.session_state.get("config_file"):
-        st.session_state["config_file"]["steps"].pop("data")
+        if st.session_state["config_file"]["steps"].get("data"):
+            st.session_state["config_file"]["steps"].pop("data")
 
     if st.session_state["configs_mode"] == "Manually":
         file_name = f'{st.session_state["configs_level"].lower()}_' \

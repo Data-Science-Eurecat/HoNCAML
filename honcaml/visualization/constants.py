@@ -4,6 +4,7 @@ config_file_path = "../../config_file.yaml"
 templates_path = "../config/templates/"
 benchmark_results_path = "data/models/"
 model_results_path = "data/models/"
+predict_results_path = "reports"
 trained_model_file = "data/models/sklearn.trained_model.sav"
 logs_path = "data/logs/"
 # dictionary containing the display name of the model and the name of the model
