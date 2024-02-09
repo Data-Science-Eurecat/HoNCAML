@@ -26,12 +26,12 @@ dependencies = [
   "openpyxl",
   "optuna",
   "pandas",
+  "plotly",
   "pyyaml",
   "ray==2.0.0",
   "ray[tune]",
   "scikit-learn",
-  "streamlit",
-  "plotly",
+  "streamlit==1.29",
   "torch==2.0.1"
 ]
 classifiers = [

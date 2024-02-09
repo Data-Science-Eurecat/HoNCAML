@@ -51,4 +51,4 @@ steps:
       filepath: data/models/sklearn_regression.sav
     transform:
       predict:
-        path: honcaml_reports
+        path: reports

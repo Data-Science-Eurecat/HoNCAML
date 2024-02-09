@@ -69,4 +69,4 @@ steps:
               - distance
       metrics: mean_absolute_percentage_error              
     load:
-      path: reports      
+      path: data/models      

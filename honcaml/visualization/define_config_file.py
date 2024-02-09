@@ -5,7 +5,9 @@ from constants import (data_file_path_config_file,
                        templates_path,
                        benchmark_results_path,
                        trained_model_file,
-                       model_results_path)
+                       model_results_path,
+                       predict_results_path)
+from defaults import nn_predict_estimator_configs
 
 
 def add_data_filepath() -> None:
@@ -24,7 +26,7 @@ def initialize_config_file() -> None:
         file_name = f'{st.session_state["configs_level"].lower()}_' \
                     f'{st.session_state["functionality"].lower()}.yaml'
 
-        # add config_file keys
+        # add config_file keys from the templates
         with open(os.path.join(templates_path, file_name), "r") as f:
             st.session_state["config_file"] = yaml.safe_load(f)
 
@@ -48,18 +50,21 @@ def initialize_config_file() -> None:
         elif st.session_state["functionality"] == "Predict":
             st.session_state["config_file"]["steps"]["model"]["transform"][
                 "predict"]["path"] \
-                = os.path.join(model_results_path,
+                = os.path.join(predict_results_path,
                                st.session_state["current_session"])
             # add model filepath
             st.session_state["config_file"]["steps"]["model"]["extract"][
                 "filepath"] = trained_model_file
+            # add estimator configs
+            st.session_state["config_file"]["steps"]["model"]["transform"][
+                "predict"]["estimator"] = nn_predict_estimator_configs
 
         # add target variable
         if ("target" in st.session_state) and \
                 (st.session_state["functionality"] != "Predict"):
             st.session_state["config_file"]["steps"]["data"]["extract"][
-                "target"] = [st.session_state["target"]]
-
+                "target"] = st.session_state["target"]
+            
 
 def reset_config_file() -> None:
     """
@@ -86,7 +91,8 @@ def reset_data_file() -> None:
     st.session_state["submit"] = False
 
     if st.session_state.get("config_file"):
-        st.session_state["config_file"]["steps"].pop("data")
+        if st.session_state["config_file"]["steps"].get("data"):
+            st.session_state["config_file"]["steps"].pop("data")
 
     if st.session_state["configs_mode"] == "Manually":
         file_name = f'{st.session_state["configs_level"].lower()}_' \
@@ -108,5 +114,5 @@ def set_target_config_file() -> None:
     Define target in the config_file dictionary from the target defined in the
     session_state
     """
-    st.session_state["config_file"]["steps"]["data"]["extract"][
-        "target"] = [st.session_state["target"]]
+    st.session_state["config_file"]["steps"]["data"]["extract"]["target"] = \
+        st.session_state["target"]

@@ -5,7 +5,8 @@ import pandas as pd
 import streamlit as st
 from constants import (data_file_path,
                        config_file_path,
-                       model_results_path)
+                       model_results_path,
+                       logs_path)
 from define_config_file import add_data_filepath
 
 
@@ -29,6 +30,26 @@ def load_uploaded_file() -> None:
     """
     st.session_state["config_file"] = \
         yaml.safe_load(st.session_state["uploaded_file"])
+
+    # add save_best_config_params key to be able to display best parameters
+    if "benchmark" in st.session_state["config_file"]["steps"]:
+        st.session_state["config_file"]["steps"]["benchmark"]["load"][
+            "save_best_config_params"] = True
+
+    # add the GUI session folder to the load path
+    # for benchmark
+    if "benchmark" in st.session_state["config_file"]["steps"]:
+        st.session_state["config_file"]["steps"]["benchmark"]["load"]["path"] =\
+            os.path.join(st.session_state["config_file"]["steps"]["benchmark"][
+                "load"]["path"], st.session_state["current_session"])
+    """# for train
+    if "model" in st.session_state["config_file"]["steps"]:
+        if "load" in st.session_state["config_file"]["steps"]["model"]:
+            st.session_state["config_file"]["steps"]["model"]["load"]["path"] =\
+                os.path.join(st.session_state["config_file"]["steps"]["model"][
+                    "load"]["path"], st.session_state["current_session"])
+            print(os.path.join(st.session_state["config_file"]["steps"]["model"][
+                    "load"]["path"]))"""
 
     # add data filepath
     add_data_filepath()
@@ -83,17 +104,15 @@ def download_trained_model_button() -> None:
     Add button to download trained model after execution.
     """
     # define path to save the trained model
+    trained_model_path = \
+        st.session_state["config_file"]["steps"]["model"]["load"]["path"]
     most_recent_execution = \
-        max(os.listdir(os.path.join('../../', model_results_path,
-                                    st.session_state["current_session"])))
-    filepath = os.path.join('../../', model_results_path,
-                            st.session_state["current_session"],
-                            most_recent_execution)
+        max(os.listdir(os.path.join('../../', trained_model_path)))
+    filepath = os.path.join('../../', trained_model_path, most_recent_execution)
 
-    results_filepath = os.path.abspath(filepath)
-
-    # Temporary solution
-    st.write(f"The model is saved in the following path: {results_filepath}")
+    model = open(filepath, "rb").read()
+    st.download_button("Download trained model", data=model,
+                       file_name=f"trained_model_{most_recent_execution}")
 
 
 def download_predictions_button(col: st.delta_generator.DeltaGenerator = st) \
@@ -126,7 +145,10 @@ def download_logs_button(col: st.delta_generator.DeltaGenerator = st) -> None:
     Args:
         col: Defines the column where to place the button.
     """
-    with open('logs.txt', 'r') as logs_reader:
+
+    logs_folder = os.path.join("../../", logs_path, 
+                               st.session_state["current_session"])
+    with open(os.path.join(logs_folder, 'logs.txt'), 'r') as logs_reader:
         col.download_button(label="Download logs as .txt",
                             data=logs_reader.read(),
                             file_name='logs.txt')
