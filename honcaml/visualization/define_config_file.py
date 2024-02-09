@@ -7,6 +7,7 @@ from constants import (data_file_path_config_file,
                        trained_model_file,
                        model_results_path,
                        predict_results_path)
+from defaults import nn_predict_estimator_configs
 
 
 def add_data_filepath() -> None:
@@ -25,7 +26,7 @@ def initialize_config_file() -> None:
         file_name = f'{st.session_state["configs_level"].lower()}_' \
                     f'{st.session_state["functionality"].lower()}.yaml'
 
-        # add config_file keys
+        # add config_file keys from the templates
         with open(os.path.join(templates_path, file_name), "r") as f:
             st.session_state["config_file"] = yaml.safe_load(f)
 
@@ -54,13 +55,16 @@ def initialize_config_file() -> None:
             # add model filepath
             st.session_state["config_file"]["steps"]["model"]["extract"][
                 "filepath"] = trained_model_file
+            # add estimator configs
+            st.session_state["config_file"]["steps"]["model"]["transform"][
+                "predict"]["estimator"] = nn_predict_estimator_configs
 
         # add target variable
         if ("target" in st.session_state) and \
                 (st.session_state["functionality"] != "Predict"):
             st.session_state["config_file"]["steps"]["data"]["extract"][
                 "target"] = st.session_state["target"]
-
+            
 
 def reset_config_file() -> None:
     """

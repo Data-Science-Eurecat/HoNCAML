@@ -378,3 +378,12 @@ layers_train_configs = {
         }
     ]
 }
+
+nn_predict_estimator_configs = {
+    "params": {
+        "loader": {
+            "batch_size": 20,
+            "shuffle": True
+        }
+    }
+}
