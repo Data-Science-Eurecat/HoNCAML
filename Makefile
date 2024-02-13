@@ -1,4 +1,5 @@
 ## Variables
+SHELL = bash
 ENV_PATH = .venv
 
 ## Targets
