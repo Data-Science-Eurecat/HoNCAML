@@ -163,7 +163,12 @@ class TabularDataset(base.BaseDataset):
         """
         ETL data transform. Apply the transformations requested to the data.
         """
-        self._dataset = transform.process_data(self._dataset, settings)
+        dataset = transform.process_data(self._dataset, self.target, settings)
+        self._features = settings.pop('features', [])
+        model_actions = [ModelActions.fit]
+        if len(dataset) != 0:
+            self._dataset = self._clean_dataset_for_model(dataset,
+                                                          model_actions)
 
     def save(self, settings: Dict):
         """

@@ -18,6 +18,13 @@ steps:
       target:
 
     transform:
+      # If specified, one hot encoding will be done
+      encoding:
+        # Specify True or False
+        OHE:
+        # Specific colums of features that OHE will apply to
+        features:
+      # If specified, data normalization will be done
       normalize:
         features:
           # Normalization module to use
