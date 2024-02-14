@@ -101,9 +101,6 @@ class TorchBenchmarkTest(unittest.TestCase):
                 elif isinstance(result[key], dict):
                     assert_dict_types(result[key], expected[key])
                 else:
-                    print('key', key)
-                    print('result', result)
-                    print('expected', expected)
                     self.assertIsInstance(result[key], expected[key])
         # Run function
         assert_dict_types(result, expected)
