@@ -163,7 +163,9 @@ class TabularDataset(base.BaseDataset):
         """
         ETL data transform. Apply the transformations requested to the data.
         """
-        self._dataset = transform.process_data(self._dataset, settings)
+        self._dataset = transform.process_data(
+            self._dataset, self.target, settings)
+        self._features = settings.pop('features', [])
 
     def save(self, settings: Dict):
         """

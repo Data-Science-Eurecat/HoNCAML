@@ -68,6 +68,10 @@ class DataTest(unittest.TestCase):
         self.assertDictEqual(
             user_settings['transform'],
             {'override_param': {'param1': 1, 'param2': 2},
+             "encoding": {
+                 "OHE": True,
+                 "max_values": 100
+             },
              'normalize': {
                  'features': {'module':
                               'sklearn.preprocessing.StandardScaler'},

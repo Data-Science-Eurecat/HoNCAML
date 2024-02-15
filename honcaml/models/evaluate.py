@@ -135,17 +135,15 @@ def compute_specificity_score_metric(
 
 def compute_roc_auc_score_metric(
         y_true: pd.Series, y_predicted: pd.Series, **kwargs) -> ct.Number:
-    """
-    Calculate roc_auc metric from true values and predictions.
+    """_summary_
 
     Args:
-        y_true: Ground truth outputs.
-        y_predicted: Predicted outputs.
+    y_true (pd.Series): _description_
+    y_predicted (pd.Series): _description_
 
     Returns:
-        Resulting metric.
+    ct.Number: _description_
     """
-
     classes = np.unique(y_true)
     n_classes = len(classes)
 
@@ -168,6 +166,68 @@ def compute_roc_auc_score_metric(
         fpr[i], tpr[i], _ = sk_metrics.roc_curve(
             y_test_binarized[:, i], y_pred_binarized[:, i])
         roc_auc[i] = sk_metrics.auc(fpr[i], tpr[i])
-        roc_auc_score = sum(roc_auc.values()) / n_classes
+    roc_auc_score = sum(roc_auc.values()) / n_classes
 
     return roc_auc_score
+
+
+def compute_precision_score_metric(
+        y_true: pd.Series, y_predicted: pd.Series, **kwargs) -> ct.Number:
+
+    classes = np.unique(y_true)
+    n_classes = len(classes)
+
+    df = pd.DataFrame(y_true, columns=['Valor'])
+    one_hot_encoded_true = pd.get_dummies(df['Valor'])
+    y_test_binarized = np.array(one_hot_encoded_true.values.tolist())
+
+    df2 = pd.DataFrame(y_predicted, columns=['Valor'])
+    one_hot_encoded_pred = pd.get_dummies(df2['Valor'])
+    cols_to_add = list(set(one_hot_encoded_true.columns).difference(
+        set(one_hot_encoded_pred)))
+    for i in cols_to_add:
+        one_hot_encoded_pred[i] = 0
+    y_pred_binarized = np.array(one_hot_encoded_pred.values.tolist())
+
+    fp = dict()
+    tp = dict()
+    precision = dict()
+    for i in range(n_classes):
+        _, fp[i], _, tp[i] = sk_metrics.confusion_matrix(
+            y_test_binarized[:, i], y_pred_binarized[:, i]).ravel()
+        precision[i] = tp[i] / (tp[i] + fp[i])
+
+    precision_score = sum(precision.values()) / n_classes
+
+    return precision_score
+
+
+def compute_recall_score_metric(
+        y_true: pd.Series, y_predicted: pd.Series, **kwargs) -> ct.Number:
+
+    classes = np.unique(y_true)
+    n_classes = len(classes)
+
+    df = pd.DataFrame(y_true, columns=['Valor'])
+    one_hot_encoded_true = pd.get_dummies(df['Valor'])
+    y_test_binarized = np.array(one_hot_encoded_true.values.tolist())
+
+    df2 = pd.DataFrame(y_predicted, columns=['Valor'])
+    one_hot_encoded_pred = pd.get_dummies(df2['Valor'])
+    cols_to_add = list(set(one_hot_encoded_true.columns).
+                       difference(set(one_hot_encoded_pred)))
+    for i in cols_to_add:
+        one_hot_encoded_pred[i] = 0
+    y_pred_binarized = np.array(one_hot_encoded_pred.values.tolist())
+
+    fn = dict()
+    tp = dict()
+    recall = dict()
+    for i in range(n_classes):
+        _, _, fn[i], tp[i] = sk_metrics.confusion_matrix(
+            y_test_binarized[:, i], y_pred_binarized[:, i]).ravel()
+        recall[i] = tp[i] / (tp[i] + fn[i])
+
+    recall_score = sum(recall.values()) / n_classes
+
+    return recall_score

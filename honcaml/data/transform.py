@@ -4,9 +4,11 @@ from typing import Dict, Tuple
 
 from honcaml.exceptions import data as data_exceptions
 from honcaml.tools import utils, custom_typing as ct
+from sklearn.preprocessing import OneHotEncoder
 
 
-def process_data(dataset: pd.DataFrame, settings: Dict) -> pd.DataFrame:
+def process_data(
+        dataset: pd.DataFrame, target: str, settings: Dict) -> pd.DataFrame:
     """
     Preprocess the dataset and target column with settings given.
 
@@ -17,6 +19,39 @@ def process_data(dataset: pd.DataFrame, settings: Dict) -> pd.DataFrame:
     Returns:
         Processed dataset.
     """
+    do = True
+    if 'encoding' in settings.keys():
+        if 'OHE' in settings['encoding']:
+            if settings['encoding']['OHE'] is False:
+                do = False
+
+    features = []
+    if do is True:
+        if 'encoding' in settings.keys():
+            if 'features' in settings['encoding']:
+                features = features + utils.ensure_input_list(
+                    settings['encoding']['features'])
+            else:
+                features = dataset.columns
+
+        drop_col = []
+        for col in features:
+            if col != target:
+                if dataset[col].dtype == 'object':
+                    if len(dataset[col].unique()) > settings[
+                            'encoding']['max_values']:
+                        drop_col.append(col)
+                    else:
+                        encoder = OneHotEncoder()
+                        data = encoder.fit_transform(
+                            dataset[col].values.reshape(-1, 1)).toarray()
+                        name_col = col+'_'+encoder.categories_[0]
+                        dataset = pd.concat([
+                            dataset.drop(col, axis=1),
+                            pd.DataFrame(data, columns=name_col)
+                        ], axis=1)
+
+        dataset = dataset.drop(drop_col, axis=1)
     return dataset
 
 

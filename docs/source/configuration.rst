@@ -102,6 +102,55 @@ Transform
 
 In this phase the possible transformations are the following:
 
+Encoding
+^^^^^^^^
+
+The parameter **encoding** (dict, optional) defines the dataset encoding for
+categorical features through *One Hot Encoding* (OHE) method. This is defined
+through two additional parameters within the **encoding** dictionary, which are
+**OHE** (boolean), which determines whether to apply the encoding to features
+or not, and **features** (list/str, optional), that specify the feature or
+features to apply OHE to; if empty and **OHE** is True, OHE would be applied to
+all categorical features from the dataset, except for the target.
+
+Examples
+^^^^^^^^
+The simplest configuration is the following, which means a OHE for all
+the categorical features:
+
+.. code:: yaml
+
+   transform:
+
+The following example, the framework applies OHE for all categorical features:
+
+.. code:: yaml
+
+   transform:
+     encoding:
+      OHE: True
+
+The opposite case would be to not apply OHE to any feature:
+
+.. code:: yaml
+
+   transform:
+     encoding:
+      OHE: False
+
+Another example is then OHE should be applied only to specific features. In the
+following example, OHE is applied only to columns *column_a* and *column_b*.
+
+.. code:: yaml
+
+   transform:
+     encoding:
+      OHE: True
+      features:
+        column_a
+        column_b
+
+
 Normalize
 ^^^^^^^^^
 

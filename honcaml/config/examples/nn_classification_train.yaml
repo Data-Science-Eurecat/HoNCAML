@@ -3,6 +3,9 @@ global:
 
 steps:
   data:
+    transform:
+        encoding:
+          OHE: True
     extract:
       filepath: data/processed/bank_train.csv
       target: class

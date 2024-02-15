@@ -17,8 +17,11 @@ class TransformTest(unittest.TestCase):
 
     def test_process_data(self):
         dataset = utils.mock_up_read_dataframe()
-        settings = {}
-        transform.process_data(dataset, settings)
+        settings = {'transform': 'encoding'}
+        target = dataset.target
+        transform.process_data(dataset, target, settings)
+        seleccion = dataset.select_dtypes(include=["number"])
+        self.assertEqual(len(dataset), len(seleccion))
 
     def test_get_train_test_dataset(self):
         # Pandas dataframe dataset
