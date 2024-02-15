@@ -19,21 +19,24 @@ steps:
       target:
 
     transform:
-    # If specified, one hot encoding will be done
+      # Encoding parameters
       encoding:
-        # Specify True or False
+        # Whether one hot encoding will be applied
         OHE:
-        # Specific colums of features that OHE will apply to
+        # Specific features that OHE will apply to; empty for all
         features:
+        # Maximum values allowed to consider feature for OHE
+        # If the feature has more unique values, it is removed
+        max_values:
       # If specified, data normalization will be done
       normalize:
         features:
           # Normalization module to use
-          # The only one supported is sklearn.preprocessing.StandardScaler          
+          # The only one supported is sklearn.preprocessing.StandardScaler
           module:
           # Module params used, specified as key-value
           params:
-          # Specific columns of features that normalization will apply to            
+          # Specific columns of features that normalization will apply to
           columns:
         target:
           module:
@@ -66,7 +69,7 @@ steps:
         # See: https://scikit-learn.org/stable/modules/classes.html#module-sklearn.metrics
         # Both a list and a string (for a single metric) are accepted
         metrics:
-            
+
     load:
       # *REQ* Specify the folder and the name of the file in which to store model object
       # The filename should end with the '.sav' extension.

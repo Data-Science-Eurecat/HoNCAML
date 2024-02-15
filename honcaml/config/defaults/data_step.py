@@ -3,6 +3,10 @@ default_data_step = {
         "filepath": "data/raw/dataset.csv",
     },
     "transform": {
+        "encoding": {
+            "OHE": True,
+            "max_values": 100
+        },
         "normalize": {
             "features": {
                 "module": "sklearn.preprocessing.StandardScaler"

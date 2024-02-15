@@ -7,7 +7,8 @@ from honcaml.tools import utils, custom_typing as ct
 from sklearn.preprocessing import OneHotEncoder
 
 
-def process_data(dataset: pd.DataFrame, target: str, settings: Dict) -> pd.DataFrame:
+def process_data(
+        dataset: pd.DataFrame, target: str, settings: Dict) -> pd.DataFrame:
     """
     Preprocess the dataset and target column with settings given.
 
@@ -27,8 +28,9 @@ def process_data(dataset: pd.DataFrame, target: str, settings: Dict) -> pd.DataF
     features = []
     if do is True:
         if 'encoding' in settings.keys():
-            if 'params' in settings['encoding']:
-                features.append(settings['encoding']['features'])
+            if 'features' in settings['encoding']:
+                features = features + utils.ensure_input_list(
+                    settings['encoding']['features'])
             else:
                 features = dataset.columns
 
@@ -36,20 +38,20 @@ def process_data(dataset: pd.DataFrame, target: str, settings: Dict) -> pd.DataF
         for col in features:
             if col != target:
                 if dataset[col].dtype == 'object':
-                    print(dataset[col].unique())
-                    if len(dataset[col].unique()) > 100:
+                    if len(dataset[col].unique()) > settings[
+                            'encoding']['max_values']:
                         drop_col.append(col)
                     else:
                         encoder = OneHotEncoder()
-                        data = encoder.fit_transform(dataset[col].values.
-                                                     reshape(-1, 1)).toarray()
+                        data = encoder.fit_transform(
+                            dataset[col].values.reshape(-1, 1)).toarray()
                         name_col = col+'_'+encoder.categories_[0]
                         dataset = pd.concat([
                             dataset.drop(col, axis=1),
                             pd.DataFrame(data, columns=name_col)
                         ], axis=1)
 
-    dataset = dataset.drop(drop_col, axis=1)
+        dataset = dataset.drop(drop_col, axis=1)
     return dataset
 
 

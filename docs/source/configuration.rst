@@ -105,17 +105,17 @@ In this phase the possible transformations are the following:
 Encoding
 ^^^^^^^^
 
-The parameter **encoding** (dict, oprional) defines the dataset
-encoding. It is possible to do an One Hot Encoding (OHE) for 
-those categorical features. Moreover, with **feature** parameter 
-you can select which ones the encoder should be applied to. 
-If the transform step contains an empty encoding, the **OHE** will 
-be applied to all those columns detected as categorical.
-
+The parameter **encoding** (dict, optional) defines the dataset encoding for
+categorical features through *One Hot Encoding* (OHE) method. This is defined
+through two additional parameters within the **encoding** dictionary, which are
+**OHE** (boolean), which determines whether to apply the encoding to features
+or not, and **features** (list/str, optional), that specify the feature or
+features to apply OHE to; if empty and **OHE** is True, OHE would be applied to
+all categorical features from the dataset, except for the target.
 
 Examples
 ^^^^^^^^
-The simplest configuration is the following, which means a OHE for all 
+The simplest configuration is the following, which means a OHE for all
 the categorical features:
 
 .. code:: yaml
@@ -130,7 +130,7 @@ The following example, the framework applies OHE for all categorical features:
      encoding:
       OHE: True
 
-If you do not want to apply the OHE to the variables, it would be defined as follows
+The opposite case would be to not apply OHE to any feature:
 
 .. code:: yaml
 
@@ -138,13 +138,14 @@ If you do not want to apply the OHE to the variables, it would be defined as fol
      encoding:
       OHE: False
 
-In the case of features, OHE is applied only for columns named *column_a* and *column_b*.
+Another example is then OHE should be applied only to specific features. In the
+following example, OHE is applied only to columns *column_a* and *column_b*.
 
 .. code:: yaml
 
    transform:
      encoding:
-      OHE: False
+      OHE: True
       features:
         column_a
         column_b

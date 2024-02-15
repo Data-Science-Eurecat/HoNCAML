@@ -18,12 +18,15 @@ steps:
       target:
 
     transform:
-      # If specified, one hot encoding will be done
+      # Encoding parameters
       encoding:
-        # Specify True or False
+        # Whether one hot encoding will be applied
         OHE:
-        # Specific colums of features that OHE will apply to
+        # Specific features that OHE will apply to; empty for all
         features:
+        # Maximum values allowed to consider feature for OHE
+        # If the feature has more unique values, it is removed
+        max_values:
       # If specified, data normalization will be done
       normalize:
         features:
