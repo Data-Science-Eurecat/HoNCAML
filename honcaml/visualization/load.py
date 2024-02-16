@@ -3,11 +3,10 @@ import yaml
 import joblib
 import pandas as pd
 import streamlit as st
-from constants import (data_file_path,
-                       config_file_path,
-                       model_results_path,
-                       logs_path)
-from define_config_file import add_data_filepath
+from honcaml.visualization.constants import (
+    data_file_path, config_file_path, logs_path
+)
+from honcaml.visualization.define_config_file import add_data_filepath
 
 
 def load_data_file() -> None:
@@ -39,17 +38,9 @@ def load_uploaded_file() -> None:
     # add the GUI session folder to the load path
     # for benchmark
     if "benchmark" in st.session_state["config_file"]["steps"]:
-        st.session_state["config_file"]["steps"]["benchmark"]["load"]["path"] =\
-            os.path.join(st.session_state["config_file"]["steps"]["benchmark"][
-                "load"]["path"], st.session_state["current_session"])
-    """# for train
-    if "model" in st.session_state["config_file"]["steps"]:
-        if "load" in st.session_state["config_file"]["steps"]["model"]:
-            st.session_state["config_file"]["steps"]["model"]["load"]["path"] =\
-                os.path.join(st.session_state["config_file"]["steps"]["model"][
-                    "load"]["path"], st.session_state["current_session"])
-            print(os.path.join(st.session_state["config_file"]["steps"]["model"][
-                    "load"]["path"]))"""
+        st.session_state["config_file"]["steps"]["benchmark"]["load"][
+            "path"] = st.session_state["config_file"]["steps"][
+                "benchmark"]["load"]["path"]
 
     # add data filepath
     add_data_filepath()
@@ -71,7 +62,7 @@ def load_trained_model(uploaded_model: object) -> None:
     filepath = st.session_state["config_file"]["steps"]["model"]["extract"][
         "filepath"]
 
-    joblib.dump(model, os.path.join("../..", filepath))
+    joblib.dump(model, os.path.join(filepath))
 
 
 def load_text_area_configs():
@@ -103,16 +94,12 @@ def download_trained_model_button() -> None:
     """
     Add button to download trained model after execution.
     """
+    trained_model_path = st.session_state[
+        "config_file"]["steps"]["model"]["load"]["filepath"]
     # define path to save the trained model
-    trained_model_path = \
-        st.session_state["config_file"]["steps"]["model"]["load"]["path"]
-    most_recent_execution = \
-        max(os.listdir(os.path.join('../../', trained_model_path)))
-    filepath = os.path.join('../../', trained_model_path, most_recent_execution)
-
-    model = open(filepath, "rb").read()
+    model = open(trained_model_path, "rb").read()
     st.download_button("Download trained model", data=model,
-                       file_name=f"trained_model_{most_recent_execution}")
+                       file_name="trained_model.sav")
 
 
 def download_predictions_button(col: st.delta_generator.DeltaGenerator = st) \
@@ -123,11 +110,8 @@ def download_predictions_button(col: st.delta_generator.DeltaGenerator = st) \
     Args:
         col: Defines the column where to place the button.
     """
-    filepath = os.path.join(
-        "../..",
-        st.session_state["config_file"]["steps"]["model"]["transform"][
+    filepath = st.session_state["config_file"]["steps"]["model"]["transform"][
             "predict"]["path"]
-    )
     filename = max([file for file in os.listdir(filepath)
                     if file.startswith("predictions")])
     predictions = \
@@ -146,9 +130,7 @@ def download_logs_button(col: st.delta_generator.DeltaGenerator = st) -> None:
         col: Defines the column where to place the button.
     """
 
-    logs_folder = os.path.join("../../", logs_path, 
-                               st.session_state["current_session"])
-    with open(os.path.join(logs_folder, 'logs.txt'), 'r') as logs_reader:
+    with open(os.path.join(logs_path, 'logs.txt'), 'r') as logs_reader:
         col.download_button(label="Download logs as .txt",
                             data=logs_reader.read(),
                             file_name='logs.txt')

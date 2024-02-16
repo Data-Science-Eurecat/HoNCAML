@@ -71,9 +71,10 @@ steps:
         metrics:
 
     load:
-      # *REQ* Specify the folder and the name of the file in which to store model object
+      # *REQ* Specify the folder and the name of the file in which to store
+      #       model object
       # The filename should end with the '.sav' extension.
       filepath:
-      # Path to report train cross validation results if desired; if not, leave
+      # Path to report train cross validation results if desired; if not, leave it empty
       # it null
       # results:

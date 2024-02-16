@@ -1,10 +1,14 @@
 #!/usr/bin/env python
 import argparse
+import os
+import runpy
+import sys
+
 import pkg_resources
-from subprocess import Popen
-from honcaml.tools import startup, utils
+
+import honcaml
 from honcaml.config import user
-from honcaml.tools import logger_option
+from honcaml.tools import logger_option, startup, utils
 
 __version__ = pkg_resources.get_distribution('honcaml').version
 TYPE_CHOICES = ['train', 'predict', 'benchmark']
@@ -71,7 +75,10 @@ def main():
         conf_options = utils.get_configuration_arguments(args)
         user.export_config(*conf_options)
     elif args.gui:
-        Popen('cd honcaml/visualization && streamlit run gui.py', shell=True)
+        module_path = os.path.dirname(honcaml.__file__)
+        gui_app_path = os.path.join(module_path, "visualization/gui.py")
+        sys.argv = ["streamlit", "run", gui_app_path]
+        runpy.run_module("streamlit", run_name="__main__")
     else:
         if args.config:
             config = logger_option.yaml_reader(args.config)

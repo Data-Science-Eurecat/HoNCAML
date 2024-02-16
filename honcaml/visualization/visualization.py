@@ -3,7 +3,8 @@ import yaml
 import pandas as pd
 import streamlit as st
 import plotly.express as px
-from constants import benchmark_results_path
+from constants import exec_path
+from honcaml.visualization.constants import benchmark_results_path
 from honcaml.config.defaults.model_step import default_model_step
 
 
@@ -31,10 +32,7 @@ def get_results_table() -> pd.DataFrame:
         results: Pandas dataframe with the processed data.
     """
     # find the most recent execution folder
-    file_path = os.path.join('../../', benchmark_results_path,
-                             st.session_state["current_session"],
-                             st.session_state["most_recent_execution"],
-                             'results.csv')
+    file_path = os.path.join(benchmark_results_path, 'results.csv')
     results = pd.read_csv(file_path)
 
     results['model'] = \
@@ -63,16 +61,17 @@ def get_results_table() -> pd.DataFrame:
         st.session_state["benchmark_metrics"] = \
             list(set(st.session_state["problem_type_metrics"])
                  .intersection(set(results.columns)))
-                
+
     b_met = st.session_state["benchmark_metrics"]
     benchmark_metrics = b_met if isinstance(b_met, list) else [b_met]
-    cols_list = ['model', 'configs', 'model_configs'] + benchmark_metrics       
+    cols_list = ['model', 'configs', 'model_configs'] + benchmark_metrics
     results = results[cols_list]
 
     results = results.drop_duplicates(subset=['model', 'configs']) \
         .reset_index() \
         .drop(columns=['index'])
     return results
+
 
 def create_fig_visualization(results) -> object:
     """
@@ -119,11 +118,8 @@ def display_best_hyperparameters() -> None:
     """
     Display best model and hyperparameters after running the benchmark.
     """
-    yaml_file_path = \
-        os.path.join('../../', benchmark_results_path,
-                     st.session_state["current_session"],
-                     st.session_state["most_recent_execution"],
-                     'best_config_params.yaml')
+    yaml_file_path = os.path.join(
+        benchmark_results_path, 'best_config_params.yaml')
     with open(yaml_file_path, 'r') as stream:
         config_file = yaml.safe_load(stream)
     hyperparams = ""
@@ -159,7 +155,8 @@ def display_results(results_display: str) -> None:
         col2.plotly_chart(st.session_state["fig"],
                           use_container_width=False)
 
-    st.write(f'Execution ID: {st.session_state["most_recent_execution"]}')
+    execution_id = exec_path.split('/')[-1]
+    st.write(f'Execution ID: {execution_id}')
 
 
 def display_results_train() -> None:

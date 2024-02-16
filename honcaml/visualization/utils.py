@@ -1,19 +1,7 @@
 import os
-import datetime
 import streamlit as st
-from constants import metrics_mode, logs_path
-from define_config_file import reset_config_file
-
-
-def set_current_session() -> str:
-    """
-    Creates an unique session ID.
-
-    Returns:
-        unique session ID.
-    """
-    session_datetime = datetime.datetime.now().strftime('%Y%m%d-%H%M%S')
-    return f"GUI_session_{session_datetime}"
+from honcaml.visualization.constants import metrics_mode, logs_path
+from honcaml.visualization.define_config_file import reset_config_file
 
 
 def change_configs_mode() -> None:
@@ -57,9 +45,7 @@ def error_message() -> None:
     """
     Display an error message.
     """
-    error_file_path = os.path.join("../../", logs_path, 
-                                   st.session_state["current_session"], 
-                                   'errors.txt')
+    error_file_path = os.path.join(logs_path, 'errors.txt')
     with open(error_file_path) as errors_reader:
         st.error("**There was an error during the execution:**\n\n" +
                  errors_reader.read(), icon='🚨')
@@ -97,12 +83,7 @@ def create_output_folder() -> None:
     """
     Create output folder to save the trained model or the prediction results.
     """
-    if (st.session_state["functionality"] == "Train") and \
-            ("model" in st.session_state["config_file"]["steps"]):
-        path_name = \
-            st.session_state["config_file"]["steps"]["model"]["load"]["path"]
-
-    elif (st.session_state["functionality"] == "Predict") and \
+    if (st.session_state["functionality"] == "Predict") and \
             ("model" in st.session_state["config_file"]["steps"]):
         path_name = \
             st.session_state["config_file"]["steps"]["model"]["transform"][
@@ -111,19 +92,16 @@ def create_output_folder() -> None:
     else:
         return
 
-    output_folder = os.path.join("../../", path_name)
-    if not os.path.exists(output_folder):
-        os.mkdir(output_folder)
+    if not os.path.exists(path_name):
+        os.mkdir(path_name)
 
 
 def create_logs_folder() -> None:
     """
     Create output folder to save the trained model or the prediction results.
     """
-    logs_folder = os.path.join("../../", logs_path, 
-                               st.session_state["current_session"])
-    if not os.path.exists(logs_folder):
-        os.mkdir(logs_folder)
+    if not os.path.exists(logs_path):
+        os.mkdir(logs_path)
 
 
 def warning(warning_type: str) -> None:
@@ -143,8 +121,8 @@ def warning(warning_type: str) -> None:
 
 def check_target_datatype(problem_type) -> None:
     """
-    Check if the target data type matches the problem type selected, and if it 
-    does not, display a warning message pointing out the datatype of the 
+    Check if the target data type matches the problem type selected, and if it
+    does not, display a warning message pointing out the datatype of the
     selected target and the selected problem type.
     """
     if st.session_state["functionality"] in ["Train", "Benchmark"]:
@@ -153,8 +131,8 @@ def check_target_datatype(problem_type) -> None:
             target_dtype = data[st.session_state["target"]].dtype
             if (problem_type == "regression" and target_dtype != float) or \
                     (problem_type == "classification" and target_dtype != int):
-                st.warning(f"The datatype of the target selected "
-                        f"`{st.session_state['target']}` is `{target_dtype}`,"
-                        f" and the selected problem type is `{problem_type}`",
-                        icon="⚠️")
-            
+                st.warning(
+                    f"The datatype of the target selected "
+                    f"`{st.session_state['target']}` is `{target_dtype}`,"
+                    f" and the selected problem type is `{problem_type}`",
+                    icon="⚠️")

@@ -1,12 +1,24 @@
-data_file_path = "../../data/processed/data_file.csv"
-data_file_path_config_file = "data/processed/data_file.csv"
-config_file_path = "../../config_file.yaml"
-templates_path = "../config/templates/"
-benchmark_results_path = "data/models/"
-model_results_path = "data/models/"
-predict_results_path = "reports"
-trained_model_file = "data/models/sklearn.trained_model.sav"
-logs_path = "data/logs/"
+import datetime
+import os
+
+# General execution path
+BASE_PATH = "honcaml_execution"
+
+execution_name = datetime.datetime.now().strftime('%Y%m%d-%H%M%S')
+exec_path = os.path.join(BASE_PATH, execution_name)
+
+# Specific execution paths
+data_file_path = os.path.join(exec_path, "data_file.csv")
+data_file_path_config_file = os.path.join(exec_path, "data_file.csv")
+config_file_path = os.path.join(exec_path, "config_file.yaml")
+benchmark_results_path = os.path.join(exec_path, "reports")
+predict_results_path = os.path.join(exec_path, "reports")
+trained_model_file = os.path.join(exec_path, "model.sav")
+logs_path = os.path.join(exec_path, "logs")
+
+# Internal templates path
+templates_path = "honcaml/config/templates/"
+
 # dictionary containing the display name of the model and the name of the model
 # to use in the configs file
 names_of_models = {
@@ -46,8 +58,8 @@ model_configs_helper = {
     "quniform": "Sample a float uniformly between min and max values selected "
                 "on the slider, rounding to increments of the value selected "
                 "on the number input field",
-    "loguniform": "Sample a float uniformly in a log order of magnitude between"
-                  " min and max values selected on the slider",
+    "loguniform": "Sample a float uniformly in a log order of magnitude "
+                  "between min and max values selected on the slider",
     "randint": "Sample a integer uniformly between min (inclusive) and max "
                "(exclusive) values selected on the slider",
     "qrandint": "Sample a random uniformly between min (inclusive) and max "

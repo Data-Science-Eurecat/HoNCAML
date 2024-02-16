@@ -1,13 +1,16 @@
 import os
 import yaml
 import streamlit as st
-from constants import (data_file_path_config_file,
-                       templates_path,
-                       benchmark_results_path,
-                       trained_model_file,
-                       model_results_path,
-                       predict_results_path)
+import honcaml
+from honcaml.visualization.constants import (
+    data_file_path_config_file,
+    benchmark_results_path,
+    trained_model_file,
+    predict_results_path)
 from defaults import nn_predict_estimator_configs
+
+module_path = os.path.dirname(honcaml.__file__)
+templates_path = os.path.join(module_path, "config", "templates")
 
 
 def add_data_filepath() -> None:
@@ -36,22 +39,18 @@ def initialize_config_file() -> None:
         # add results path
         if st.session_state["functionality"] == "Benchmark":
             st.session_state["config_file"]["steps"]["benchmark"]["load"][
-                "path"] = os.path.join(benchmark_results_path,
-                                       st.session_state["current_session"])
+                "path"] = benchmark_results_path
             # set save_best_config_params as True
             st.session_state["config_file"]["steps"]["benchmark"]["load"][
                 "save_best_config_params"] = True
 
         elif st.session_state["functionality"] == "Train":
-            st.session_state["config_file"]["steps"]["model"]["load"]["path"] \
-                = os.path.join(model_results_path,
-                               st.session_state["current_session"])
+            st.session_state["config_file"]["steps"]["model"]["load"][
+                "filepath"] = trained_model_file
 
         elif st.session_state["functionality"] == "Predict":
             st.session_state["config_file"]["steps"]["model"]["transform"][
-                "predict"]["path"] \
-                = os.path.join(predict_results_path,
-                               st.session_state["current_session"])
+                "predict"]["path"] = predict_results_path
             # add model filepath
             st.session_state["config_file"]["steps"]["model"]["extract"][
                 "filepath"] = trained_model_file
@@ -64,7 +63,7 @@ def initialize_config_file() -> None:
                 (st.session_state["functionality"] != "Predict"):
             st.session_state["config_file"]["steps"]["data"]["extract"][
                 "target"] = st.session_state["target"]
-            
+
 
 def reset_config_file() -> None:
     """

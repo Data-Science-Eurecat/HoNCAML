@@ -1,9 +1,11 @@
 import os
+import shutil
 import yaml
 import streamlit as st
 from subprocess import Popen
-from visualization import get_results_table, create_fig_visualization
 from constants import benchmark_results_path, config_file_path, logs_path
+from honcaml.visualization.visualization import (
+    get_results_table, create_fig_visualization)
 
 
 def run(col: st.delta_generator.DeltaGenerator) -> None:
@@ -17,21 +19,10 @@ def run(col: st.delta_generator.DeltaGenerator) -> None:
         st.session_state["submit"] = True
     with col:
         with st.spinner("Running... This may take a while⏳"):
-            log = open(os.path.join("../../", logs_path, 
-                                    st.session_state["current_session"], 
-                                    'logs.txt'), 'w')
-            err = open(os.path.join("../../", logs_path, 
-                                    st.session_state["current_session"], 
-                                    'errors.txt'), 'w')
-            # port = get_port((5000, 7000))
-            # process = Popen(f'ttyd --port {port} --once honcaml -c
-            # config_file.yaml', shell=True)
-            process = Popen('cd ../.. && honcaml -c config_file.yaml',
+            log = open(os.path.join(logs_path, 'logs.txt'), 'w')
+            err = open(os.path.join(logs_path, 'errors.txt'), 'w')
+            process = Popen(f'honcaml -c {config_file_path}',
                             shell=True, stdout=log, stderr=err)
-            # process = Popen(f'ls', shell=True, stdout=log, stderr=er
-            # r)
-            # host = "http://localhost"
-            # iframe(f"{host}:{port}", height=400)
             process.wait()
             process_poll = process.poll()
             st.session_state["process_poll"] = process_poll
@@ -39,16 +30,21 @@ def run(col: st.delta_generator.DeltaGenerator) -> None:
 
 def process_results() -> None:
     """
-    Find the most recent execution, create a table and a figure with the
-    results of the execution
+    Put results directly within streamlit reports, instead of having an
+    intermediate ID.
+    Create a table and a figure with the results of the execution
     """
-    session_folder_path = os.path.join('../../', benchmark_results_path,
-                   st.session_state["current_session"])
-    content_session_folder = os.listdir(session_folder_path)
-
-    executions = [el for el in content_session_folder if \
-                  os.path.isdir(os.path.join(session_folder_path, el))]
-    st.session_state["most_recent_execution"] = max(executions)
+    internal_id = os.listdir(benchmark_results_path)[0]
+    internal_path = os.path.join(benchmark_results_path, internal_id)
+    objects_to_copy = os.listdir(internal_path)
+    for object_ in objects_to_copy:
+        object_path = os.path.join(internal_path, object_)
+        new_object_path = os.path.join(benchmark_results_path, object_)
+        if os.path.isfile(object_path):
+            shutil.copy(object_path, new_object_path)
+        elif os.path.isdir(object_path):
+            shutil.copytree(object_path, new_object_path)
+    shutil.rmtree(internal_path)
 
     st.session_state["results"] = get_results_table()
     st.session_state["fig"] = \
@@ -84,6 +80,6 @@ def generate_configs_file_yaml(col: st.delta_generator.DeltaGenerator) -> None:
                 yaml.safe_dump(yaml_file, file,
                                default_flow_style=False,
                                sort_keys=False)
-                
+
             return yaml.safe_dump(yaml_file, default_flow_style=False,
                                   sort_keys=False)

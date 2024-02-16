@@ -1,43 +1,49 @@
+import os
 import streamlit as st
-from manual_configs import manual_configs_elements
-from app_execution import (generate_configs_file_yaml,
-                           run,
-                           process_results)
-from visualization import (display_best_hyperparameters,
-                           display_results_train,
-                           display_results)
-from utils import (set_current_session,
-                   sidebar,
-                   define_metrics,
-                   define_functionality_configs_level,
-                   error_message,
-                   create_output_folder,
-                   create_logs_folder,
-                   warning)
-from define_config_file import initialize_config_file
-from extract import add_init_input_elements
-from load import (load_uploaded_file,
-                  load_text_area_configs,
-                  download_logs_button,
-                  download_trained_model_button,
-                  download_predictions_button,
-                  download_benchmark_results_button)
-
-# from streamlit_ttyd import terminal
-# from streamlit.components.v1 import iframe
-# from port_for import get_port
+from honcaml.visualization.manual_configs import manual_configs_elements
+from honcaml.visualization.app_execution import (
+    generate_configs_file_yaml,
+    run, process_results
+)
+from honcaml.visualization.visualization import (
+    display_best_hyperparameters,
+    display_results_train,
+    display_results
+)
+from honcaml.visualization.utils import (
+    sidebar,
+    define_metrics,
+    define_functionality_configs_level,
+    error_message,
+    create_output_folder,
+    create_logs_folder,
+    warning
+)
+from honcaml.visualization.define_config_file import initialize_config_file
+from honcaml.visualization.extract import add_init_input_elements
+from honcaml.visualization.load import (
+    load_uploaded_file,
+    load_text_area_configs,
+    download_logs_button,
+    download_trained_model_button,
+    download_predictions_button,
+    download_benchmark_results_button
+)
+from constants import BASE_PATH, exec_path
 
 
 def main():
     """Main execution function."""
+    # create main execution folder and specific execution one
+    if not os.path.exists(BASE_PATH):
+        os.mkdir(BASE_PATH)
+    if not os.path.exists(exec_path):
+        os.mkdir(exec_path)
 
     # set page configs
     st.set_page_config(page_title="HoNCAML", layout="wide")
     st.header("HoNCAML")
     sidebar()
-
-    if "current_session" not in st.session_state:
-        st.session_state["current_session"] = set_current_session()
 
     # add initial input elements: configs mode, config file uploader,
     # data uploader, target selector, configs level, functionality, and data
@@ -59,7 +65,7 @@ def main():
     if configs_mode == "Manually":
         yaml_file = generate_configs_file_yaml(col2)
         col1.download_button("Download config file", data=yaml_file,
-                            file_name="config_file.yaml")
+                             file_name="config_file.yaml")
 
     # when the "Run" button is pressed, execute the app
     if run_button:
@@ -73,7 +79,6 @@ def main():
                 run(col2)
 
             elif configs_mode == "Config file .yaml":
-                # TODO: reset funcionality in case there has been a previous execution
                 if "uploaded_file" in st.session_state:
                     load_uploaded_file()
                     create_output_folder()
@@ -119,7 +124,7 @@ def main():
             elif st.session_state["functionality"] == "Train":
                 col1, col2 = st.columns(2)
                 display_results_train()
-                download_logs_button(col1) 
+                download_logs_button(col1)
                 download_trained_model_button()
 
             elif st.session_state["functionality"] == "Predict":

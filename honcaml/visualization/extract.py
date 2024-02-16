@@ -3,12 +3,11 @@ import copy
 import pandas as pd
 import streamlit as st
 from typing import Any, Union
-from utils import change_configs_mode
-from define_config_file import (reset_config_file,
-                                reset_data_file,
-                                set_target_config_file)
-from load import load_data_file
-from visualization import data_previsualization
+from honcaml.visualization.utils import change_configs_mode
+from honcaml.visualization.define_config_file import (
+    reset_config_file, reset_data_file, set_target_config_file)
+from honcaml.visualization.load import load_data_file
+from honcaml.visualization.visualization import data_previsualization
 
 
 def extract_configs_mode(col: st.delta_generator.DeltaGenerator) -> str:
