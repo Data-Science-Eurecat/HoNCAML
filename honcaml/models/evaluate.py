@@ -135,14 +135,15 @@ def compute_specificity_score_metric(
 
 def compute_roc_auc_score_metric(
         y_true: pd.Series, y_predicted: pd.Series, **kwargs) -> ct.Number:
-    """_summary_
+    """
+    Computes roc auc metric from true values and predictions.
 
     Args:
-    y_true (pd.Series): _description_
-    y_predicted (pd.Series): _description_
+        y_true: Ground truth outputs.
+        y_predicted: Predicted outputs.
 
     Returns:
-    ct.Number: _description_
+        Resulting metric.
     """
     classes = np.unique(y_true)
     n_classes = len(classes)
@@ -173,7 +174,16 @@ def compute_roc_auc_score_metric(
 
 def compute_precision_score_metric(
         y_true: pd.Series, y_predicted: pd.Series, **kwargs) -> ct.Number:
+    """
+    Computes precision metric from true values and predictions.
 
+    Args:
+        y_true: Ground truth outputs.
+        y_predicted: Predicted outputs.
+
+    Returns:
+        Resulting metric.
+    """
     classes = np.unique(y_true)
     n_classes = len(classes)
 
@@ -204,7 +214,16 @@ def compute_precision_score_metric(
 
 def compute_recall_score_metric(
         y_true: pd.Series, y_predicted: pd.Series, **kwargs) -> ct.Number:
+    """
+    Computes recall metric from true values and predictions.
 
+    Args:
+        y_true: Ground truth outputs.
+        y_predicted: Predicted outputs.
+
+    Returns:
+        Resulting metric.
+    """
     classes = np.unique(y_true)
     n_classes = len(classes)
 
