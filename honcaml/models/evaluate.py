@@ -250,3 +250,43 @@ def compute_recall_score_metric(
     recall_score = sum(recall.values()) / n_classes
 
     return recall_score
+
+
+def compute_f1_score_metric(
+        y_true: pd.Series, y_predicted: pd.Series, **kwargs) -> ct.Number:
+    """
+    Computes f1 score metric from true values and predictions.
+
+    Args:
+        y_true: Ground truth outputs.
+        y_predicted: Predicted outputs.
+
+    Returns:
+        Resulting metric.
+    """
+    classes = np.unique(y_true)
+    n_classes = len(classes)
+
+    df = pd.DataFrame(y_true, columns=['Valor'])
+    one_hot_encoded_true = pd.get_dummies(df['Valor'])
+    y_test_binarized = np.array(one_hot_encoded_true.values.tolist())
+
+    df2 = pd.DataFrame(y_predicted, columns=['Valor'])
+    one_hot_encoded_pred = pd.get_dummies(df2['Valor'])
+    cols_to_add = list(set(one_hot_encoded_true.columns).difference(
+        set(one_hot_encoded_pred)))
+    for i in cols_to_add:
+        one_hot_encoded_pred[i] = 0
+    y_pred_binarized = np.array(one_hot_encoded_pred.values.tolist())
+
+    fn = {}
+    tp = {}
+    fp = {}
+    f1 = {}
+    for i in range(n_classes):
+        _, fp[i], fn[i], tp[i] = sk_metrics.confusion_matrix(
+            y_test_binarized[:, i], y_pred_binarized[:, i]).ravel()
+        f1[i] = (2 * tp[i]) / (2 * tp[i] + fp[i] + fn[i])
+
+    f1_score = sum(f1.values()) / n_classes
+    return f1_score
