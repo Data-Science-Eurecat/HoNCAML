@@ -4,7 +4,7 @@ global:
 steps:
   data:
     extract:
-      filepath: data/processed/kc_house_data_test.csv
+      filepath: data/regression_test.csv
       features:
         - bedrooms
         - bathrooms
@@ -47,7 +47,7 @@ steps:
 
   model:
     extract:
-      filepath: data/models/torch_regression.sav
+      filepath: honcaml_models/torch_regression.sav
     transform:
       predict:
         estimator:
@@ -55,4 +55,4 @@ steps:
             loader:
               batch_size: 20
               shuffle: True
-        path: reports
+        path: honcaml_reports

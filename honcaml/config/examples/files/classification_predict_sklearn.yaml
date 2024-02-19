@@ -7,12 +7,12 @@ logging:
 steps:
   data:
     extract:
-      filepath: data/processed/bank_test.csv
+      filepath: data/classification_test.csv
       target: class
 
   model:
     extract:
-      filepath: data/models/sklearn_classification.sav
+      filepath: honcaml_models/sklearn_classification.sav
     transform:
       predict:
-        path: reports
+        path: honcaml_reports

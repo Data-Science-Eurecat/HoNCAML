@@ -1,1 +1,3 @@
 include honcaml/config/templates/*.yaml
+include honcaml/config/examples/data/*.csv
+include honcaml/config/examples/files/*.yaml

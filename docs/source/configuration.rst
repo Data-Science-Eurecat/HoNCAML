@@ -507,7 +507,7 @@ advantage of the modular definition of the solution:
   benchmark:
     transform:
     load:
-      path: {Reports path}
+      path: {gReports path}
 
   model:
     transform:

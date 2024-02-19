@@ -1,7 +1,9 @@
 import argparse
 import datetime
 import importlib
+import os
 import re
+import shutil
 import uuid
 from typing import Dict, Callable, List
 
@@ -191,6 +193,21 @@ def create_sequence_subsets(list_: list, size: int) -> list:
             subset = tuple(list_[i:i+size])
             subset_list.append(subset)
     return subset_list
+
+
+def copy_internal_files(
+        path: str, module_path: str,
+        internal_path: str = 'config/examples') -> None:
+    """
+    Recursively copy internal files from package to the specified directory.
+
+    Args:
+        path: Path where files should be copied.
+        module_path: Path where module resides.
+        internal_path: Relative path to the package where files are stored.
+    """
+    full_path = os.path.join(module_path, internal_path)
+    shutil.copytree(full_path, path)
 
 
 class FileExtension:

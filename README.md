@@ -56,7 +56,26 @@ environment:
 Virtual environment directory is located in **./venv** by default, but it can
 be changed by changing the variable *ENV_PATH* located in **Makefile**.
 
-## Quick usage
+## Quick execution
+
+### Example data
+
+For a quick usage with example data and configuration, just run:
+
+   ```commandline
+   honcaml -e {example_directory}
+   ```
+
+This would create a directory containing sample data and configuration to see
+how HoNCAML works in a straightforward manner. Just enter the specified
+directory: `cd {example_directory}` and run one of the pipelines located in
+*files* directory. For example, a benchmark for a classification task:
+
+   ```commandline
+   honcaml -c files/classification_benchmark.yaml
+   ```
+
+### Custom data
 
 For a quick train execution, given that a dataset is available with the target
 value informed, it is necessary to first create a basic configuration file:

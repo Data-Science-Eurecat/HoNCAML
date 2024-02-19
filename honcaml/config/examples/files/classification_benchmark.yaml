@@ -1,18 +1,17 @@
 global:
   problem_type: classification
 
-logging:
-  level: DEBUG
-
 steps:
   data:
     extract:
-      filepath: data/processed/bank_train.csv
+      filepath: data/classification_train.csv
+      features:
+        - variance
+        - skewness
       target: class
 
   benchmark:
     transform:
-
       models:
         sklearn.ensemble.RandomForestClassifier:
           n_estimators:
@@ -33,6 +32,51 @@ steps:
             values:
               - uniform
               - distance
+        torch:
+          epochs:
+            method: randint
+            values: [2, 5]
+          layers:
+            number_blocks: [3, 6]
+            types:
+              - Linear + ReLU
+              - Dropout
+            params:
+              Dropout:
+                p:
+                  method: uniform
+                  values: [0.4, 0.6]
+          loader:
+            batch_size:
+              method: randint
+              values: [20, 40]
+            shuffle:
+              method: choice
+              values:
+                - True
+                - False
+          loss:
+            module: torch.nn.CrossEntropyLoss
+            params:
+          optimizer:
+            method: choice
+            values:
+              - module: torch.optim.SGD
+                params:
+                  lr:
+                    method: loguniform
+                    values: [0.001, 0.01]
+                  momentum:
+                    method: uniform
+                    values: [0.5, 1]
+              - module: torch.optim.Adam
+                params:
+                  lr:
+                    method: loguniform
+                    values: [0.001, 0.1]
+                  eps:
+                    method: loguniform
+                    values: [0.0000001, 0.00001]
 
       cross_validation:
         module: sklearn.model_selection.KFold
@@ -63,7 +107,7 @@ steps:
 
     load:
       save_best_config_params: True
-      path: reports
+      path: honcaml_reports
 
   model:
     transform:
@@ -76,4 +120,4 @@ steps:
           random_state: 90
 
     load:
-      filepath: data/models/sklearn_classification_benchmark.sav
+      filepath: honcaml_models/sklearn_classification_benchmark.sav

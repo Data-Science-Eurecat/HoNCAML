@@ -31,7 +31,14 @@ parser.add_argument(
     "-c",
     "--config",
     type=str,
-    help='YAML configuration file specifying pipeline options')
+    help='Run HoNCAML through a configuration file. '
+    'The file specifies which pipeline/s to run and their parameters')
+
+parser.add_argument(
+    "-e",
+    "--example",
+    type=str,
+    help='Store example data with configuration to the specified directory')
 
 parser.add_argument(
     "-l",
@@ -43,13 +50,13 @@ parser.add_argument(
     "-b",
     "--generate-basic-config",
     type=str,
-    help='generate most basic YAML configuration file. Requires -t argument.')
+    help='generate most basic YAML configuration file. Requires -t argument')
 
 parser.add_argument(
     "-a",
     "--generate-advanced-config",
     type=str,
-    help='generate advanced YAML configuration file. Requires -t argument.')
+    help='generate advanced YAML configuration file. Requires -t argument')
 
 parser.add_argument(
     "-t",
@@ -57,7 +64,7 @@ parser.add_argument(
     type=str,
     choices=TYPE_CHOICES,
     help='type of execution used while creating YAML configuration. '
-    'Only makes sense together with -a or -b arguments.')
+    'Only makes sense together with -a or -b arguments')
 
 parser.add_argument(
     "-g",
@@ -71,22 +78,23 @@ args = parser.parse_args()
 
 def main():
     """Main execution function."""
+    module_path = os.path.dirname(honcaml.__file__)
     if args.generate_basic_config or args.generate_advanced_config:
         conf_options = utils.get_configuration_arguments(args)
         user.export_config(*conf_options)
     elif args.gui:
-        module_path = os.path.dirname(honcaml.__file__)
         gui_app_path = os.path.join(module_path, "visualization/gui.py")
         sys.argv = ["streamlit", "run", gui_app_path]
         runpy.run_module("streamlit", run_name="__main__")
-    else:
-        if args.config:
-            config = logger_option.yaml_reader(args.config)
-            startup.setup_logging_config(config)
+    elif args.config:
+        config = logger_option.yaml_reader(args.config)
+        startup.setup_logging_config(config)
         if args.log:
             startup.setup_file_logging(args.log)
         from honcaml.tools import execution
         execution.Execution(args.config).run()
+    elif args.example:
+        utils.copy_internal_files(args.example, module_path)
 
 
 if __name__ == '__main__':

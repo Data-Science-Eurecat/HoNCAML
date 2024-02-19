@@ -4,7 +4,7 @@ global:
 steps:
   data:
     extract:
-      filepath: data/processed/kc_house_data_train.csv
+      filepath: data/regression_train.csv
       features:
         - bedrooms
         - bathrooms
@@ -48,6 +48,25 @@ steps:
   benchmark:
     transform:
       models:
+        sklearn.ensemble.RandomForestRegressor:
+          n_estimators:
+            method: randint
+            values: [ 2, 110 ]
+          max_features:
+            method: choice
+            values:
+              - sqrt
+              - log2
+              - 1 # It means 'auto'
+        sklearn.neighbors.KNeighborsRegressor:
+          n_neighbors:
+            method: randint
+            values: [ 1, 100 ]
+          weights:
+            method: choice
+            values:
+              - uniform
+              - distance
         torch:
           epochs:
             method: randint
@@ -97,4 +116,4 @@ steps:
                     values: [0.0000001, 0.00001]
       metrics: mean_absolute_percentage_error
     load:
-      path: reports
+      path: honcaml_reports

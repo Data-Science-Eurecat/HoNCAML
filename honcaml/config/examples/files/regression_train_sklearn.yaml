@@ -4,7 +4,7 @@ global:
 steps:
   data:
     extract:
-      filepath: data/processed/kc_house_data_train.csv
+      filepath: data/regression_train.csv
       features:
         - bedrooms
         - bathrooms
@@ -25,7 +25,7 @@ steps:
         - sqft_living15
         - sqft_lot15
       target: price
-      
+
     transform:
       normalize:
         features:
@@ -63,4 +63,4 @@ steps:
         metrics: mean_absolute_percentage_error
 
     load:
-      filepath: data/models/sklearn_regression.sav
+      filepath: honcaml_models/sklearn_regression.sav

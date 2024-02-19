@@ -4,7 +4,7 @@ global:
 steps:
   data:
     extract:
-      filepath: data/processed/kc_house_data_test.csv
+      filepath: data/regression_train.csv
       features:
         - bedrooms
         - bathrooms
@@ -43,12 +43,35 @@ steps:
           module: sklearn.preprocessing.StandardScaler
           params:
             with_std: True
-          columns:
-            - price
+          columns: price
 
   model:
-    extract:
-      filepath: data/models/sklearn_regression.sav
     transform:
-      predict:
-        path: reports
+      fit:
+        estimator:
+          module: torch
+          params:
+            epochs: 3
+            layers:
+              - module: torch.nn.Linear
+                params:
+                  out_features: 64
+              - module: torch.nn.ReLU
+              - module: torch.nn.Linear
+                params:
+                  out_features: 32
+              - module: torch.nn.Dropout
+              - module: torch.nn.Linear
+            loader:
+              batch_size: 20
+              shuffle: True
+            loss:
+              module: torch.nn.MSELoss
+            optimizer:
+              module: torch.optim.SGD
+              params:
+                lr: 0.001
+                momentum: 0.9
+
+    load:
+      filepath: honcaml_models/torch_regression.sav

@@ -7,7 +7,7 @@ steps:
         encoding:
           OHE: True
     extract:
-      filepath: data/processed/bank_train.csv
+      filepath: data/classification_train.csv
       target: class
 
   model:
@@ -16,7 +16,7 @@ steps:
         estimator:
           module: sklearn.ensemble.RandomForestClassifier
           params:
-            n_estimators: 100          
+            n_estimators: 100
         cross_validation:
           module: sklearn.model_selection.KFold
           params:
@@ -25,4 +25,4 @@ steps:
             random_state: 90
 
     load:
-      filepath: data/models/sklearn_classification.sav
+      filepath: honcaml_models/sklearn_classification.sav

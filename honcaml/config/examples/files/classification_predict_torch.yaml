@@ -4,12 +4,12 @@ global:
 steps:
   data:
     extract:
-      filepath: data/processed/bank_test.csv
+      filepath: data/classification_test.csv
       target: class
 
   model:
     extract:
-      filepath: data/models/torch_classification.sav
+      filepath: honcaml_models/torch_classification.sav
     transform:
       predict:
         estimator:
@@ -17,4 +17,4 @@ steps:
             loader:
               batch_size: 20
               shuffle: True
-        path: reports
+        path: honcaml_reports

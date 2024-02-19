@@ -38,6 +38,8 @@ def save_model(model: object, settings: Dict) -> None:
         settings: Parameters to save the model.
     """
     filepath = os.path.join(settings['path'], settings['filename'])
+    if not os.path.exists(settings['path']) and settings['path']:
+        os.makedirs(settings['path'])
     joblib.dump(model, filepath)
 
 
