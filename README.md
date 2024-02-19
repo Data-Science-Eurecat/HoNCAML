@@ -147,11 +147,13 @@ All contributions are more than welcome! For further information, please refer
 to the [contribution
 documentation](https://github.com/Data-Science-Eurecat/HoNCAML/blob/main/CONTRIBUTING.md).
 
-# Bugs
+## Bugs
 
-If you find any bug, please report it as an issue.
+If you find any bug, please check if there is any existing
+[issues](https://github.com/Data-Science-Eurecat/HoNCAML/issues), and if not,
+open a new one with a clear description.
 
-# Contact
+## Contact
 
 Should you have any inquiry regarding the library or its development, please
 contact the [Applied Machine Learning team](mailto:aml@eurecat.org).
