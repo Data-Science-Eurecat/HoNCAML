@@ -14,15 +14,10 @@ As a long term development goals, we would like to support the following:
 - New problem types, for example:
   - Time series problems
   - Clustering
-  
+
 ## Internal features
 
 Features that imply improvements to the current structure are the following:
-
-### Include Neural Architecture Search in GUI (torch models)
-
-Right now, GUI only supports sklearn-based models; it should be great to be
-able to consider NAS problems with torch models as well
 
 ### Create class to manage parameters
 
@@ -32,11 +27,6 @@ which would include the following:
 - User and default parameters as attributes
 - Merge function that outputs definite configuration
 - Validator (cerberus) that handles configuration validation after merge
-
-### Add model evaluation with test data
-
-In data step, add `validate_size` option and store the specified percentage to
-evaluate the model at the end.
 
 ### Process data refactoring
 
@@ -49,9 +39,35 @@ would be the following:
 - This class will be instantiated before and after the model call, within the
   model object, in order to be included when storing it.
 
+### GUI refactoring
+
+Make GUI code a little bit more modular and extensible.
+
+### Replace tuner by optuna
+
+If possible, replace tuner framework by optuna, which is more lightweight;
+always given that HoNCAML funcionality is not altered.
+
+### Try alternative to ETL structure
+
+It may be easier to understand configuration files if they did not follow an
+ETL structure, which sometimes seem to be forced upon them.
+
 ## Fixes
 
 There are still some pending fixes that should be relatively straightforward:
+
+## Benchmark result folder
+
+By default, benchmark execution results are stored within the directory
+specified, but with another directory with the execution id. It would be better
+to explicitely use {execution_id} pattern to explicit this, and therefore avoid
+nested directories if desired.
+
+### GUI: Define torch model by blocks interactively
+
+Right now, a torch model for training can only be ultimately defined with an
+excerpt of a configuration file.
 
 ### GUI: Add button to store trained model
 

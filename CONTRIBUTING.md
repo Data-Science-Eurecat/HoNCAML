@@ -2,9 +2,21 @@
 
 If you feel like contributing to HoNCAML, there are multiple ways to do it:
 
-- Pick a planned development/feature from [our list](TODO.md)
+- Pick a planned development/feature from [our list](https://github.com/Data-Science-Eurecat/HoNCAML/blob/main/TODO.md)
 - Fix reported issues
 - Improve documentation
+
+## Installation
+
+In order to contribute, it is just a matter of cloning the repository, and
+start hacking. It is recommended to do so within a virtual environment, so that
+is why there is a specific make target to ease the set up: `make all`, which
+does the following:
+
+- Create virtual environment through venv module (requires *python3-venv*
+  module)
+- Installs honcaml in development mode, so that code changes are reflected live
+  in the library
 
 ## Coding style
 
@@ -21,17 +33,13 @@ Before sending any patch, please ensure the following:
 
 - Code style has no problems: `make validate_code`
 - All tests are passed: `make tests`
-- Pipelines run without problems:
-    - Train
-    - Predict
-    - Benchmark
+- All example pipelines from **honcaml/config/examples** run without problems
 - All documentation is up to date with the changes
     - Sphinx documentation
     - Internal documentation
         - README.md
         - TODO.md
-        - Configuration files from [examples](honcaml/config/examples)
-        - Configuration files from [templates](honcaml/config/templates)
+        - Template configuration files from **honcaml/config/templates**
 
 In order to perform this checks, additional dependencies will be needed. These
 can be installed by `pip install honcaml[check] honcaml[document]

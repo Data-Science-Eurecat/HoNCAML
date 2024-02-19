@@ -31,20 +31,26 @@ parser.add_argument(
     "-c",
     "--config",
     type=str,
-    help='Run HoNCAML through a configuration file. '
+    help='run HoNCAML through a configuration file. '
     'The file specifies which pipeline/s to run and their parameters')
-
-parser.add_argument(
-    "-e",
-    "--example",
-    type=str,
-    help='Store example data with configuration to the specified directory')
 
 parser.add_argument(
     "-l",
     "--log",
     type=str,
     help='file path in which to store execution log')
+
+parser.add_argument(
+    "-g",
+    "--gui",
+    action='store_true',
+    help='run HoNCAML through a graphical user interface')
+
+parser.add_argument(
+    "-e",
+    "--example",
+    type=str,
+    help='Store example data with configuration to the specified directory')
 
 parser.add_argument(
     "-b",
@@ -65,13 +71,6 @@ parser.add_argument(
     choices=TYPE_CHOICES,
     help='type of execution used while creating YAML configuration. '
     'Only makes sense together with -a or -b arguments')
-
-parser.add_argument(
-    "-g",
-    "--gui",
-    action='store_true',
-    help='open GUI in a web browser tab'
-)
 
 args = parser.parse_args()
 

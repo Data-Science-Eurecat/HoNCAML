@@ -1,15 +1,27 @@
 # HoNCAML
 
+## Introduction
+
 HoNCAML (Holistic No Code Automated Machine Learning) is a tool aimed to run
-automated machine learning pipelines for problems of different nature; main
-types of pipeline would be:
+automated machine learning pipelines, and specifically focused on finding the
+best model and hyperparameters for the problem at hand.
 
-1. Training the best possible model for the problem at hand
-2. Use this model to predict other instances
+Following the [no code
+paradigm](https://en.wikipedia.org/wiki/No-code_development_platform), no
+Python knowledge is needed. There are two ways to define pipelines:
 
-## Why HoNCAML
+* Through the Graphical User Interface
+* Through [YAML](https://yaml.org/) configuration files
 
-### Focus
+## Pipelines
+
+There are three types of provided pipelines:
+
+* **Train**: Train a specific model with its hyperparameters given a dataset.
+* **Predict**: Given a dataset, use a specific model to predict the outcome.
+* **Benchmark**: Given a dataset, search for the best model and hyperparameters.
+
+## Focus
 
 HoNCAML has been designed having the following aspects in mind:
 
@@ -18,47 +30,55 @@ HoNCAML has been designed having the following aspects in mind:
 * Extensibility
 * Simpler is better
 
-### Users
+## Users
 
-There are (at least) two main types of users who could benefit from this tool:
+HoNCAML does not assume any kind of technical knowledge, but at the same time
+it is designed to be extended by expert people. Therefore, its user base may
+range from:
 
-1. **Regular users**: In terms of programming experience and/or machine learning
-   knowledge. It would be possible for them to get results in an easy way.
-2. **Advanced users**: It is possible to customise experiments in order to
-   adapt to a specific use case that a user with previous knowledge would like.
+* **Basic users**: In terms of programming experience and/or machine learning
+  knowledge. It would be possible for them to get results in an easy way.
 
-### Pipelines
+* **Advanced users**: It is possible to customise experiments in order to
+  adapt to a specific use case that may be needed by an expert person.
 
-This library assumes data has tabular format, and is clean enough to be used to
-train models.
+## Support
+
+Python version should be >= 3.10.
+
+Regarding each of the following concepts, HoNCAML supports specific sets of
+them; nevertheless, due to its nature, extend the library further should be not
+only feasible, but intuitive.
+
+### Data structure
+
+For now only data with tabular format is supported. However, HoNCAML provides special
+preprocessing methods if needed:
+
+* Normalization
+* One hot encoding of categorical features
+
+### Problem type
 
 At this moment, the following types of problems are supported:
 
 * Regression
 * Classification
 
+### Model type
+
 Regarding available models, the following are supported:
 
-* Sklearn models
-* Pytorch (neural net) models
+* Sklearn models (ML)
+* Pytorch models (DL)
 
-However, due to its nature, extend the library to include other type of
-problems and models should be not only feasible, but intuitive.
+## Install
 
-## Installation
+To install HoNCAML, run: `pip install honcaml`
 
-To set up and install HoNCAML, just run the following within a virtual
-environment:
+## Command line execution
 
-   ```commandline
-   make install
-   ```
-Virtual environment directory is located in **./venv** by default, but it can
-be changed by changing the variable *ENV_PATH* located in **Makefile**.
-
-## Quick execution
-
-### Example data
+### Quick execution with example data
 
 For a quick usage with example data and configuration, just run:
 
@@ -75,43 +95,41 @@ directory: `cd {example_directory}` and run one of the pipelines located in
    honcaml -c files/classification_benchmark.yaml
    ```
 
-### Custom data
+### Standard execution
 
-For a quick train execution, given that a dataset is available with the target
-value informed, it is necessary to first create a basic configuration file:
+To start a HoNCAML execution for a particular pipeline, first it is needed to
+generate the configuration file for it. It may be easy to start with a
+template, which is provided by the CLI itself.
+
+In case a basic configuration file is enough, with the minimum required
+options, the following should be invoked:
 
    ```commandline
    honcaml -b {config_file} -t {pipeline_type}
    ```
 
-Being ``{config_file}`` the path to the file containing the configuration in
-yaml extension, and being ``{pipeline_type}`` one of the supported: train, predict
-or benchmark.
+On the other hand, there is the possibility of generating an advanced
+configuration file, with all the supported options:
 
-The specified keys of the file should be filled in, and afterwards it is
-possible to run the intended pipeline with the following command:
+   ```commandline
+   honcaml -a {config_file} -t {pipeline_type}
+   ```
+
+In both cases, ``{config_file}`` should be a path to the file containing the
+configuration in yaml extension, and ``{pipeline_type}`` one of the supported:
+train, predict or benchmark.
+
+When having a filled configuration file to run the pipeline, it is just a
+matter of executing it:
 
    ```commandline
    honcaml -c {config_file}
    ```
 
-This will run the pipeline and export the trained model.
+Depending on the pipeline type, the output may be a trained model, predictions,
+or benchmark results.
 
-## Detailed configuration
-
-In the case of advanced configuration, there is the option of generating a more
-complete one, instead of the basic mentioned above:
-
-```commandline
-   honcaml -a {config_file} -t {pipeline_type}
-```
-
-Advanced configuration files contain comments with required information to fill
-in the blanks. All the details of the configuration file are explained in
-the documentation. Moreover, many examples can be found at
-[examples](honcaml/config/examples).
-
-## Executing from the GUI
+## GUI execution
 
 To run the HoNCAML GUI locally in a web browser tab, run the following command:
 
@@ -119,17 +137,15 @@ To run the HoNCAML GUI locally in a web browser tab, run the following command:
    honcaml -g
    ```
 
-It allows to execute HoNCAML providing a datafile and a configuration file, or
-to manually select the configuration options instead of providing the file.
-
-When using the manual configuration, it allows both levels of configuration:
-Basic, for a faster execution, and Advanced, allows users to configure the
-model hyperparameters; and three functionalities: Benchmark, Train and Predict.
+It allows to execute HoNCAML by interactively selecting pipeline options,
+although it is possible to run a pipeline by uploading its configuration file
+as well.
 
 ## Contribute
 
 All contributions are more than welcome! For further information, please refer
-to the [contribution documentation](CONTRIBUTING.md).
+to the [contribution
+documentation](https://github.com/Data-Science-Eurecat/HoNCAML/blob/main/CONTRIBUTING.md).
 
 # Bugs
 

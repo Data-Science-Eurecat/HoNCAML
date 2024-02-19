@@ -7,8 +7,8 @@ name = "honcaml"
 version = "0.1.3"
 description = "Holistic and No Code Auto Machine Learning"
 authors = [
-    { name="Xavier de Juan", email="xavier.dejuan@eurecat.org" },
     { name="Joan Erráez", email="joan.erraez@eurecat.org" },
+    { name="Xavier de Juan", email="xavier.dejuan@eurecat.org" },
     { name="Jordi Casals", email="jordi.casalsg@eurecat.org" },
     { name="Marina Rosell", email="marina.rosellg@eurecat.org" },
     { name="Cristina Soler", email="cristina.soler@eurecat.org" },
@@ -69,4 +69,4 @@ honcaml = "honcaml.__main__:main"
 include = ["honcaml*"]
 
 [project.urls]
-Homepage = "https://github.com/Eurecat/honcaml"
+Homepage = "https://github.com/Data-Science-Eurecat/HoNCAML"

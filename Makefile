@@ -5,7 +5,7 @@ ENV_PATH = .venv
 ## Targets
 .PHONY: all build clean install uninstall tests validate_code
 
-all: clean setup develop docs/build
+all: clean setup develop
 
 setup:
 	python3 -m venv .venv
