@@ -42,6 +42,6 @@ default_model_step = {
         }
     },
     "load": {
-        "filepath": "data/models/{autogenerate}.sav",
+        "filepath": "honcaml_models/{autogenerate}.sav",
     }
 }

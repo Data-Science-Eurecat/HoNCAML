@@ -1,7 +1,4 @@
 default_data_step = {
-    "extract": {
-        "filepath": "data/raw/dataset.csv",
-    },
     "transform": {
         "encoding": {
             "OHE": True,
@@ -15,6 +12,5 @@ default_data_step = {
                 "module": "sklearn.preprocessing.StandardScaler"
             }
         }
-    },
-    "load": {"filepath": "data/processed/dataset.csv"}
+    }
 }

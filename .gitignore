@@ -108,7 +108,6 @@ bin/
 /src/external/
 
 # exclude reports
-/reports
 /honcaml_reports
 *.html
 
