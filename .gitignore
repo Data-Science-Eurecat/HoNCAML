@@ -1,111 +1,20 @@
-# Byte-compiled / optimized / DLL files
+# Python internal files
 __pycache__/
 *.py[cod]
 
-# C and Fortran extensions
-*.so
-*.dylib
-*.dll
-*.slo
-*.lo
-*.o
-*.obj
-*.mod
-*.smod
-*.lai
-*.la
-*.a
-*.lib
-*.exe
-*.out
-*.app
-
 # Distribution / packaging
-.Python
-env/
 build/
-develop-eggs/
 dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
 *.egg-info/
-.installed.cfg
-*.egg
 
-# PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
+# Testing
 .coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*,cover
-_trial_temp
 
-# Translations
-*.mo
-*.pot
-
-# Django stuff:
-*.log
-
-# Sphinx documentation
-docs/_build/
-modules.rst
-
-# PyBuilder
-target/
-
-# DotEnv configuration
-.env
+# Virtual environment
 .venv
 
-# Database
-*.db
-*.rdb
-
-# Pycharm
-.idea
-
-# TeX/LaTeX
-*.aux
-*.bbl
-*.blg
-*.synctex.gz
-*.xwm
-
-# IPython NB Checkpoints
-.ipynb_checkpoints/
-
-# exclude compiled binaries
-bin/
-
-# exclude data from source control by default
-/data/external
-/data/interim
-/data/processed
-/data/raw
-/data/models
-
-# exclude external models from source control
-/src/external/
+# Internal data
+/data
 
 # exclude reports
 /honcaml_reports
