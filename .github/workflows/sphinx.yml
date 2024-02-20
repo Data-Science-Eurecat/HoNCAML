@@ -1,0 +1,44 @@
+name: Build sphinx documentation
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v4
+        with:
+           python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install -U pip
+          pip install -U .[document]
+
+      - name: Build HTML
+        run: |
+           make docs/build
+
+      - name: Upload artifact for inspection
+        uses: actions/upload-artifact@v4
+        with:
+          name: built-html
+          path: docs/build/html
+
+      - name: Deploy built files
+        uses: peaceiris/actions-gh-pages@v3
+        if: github.ref == 'refs/heads/main'
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs/build/html

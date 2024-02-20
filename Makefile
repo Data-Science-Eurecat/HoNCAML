@@ -22,7 +22,7 @@ develop: honcaml pyproject.toml uninstall
 	$(ENV_PATH)/bin/python -m pip install honcaml[check] honcaml[document] honcaml[tests]
 
 docs/build: docs/source
-	$(ENV_PATH)/bin/sphinx-build -b html docs/source/ docs/build/html
+	sphinx-build -b html docs/source/ docs/build/html
 
 install: honcaml pyproject.toml uninstall
 	$(ENV_PATH)/bin/python -m pip install .
