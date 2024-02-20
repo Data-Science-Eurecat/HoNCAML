@@ -10,9 +10,11 @@ all: clean setup develop
 setup:
 	python3 -m venv .venv
 
-build: dist
+upload: dist
+	python3 -m twine upload dist/*
 
-dist: honcaml
+dist: honcaml pyproject.toml
+	rm -rf dist/*
 	python3 -m build
 
 develop: honcaml pyproject.toml uninstall
