@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Usage &#8212; HoNCAML 0.2.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d1102ebc" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=6e26af7d" />
+    <script src="_static/documentation_options.js?v=938c9ccc"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Configuration" href="configuration.html" />
+    <link rel="prev" title="What is HoNCAML" href="what.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="usage">
+<h1>Usage<a class="headerlink" href="#usage" title="Link to this heading">¶</a></h1>
+<section id="install">
+<h2>Install<a class="headerlink" href="#install" title="Link to this heading">¶</a></h2>
+<p>To install HoNCAML, run: <cite>pip install honcaml</cite></p>
+</section>
+<section id="command-line-execution">
+<h2>Command line execution<a class="headerlink" href="#command-line-execution" title="Link to this heading">¶</a></h2>
+<section id="quick-execution-with-example-data">
+<h3>Quick execution with example data<a class="headerlink" href="#quick-execution-with-example-data" title="Link to this heading">¶</a></h3>
+<p>For a quick usage with example data and configuration, just run:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">honcaml -e {example_directory}</span>
+</pre></div>
+</div>
+<p>This would create a directory containing sample data and configuration
+to see how HoNCAML works in a straightforward manner. Just enter the
+specified directory: <code class="docutils literal notranslate"><span class="pre">cd</span> <span class="pre">{example_directory}</span></code> and run one of the
+pipelines located in <em>files</em> directory. For example, a benchmark for a
+classification task:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">honcaml -c files/classification_benchmark.yaml</span>
+</pre></div>
+</div>
+</section>
+<section id="standard-execution">
+<h3>Standard execution<a class="headerlink" href="#standard-execution" title="Link to this heading">¶</a></h3>
+<p>To start a HoNCAML execution for a particular pipeline, first it is
+needed to generate the configuration file for it. It may be easy to
+start with a template, which is provided by the CLI itself.</p>
+<p>In case a basic configuration file is enough, with the minimum required
+options, the following should be invoked:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">honcaml -b {config_file} -t {pipeline_type}</span>
+</pre></div>
+</div>
+<p>On the other hand, there is the possibility of generating an advanced
+configuration file, with all the supported options:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">honcaml -a {config_file} -t {pipeline_type}</span>
+</pre></div>
+</div>
+<p>In both cases, <code class="docutils literal notranslate"><span class="pre">{config_file}</span></code> should be a path to the file containing
+the configuration in yaml extension, and <code class="docutils literal notranslate"><span class="pre">{pipeline_type}</span></code> one of the
+supported: train, predict or benchmark.</p>
+<p>When having a filled configuration file to run the pipeline, it is just
+a matter of executing it:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">honcaml -c {config_file}</span>
+</pre></div>
+</div>
+<p>Depending on the pipeline type, the output may be a trained model,
+predictions, or benchmark results.</p>
+</section>
+</section>
+<section id="gui-execution">
+<h2>GUI execution<a class="headerlink" href="#gui-execution" title="Link to this heading">¶</a></h2>
+<p>To run the HoNCAML GUI locally in a web browser tab, run the following
+command:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">honcaml -g</span>
+</pre></div>
+</div>
+<p>It allows to execute HoNCAML by interactively selecting pipeline
+options, although it is possible to run a pipeline by uploading its
+configuration file as well.</p>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">HoNCAML</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="what.html">What is HoNCAML</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#install">Install</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#command-line-execution">Command line execution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#gui-execution">GUI execution</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference.html">Reference</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="what.html" title="previous chapter">What is HoNCAML</a></li>
+      <li>Next: <a href="configuration.html" title="next chapter">Configuration</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2023, Eurecat.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="_sources/usage.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
