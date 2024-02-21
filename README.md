@@ -39,7 +39,7 @@ range from:
 * **Basic users**: In terms of programming experience and/or machine learning
   knowledge. It would be possible for them to get results in an easy way.
 
-* **Advanced users**: It is possible to customise experiments in order to
+* **Advanced users**: It is possible to customize experiments in order to
   adapt to a specific use case that may be needed by an expert person.
 
 ## Support
