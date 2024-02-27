@@ -1,0 +1,5 @@
+#!/bin/bash
+
+if head -n 1 "$1" | grep -q "'"; then
+	sed -i "1s/'//g" "$1";
+fi;

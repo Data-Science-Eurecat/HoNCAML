@@ -1,0 +1,39 @@
+#!/bin/bash
+# Script to download all data needed for benchmark
+# It expects an argument, which is the filename to store
+
+DATASET=$(basename "$1" | cut -d '.' -f 1)
+OPENML_BASE_URL=https://www.openml.org/data/download
+
+if [ "$DATASET" = "abalone" ]; then
+    DATASET_URL=22111820/file22f1616593759.arff;
+elif [ "$DATASET" = "diamonds" ]; then
+    DATASET_URL=21792853/dataset;
+elif [ "$DATASET" = "german_credit" ]; then
+    DATASET_URL=31/dataset_31_credit-g.arff;
+elif [ "$DATASET" = "house_sales" ]; then
+    DATASET_URL=21578898/dataset;
+elif [ "$DATASET" = "sensory" ]; then
+    DATASET_URL=52658/sensory.arff;
+elif [ "$DATASET" = "diabetes" ]; then
+    DATASET_URL=37/dataset_37_diabetes.arff;
+elif [ "$DATASET" = "ada" ]; then
+    DATASET_URL=19335529/file7b5365fa741c.arff;
+elif [ "$DATASET" = "Australian" ]; then
+    DATASET_URL=18151910/phpelnJ6y;
+elif [ "$DATASET" = "ozone-level-8hr" ]; then
+    DATASET_URL=1592279/phpdReP6S;
+elif [ "$DATASET" = "adult" ]; then
+    DATASET_URL=1595261/phpMawTba;
+elif [ "$DATASET" = "Moneyball" ]; then
+    DATASET_URL=18626236/baseball.arff;
+elif [ "$DATASET" = "OnlineNewsPopularity" ]; then
+    DATASET_URL=1798798/phpgBMvy4;
+
+else
+    echo "Invalid dataset name: $DATASET"
+    exit 1
+fi
+
+echo "Downloading dataset $DATASET into $1"
+wget "$OPENML_BASE_URL"/"$DATASET_URL" -o /tmp/dataset.log -O "$1"

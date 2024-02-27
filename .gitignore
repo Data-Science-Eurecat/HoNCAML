@@ -27,3 +27,9 @@ TAGS
 *.pdf
 *.gif
 *.webm
+
+# Paper-related
+paper/data
+paper/environments
+paper/predictions
+paper/results

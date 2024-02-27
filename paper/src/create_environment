@@ -1,0 +1,32 @@
+#!/bin/bash
+# Script to prepare environment for a framework
+# It expects three arguments, in the following order:
+#   1. Framework name
+#   2. Path of environments
+#   3. Path of requirements
+
+# Parse inputs to meaning variables
+FRAMEWORK=$1
+ENV_PATH=$2
+REQ_PATH=$3
+
+# Declare associative array for linking frameworks to python versions
+declare -A FRAMEWORKS_PYTHON_VERSION
+FRAMEWORKS_PYTHON_VERSION[autogluon]=python3.10
+FRAMEWORKS_PYTHON_VERSION[autokeras]=python3.10
+FRAMEWORKS_PYTHON_VERSION[autopytorch]=python3.9
+FRAMEWORKS_PYTHON_VERSION[autosklearn]=python3.9
+FRAMEWORKS_PYTHON_VERSION[flaml]=python3.10
+FRAMEWORKS_PYTHON_VERSION[h2o]=python3.10
+FRAMEWORKS_PYTHON_VERSION[honcaml]=python3.10
+FRAMEWORKS_PYTHON_VERSION[lightautoml]=python3.10
+FRAMEWORKS_PYTHON_VERSION[ludwig]=python3.10
+FRAMEWORKS_PYTHON_VERSION[nni]=python3.10
+FRAMEWORKS_PYTHON_VERSION[tpot]=python3.10
+
+# Get python version for framework through the array
+PYTHON_EXEC=${FRAMEWORKS_PYTHON_VERSION[${FRAMEWORK}]}
+
+# Generate and install environment dependencies
+${PYTHON_EXEC} -m venv ${ENV_PATH}/${FRAMEWORK}
+${ENV_PATH}/${FRAMEWORK}/bin/pip install -r ${REQ_PATH}/${FRAMEWORK}.txt
