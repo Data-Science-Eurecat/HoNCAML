@@ -1,12 +1,14 @@
 import numpy as np
+import pandas as pd
 from autoPyTorch.api.tabular_classification import TabularClassificationTask
 from autoPyTorch.api.tabular_regression import TabularRegressionTask
+from src import processing
 from src.frameworks import base
 
 MEMORY_LIMIT = 8000
 
 
-class AutosklearnClassification(base.BaseTask):
+class AutopytorchClassification(base.BaseTask):
     """
     Class to handle executions for autopytorch classification tasks.
     """
@@ -17,6 +19,23 @@ class AutosklearnClassification(base.BaseTask):
         """
         super().__init__()
         self.optimize_metric = 'f1'
+
+    @staticmethod
+    def preprocess_data(data: pd.DataFrame, target: str) -> pd.DataFrame:
+        """
+        Preprocess data for autosklearn regression tasks.
+
+        Args:
+            data: Input dataset.
+
+        Returns:
+            Processed dataset.
+        """
+        data = processing.remove_non_numerical_features(data, target)
+        if data[target].dtype == 'object':
+            data = processing.replace_string_columns_to_numeric(
+                data, [target])
+        return data
 
     def search_best_model(
             self, X_train: np.array, y_train: np.array,
@@ -37,8 +56,8 @@ class AutosklearnClassification(base.BaseTask):
             y_train=y_train,
             optimize_metric=self.optimize_metric,
             memory_limit=MEMORY_LIMIT,
-            total_walltime_limit=parameters['max_time'],
-            func_eval_time_limit_secs=parameters['max_time']/3
+            total_walltime_limit=parameters['max_seconds'],
+            func_eval_time_limit_secs=parameters['max_seconds']/3
         )
 
 
@@ -53,6 +72,20 @@ class AutopytorchRegression(base.BaseTask):
         """
         super().__init__()
         self.optimize_metric = 'mean_absolute_error'
+
+    @staticmethod
+    def preprocess_data(data: pd.DataFrame, target: str) -> pd.DataFrame:
+        """
+        Preprocess data for autosklearn regression tasks.
+
+        Args:
+            data: Input dataset.
+
+        Returns:
+            Processed dataset.
+        """
+        data = processing.remove_non_numerical_features(data, target)
+        return data
 
     def search_best_model(
             self, X_train: np.array, y_train: np.array,
@@ -73,6 +106,6 @@ class AutopytorchRegression(base.BaseTask):
             y_train=y_train,
             optimize_metric=self.optimize_metric,
             memory_limit=MEMORY_LIMIT,
-            total_walltime_limit=parameters['max_time'],
-            func_eval_time_limit_secs=parameters['max_time']/3
+            total_walltime_limit=parameters['max_seconds'],
+            func_eval_time_limit_secs=parameters['max_seconds']/3
         )
