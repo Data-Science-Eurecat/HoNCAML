@@ -67,7 +67,7 @@ class H2oClassification(base.BaseTask):
         Returns:
             y_test: Target array.
         """
-        h2o_test = h2o.H2OFrame(df_test)
+        h2o_test = h2o.H2OFrame(df_test.drop(columns=target))
         y_pred = self.automl.leader.predict(
             h2o_test).as_data_frame()['predict']
         return y_pred
@@ -118,7 +118,7 @@ class H2oRegression(base.BaseTask):
         Returns:
             y_test: Target array.
         """
-        h2o_test = h2o.H2OFrame(df_test)
+        h2o_test = h2o.H2OFrame(df_test.drop(columns=target))
         y_pred = self.automl.leader.predict(
             h2o_test).as_data_frame()['predict']
         return y_pred

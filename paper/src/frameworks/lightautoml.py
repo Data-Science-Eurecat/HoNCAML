@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 from src import processing
 from src.frameworks import base
@@ -31,7 +32,7 @@ class LightautomlClassification(base.BaseTask):
             Processed dataset.
         """
         if data[target].dtype == 'object':
-            data = processing.replace_string_column_to_numeric(
+            data = processing.replace_string_columns_to_numeric(
                 data, [target])
         return data
 
@@ -57,6 +58,20 @@ class LightautomlClassification(base.BaseTask):
             reader_params={"cv": CV, 'random_state': parameters['seed']},
         )
         self.automl.fit_predict(df_train, {'target': target})
+
+    def predict(self, df_test: pd.DataFrame, target: str) -> np.array:
+        """
+        Predict target given test features.
+
+        Args:
+            df_test: Testing dataset.
+            target: Target column name.
+
+        Returns:
+            y_test: Target array.
+        """
+        y_pred = self.automl.predict(df_test)
+        return y_pred
 
 
 class LightautomlRegression(base.BaseTask):
@@ -89,3 +104,17 @@ class LightautomlRegression(base.BaseTask):
             reader_params={"cv": CV, 'random_state': parameters['seed']},
         )
         self.automl.fit_predict(df_train, {'target': target})
+
+    def predict(self, df_test: pd.DataFrame, target: str) -> np.array:
+        """
+        Predict target given test features.
+
+        Args:
+            df_test: Testing dataset.
+            target: Target column name.
+
+        Returns:
+            y_test: Target array.
+        """
+        y_pred = self.automl.predict(df_test)
+        return y_pred
