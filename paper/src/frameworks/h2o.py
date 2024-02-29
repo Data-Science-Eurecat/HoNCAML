@@ -35,41 +35,39 @@ class H2oClassification(base.BaseTask):
         return data
 
     def search_best_model(
-            self, X_train: np.array, y_train: np.array,
+            self, df_train: pd.DataFrame, target: str,
             parameters: dict) -> None:
         """
         Select best model for the problem at hand and store it within the
         internal `auto_ml` attribute.
 
         Args:
-            X_train: Training features.
-            y_train: Training target.
+            df_train: Training dataset.
+            target: Target column name.
             parameters: General benchmark parameters.
         """
-        train_data = pd.DataFrame(X_train)
-        train_data['target'] = y_train
-        h2o_train = h2o.H2OFrame(train_data)
-        h2o_train['target'] = h2o_train['target'].asfactor()
+        h2o_train = h2o.H2OFrame(df_train)
+        h2o_train[target] = h2o_train[target].asfactor()
 
         self.automl = h2o.automl.H2OAutoML(
             max_runtime_secs=parameters['max_seconds'],
             seed=parameters['seed']
         )
 
-        self.automl.train(y='target', training_frame=h2o_train)
+        self.automl.train(y=target, training_frame=h2o_train)
 
-    def predict(self, X_test: np.array) -> np.array:
+    def predict(self, df_test: pd.DataFrame, target: str) -> np.array:
         """
         Predict target given test features.
 
         Args:
-            X_test: Predict features.
+            df_test: Testing dataset.
+            target: Target column name.
 
         Returns:
             y_test: Target array.
         """
-        test_data = pd.DataFrame(X_test)
-        h2o_test = h2o.H2OFrame(test_data)
+        h2o_test = h2o.H2OFrame(df_test)
         y_pred = self.automl.leader.predict(
             h2o_test).as_data_frame()['predict']
         return y_pred
@@ -88,41 +86,39 @@ class H2oRegression(base.BaseTask):
         h2o.init()
 
     def search_best_model(
-            self, X_train: np.array, y_train: np.array,
+        self, df_train: pd.DataFrame, target: str,
             parameters: dict) -> None:
         """
         Select best model for the problem at hand and store it within the
         internal `auto_ml` attribute.
 
         Args:
-            X_train: Training features.
-            y_train: Training target.
+            df_train: Training dataset.
+            target: Target column name.
             parameters: General benchmark parameters.
         """
-        train_data = pd.DataFrame(X_train)
-        train_data['target'] = y_train
-        h2o_train = h2o.H2OFrame(train_data)
-        h2o_train['target'] = h2o_train['target'].asfactor()
+        h2o_train = h2o.H2OFrame(df_train)
+        h2o_train[target] = h2o_train[target].asfactor()
 
         self.automl = h2o.automl.H2OAutoML(
             max_runtime_secs=parameters['max_seconds'],
             seed=parameters['seed']
         )
 
-        self.automl.train(y='target', training_frame=h2o_train)
+        self.automl.train(y=target, training_frame=h2o_train)
 
-    def predict(self, X_test: np.array) -> np.array:
+    def predict(self, df_test: pd.DataFrame, target: str) -> np.array:
         """
         Predict target given test features.
 
         Args:
-            X_test: Predict features.
+            df_test: Testing dataset.
+            target: Target column name.
 
         Returns:
             y_test: Target array.
         """
-        test_data = pd.DataFrame(X_test)
-        h2o_test = h2o.H2OFrame(test_data)
+        h2o_test = h2o.H2OFrame(df_test)
         y_pred = self.automl.leader.predict(
             h2o_test).as_data_frame()['predict']
         return y_pred

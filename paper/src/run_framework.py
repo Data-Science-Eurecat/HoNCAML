@@ -55,22 +55,17 @@ def run_framework(
 
         # Get training data
         df_train = split_data.loc[train_idx].copy(deep=True)
-        X_train = df_train.drop(columns=target).values
-        y_train = df_train[target].values
 
         # Search for best model
-        automl_class.search_best_model(
-            X_train, y_train, benchmark_options)
+        automl_class.search_best_model(df_train, target, benchmark_options)
 
         # Predict with test set
         df_prediction = split_data.loc[test_idx].copy(deep=True)
-        X_test = df_prediction.drop(columns=target).values
-        df_prediction['y_pred'] = automl_class.predict(X_test)
+        df_prediction['y_pred'] = automl_class.predict(df_prediction, target)
 
         # Format output dataset
         df_prediction['split'] = split
-        df_prediction = df_prediction.rename(
-            columns={target: 'y_true'})
+        df_prediction = df_prediction.rename(columns={target: 'y_true'})
         cols_output = ['split', 'y_true', 'y_pred']
         df_prediction = df_prediction[cols_output]
 

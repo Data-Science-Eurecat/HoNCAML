@@ -1,5 +1,5 @@
+import pandas as pd
 import keras_tuner
-import numpy as np
 from keras import backend as K
 from src.frameworks import base
 
@@ -40,18 +40,21 @@ class AutokerasClassification(base.BaseTask):
         self.optimize_metric = f1
 
     def search_best_model(
-            self, X_train: np.array, y_train: np.array,
+            self, df_train: pd.DataFrame, target: str,
             parameters: dict) -> None:
         """
         Select best model for the problem at hand and store it within the
         internal `auto_ml` attribute.
 
         Args:
-            X_train: Training features.
-            y_train: Training target.
+            df_train: Training dataset.
+            target: Target column name.
             parameters: General benchmark parameters.
         """
-        self.automl = ak.StructuredDataRegressor(
+        X_train = df_train.drop(columns=target).values
+        y_train = df_train[target].values
+
+        self.automl = ak.StructuredDataClassifier(
             overwrite=True, max_trials=MAX_TRIALS,
             metrics=[self.optimize_metric],
             objective=keras_tuner.Objective('val_f1', direction='max')
@@ -78,18 +81,21 @@ class AutokerasRegression(base.BaseTask):
         self.optimize_metric = mae
 
     def search_best_model(
-            self, X_train: np.array, y_train: np.array,
+            self, df_train: pd.DataFrame, target: str,
             parameters: dict) -> None:
         """
         Select best model for the problem at hand and store it within the
         internal `auto_ml` attribute.
 
         Args:
-            X_train: Training features.
-            y_train: Training target.
+            df_train: Training dataset.
+            target: Target column name.
             parameters: General benchmark parameters.
         """
-        self.automl = ak.StructuredDataClassifier(
+        X_train = df_train.drop(columns=target).values
+        y_train = df_train[target].values
+
+        self.automl = ak.StructuredDataRegressor(
             overwrite=True, max_trials=MAX_TRIALS,
             metrics=[self.optimize_metric],
             objective=keras_tuner.Objective('val_mae', direction='min')

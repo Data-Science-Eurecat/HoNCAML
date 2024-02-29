@@ -1,4 +1,3 @@
-import numpy as np
 import pandas as pd
 from src import processing
 from src.frameworks import base
@@ -37,19 +36,17 @@ class LightautomlClassification(base.BaseTask):
         return data
 
     def search_best_model(
-            self, X_train: np.array, y_train: np.array,
+            self, df_train: pd.DataFrame, target: str,
             parameters: dict) -> None:
         """
         Select best model for the problem at hand and store it within the
         internal `auto_ml` attribute.
 
         Args:
-            X_train: Training features.
-            y_train: Training target.
+            df_train: Training dataset.
+            target: Target column name.
             parameters: General benchmark parameters.
         """
-        train_data = pd.DataFrame(X_train)
-        train_data['target'] = y_train
         task = Task("binary")
         self.automl = TabularAutoML(
             task=task,
@@ -59,7 +56,7 @@ class LightautomlClassification(base.BaseTask):
             },
             reader_params={"cv": CV, 'random_state': parameters['seed']},
         )
-        self.automl.fit_predict(train_data, {'target': 'target'})
+        self.automl.fit_predict(df_train, {'target': target})
 
 
 class LightautomlRegression(base.BaseTask):
@@ -74,23 +71,21 @@ class LightautomlRegression(base.BaseTask):
         super().__init__()
 
     def search_best_model(
-            self, X_train: np.array, y_train: np.array,
+            self, df_train: pd.DataFrame, target: str,
             parameters: dict) -> None:
         """
         Select best model for the problem at hand and store it within the
         internal `auto_ml` attribute.
 
         Args:
-            X_train: Training features.
-            y_train: Training target.
+            df_train: Training dataset.
+            target: Target column name.
             parameters: General benchmark parameters.
         """
-        train_data = pd.DataFrame(X_train)
-        train_data['target'] = y_train
         task = Task("reg")
         self.automl = TabularAutoML(
             task=task,
             timeout=parameters['max_seconds'],
             reader_params={"cv": CV, 'random_state': parameters['seed']},
         )
-        self.automl.fit_predict(train_data, {'target': 'target'})
+        self.automl.fit_predict(df_train, {'target': target})

@@ -26,6 +26,7 @@ class BaseTask(ABC):
 
         Args:
             data: Input dataset.
+            target: Target column name.
 
         Returns:
             Processed dataset, if needed.
@@ -33,23 +34,24 @@ class BaseTask(ABC):
         return data
 
     @abstractmethod
-    def search_best_model(self, X_train: np.array, y_train: np.array,
-        parameters: dict):
+    def search_best_model(self) -> None:
         """
         Select best model for the problem at hand.
         Must be implemented by derived classes.
         """
         pass
 
-    def predict(self, X_test: np.array) -> np.array:
+    def predict(self, df_test: pd.DataFrame, target: str) -> np.array:
         """
         Predict target given test features.
 
         Args:
-            X_test: Predict features.
+            df_test: Testing dataset.
+            target: Target column name.
 
         Returns:
             y_test: Target array.
         """
+        X_test = df_test.drop(columns=target).values
         y_pred = self.automl.predict(X_test)
         return y_pred

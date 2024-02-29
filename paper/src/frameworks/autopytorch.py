@@ -1,4 +1,3 @@
-import numpy as np
 import pandas as pd
 from autoPyTorch.api.tabular_classification import TabularClassificationTask
 from autoPyTorch.api.tabular_regression import TabularRegressionTask
@@ -38,17 +37,20 @@ class AutopytorchClassification(base.BaseTask):
         return data
 
     def search_best_model(
-            self, X_train: np.array, y_train: np.array,
+            self, df_train: pd.DataFrame, target: str,
             parameters: dict) -> None:
         """
         Select best model for the problem at hand and store it within the
         internal `auto_ml` attribute.
 
         Args:
-            X_train: Training features.
-            y_train: Training target.
+            df_train: Training dataset.
+            target: Target column name.
             parameters: General benchmark parameters.
         """
+        X_train = df_train.drop(columns=target).values
+        y_train = df_train[target].values
+
         self.automl = TabularClassificationTask()
 
         self.automl.search(
@@ -88,17 +90,20 @@ class AutopytorchRegression(base.BaseTask):
         return data
 
     def search_best_model(
-            self, X_train: np.array, y_train: np.array,
+            self, df_train: pd.DataFrame, target: str,
             parameters: dict) -> None:
         """
         Select best model for the problem at hand and store it within the
         internal `auto_ml` attribute.
 
         Args:
-            X_train: Training features.
-            y_train: Training target.
+            df_train: Training dataset.
+            target: Target column name.
             parameters: General benchmark parameters.
         """
+        X_train = df_train.drop(columns=target).values
+        y_train = df_train[target].values
+
         self.automl = TabularRegressionTask()
 
         self.automl.search(
