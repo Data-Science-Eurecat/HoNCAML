@@ -20,44 +20,6 @@ class AutokerasClassification(base.BaseTask):
         """
         super().__init__()
 
-        def mae(y_true, y_pred):
-            mae = K.mean(K.abs(y_true - y_pred))
-            return mae
-
-        self.optimize_metric = mae
-
-    def search_best_model(
-            self, X_train: np.array, y_train: np.array,
-            parameters: dict) -> None:
-        """
-        Select best model for the problem at hand and store it within the
-        internal `auto_ml` attribute.
-
-        Args:
-            X_train: Training features.
-            y_train: Training target.
-            parameters: General benchmark parameters.
-        """
-        self.automl = ak.StructuredDataRegressor(
-            overwrite=True, max_trials=MAX_TRIALS,
-            metrics=[self.optimize_metric],
-            objective=keras_tuner.Objective('val_mae', direction='min')
-        )
-
-        self.automl.fit(X_train, y_train, epochs=EPOCHS)
-
-
-class AutokerasRegression(base.BaseTask):
-    """
-    Class to handle executions for autokeras regression tasks.
-    """
-
-    def __init__(self) -> None:
-        """
-        Constructor method of derived class.
-        """
-        super().__init__()
-
         def f1(y_true, y_pred):
             def recall(y_true, y_pred):
                 true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
@@ -89,10 +51,48 @@ class AutokerasRegression(base.BaseTask):
             y_train: Training target.
             parameters: General benchmark parameters.
         """
-        self.automl = ak.StructuredDataClassifier(
+        self.automl = ak.StructuredDataRegressor(
             overwrite=True, max_trials=MAX_TRIALS,
             metrics=[self.optimize_metric],
             objective=keras_tuner.Objective('val_f1', direction='max')
+        )
+
+        self.automl.fit(X_train, y_train, epochs=EPOCHS)
+
+
+class AutokerasRegression(base.BaseTask):
+    """
+    Class to handle executions for autokeras regression tasks.
+    """
+
+    def __init__(self) -> None:
+        """
+        Constructor method of derived class.
+        """
+        super().__init__()
+
+        def mae(y_true, y_pred):
+            mae = K.mean(K.abs(y_true - y_pred))
+            return mae
+
+        self.optimize_metric = mae
+
+    def search_best_model(
+            self, X_train: np.array, y_train: np.array,
+            parameters: dict) -> None:
+        """
+        Select best model for the problem at hand and store it within the
+        internal `auto_ml` attribute.
+
+        Args:
+            X_train: Training features.
+            y_train: Training target.
+            parameters: General benchmark parameters.
+        """
+        self.automl = ak.StructuredDataClassifier(
+            overwrite=True, max_trials=MAX_TRIALS,
+            metrics=[self.optimize_metric],
+            objective=keras_tuner.Objective('val_mae', direction='min')
         )
 
         self.automl.fit(X_train, y_train, epochs=EPOCHS)
