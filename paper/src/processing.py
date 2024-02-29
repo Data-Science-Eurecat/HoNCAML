@@ -23,17 +23,21 @@ def remove_non_numerical_features(
     return data
 
 
-def replace_string_column_to_numeric(ds: pd.Series) -> pd.DataFrame:
+def replace_string_columns_to_numeric(
+        data: pd.DataFrame, cols: list) -> pd.DataFrame:
     """
-    Replace string values by numerical ones, without any specific order.
+    Replace string columns by numerical ones by label encoding them,
+    using the same encoding logic.
 
     Args:
         data: Input dataset.
-        target: Target column name.
+        cols: Column/s to convert to numeric.
 
     Returns:
         Dataset with numeric target.
     """
     label_encoder = LabelEncoder()
-    ds = label_encoder.fit_transform(ds)
-    return ds
+    label_encoder.fit(data[cols[0]])
+    for col in cols:
+        data[col] = label_encoder.transform(data[col])
+    return data

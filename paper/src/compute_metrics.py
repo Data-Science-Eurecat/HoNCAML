@@ -4,9 +4,9 @@ import sys
 import numpy as np
 import pandas as pd
 from sklearn import metrics as sk_metrics
-from src.parameters import (
-    DATASET_OPTIONS, METRICS
-)
+
+from src import processing
+from src.parameters import DATASET_OPTIONS, METRICS
 
 
 def compute_metrics(
@@ -35,8 +35,13 @@ def compute_metrics(
         print(f'Handling dataset: {dataset}')
         problem_type = dataset_options[dataset]['type']
         filepath = os.path.join(input_path, dataset + '.csv')
-        data = pd.read_csv(filepath)
-        splits = list(data['split'].unique())
+        df = pd.read_csv(filepath)
+
+        if problem_type == 'classification' and df['y_true'].dtype == 'object':
+            df = processing.replace_string_columns_to_numeric(
+                df, ['y_true', 'y_pred'])
+
+        splits = list(df['split'].unique())
 
         for metric, args in parameters[problem_type]:
 
@@ -46,7 +51,7 @@ def compute_metrics(
             # Compute values for metric
             metric_values = []
             for split in splits:
-                df_split = data.loc[data['split'] == split].copy(deep=True)
+                df_split = df.loc[df['split'] == split].copy(deep=True)
                 metric_value = metric_func(
                     df_split['y_true'], df_split['y_pred'], **args)
                 metric_values.append(metric_value)
@@ -64,9 +69,6 @@ def compute_metrics(
     # Format results dataset
     df_results = pd.DataFrame(
         results, columns=['dataset', 'metric', 'metric_type', 'value'])
-    df_results = df_results.pivot(
-        index=['dataset', 'metric_type'],
-        columns='metric', values='value').reset_index()
 
     # Store results dataset
     df_results.to_csv(output_file, index=None)

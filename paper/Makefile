@@ -2,7 +2,7 @@
 DATASETS = abalone diamonds german_credit house_sales sensory diabetes \
 			ada Australian ozone-level-8hr adult Moneyball \
 			OnlineNewsPopularity
-FRAMEWORKS = autosklearn autopytorch h2o autokeras lightautoml
+FRAMEWORKS = autopytorch autokeras h2o lightautoml
 
 # Specify paths
 GLOBAL_ENV_PATH = .venv
@@ -27,10 +27,12 @@ prediction_files = \
 result_files = $(foreach framework,$(FRAMEWORKS),$(RESULTS_PATH)/$(framework).csv)
 
 ## Specify targets
-.PHONY: .venv download convert split envs execute result clean
+.PHONY: global_env download convert split envs execute result clean
 
 # Default target: set up, download and convert data, and run benchmark
-all: .venv download convert split envs execute result
+all: .venv/pyenv.cfg download convert split envs execute result
+
+global_env: .venv/pyenv.cfg
 
 .venv/pyenv.cfg: requirements.txt
 	python3 -m venv $(GLOBAL_ENV_PATH)
@@ -76,17 +78,12 @@ $(foreach framework, $(FRAMEWORKS), \
 $(PREDICTIONS_PATH)/%:
 	mkdir $(PREDICTIONS_PATH)/$*
 
+# Compute all results
 result: $(result_files)
-# Generate dinamically rules for each combination of dataset and framework
-define RESULT_FRAMEWORK_DATASET_RULE
-$(RESULTS_PATH)/$(1).csv: $(PREDICTIONS_PATH)/$(1)/$(2).csv
-	${ENV_PATH}/$(1)/bin/python -m src.compute_metrics \
-		$(PREDICTIONS_PATH)/$(1) $(RESULTS_PATH)/$(1).csv
-endef
-# Effectively call the aforementioned rule
-$(foreach framework, $(FRAMEWORKS), \
-	$(foreach dataset, $(DATASETS), \
-			$(eval $(call RESULT_FRAMEWORK_DATASET_RULE,$(framework),$(dataset)))))
+# Rule to compute results for each framework
+$(RESULTS_PATH)/%.csv: $(PREDICTIONS_PATH)/%
+	${ENV_PATH}/$*/bin/python -m src.compute_metrics \
+		$(PREDICTIONS_PATH)/$* $(RESULTS_PATH)/$*.csv
 
 # Clean all information
 clean:
