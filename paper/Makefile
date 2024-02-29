@@ -19,7 +19,7 @@ FRAMEWORKS_PATH = src/frameworks
 raw_files = $(foreach dataset,$(DATASETS),$(RAW_PATH)/$(dataset).arff)
 convert_files = $(foreach dataset,$(DATASETS),$(CONVERT_PATH)/$(dataset).csv)
 split_files = $(foreach dataset,$(DATASETS),$(SPLITS_PATH)/$(dataset).csv)
-framework_envs = $(foreach framework,$(FRAMEWORKS),$(ENV_PATH)/$(framework)/pyenv.cfg)
+framework_envs = $(foreach framework,$(FRAMEWORKS),$(ENV_PATH)/$(framework)/pyvenv.cfg)
 prediction_files = \
 	$(foreach framework,$(FRAMEWORKS), \
 		$(foreach dataset,$(DATASETS), \
@@ -30,11 +30,11 @@ result_files = $(foreach framework,$(FRAMEWORKS),$(RESULTS_PATH)/$(framework).cs
 .PHONY: global_env download convert split envs execute result clean
 
 # Default target: set up, download and convert data, and run benchmark
-all: .venv/pyenv.cfg download convert split envs execute result
+all: global_env download convert split envs execute result
 
-global_env: .venv/pyenv.cfg
+global_env: .venv/pyvenv.cfg
 
-.venv/pyenv.cfg: requirements.txt
+.venv/pyvenv.cfg: requirements.txt
 	python3 -m venv $(GLOBAL_ENV_PATH)
 	$(GLOBAL_ENV_PATH)/bin/pip install -r requirements.txt
 
@@ -60,7 +60,7 @@ $(SPLITS_PATH)/%.csv: $(CONVERT_PATH)/%.csv
 # Generate all environments
 envs: $(framework_envs)
 # Rule to generate the environment for each framework
-$(ENV_PATH)/%/pyenv.cfg: $(REQ_PATH)/%.txt
+$(ENV_PATH)/%/pyvenv.cfg: $(REQ_PATH)/%.txt
 	./src/create_environment $* $(ENV_PATH) $(REQ_PATH)
 
 execute: $(prediction_files)
@@ -82,7 +82,7 @@ $(PREDICTIONS_PATH)/%:
 result: $(result_files)
 # Rule to compute results for each framework
 $(RESULTS_PATH)/%.csv: $(PREDICTIONS_PATH)/%
-	${ENV_PATH}/$*/bin/python -m src.compute_metrics \
+	${GLOBAL_ENV_PATH}/bin/python -m src.compute_metrics \
 		$(PREDICTIONS_PATH)/$* $(RESULTS_PATH)/$*.csv
 
 # Clean all information
