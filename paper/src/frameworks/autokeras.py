@@ -9,9 +9,9 @@ EPOCHS = 10
 MAX_TRIALS = 3
 
 
-class AutosklearnClassification(base.BaseTask):
+class AutokerasClassification(base.BaseTask):
     """
-    Class to handle executions for autopytorch classification tasks.
+    Class to handle executions for autokeras classification tasks.
     """
 
     def __init__(self) -> None:
@@ -47,9 +47,9 @@ class AutosklearnClassification(base.BaseTask):
         self.automl.fit(X_train, y_train, epochs=EPOCHS)
 
 
-class AutopytorchRegression(base.BaseTask):
+class AutokerasRegression(base.BaseTask):
     """
-    Class to handle executions for autopytorch regression tasks.
+    Class to handle executions for autokeras regression tasks.
     """
 
     def __init__(self) -> None:

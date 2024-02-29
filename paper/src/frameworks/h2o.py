@@ -1,17 +1,14 @@
-import h2o
 import numpy as np
 import pandas as pd
 from src import processing
 from src.frameworks import base
 
-import autosklearn.classification
-import autosklearn.metrics
-import autosklearn.regression
+import h2o
 
 
-class AutosklearnClassification(base.BaseTask):
+class H2oClassification(base.BaseTask):
     """
-    Class to handle executions for autosklearn classification tasks.
+    Class to handle executions for h2o classification tasks.
     """
 
     def __init__(self) -> None:
@@ -19,7 +16,7 @@ class AutosklearnClassification(base.BaseTask):
         Constructor method of derived class.
         """
         super().__init__()
-        self.optimize_metric = autosklearn.metrics.f1_macro
+        h2o.init()
 
     @staticmethod
     def preprocess_data(data: pd.DataFrame, target: str) -> pd.DataFrame:
@@ -33,8 +30,8 @@ class AutosklearnClassification(base.BaseTask):
             Processed dataset.
         """
         if data[target].dtype == 'object':
-            data[target] = processing.replace_string_column_to_numeric(
-                data[target])
+            data = processing.replace_string_columns_to_numeric(
+                data, [target])
         return data
 
     def search_best_model(
@@ -78,9 +75,9 @@ class AutosklearnClassification(base.BaseTask):
         return y_pred
 
 
-class AutosklearnRegression(base.BaseTask):
+class H2oRegression(base.BaseTask):
     """
-    Class to handle executions for autosklearn regression tasks.
+    Class to handle executions for h2o regression tasks.
     """
 
     def __init__(self) -> None:
@@ -88,7 +85,7 @@ class AutosklearnRegression(base.BaseTask):
         Constructor method of derived class.
         """
         super().__init__()
-        self.optimize_metric = autosklearn.metrics.mean_absolute_error
+        h2o.init()
 
     def search_best_model(
             self, X_train: np.array, y_train: np.array,

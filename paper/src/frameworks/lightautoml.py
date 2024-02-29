@@ -9,9 +9,9 @@ from lightautoml.tasks import Task
 CV = 3
 
 
-class AutosklearnClassification(base.BaseTask):
+class LightautomlClassification(base.BaseTask):
     """
-    Class to handle executions for autosklearn classification tasks.
+    Class to handle executions for lightautoml classification tasks.
     """
 
     def __init__(self) -> None:
@@ -32,8 +32,8 @@ class AutosklearnClassification(base.BaseTask):
             Processed dataset.
         """
         if data[target].dtype == 'object':
-            data[target] = processing.replace_string_column_to_numeric(
-                data[target])
+            data = processing.replace_string_column_to_numeric(
+                data, [target])
         return data
 
     def search_best_model(
@@ -59,12 +59,12 @@ class AutosklearnClassification(base.BaseTask):
             },
             reader_params={"cv": CV, 'random_state': parameters['seed']},
         )
-        self.automl.fit_predict(train_data)
+        self.automl.fit_predict(train_data, {'target': 'target'})
 
 
-class AutosklearnRegression(base.BaseTask):
+class LightautomlRegression(base.BaseTask):
     """
-    Class to handle executions for autosklearn regression tasks.
+    Class to handle executions for lightautoml regression tasks.
     """
 
     def __init__(self) -> None:
@@ -93,4 +93,4 @@ class AutosklearnRegression(base.BaseTask):
             timeout=parameters['max_seconds'],
             reader_params={"cv": CV, 'random_state': parameters['seed']},
         )
-        self.automl.fit_predict(train_data)
+        self.automl.fit_predict(train_data, {'target': 'target'})
