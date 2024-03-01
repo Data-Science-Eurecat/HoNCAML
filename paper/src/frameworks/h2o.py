@@ -17,6 +17,7 @@ class H2oClassification(base.BaseTask):
         """
         super().__init__()
         h2o.init()
+        self._optimize_metric = 'logloss'
 
     @staticmethod
     def preprocess_data(data: pd.DataFrame, target: str) -> pd.DataFrame:
@@ -51,6 +52,7 @@ class H2oClassification(base.BaseTask):
 
         self.automl = h2o.automl.H2OAutoML(
             max_runtime_secs=parameters['max_seconds'],
+            stopping_metric=self.optimize_metric,
             seed=parameters['seed']
         )
 
@@ -83,6 +85,7 @@ class H2oRegression(base.BaseTask):
         Constructor method of derived class.
         """
         super().__init__()
+        self._optimize_metric = 'MAE'
         h2o.init()
 
     def search_best_model(
@@ -98,10 +101,10 @@ class H2oRegression(base.BaseTask):
             parameters: General benchmark parameters.
         """
         h2o_train = h2o.H2OFrame(df_train)
-        h2o_train[target] = h2o_train[target].asfactor()
 
         self.automl = h2o.automl.H2OAutoML(
             max_runtime_secs=parameters['max_seconds'],
+            stopping_metric=self.optimize_metric,
             seed=parameters['seed']
         )
 
