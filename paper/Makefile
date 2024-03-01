@@ -2,7 +2,7 @@
 DATASETS = abalone diamonds german_credit house_sales sensory diabetes \
 			ada Australian ozone-level-8hr adult Moneyball \
 			OnlineNewsPopularity
-FRAMEWORKS = autopytorch autokeras h2o lightautoml
+FRAMEWORKS = autogluon autokeras autopytorch autosklearn flaml h2o honcaml lightautoml tpot
 
 # Specify paths
 GLOBAL_ENV_PATH = .venv
