@@ -28,9 +28,17 @@ TAGS
 *.gif
 *.webm
 
-# Paper-related
+# Paper main directories
 paper/data
 paper/environments
 paper/predictions
-paper/structured_data*
 paper/results
+
+# Paper framework executions
+paper/structured_data*
+paper/.dataset.csv
+paper/.honcaml
+paper/AutogluonModels
+paper/flaml.log
+paper/hyperopt
+paper/.lock_preprocessing
