@@ -54,13 +54,16 @@ def run_framework(
         split_data = automl_class.preprocess_data(split_data, target)
 
         # Get training data
-        df_train = split_data.loc[train_idx].copy(deep=True)
+        df_train = split_data.loc[train_idx].copy(
+            deep=True).reset_index(drop=True)
 
         # Search for best model
+        benchmark_options['dataset'] = dataset
         automl_class.search_best_model(df_train, target, benchmark_options)
 
         # Predict with test set
-        df_prediction = split_data.loc[test_idx].copy(deep=True)
+        df_prediction = split_data.loc[test_idx].copy(
+            deep=True).reset_index(drop=True)
         df_prediction['y_pred'] = automl_class.predict(df_prediction, target)
 
         # Format output dataset

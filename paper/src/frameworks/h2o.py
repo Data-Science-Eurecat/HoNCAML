@@ -17,7 +17,7 @@ class H2oClassification(base.BaseTask):
         """
         super().__init__()
         h2o.init()
-        self._optimize_metric = 'logloss'
+        self.optimize_metric = 'logloss'
 
     @staticmethod
     def preprocess_data(data: pd.DataFrame, target: str) -> pd.DataFrame:
@@ -85,7 +85,7 @@ class H2oRegression(base.BaseTask):
         Constructor method of derived class.
         """
         super().__init__()
-        self._optimize_metric = 'MAE'
+        self.optimize_metric = 'MAE'
         h2o.init()
 
     def search_best_model(
