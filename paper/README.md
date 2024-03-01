@@ -58,8 +58,10 @@ This will do the following:
 There are several considerations regarding the benchmark process:
 
 - It is expected to last 30 hours approximately, if done sequentially.
+- Not all frameworks supported metrics to optimize, and therefore other metrics
+  would be used for this specific frameworks.
 - It is designed in a way that avoids nested loopings in computing intensive
-  tasks (search for best model), leveraging /make/ tool.
+  tasks (search for best model), leveraging *make* tool.
 - Related to the previous point, if the process is stopped at any point,
   already generated files (both intermediate and final results) are not
   generated again.
@@ -67,7 +69,7 @@ There are several considerations regarding the benchmark process:
   in the paper, but the code is designed to be extended if needed.
 - There are frameworks with specific requirements in terms of input data;
   therefore, different preprocessing steps may apply to different
-  frameworks. This is detailed again in the paper.
+  frameworks.
 - In the long term, the objective is to include HoNCAML in the [AMLB
   benchmark](https://openml.github.io/automlbenchmark/index.html).
 - Not all frameworks ensure full reproducibility, as they do not provide a way
