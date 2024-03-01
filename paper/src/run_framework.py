@@ -44,7 +44,7 @@ def run_framework(
 
         print(f'Using split: {split}')
         split_data = data.loc[data['split'] == split].copy(deep=True)
-        split_data = split_data.drop(columns='split')
+        split_data = split_data.drop(columns='split').reset_index(drop=True)
 
         # Process data
         train_idx = split_data['train_test'] == 'train'
