@@ -70,7 +70,7 @@ class LightautomlClassification(base.BaseTask):
         Returns:
             y_test: Target array.
         """
-        y_pred = self.automl.predict(df_test).data[:, 0]
+        y_pred = self.automl.predict(df_test).data[:, 0].round()
         return y_pred
 
 
