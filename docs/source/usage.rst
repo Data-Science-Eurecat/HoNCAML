@@ -2,6 +2,11 @@
  Usage
 =======
 
+Requirements
+============
+
+To use HoNCAML, it is required to have Python >= 3.10.
+
 Install
 =======
 
@@ -61,8 +66,26 @@ a matter of executing it:
 
    honcaml -c {config_file}
 
-Depending on the pipeline type, the output may be a trained model,
-predictions, or benchmark results.
+For example, the following basic configuration would train a default model
+for classification and store it.
+
+.. code:: yaml
+
+    global:
+      problem_type: classification
+
+    steps:
+      data:
+        extract:
+          filepath: data/dataset.csv
+          target: class
+        transform:
+
+      model:
+        transform:
+          fit:
+        load:
+          filepath: default_model.sav
 
 GUI execution
 =============
