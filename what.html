@@ -49,15 +49,33 @@ automated machine learning pipelines, and specifically focused on finding the
 best model and hyperparameters for the problem at hand.</p>
 <section id="pipelines">
 <h2>Pipelines<a class="headerlink" href="#pipelines" title="Link to this heading">¶</a></h2>
-<p>There are three types of provided pipelines:</p>
+<p>There are three types of provided pipelines.</p>
+<section id="train">
+<h3>Train<a class="headerlink" href="#train" title="Link to this heading">¶</a></h3>
+<p>Train a specific model with the hyperparameters specified.</p>
 <ul class="simple">
-<li><p><strong>Train</strong>: Train a specific model with its hyperparameters given a
-dataset.</p></li>
-<li><p><strong>Predict</strong>: Given a dataset, use a specific model to predict the
-outcome.</p></li>
-<li><p><strong>Benchmark</strong>: Given a dataset, search for the best model and
-hyperparameters.</p></li>
+<li><p>Input: A dataset for the training.</p></li>
+<li><p>Output: The model object stored to disk.</p></li>
 </ul>
+</section>
+<section id="predict">
+<h3>Predict<a class="headerlink" href="#predict" title="Link to this heading">¶</a></h3>
+<p>Use a model to generate predictions for a specific dataset.</p>
+<ul class="simple">
+<li><p>Input: A dataset for the test, together with a model object.</p></li>
+<li><p>Output: A tabular file with the predictions.</p></li>
+</ul>
+</section>
+<section id="benchmark">
+<h3>Benchmark<a class="headerlink" href="#benchmark" title="Link to this heading">¶</a></h3>
+<p>Search for the best model and hyperparameters for the dataset at hand.</p>
+<ul class="simple">
+<li><p>Input: A dataset for the benchmark.</p></li>
+<li><p>Output: Main output is a configuration file with the best model and
+hyperparameters, and a tabular file with the results for all configurations
+tested.</p></li>
+</ul>
+</section>
 </section>
 <section id="focus">
 <h2>Focus<a class="headerlink" href="#focus" title="Link to this heading">¶</a></h2>
@@ -82,7 +100,6 @@ adapt to a specific use case that may be needed by an expert person.</p></li>
 </section>
 <section id="support">
 <h2>Support<a class="headerlink" href="#support" title="Link to this heading">¶</a></h2>
-<p>Python version should be &gt;= 3.10.</p>
 <p>Regarding each of the following concepts, HoNCAML supports specific sets
 of them; nevertheless, due to its nature, extend the library further
 should be not only feasible, but intuitive.</p>

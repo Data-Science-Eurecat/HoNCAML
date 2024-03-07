@@ -34,6 +34,10 @@
             
   <section id="usage">
 <h1>Usage<a class="headerlink" href="#usage" title="Link to this heading">¶</a></h1>
+<section id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Link to this heading">¶</a></h2>
+<p>To use HoNCAML, it is required to have Python &gt;= 3.10.</p>
+</section>
 <section id="install">
 <h2>Install<a class="headerlink" href="#install" title="Link to this heading">¶</a></h2>
 <p>To install HoNCAML, run: <cite>pip install honcaml</cite></p>
@@ -78,8 +82,25 @@ a matter of executing it:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">honcaml -c {config_file}</span>
 </pre></div>
 </div>
-<p>Depending on the pipeline type, the output may be a trained model,
-predictions, or benchmark results.</p>
+<p>For example, the following basic configuration would train a default model
+for classification and store it.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">global</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">problem_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">classification</span>
+
+<span class="nt">steps</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">data</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">extract</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">filepath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">data/dataset.csv</span>
+<span class="w">      </span><span class="nt">target</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">class</span>
+<span class="w">    </span><span class="nt">transform</span><span class="p">:</span>
+
+<span class="w">  </span><span class="nt">model</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">transform</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">fit</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">load</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">filepath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">default_model.sav</span>
+</pre></div>
+</div>
 </section>
 </section>
 <section id="gui-execution">
@@ -115,6 +136,7 @@ configuration file as well.</p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="what.html">What is HoNCAML</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#requirements">Requirements</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#install">Install</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#command-line-execution">Command line execution</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#gui-execution">GUI execution</a></li>
