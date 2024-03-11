@@ -20,7 +20,8 @@ class BaseTask(ABC):
         self.optimize_metric = None
 
     @staticmethod
-    def preprocess_data(data: pd.DataFrame, target: str) -> pd.DataFrame:
+    def preprocess_data(
+            data: pd.DataFrame, target: str, *args) -> pd.DataFrame:
         """
         Preprocess data for the type of problem, if needed.
 

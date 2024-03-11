@@ -21,7 +21,8 @@ class LightautomlClassification(base.BaseTask):
         super().__init__()
 
     @staticmethod
-    def preprocess_data(data: pd.DataFrame, target: str) -> pd.DataFrame:
+    def preprocess_data(
+            data: pd.DataFrame, target: str, *args) -> pd.DataFrame:
         """
         Preprocess data for autosklearn regression tasks.
 

@@ -20,7 +20,8 @@ class H2oClassification(base.BaseTask):
         self.optimize_metric = 'logloss'
 
     @staticmethod
-    def preprocess_data(data: pd.DataFrame, target: str) -> pd.DataFrame:
+    def preprocess_data(
+            data: pd.DataFrame, target: str, *args) -> pd.DataFrame:
         """
         Preprocess data for autosklearn regression tasks.
 

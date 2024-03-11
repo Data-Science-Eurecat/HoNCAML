@@ -1,0 +1,20 @@
+# This configuration file is an example of a basic benchmark configuration
+# Fill all keys before using it in a HoNCAML pipeline
+# Keys which need values are the ones with a commend above
+global:
+  # Specify one of the following: [regression, classification]
+  problem_type: regression
+
+steps:
+  data:
+    extract:
+      # Specify path of file containing input data
+      filepath: .dataset.csv
+      # *REQ*: Specify target column name
+      target: shares
+    transform:
+      encoding:
+        OHE: True
+
+    load:
+        filepath: .dataset.csv

@@ -21,7 +21,8 @@ class AutosklearnClassification(base.BaseTask):
         self.optimize_metric = autosklearn.metrics.f1_macro
 
     @staticmethod
-    def preprocess_data(data: pd.DataFrame, target: str) -> pd.DataFrame:
+    def preprocess_data(
+            data: pd.DataFrame, target: str, *args) -> pd.DataFrame:
         """
         Preprocess data for autosklearn regression tasks.
 
@@ -69,7 +70,8 @@ class AutosklearnRegression(base.BaseTask):
         self.optimize_metric = autosklearn.metrics.mean_absolute_error
 
     @staticmethod
-    def preprocess_data(data: pd.DataFrame, target: str) -> pd.DataFrame:
+    def preprocess_data(
+            data: pd.DataFrame, target: str, *args) -> pd.DataFrame:
         """
         Preprocess data for autosklearn regression tasks.
 

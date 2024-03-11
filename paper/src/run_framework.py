@@ -51,7 +51,8 @@ def run_framework(
         test_idx = split_data['train_test'] == 'test'
 
         split_data = split_data.drop(columns='train_test')
-        split_data = automl_class.preprocess_data(split_data, target)
+        split_data = automl_class.preprocess_data(
+            split_data, target, dataset)
 
         # Get training data
         df_train = split_data.loc[train_idx].copy(
