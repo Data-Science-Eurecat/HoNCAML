@@ -69,7 +69,7 @@ regression = {
         },
         "max_features": {
             "method": "choice",
-            "values": [1, "sqrt", "log2"]
+            "values": ["sqrt", "log2"]
         }
     },
     "sklearn.ensemble.GradientBoostingRegressor": {
@@ -91,7 +91,7 @@ regression = {
         },
         "max_features": {
             "method": "choice",
-            "values": [1.0, "sqrt", "log2"]
+            "values": ["sqrt", "log2"]
         }
     }
 }
@@ -169,7 +169,7 @@ classification = {
         },
         "max_features": {
             "method": "choice",
-            "values": [1, "sqrt", "log2"]
+            "values": ["sqrt", "log2"]
         }
     },
     "sklearn.ensemble.GradientBoostingClassifier": {
@@ -191,7 +191,7 @@ classification = {
         },
         "max_features": {
             "method": "choice",
-            "values": [1.0, "sqrt", "log2"]
+            "values": ["sqrt", "log2"]
         }
     }
 }
