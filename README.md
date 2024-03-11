@@ -15,11 +15,30 @@ Python knowledge is needed. There are two ways to define pipelines:
 
 ## Pipelines
 
-There are three types of provided pipelines:
+There are three types of provided pipelines.
 
-* **Train**: Train a specific model with its hyperparameters given a dataset.
-* **Predict**: Given a dataset, use a specific model to predict the outcome.
-* **Benchmark**: Given a dataset, search for the best model and hyperparameters.
+### Train
+
+Train a specific model with the hyperparameters specified.
+
+- Input: A dataset for the training.
+- Output: The model object stored to disk.
+
+## Predict
+
+Use a model to generate predictions for a specific dataset.
+
+- Input: A dataset for the test, together with a model object.
+- Output: A tabular file with the predictions.
+
+## Benchmark
+
+Search for the best model and hyperparameters for the dataset at hand.
+
+- Input: A dataset for the benchmark.
+- Output: Main output is a configuration file with the best model and
+  hyperparameters, and a tabular file with the results for all configurations
+  tested.
 
 ## Focus
 
@@ -43,8 +62,6 @@ range from:
   adapt to a specific use case that may be needed by an expert person.
 
 ## Support
-
-Python version should be >= 3.10.
 
 Regarding each of the following concepts, HoNCAML supports specific sets of
 them; nevertheless, due to its nature, extend the library further should be not
@@ -71,6 +88,10 @@ Regarding available models, the following are supported:
 
 * Sklearn models (ML)
 * Pytorch models (DL)
+
+## Requirements
+
+To use HoNCAML, it is required to have Python >= 3.10.
 
 ## Install
 
@@ -126,8 +147,26 @@ matter of executing it:
    honcaml -c {config_file}
    ```
 
-Depending on the pipeline type, the output may be a trained model, predictions,
-or benchmark results.
+For example, the following basic configuration would train a default model
+for classification and store it.
+
+    ```yaml
+    global:
+      problem_type: classification
+
+    steps:
+      data:
+        extract:
+          filepath: data/dataset.csv
+          target: class
+        transform:
+
+      model:
+        transform:
+          fit:
+        load:
+          filepath: default_model.sav
+    ```
 
 ## GUI execution
 

@@ -20,14 +20,33 @@ best model and hyperparameters for the problem at hand.
 Pipelines
 =========
 
-There are three types of provided pipelines:
+There are three types of provided pipelines.
 
-* **Train**: Train a specific model with its hyperparameters given a
-  dataset.
-* **Predict**: Given a dataset, use a specific model to predict the
-  outcome.
-* **Benchmark**: Given a dataset, search for the best model and
-  hyperparameters.
+Train
+-----
+
+Train a specific model with the hyperparameters specified.
+
+- Input: A dataset for the training.
+- Output: The model object stored to disk.
+
+Predict
+-------
+
+Use a model to generate predictions for a specific dataset.
+
+- Input: A dataset for the test, together with a model object.
+- Output: A tabular file with the predictions.
+
+Benchmark
+---------
+
+Search for the best model and hyperparameters for the dataset at hand.
+
+- Input: A dataset for the benchmark.
+- Output: Main output is a configuration file with the best model and
+  hyperparameters, and a tabular file with the results for all configurations
+  tested.
 
 Focus
 =====
@@ -53,8 +72,6 @@ range from:
 
 Support
 =======
-
-Python version should be >= 3.10.
 
 Regarding each of the following concepts, HoNCAML supports specific sets
 of them; nevertheless, due to its nature, extend the library further
