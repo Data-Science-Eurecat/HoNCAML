@@ -23,10 +23,11 @@ dist/
 # Exclude tags
 TAGS
 
-# Non-source docs
+# Non-source files
 *.pdf
 *.gif
 *.webm
+*.png
 
 # Paper main directories
 paper/data

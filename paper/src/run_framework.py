@@ -1,11 +1,10 @@
-import os
 import sys
+import time
 
 import pandas as pd
+
 from src import utils
-from src.parameters import (
-    DATASET_OPTIONS, BENCHMARK_OPTIONS
-)
+from src.parameters import BENCHMARK_OPTIONS, DATASET_OPTIONS
 
 
 def run_framework(
@@ -14,7 +13,8 @@ def run_framework(
     """
     Execute framework to get benchmark results for dataset. This is done by:
     1. Detect problem type related to dataset (regression, classification)
-    2. Read all splits. For each split, do the following:
+    2. Read all seeds and splits. For each combination of seed and split, do
+       the following:
       - Preprocess data if applies for the specified framework
       - Run the framework over the training set to obtain the best model
       - Use the test set and the trained model to predict values
@@ -36,45 +36,68 @@ def run_framework(
     automl_class = utils.retrieve_problem_class(
         framework, problem_type)
     data = pd.read_csv(input_file)
+    seeds = list(data['seed'].unique())
     splits = list(data['split'].unique())
 
     df_predictions = pd.DataFrame()
 
-    for split in splits:
+    for seed in seeds:
 
-        print(f'Using split: {split}')
-        split_data = data.loc[data['split'] == split].copy(deep=True)
-        split_data = split_data.drop(columns='split').reset_index(drop=True)
+        print(f'Using seed: {seed}')
+        seed_data = data.loc[data['seed'] == seed].copy(deep=True)
 
-        # Process data
-        train_idx = split_data['train_test'] == 'train'
-        test_idx = split_data['train_test'] == 'test'
+        for split in splits:
 
-        split_data = split_data.drop(columns='train_test')
-        split_data = automl_class.preprocess_data(
-            split_data, target, dataset)
+            print(f'Using split: {split}')
+            split_data = seed_data.loc[
+                seed_data['split'] == split].copy(deep=True)
+            split_data = split_data.drop(columns='split').reset_index(
+                drop=True)
 
-        # Get training data
-        df_train = split_data.loc[train_idx].copy(
-            deep=True).reset_index(drop=True)
+            # Process data
+            train_idx = split_data['train_test'] == 'train'
+            test_idx = split_data['train_test'] == 'test'
 
-        # Search for best model
-        benchmark_options['dataset'] = dataset
-        automl_class.search_best_model(df_train, target, benchmark_options)
+            split_data = split_data.drop(columns='train_test')
+            split_data = automl_class.preprocess_data(
+                split_data, target, dataset)
 
-        # Predict with test set
-        df_prediction = split_data.loc[test_idx].copy(
-            deep=True).reset_index(drop=True)
-        df_prediction['y_pred'] = automl_class.predict(df_prediction, target)
+            # Get training data
+            df_train = split_data.loc[train_idx].copy(
+                deep=True).reset_index(drop=True)
 
-        # Format output dataset
-        df_prediction['split'] = split
-        df_prediction = df_prediction.rename(columns={target: 'y_true'})
-        cols_output = ['split', 'y_true', 'y_pred']
-        df_prediction = df_prediction[cols_output]
+            # Search for best model
+            benchmark_options['dataset'] = dataset
+            benchmark_time = time.time()
+            automl_class.search_best_model(df_train, target, benchmark_options)
+            benchmark_time = time.time() - benchmark_time
 
-        # Append to predictions
-        df_predictions = pd.concat([df_predictions, df_prediction])
+            # Predict with test set
+            df_prediction = split_data.loc[test_idx].copy(
+                deep=True).reset_index(drop=True)
+            predict_time = time.time()
+            try:
+                df_prediction['y_pred'] = automl_class.predict(
+                    df_prediction, target)
+            except ValueError:
+                print('Error during prediction; passing')
+                df_prediction['y_pred'] = None
+            predict_time = time.time() - predict_time
+
+            # Format output dataset
+            df_prediction['split'] = split
+            df_prediction['benchmark_time'] = benchmark_time
+            df_prediction['predict_time'] = predict_time
+            df_prediction = df_prediction.rename(columns={target: 'y_true'})
+
+            # Append to predictions
+            df_prediction['seed'] = seed
+            df_predictions = pd.concat([df_predictions, df_prediction])
+
+        cols_output = [
+            'seed', 'split', 'benchmark_time', 'predict_time',
+            'y_true', 'y_pred']
+        df_predictions = df_predictions[cols_output]
 
     # Store file
     df_predictions.to_csv(output_file, index=None)

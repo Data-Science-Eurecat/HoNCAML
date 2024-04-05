@@ -1,4 +1,3 @@
-import numpy as np
 import pandas as pd
 from src import processing
 from src.frameworks import base
@@ -84,7 +83,7 @@ class AutosklearnRegression(base.BaseTask):
         data = processing.remove_non_numerical_features(data, target)
         return data
 
-        def search_best_model(
+    def search_best_model(
             self, df_train: pd.DataFrame, target: str,
             parameters: dict) -> None:
         """

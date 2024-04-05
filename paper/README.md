@@ -28,10 +28,10 @@ optimized is a single one:
 - For regression problems, the metric to be optimized is: *mean absolute error*.
 
 The benchmark is designed to take into account variability within a same
-framework when getting results. That is why not only several datasets are taken
-into account for the process, but for each of them there are several splits
-generated. Therefore, when obtaining results, both mean and variance of the
-metrics will be computed.
+framework when getting results. That is why not only several random seeds are
+taken into account for the process, but for each of them cross validation is
+performed. Therefore, when obtaining results, both mean and variance of the
+metrics will be analyzed.
 
 ## Execution
 
@@ -48,16 +48,20 @@ This will do the following:
 - Download all datasets from OpenML platform, in ARFF format
 - Convert all datasets to standard CSV format
 - Generate dataset splits
-- Execute all frameworks for all datasets. This means, for each split:
+- Generate all virtual environments (one for each framework)
+- Execute all frameworks for all datasets. This means, for each random seed,
+  and for each split:
   - Search for best model using the framework
   - Use the best model to predict values
-- Generate metrics for all frameworks and all datasets
+- Generate metrics for all frameworks, datasets, and seeds
+- Generate plots and summaries from main metrics
 
 ## Considerations
 
 There are several considerations regarding the benchmark process:
 
-- It is expected to last 30 hours approximately, if done sequentially.
+- It is expected to last between 10 and 30 hours approximately per framework,
+  with parameters as they are
 - Not all frameworks supported metrics to optimize, and therefore other metrics
   would be used for this specific frameworks.
 - It is designed in a way that avoids nested loopings in computing intensive

@@ -13,6 +13,7 @@ CONVERT_PATH = data/processed
 SPLITS_PATH = data/splits
 PREDICTIONS_PATH = predictions
 RESULTS_PATH = results
+PLOTS_PATH = plots
 FRAMEWORKS_PATH = src/frameworks
 
 # Generate auxiliary variables from defined ones
@@ -27,7 +28,7 @@ prediction_files = \
 result_files = $(foreach framework,$(FRAMEWORKS),$(RESULTS_PATH)/$(framework).csv)
 
 ## Specify targets
-.PHONY: global_env download convert split envs execute result clean
+.PHONY: global_env download convert split envs execute result plots clean
 
 # Default target: set up, download and convert data, and run benchmark
 all: global_env download convert split envs execute result
@@ -35,7 +36,7 @@ all: global_env download convert split envs execute result
 global_env: .venv/pyvenv.cfg
 
 .venv/pyvenv.cfg: requirements.txt
-	python3 -m venv $(GLOBAL_ENV_PATH)
+	python3.10 -m venv $(GLOBAL_ENV_PATH)
 	$(GLOBAL_ENV_PATH)/bin/pip install -r requirements.txt
 
 # Download all files
@@ -55,7 +56,7 @@ $(CONVERT_PATH)/%.csv: $(RAW_PATH)/%.arff
 split: $(split_files)
 # Rule to generate splits file by file
 $(SPLITS_PATH)/%.csv: $(CONVERT_PATH)/%.csv
-	$(GLOBAL_ENV_PATH)/bin/python -m src.generate_splits "$<" "$@"
+	$(GLOBAL_ENV_PATH)/bin/python -m src.split_data "$<" "$@"
 
 # Generate all environments
 envs: $(framework_envs)
@@ -85,6 +86,11 @@ $(RESULTS_PATH)/%.csv: $(PREDICTIONS_PATH)/%
 	${GLOBAL_ENV_PATH}/bin/python -m src.compute_metrics \
 		$(PREDICTIONS_PATH)/$* $(RESULTS_PATH)/$*.csv
 
+# Generate plots
+plots: result
+	mkdir -p $(PLOTS_PATH)
+	${GLOBAL_ENV_PATH}/bin/python -m src.generate_plots $(RESULTS_PATH) $(PLOTS_PATH)
+
 # Clean all information
 clean:
 	rm -rf $(ENV_PATH)/*
@@ -93,3 +99,4 @@ clean:
 	rm -rf $(SPLITS_PATH)/*.csv
 	rm -rf $(PREDICTIONS_PATH)/*/*.csv
 	rm -rf $(RESULTS_PATH)/*.csv
+	rm -rf $(PLOTS_PATH)
