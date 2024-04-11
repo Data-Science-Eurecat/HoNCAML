@@ -1,0 +1,19 @@
+global:
+  problem_type: classification
+steps:
+  data:
+    extract:
+      filepath: frameworks/Honcaml/dataset.csv
+      target: Target
+    transform:
+      encoding:
+        OHE: {}
+  benchmark:
+    transform:
+      tuner:
+        tune_config:
+          metric: roc_auc_score
+      metrics:
+      - roc_auc_score
+    load:
+      path: frameworks/Honcaml/results

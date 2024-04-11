@@ -1,0 +1,264 @@
+---
+#for doc purpose using <placeholder:default_value> syntax when it applies.
+
+# FORMAT:
+__dummy_framework_with_defaults:
+  version: ''
+  module: # defaults to `frameworks.framework_name`
+  setup_args: ''
+  params: {}
+  project: http://url/to/project/repo
+  image: # will result in built image `author/image:tag`
+    author: automlbenchmark
+    image:  # defaults to `framework name to lowercase`
+    tag:  # defaults to `framework version`
+
+
+#########################
+### AutoML frameworks ###
+#########################
+
+AutoGluon:
+  version: "stable"
+  description: |
+    AutoGluon-Tabular: Unlike existing AutoML frameworks that primarily focus on model/hyperparameter selection,
+    AutoGluon-Tabular succeeds by ensembling multiple models and stacking them in multiple layers.
+  project: https://auto.gluon.ai
+  refs: [https://arxiv.org/abs/2003.06505]
+#  params:
+#    _save_artifacts: ['leaderboard', 'models', 'info']
+
+AutoGluon_bestquality:
+  extends: AutoGluon
+  description: |
+    AutoGluon with 'best_quality' preset provides the most accurate overall predictor.
+    Refer to https://auto.gluon.ai/stable/tutorials/tabular_prediction/tabular-quickstart.html#presets for a description of the presets.
+  params:
+    presets: best_quality
+
+AutoGluon_hq:
+  extends: AutoGluon
+  description: |
+    AutoGluon with 'high_quality' preset provides a very strong predictor with 8x+ faster inference speed than 'best_quality'.
+    Refer to https://auto.gluon.ai/stable/tutorials/tabular_prediction/tabular-quickstart.html#presets for a description of the presets.
+  params:
+    presets: high_quality
+
+AutoGluon_gq:
+  extends: AutoGluon
+  description: |
+    AutoGluon with 'good_quality' preset provides a strong predictor with 16x+ faster inference speed than 'best_quality'.
+    Refer to https://auto.gluon.ai/stable/tutorials/tabular_prediction/tabular-quickstart.html#presets for a description of the presets.
+  params:
+    presets: good_quality
+
+autosklearn:
+  version: 'stable'
+  description: |
+    auto-sklearn frees a machine learning user from algorithm selection and hyperparameter tuning.
+    It leverages recent advantages in Bayesian optimization, meta-learning and ensemble construction.
+  project: https://automl.github.io/auto-sklearn/
+  refs: [http://papers.nips.cc/paper/5872-efficient-and-robust-automated-machine-learning.pdf]
+#  params:
+#    _save_artifacts: ['models', 'debug_as_files']
+#    _n_jobs: 1
+
+autosklearn2:
+  extends: autosklearn
+  params:
+    _askl2: true
+
+AutoWEKA:
+  version: 'stable'
+  description: |
+    Auto-WEKA considers the problem of simultaneously selecting a learning algorithm and setting its hyperparameters, going beyond previous methods that address these issues in isolation.
+    Auto-WEKA does this using a fully automated approach, leveraging recent innovations in Bayesian optimization.
+  project: https://www.cs.ubc.ca/labs/beta/Projects/autoweka/
+  refs: [https://www.cs.ubc.ca/labs/beta/Projects/autoweka/papers/16-599.pdf]
+
+autoxgboost:
+  removed: |
+    Autoxgboost is no longer supported. The last confirmed working version was at v2.0.2 with docker image 'automlbenchmark/autoxgboost:908631665f4c763d548ed203d48f05fe68613844-v2.0.2'.
+  description: |
+    autoxgboost aims to find an optimal xgboost model automatically using the machine learning framework mlr and the bayesian optimization framework mlrMBO.
+  project: https://github.com/ja-thomas/autoxgboost
+  refs: [https://arxiv.org/abs/1807.03873v2]
+
+flaml:
+  version: 'stable'
+  description: |
+    FLAML is a lightweight Python library that finds accurate machine learning models
+    automatically, efficiently and economically. It frees users from selecting learners
+    and hyperparameters for each learner. It is fast and cheap.
+  project: https://github.com/microsoft/FLAML
+  refs: [https://arxiv.org/pdf/1911.04706.pdf]
+
+GAMA:
+  version: 'stable'
+  description: |
+    GAMA tries to find a good machine learning pipeline.
+    For the machine learning pipeline GAMA considers data preprocessing steps, various machine learning algorithms, and their possible hyperparameters configurations.
+  project: https://github.com/PGijsbers/gama
+  refs: [https://joss.theoj.org/papers/10.21105/joss.01132]
+
+H2OAutoML:
+  version: 'stable'
+  description: |
+    H2O AutoML is a highly scalable, fully-automated, supervised learning algorithm
+    which automates the process of training a large selection of candidate models and stacked ensembles within a singlefunction.
+  project: http://docs.h2o.ai/h2o/latest-stable/h2o-docs/automl.html
+  refs: [https://www.automl.org/wp-content/uploads/2020/07/AutoML_2020_paper_61.pdf]
+
+hyperoptsklearn:
+  version: 'latest'
+  description: |
+    hyperopt-sklearn uses Hyperopt to define a search space that encompasses many standard Scikit-Learn components and common patterns of composing them together.
+  project: http://hyperopt.github.io/hyperopt-sklearn/
+  refs: [http://conference.scipy.org/proceedings/scipy2014/pdfs/komer.pdf]
+#  params:
+#    max_evals: 1000
+#    algo: hyperopt.tpe.suggest
+#    verbose: true
+
+lightautoml:
+  project: https://github.com/sberbank-ai-lab/LightAutoML
+  version: 'stable'
+  description: |
+    LightAutoML (LAMA) project from Sberbank AI Lab AutoML group is the framework for automatic classification and regression model creation.
+
+mljarsupervised:
+  version: 'stable'
+  description: |
+    AutoML mljar-supervised abstracts the common way to preprocess the data, construct the machine learning models, and perform hyper-parameters tuning to find the best model.
+  project: https://supervised.mljar.com/
+#  params:
+#    algorithms: ["Baseline"]
+#    _save_artifacts: True
+
+mljarsupervised_compete:
+  extends: mljarsupervised
+  description: "MLJAR is using 'Compete' mode to provide the most accurate predictor"
+  params:
+    mode: Compete   # set mode for Compete, default mode is Explain
+
+MLNet:
+  version: 'latest'
+  description: |
+    MLNET.CLI is a automated machine learning tool implemented by ml.net.
+
+MLPlan:
+  version: 'stable'
+  abstract: true
+  description: |
+    ML-Plan is an approach to AutoML based on hierarchical task networks (HTNs).
+  project: http://mlplan.org
+  refs: [https://doi.org/10.1007/s10994-018-5735-z]
+
+MLPlanSKLearn:
+  extends: MLPlan
+  params:
+    _backend: sklearn
+
+MLPlanWEKA:
+  extends: MLPlan
+  params:
+    _backend: weka
+
+mlr3automl:
+  version: 'stable'
+  project: https://github.com/a-hanf/mlr3automl
+
+NaiveAutoML:
+  version: 'stable'
+  project: https://github.com/fmohr/naiveautoml
+  description: |
+    NaiveAutoML is an AutoML framework that aims to mimic a simple ML workflow,
+    where in-isolation optimization of the different components of a pre-defined
+    pipeline scheme is applied.
+  refs: [https://link.springer.com/article/10.1007/s10994-022-06200-0#article-info]
+#  params:
+#    _save_artifacts: ['history, 'model']
+
+oboe:
+  version: 'latest'
+  description: |
+    oboe is an AutoML model selection system to select estimators or pipelines for a dataset.
+  project: https://github.com/udellgroup/oboe
+#  params:
+#    build_ensemble: false
+#    selection_method: random
+#    verbose: true
+
+TPOT:
+  version: 'stable'
+  description: |
+    TPOT is a Python Automated Machine Learning tool that optimizes machine learning pipelines using genetic programming.
+  project: https://github.com/EpistasisLab/tpot
+  refs:
+    - https://academic.oup.com/bioinformatics/article/36/1/250/5511404
+    - http://doi.acm.org/10.1145/2908812.2908918
+#  params:
+#    _save_artifacts: ['models']
+#    max_eval_time_mins: 2
+#    population_size: 25
+#    verbosity: 2
+
+FEDOT:
+  version: 'master'
+  description: |
+    FEDOT is a AutoML tool that optimizes composite machine learning pipelines using evolutionary optimisation.
+  project: https://github.com/aimclub/FEDOT
+  refs:
+    - https://doi.org/10.1016/j.future.2021.08.022
+#  params:
+#    _save_artifacts: ['leaderboard', 'models', 'info']
+
+Honcaml:
+  version: 'stable'
+  description: |
+    HoNCAML (Holistic No Code Automated Machine Learning) is a tool aimed to run automated
+    machine learning pipelines, and specifically focused on finding the best model and
+    hyperparameters for the problem at hand.
+  project: https://github.com/Data-Science-Eurecat/HoNCAML
+
+#######################################
+### Non AutoML reference frameworks ###
+#######################################
+
+constantpredictor:
+  description: |
+    Fast dummy classifier mainly used to test the app and/or datasets: this doesn't encode data.
+  project: https://scikit-learn.org/stable/modules/generated/sklearn.dummy.DummyClassifier.html
+
+DecisionTree:
+  version: 'stable'
+  description: |
+    A simple decision tree implementation (scikit-learn) used for testing or as a reference base.
+  project: https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html
+
+RandomForest:
+  version: 'stable'
+  description: |
+    A simple Random Forest implementation (scikit-learn) used for testing or as a reference base.
+  project: http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
+  params:
+    n_estimators: 2000
+#    _n_jobs: 1   # faster, fitter, happier (running OoM on some datasets when using multiprocessing)
+#    verbose: true
+
+ranger:
+  version: 'stable'
+  description: |
+    A Random Forest implementation on R, mainly used for testing and as an example of R integration.
+  project: https://github.com/imbs-hl/ranger
+
+TunedRandomForest:
+  version: 'stable'
+  description: |
+    A Tuned Random Forest implementation (scikit-learn) trying to optimize over max_features, and used as a reference base.
+  project: http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
+  params:
+    n_estimators: 2000
+#    _n_jobs: 1  # cf. RandomForest
+#    _tuning:
+#      n_estimators: 500
